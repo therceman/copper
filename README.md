@@ -1,6 +1,6 @@
 Copper is a **PHP Framework** based on [Symfony][1] with routing and simplified Controller -> View (Templating) system
 
-Copper can be used for WEB Tools development
+See [The Copper Skeleton][0] - a minimal and empty Copper project which you can base your new projects on
 
 Installation
 ------------
@@ -201,6 +201,7 @@ Controller module :: Methods and Classes
   * Instances
     * `$this->routes` - default instance
 
+[0]: https://github.com/rceman/copper_skeleton
 [1]: https://symfony.com
 [2]: https://github.com/symfony/routing/blob/3.4/Loader/Configurator/RoutingConfigurator.php
 [3]: https://github.com/rceman/copper/blob/master/src/Component/Templating/ViewOutput.php
