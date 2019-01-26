@@ -71,7 +71,7 @@ class ViewOutput
      */
     public function dump($value)
     {
-        return '<pre>'.$this->sanitizer->html_escape(print_r($value, true)).'</pre>';
+        return '<pre>' . $this->sanitizer->html_escape(print_r($value, true)) . '</pre>';
     }
 
 }

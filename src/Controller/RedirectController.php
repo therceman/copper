@@ -4,6 +4,11 @@ namespace Copper\Controller;
 
 class RedirectController extends AbstractController
 {
+    /**
+     * Removes all slashes from URL except last one
+     *
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
     public function removeTrailingSlashAction()
     {
         $pathInfo = $this->request->getPathInfo();

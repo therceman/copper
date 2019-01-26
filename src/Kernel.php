@@ -26,6 +26,13 @@ class Kernel
         $this->configureRoutes();
     }
 
+    /**
+     * Handles Request
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
     public function handle(Request $request)
     {
         $requestContext = new RequestContext();
@@ -48,6 +55,8 @@ class Kernel
     }
 
     /**
+     * Default Response for error
+     *
      * @param string $message The response message
      * @param int $status The response status code
      *
@@ -59,6 +68,8 @@ class Kernel
     }
 
     /**
+     * Configure route parameters
+     *
      * @param UrlMatcher $matcher
      * @param Request $request
      */
@@ -75,6 +86,8 @@ class Kernel
     }
 
     /**
+     * Returns Response from provided controller in routes configuration file
+     *
      * @param Request $request
      * @param RequestContext $requestContext
      *
@@ -107,6 +120,9 @@ class Kernel
         return $response;
     }
 
+    /**
+     *  Configure default and application routes from {APP|CORE}/config/routes.php
+     */
     protected function configureRoutes()
     {
         // Load default routes

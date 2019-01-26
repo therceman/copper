@@ -106,12 +106,19 @@ class ViewHandler
 
         $this->output = new ViewOutput();
     }
-    
+
+    /**
+     * Find template file in {APP|CORE}/templates
+     *
+     * @param $template
+     *
+     * @return string|null
+     */
     private function findTemplateFile($template)
     {
         $templateFolderPathArray = [
             'core' => dirname(__DIR__) . '/../../' . $this::TEMPLATES_FOLDER,
-            'app' => dirname($_SERVER['SCRIPT_FILENAME']) . '/../'. $this::TEMPLATES_FOLDER,
+            'app' => dirname($_SERVER['SCRIPT_FILENAME']) . '/../' . $this::TEMPLATES_FOLDER,
         ];
 
         $templateFilePath = null;
@@ -127,8 +134,11 @@ class ViewHandler
     }
 
     /**
-     * @param $key
-     * @param null $default
+     * Route parameter by key
+     *
+     * @param string $key
+     * @param string|null $default
+     *
      * @return string
      */
     public function route($key, $default = null)
@@ -136,26 +146,65 @@ class ViewHandler
         return $this->routeBag->get($key, $default);
     }
 
+    /**
+     * POST parameter by key
+     *
+     * @param string $key
+     * @param string|null $default
+     *
+     * @return string
+     */
     public function post($key, $default = null)
     {
         return $this->postBag->get($key, $default);
     }
 
+    /**
+     * GET parameter by key
+     *
+     * @param string $key
+     * @param string|null $default
+     *
+     * @return string
+     */
     public function query($key, $default = null)
     {
         return $this->queryBag->get($key, $default);
     }
 
+    /**
+     * Cookies parameter by key
+     *
+     * @param string $key
+     * @param string|null $default
+     *
+     * @return string
+     */
     public function cookies($key, $default = null)
     {
         return $this->cookiesBag->get($key, $default);
     }
 
+    /**
+     * Template parameter by key
+     *
+     * @param string $key
+     * @param string|null $default
+     *
+     * @return string
+     */
     public function data($key, $default = null)
     {
         return $this->dataBag->get($key, $default);
     }
 
+    /**
+     * Escape HTML code and output as string or formatted array
+     *
+     * @param string|array $value
+     *
+     * @return string
+     */
     public function out($value)
     {
         return is_array($value) ? $this->output->dump($value) : $this->output->text($value);

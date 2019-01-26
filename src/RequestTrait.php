@@ -38,6 +38,16 @@ trait RequestTrait
         }
     }
 
+    /**
+     * Returns the absolute URL (with scheme and host) for the given route.
+     * If schemeRelative is enabled, it'll create a scheme-relative URL
+     *
+     * @param $name
+     * @param array $parameters
+     * @param bool $schemeRelative
+     *
+     * @return string
+     */
     public function url($name, $parameters = [], $schemeRelative = false)
     {
         $type = ($schemeRelative) ? UrlGenerator::NETWORK_PATH : UrlGenerator::ABSOLUTE_URL;
@@ -45,6 +55,16 @@ trait RequestTrait
         return $this->generateRouteUrl($name, $parameters, $type);
     }
 
+    /**
+     * Returns the relative URL (without the scheme and host) for the given route.
+     * If relative is enabled, it'll create a path relative to the current path
+     *
+     * @param $name
+     * @param array $parameters
+     * @param bool $relative
+     *
+     * @return string
+     */
     public function path($name, $parameters = [], $relative = false)
     {
         $type = ($relative) ? UrlGenerator::RELATIVE_PATH : UrlGenerator::ABSOLUTE_PATH;
