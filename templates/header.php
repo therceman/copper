@@ -16,7 +16,6 @@
             line-height: 1.5;
             word-wrap: break-word;
         }
-
         code {
             font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, Courier, monospace;
             background-color: rgba(27, 31, 35, .05);
