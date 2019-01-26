@@ -1,0 +1,21 @@
+{
+  "name": "rceman/copper",
+  "description": "PHP Framework with basic templating and Symfony Routing system",
+  "require": {
+    "php": ">=5.6.3",
+    "ext-json": "*",
+    "symfony/http-foundation": "3.4",
+    "symfony/routing": "3.4",
+    "symfony/config": "3.4"
+  },
+  "authors": [
+    {
+      "name": "rceman"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Copper\\": "src/"
+    }
+  }
+}
