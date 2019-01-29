@@ -39,6 +39,22 @@ $kernel = new Copper\Kernel();
 $kernel->handle(Request::createFromGlobals())->send();
 ```
 
+create file **`/public/.htaccess`**
+```
+<IfModule mod_rewrite.c>
+    Options -MultiViews
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    <IfModule mod_alias.c>
+        RedirectMatch 302 ^/$ /index.php/
+    </IfModule>
+</IfModule>
+```
+
 Configuration (Advanced)
 ------------
 
