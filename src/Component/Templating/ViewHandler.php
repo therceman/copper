@@ -223,7 +223,7 @@ class ViewHandler
 
         ob_start();
 
-        if (!preg_match('/^[a-z0-9.\-_]+$/i', $template)) {
+        if (!preg_match('/^[a-z0-9\-_\/]+$/i', $template)) {
             return $this->error('Template name contains wrong characters.');
         }
 
