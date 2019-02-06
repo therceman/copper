@@ -16,6 +16,7 @@ use Symfony\Component\Config\FileLocator;
 
 class Kernel
 {
+    const CONFIG_FOLDER = 'config';
     const ROUTES_CONFIG_FILE = 'routes.php';
 
     /** @var RouteCollection */
@@ -24,6 +25,44 @@ class Kernel
     public function __construct()
     {
         $this->configureRoutes();
+    }
+
+    /**
+     * Returns client IP address
+     *
+     * @return string
+     */
+    public static function getIPAddress()
+    {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        } else {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
+
+        return $ip;
+    }
+
+    /**
+     * Returns path to project root directory
+     *
+     * @return string
+     */
+    public static function getProjectPath()
+    {
+        return dirname($_SERVER['SCRIPT_FILENAME']) . '/..';
+    }
+
+    /**
+     * Returns path to package root directory
+     *
+     * @return string
+     */
+    public static function getPackagePath()
+    {
+        return dirname(__DIR__);
     }
 
     /**
@@ -126,12 +165,12 @@ class Kernel
     protected function configureRoutes()
     {
         // Load default routes
-        $path = dirname(__DIR__) . '/config';
+        $path = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
         $loader = new PhpFileLoader(new FileLocator($path));
         $this->routes = $loader->load($this::ROUTES_CONFIG_FILE);
 
         // Load application routes
-        $path = dirname($_SERVER['SCRIPT_FILENAME']) . '/../config';
+        $path = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
         if (file_exists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
             $loader = new PhpFileLoader(new FileLocator($path));
             $this->routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
