@@ -139,7 +139,7 @@ class ViewHandler
      * @param string $key
      * @param string|null $default
      *
-     * @return string
+     * @return string|array
      */
     public function route($key, $default = null)
     {
@@ -152,7 +152,7 @@ class ViewHandler
      * @param string $key
      * @param string|null $default
      *
-     * @return string
+     * @return string|array
      */
     public function post($key, $default = null)
     {
@@ -165,7 +165,7 @@ class ViewHandler
      * @param string $key
      * @param string|null $default
      *
-     * @return string
+     * @return string|array
      */
     public function query($key, $default = null)
     {
@@ -178,7 +178,7 @@ class ViewHandler
      * @param string $key
      * @param string|null $default
      *
-     * @return string
+     * @return string|array
      */
     public function cookies($key, $default = null)
     {
@@ -191,7 +191,7 @@ class ViewHandler
      * @param string $key
      * @param string|null $default
      *
-     * @return string
+     * @return string|array
      */
     public function data($key, $default = null)
     {
