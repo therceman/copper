@@ -203,6 +203,7 @@ Controller module :: Methods and Classes
 ### Methods
 * `$this->render($view, $parameters = [])` - Returns a Response with rendered view
 * `$this->renderView($view, $parameters = [])` - Returns a rendered view
+* `$this->response($data, $status = 200, $headers = [])` - Returns a HTTP Response
 * `$this->json($data, $status = 200, $headers = [])` - Returns a JsonResponse that uses json_encode
 * `$this->redirectToRoute($route, $parameters = [], $status = 302)` - Returns a RedirectResponse to the given route
 * `$this->redirect($url, $status = 302)` - Returns a RedirectResponse to the given URL
