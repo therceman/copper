@@ -58,6 +58,20 @@ class AbstractController
 
         return $templateHandler->render($view);
     }
+    
+    /**
+     * Returns a HTTP Response
+     *
+     * @param mixed $data The response data
+     * @param int $status The status code to use for the Response
+     * @param array $headers Array of extra headers to add
+     *
+     * @return Response
+     */
+    protected function response($data, $status = 200, $headers = [])
+    {
+        return new Response($data, $status, $headers);
+    }
 
     /**
      * Returns a JsonResponse that uses json_encode.
