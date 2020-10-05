@@ -100,6 +100,8 @@ class ViewHandler
         $this->dataBag = new ParameterBag($parameters);
 
         $this->request_method = $request->getRealMethod();
+        $this->request_uri = $request->getUri();
+        
         $this->client_ip = $request->getClientIp();
         $this->controller_name = $request->attributes->get('_controller');
         $this->route_name = $request->attributes->get('_route');
