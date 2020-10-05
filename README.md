@@ -158,6 +158,7 @@ View (Templating) module :: Variables, Methods and Classes
 ----
 ### Variables
 * `$view->request_method`  - Request method GET or POST
+* `$view->request_uri`     - Request uri
 * `$view->client_ip`       - Client's IP address
 * `$view->controller_name` - Controller name
 * `$view->route_name`      - Route name
