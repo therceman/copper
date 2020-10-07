@@ -26,6 +26,27 @@ class Kernel
     {
         $this->configureRoutes();
     }
+    
+    /**
+     * Returns Base Uri
+     
+     * @param bool $relative
+     * @return string
+     */
+    public static function getBaseUri($relative = false)
+    {
+        $currentPath = $_SERVER['PHP_SELF'];
+        $pathInfo = pathinfo($currentPath);
+        $hostName = $_SERVER['HTTP_HOST'];
+        $protocol = $_SERVER['REQUEST_SCHEME'];
+
+        $path = $pathInfo['dirname'];
+
+        if ($relative)
+            return $path;
+        else
+            return $protocol . '://' . $hostName . $path;
+    }
 
     /**
      * Returns client IP address
