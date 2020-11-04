@@ -2,6 +2,8 @@
 
 namespace Copper\Controller;
 
+use Copper\Component\Auth\AuthHandler;
+use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\RequestTrait;
 
@@ -10,6 +12,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -23,12 +26,28 @@ class AbstractController
     protected $requestContext;
     /** @var RouteCollection */
     protected $routes;
+    /** @var Session */
+    protected $session;
+    /** @var FlashMessageHandler */
+    protected $flashMessage;
+    /** @var AuthHandler */
+    protected $auth;
 
-    function __construct($request, $requestContext, $routes)
+    /**
+     * AbstractController constructor.
+     * @param Request $request
+     * @param RequestContext $requestContext
+     * @param RouteCollection $routes
+     * @param AuthHandler $auth
+     * @param FlashMessageHandler $flashMessage
+     */
+    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, AuthHandler $auth, FlashMessageHandler $flashMessage)
     {
         $this->request = $request;
         $this->requestContext = $requestContext;
         $this->routes = $routes;
+        $this->flashMessage = $flashMessage;
+        $this->auth = $auth;
     }
 
     /**
@@ -54,11 +73,11 @@ class AbstractController
      */
     protected function renderView($view, $parameters = [])
     {
-        $templateHandler = new ViewHandler($this->request, $this->requestContext, $this->routes, $parameters);
+        $templateHandler = new ViewHandler($this->request, $this->requestContext, $this->routes, $this->flashMessage, $this->auth, $parameters);
 
         return $templateHandler->render($view);
     }
-    
+
     /**
      * Returns a HTTP Response
      *
@@ -114,4 +133,27 @@ class AbstractController
         return new RedirectResponse($url, $status);
     }
 
+
+    /**
+     * Redirects to authorization/login page with returnToRoute parameter as query string
+     * If User is authorized already - show forbidden page
+     *
+     * @param string $returnToRoute
+     *
+     * @return RedirectResponse|Response
+     */
+    protected function authForbid(string $returnToRoute = '')
+    {
+        $authConfig = $this->auth->config;
+
+        if ($this->auth->check() === true)
+            return $this->render($authConfig->forbiddenTemplate);
+
+        $parameters = [];
+
+        if ($returnToRoute !== '')
+            $parameters = [$authConfig->returnToRouteParam => $returnToRoute];
+
+        return $this->redirectToRoute($authConfig->loginRoute, $parameters);
+    }
 }

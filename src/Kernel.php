@@ -2,6 +2,9 @@
 
 namespace Copper;
 
+use Copper\Component\Auth\AuthHandler;
+use Copper\Component\Auth\AuthPhpFileLoader;
+use Copper\Component\FlashMessage\FlashMessageHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,18 +21,24 @@ class Kernel
 {
     const CONFIG_FOLDER = 'config';
     const ROUTES_CONFIG_FILE = 'routes.php';
+    const AUTH_CONFIG_FILE = 'auth.php';
 
     /** @var RouteCollection */
     protected $routes;
+    /** @var AuthHandler */
+    protected $auth;
+    /** @var FlashMessageHandler */
+    protected $flashMessage;
 
     public function __construct()
     {
         $this->configureRoutes();
+        $this->configureAuth();
+        $this->configureFlashMessage();
     }
-    
+
     /**
      * Returns Base Uri
-     
      * @param bool $relative
      * @return string
      */
@@ -166,7 +175,7 @@ class Kernel
             }
 
             // pass Templating and RequestContext initialized class to controller
-            $instance = new $controller[0]($request, $requestContext, $this->routes);
+            $instance = new $controller[0]($request, $requestContext, $this->routes, $this->auth, $this->flashMessage);
 
             $controller = [$instance, $controller[1]];
         }
@@ -196,5 +205,33 @@ class Kernel
             $loader = new PhpFileLoader(new FileLocator($path));
             $this->routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
         }
+    }
+
+    /**
+     *  Configure default and application auth from {APP|CORE}/config/auth.php
+     */
+    protected function configureAuth()
+    {
+        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
+        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
+
+        $loader = new AuthPhpFileLoader(new FileLocator($packagePath));
+        $packageAuthConfig = $loader->load($this::AUTH_CONFIG_FILE);
+
+        $projectAuthConfig = null;
+        if (file_exists($projectPath . '/' . $this::AUTH_CONFIG_FILE)) {
+            $loader = new AuthPhpFileLoader(new FileLocator($projectPath));
+            $projectAuthConfig = $loader->load($this::AUTH_CONFIG_FILE);
+        }
+
+        $this->auth = new AuthHandler($packageAuthConfig, $projectAuthConfig);
+    }
+
+    /**
+     * Initialize Flash Message
+     */
+    protected function configureFlashMessage()
+    {
+        $this->flashMessage = new FlashMessageHandler($this->auth->session);
     }
 }

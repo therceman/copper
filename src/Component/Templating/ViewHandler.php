@@ -2,9 +2,12 @@
 
 namespace Copper\Component\Templating;
 
+use Copper\Component\Auth\AuthHandler;
+use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\RequestTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -21,6 +24,14 @@ class ViewHandler
     protected $requestContext;
     /** @var RouteCollection */
     protected $routes;
+    /** @var Session */
+    protected $session;
+
+    /** @var FlashMessageHandler */
+    public $flashMessage;
+
+    /** @var AuthHandler */
+    public $auth;
 
     /**
      * Route parameters (/{page}).
@@ -65,6 +76,13 @@ class ViewHandler
     public $request_method;
 
     /**
+     * Request URI
+     *
+     * @var string
+     */
+    public $request_uri;
+
+    /**
      * Client's IP address
      *
      * @var null|string
@@ -88,7 +106,17 @@ class ViewHandler
     /** @var ViewOutput */
     public $output;
 
-    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, array $parameters)
+    /**
+     * ViewHandler constructor.
+     *
+     * @param Request $request
+     * @param RequestContext $requestContext
+     * @param RouteCollection $routes
+     * @param FlashMessageHandler $flashMessage
+     * @param AuthHandler $auth
+     * @param array $parameters
+     */
+    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, FlashMessageHandler $flashMessage, AuthHandler $auth, array $parameters)
     {
         $this->requestContext = $requestContext;
         $this->routes = $routes;
@@ -101,10 +129,13 @@ class ViewHandler
 
         $this->request_method = $request->getRealMethod();
         $this->request_uri = $request->getUri();
-        
+
         $this->client_ip = $request->getClientIp();
         $this->controller_name = $request->attributes->get('_controller');
         $this->route_name = $request->attributes->get('_route');
+
+        $this->flashMessage = $flashMessage;
+        $this->auth = $auth;
 
         $this->output = new ViewOutput();
     }

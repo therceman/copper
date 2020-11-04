@@ -25,3 +25,8 @@
         }
     </style>
 </head>
+
+<?php
+if ($view->auth->check())
+    echo 'Welcome, ' . $view->auth->user()->login;
+?>
