@@ -88,7 +88,7 @@ class AuthHandler
     public function user()
     {
         if ($this->check() === false)
-            return new AbstractUser(0, $this->session->getId(), AbstractUser::ROLE_GUEST);
+            return AbstractUser::fromArray(["login" => $this->session->getId(), "role" => AbstractUser::ROLE_GUEST]);
 
         return call_user_func_array($this->config->userHandlerClosure, [$this->id()]);
     }

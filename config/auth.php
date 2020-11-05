@@ -8,7 +8,11 @@ return function (AuthConfigurator $auth) {
     $adminLogin = 'root';
     $adminPassword = 'pass';
 
-    $adminUser = new AbstractUser(1, $adminLogin, AbstractUser::ROLE_ADMIN);
+    $adminUser = AbstractUser::fromArray([
+        "id" => 1,
+        "login" => $adminLogin,
+        "role" => AbstractUser::ROLE_ADMIN
+    ]);
 
     $auth->registerUserHandlerClosure(function ($id) use ($adminUser) {
         return ($id === 1) ? $adminUser : null;

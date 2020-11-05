@@ -3,8 +3,9 @@
 
 namespace Copper\Component\Auth;
 
+use Copper\Entity\AbstractEntity;
 
-class AbstractUser
+class AbstractUser extends AbstractEntity
 {
     const ROLE_ADMIN = 'admin';
     const ROLE_GUEST = 'guest';
@@ -15,25 +16,6 @@ class AbstractUser
     public $login;
     /** @var string */
     public $role;
-
-    /** @var string */
-    public $email;
-
-    /**
-     * AbstractUser constructor.
-     * @param int $id
-     * @param string $login
-     * @param string $role
-     * @param string $email
-     */
-    public function __construct(int $id, string $login, string $role, string $email = "")
-    {
-        $this->id = $id;
-        $this->login = $login;
-        $this->role = $role;
-
-        $this->email = $email;
-    }
 
     /**
      * @param array|string $role
