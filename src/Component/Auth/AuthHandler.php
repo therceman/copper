@@ -83,9 +83,11 @@ class AuthHandler
     /**
      * Get currently authorized user
      *
-     * @return AbstractUser|null
+     * @param string $entityClass
+     *
+     * @return AbstractUser|mixed|null
      */
-    public function user()
+    public function user($entityClass = '')
     {
         if ($this->check() === false)
             return AbstractUser::fromArray(["login" => $this->session->getId(), "role" => AbstractUser::ROLE_GUEST]);
