@@ -23,4 +23,11 @@ class AbstractEntity
 
         return $self;
     }
+
+    /**
+     * @return array
+     */
+    public function toArray() {
+        return (array) $this;
+    }
 }
