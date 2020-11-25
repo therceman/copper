@@ -89,10 +89,20 @@ class AuthHandler
      */
     public function user($entityClass = '')
     {
+        $isGuest = false;
+
         if ($this->check() === false)
+            $isGuest = true;
+
+        $user = call_user_func_array($this->config->userHandlerClosure, [$this->id()]);
+
+        if ($user === null)
+            $isGuest = true;
+
+        if ($isGuest === true)
             return AbstractUser::fromArray(["login" => $this->session->getId(), "role" => AbstractUser::ROLE_GUEST]);
 
-        return call_user_func_array($this->config->userHandlerClosure, [$this->id()]);
+        return $user;
     }
 
     /**
