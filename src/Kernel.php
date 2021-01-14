@@ -4,6 +4,8 @@ namespace Copper;
 
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\Auth\AuthPhpFileLoader;
+use Copper\Component\CP\CPHandler;
+use Copper\Component\CP\CPPhpFileLoader;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
@@ -25,6 +27,7 @@ class Kernel
     const ROUTES_CONFIG_FILE = 'routes.php';
     const AUTH_CONFIG_FILE = 'auth.php';
     const DB_CONFIG_FILE = 'db.php';
+    const CP_CONFIG_FILE = 'cp.php';
 
     /** @var RouteCollection */
     protected $routes;
@@ -34,6 +37,8 @@ class Kernel
     protected $flashMessage;
     /** @var DBHandler */
     protected $db;
+    /** @var CPHandler */
+    protected $cp;
 
     public function __construct()
     {
@@ -41,6 +46,7 @@ class Kernel
         $this->configureAuth();
         $this->configureFlashMessage();
         $this->configureDB();
+        $this->configureCP();
     }
 
     /**
@@ -181,7 +187,7 @@ class Kernel
             }
 
             // pass Templating and RequestContext initialized class to controller
-            $instance = new $controller[0]($request, $requestContext, $this->routes, $this->auth, $this->flashMessage, $this->db);
+            $instance = new $controller[0]($request, $requestContext, $this->routes, $this->auth, $this->flashMessage, $this->db, $this->cp);
 
             $controller = [$instance, $controller[1]];
         }
@@ -259,5 +265,30 @@ class Kernel
         }
 
         $this->db = new DBHandler($packageConfig, $projectConfig);
+    }
+
+    /**
+     *  Configure default and application Control Panel from {APP|CORE}/config/cp.php
+     */
+    protected function configureCP()
+    {
+        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
+        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
+
+        $loader = new CPPhpFileLoader(new FileLocator($packagePath));
+        $packageConfig = $loader->load($this::CP_CONFIG_FILE);
+
+        $projectConfig = null;
+        if (file_exists($projectPath . '/' . $this::CP_CONFIG_FILE)) {
+            $loader = new CPPhpFileLoader(new FileLocator($projectPath));
+            $projectConfig = $loader->load($this::CP_CONFIG_FILE);
+        }
+
+        $this->cp = new CPHandler($packageConfig, $projectConfig);
+
+        if ($this->cp->config->enabled === false) {
+            $this->routes->remove(ROUTE_get_copper_cp);
+            $this->routes->remove(ROUTE_post_copper_cp);
+        }
     }
 }

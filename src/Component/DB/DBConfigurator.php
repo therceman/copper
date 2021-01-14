@@ -6,14 +6,14 @@ namespace Copper\Component\DB;
 class DBConfigurator
 {
     /** @var string */
-    public $host = '';
+    public $host;
     /** @var string */
-    public $dbname = '';
+    public $dbname;
     /** @var string */
-    public $user = '';
+    public $user;
     /** @var string */
-    public $password = '';
+    public $password;
 
     /** @var string */
-    public $hashSalt = '1337';
+    public $hashSalt;
 }
