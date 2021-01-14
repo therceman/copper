@@ -35,7 +35,7 @@ abstract class DBModel
     {
         $field = new DBModelField($name, $type, $length);
 
-        $fields[] = $field;
+        $this->fields[] = $field;
 
         return $field;
     }

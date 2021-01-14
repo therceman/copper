@@ -2,11 +2,14 @@
 
 namespace Copper\Component\CP;
 
+use Copper\Component\CP\DB\DBService;
 use Copper\Controller\AbstractController;
+use Copper\Kernel;
 
 class CPController extends AbstractController
 {
     const ACTION_AUTHORIZE = 'authorize';
+    const ACTION_DB_MIGRATE = 'db_migrate';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -30,6 +33,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_LOGOUT:
                 return $this->logout();
+                break;
+            case self::ACTION_DB_MIGRATE:
+                return $this->db_migrate();
                 break;
         }
 
@@ -62,5 +68,15 @@ class CPController extends AbstractController
             $this->flashMessage->set('error', 'Wrong Auth');
 
         return $this->redirectToRoute(ROUTE_get_copper_cp);
+    }
+
+    private function db_migrate()
+    {
+        $result = DBService::migrate($this->db);
+
+        echo '<br>';
+        var_dump($result);
+
+        return $this->response(PHP_EOL . '<br>ok');
     }
 }

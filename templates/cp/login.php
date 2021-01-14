@@ -13,7 +13,7 @@ use Copper\Component\CP\CPController;
     <div style="color:red">Error: <?= $view->flashMessage->get('error') ?></div>
 <?php endif; ?>
 
-<form method="post" action="<?= $view->path(ROUTE_post_copper_cp, ['action' => CPController::ACTION_AUTHORIZE]) ?>">
+<form method="post" action="<?= $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_AUTHORIZE]) ?>">
     <input type="password" name="password">
     <button type="submit">Login</button>
 </form>

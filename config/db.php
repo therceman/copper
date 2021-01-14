@@ -10,5 +10,7 @@ return function (DBConfigurator $db) {
     $db->user = 'root';
     $db->password = 'pass';
 
+    $db->engine = 'InnoDB';
+
     $db->hashSalt = 'this_is_secret_salt__change_me';
 };

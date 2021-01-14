@@ -15,5 +15,8 @@ class DBConfigurator
     public $password;
 
     /** @var string */
+    public $engine;
+
+    /** @var string */
     public $hashSalt;
 }
