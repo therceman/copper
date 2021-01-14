@@ -4,6 +4,8 @@ namespace Copper;
 
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\Auth\AuthPhpFileLoader;
+use Copper\Component\DB\DBHandler;
+use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +24,7 @@ class Kernel
     const CONFIG_FOLDER = 'config';
     const ROUTES_CONFIG_FILE = 'routes.php';
     const AUTH_CONFIG_FILE = 'auth.php';
+    const DB_CONFIG_FILE = 'db.php';
 
     /** @var RouteCollection */
     protected $routes;
@@ -29,12 +32,15 @@ class Kernel
     protected $auth;
     /** @var FlashMessageHandler */
     protected $flashMessage;
+    /** @var DBHandler */
+    protected $db;
 
     public function __construct()
     {
         $this->configureRoutes();
         $this->configureAuth();
         $this->configureFlashMessage();
+        $this->configureDB();
     }
 
     /**
@@ -175,7 +181,7 @@ class Kernel
             }
 
             // pass Templating and RequestContext initialized class to controller
-            $instance = new $controller[0]($request, $requestContext, $this->routes, $this->auth, $this->flashMessage);
+            $instance = new $controller[0]($request, $requestContext, $this->routes, $this->auth, $this->flashMessage, $this->db);
 
             $controller = [$instance, $controller[1]];
         }
@@ -233,5 +239,25 @@ class Kernel
     protected function configureFlashMessage()
     {
         $this->flashMessage = new FlashMessageHandler($this->auth->session);
+    }
+
+    /**
+     *  Configure default and application database from {APP|CORE}/config/db.php
+     */
+    protected function configureDB()
+    {
+        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
+        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
+
+        $loader = new DBPhpFileLoader(new FileLocator($packagePath));
+        $packageConfig = $loader->load($this::DB_CONFIG_FILE);
+
+        $projectConfig = null;
+        if (file_exists($projectPath . '/' . $this::DB_CONFIG_FILE)) {
+            $loader = new DBPhpFileLoader(new FileLocator($projectPath));
+            $projectConfig = $loader->load($this::DB_CONFIG_FILE);
+        }
+
+        $this->db = new DBHandler($packageConfig, $projectConfig);
     }
 }

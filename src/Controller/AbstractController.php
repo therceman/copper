@@ -3,6 +3,7 @@
 namespace Copper\Controller;
 
 use Copper\Component\Auth\AuthHandler;
+use Copper\Component\DB\DBHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\RequestTrait;
@@ -32,6 +33,8 @@ class AbstractController
     protected $flashMessage;
     /** @var AuthHandler */
     protected $auth;
+    /** @var DBHandler */
+    protected $db;
 
     /**
      * AbstractController constructor.
@@ -40,14 +43,17 @@ class AbstractController
      * @param RouteCollection $routes
      * @param AuthHandler $auth
      * @param FlashMessageHandler $flashMessage
+     * @param DBHandler $db
      */
-    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, AuthHandler $auth, FlashMessageHandler $flashMessage)
+    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, AuthHandler $auth,
+                         FlashMessageHandler $flashMessage, DBHandler $db)
     {
         $this->request = $request;
         $this->requestContext = $requestContext;
         $this->routes = $routes;
         $this->flashMessage = $flashMessage;
         $this->auth = $auth;
+        $this->db = $db;
     }
 
     /**
