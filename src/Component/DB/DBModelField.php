@@ -164,11 +164,8 @@ class DBModelField
     /** @var string Type - const [*] */
     public $type;
 
-    /** @var bool|int (optional) Length */
+    /** @var bool|int|array (optional) Length or array of Values (if Type is ENUM) */
     public $length = false;
-
-    /** @var bool|array (optional) Values - used for ENUM */
-    public $values = false;
 
     /** @var string (optional) Default - value or const [DEFAULT_*] */
     public $default = self::DEFAULT_NONE;
@@ -187,11 +184,19 @@ class DBModelField
 
     /**
      * DBModelField constructor.
-     * @param $name string Name
+     * @param string $name string Name
+     * @param bool|string $type (optional) Type
+     * @param bool|int|array $length (optional) Length
      */
-    public function __construct(string $name)
+    public function __construct(string $name, $type = false, $length = false)
     {
         $this->name = $name;
+
+        if ($type !== false)
+            $this->type = $type;
+
+        if ($length !== false)
+            $this->length = $length;
     }
 
     /**
@@ -271,6 +276,14 @@ class DBModelField
     public function autoIncrement(bool $auto_increment = true): DBModelField
     {
         $this->auto_increment = $auto_increment;
+        return $this;
+    }
+
+    public function primary()
+    {
+        $this->auto_increment = true;
+        $this->index = self::INDEX_PRIMARY;
+
         return $this;
     }
 
