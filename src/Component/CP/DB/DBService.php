@@ -6,6 +6,7 @@ namespace Copper\Component\CP\DB;
 
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
+use Copper\Component\DB\DBModelField;
 use Copper\Kernel;
 
 class DBService
@@ -28,35 +29,45 @@ class DBService
 
         $query_start = 'CREATE ' . 'TABLE `' . $db->config->dbname . '`.`' . $model->tableName . '` ( ';
 
-        // process fields
         $fields = [];
+        $indexes = [DBModelField::INDEX_PRIMARY => [], DBModelField::INDEX_UNIQUE => []];
+
         foreach ($model->fields as $field) {
             $str = "`$field->name` $field->type";
 
+            if ($field->attr !== false)
+                $str .= ' ' . $field->attr . ' ';
+
             if ($field->length !== false)
-                $str .= "($field->length)";
+                $str .= '(' . (is_array($field->length) ? "'" . join("','", $field->length) . "'" : $field->length) . ')';
 
             $str .= ($field->null === false) ? " NOT NULL" : " NULL";
+
+            if ($field->default !== DBModelField::DEFAULT_NONE)
+                $str .= " DEFAULT " . (in_array($field->default, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
+                        ? $field->default : "'$field->default'");
 
             if ($field->auto_increment)
                 $str .= ' AUTO_INCREMENT';
 
             $fields[] = $str;
-        }
 
-        // process indexes
-        $indexes = [];
-        foreach ($model->fields as $field) {
-            // do nothing
+            if ($field->index !== false)
+                $indexes[$field->index][] = $field->name;
         }
 
         $query_fields = join(' , ', $fields);
 
-        //`id` SMALLINT NOT NULL AUTO_INCREMENT , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT NOT NULL , `email` VARCHAR(50) NOT NULL , PRIMARY KEY (`password`, `id`)) ENGINE = InnoDB;';
+        $query_index_list = [];
+        foreach ($indexes as $indexName => $indexList) {
+            if (count($indexList) > 0)
+                $query_index_list[] = $indexName . ' (`' . join('`, `', $indexList) . '`)';
+        }
+        $query_indexes = (count($query_index_list) > 0) ? ', ' . join(' , ', $query_index_list) : '';
 
         $query_end = ') ENGINE = ' . $db->config->engine . ';';
 
-        $query = $query_start . $query_fields . $query_end;
+        $query = $query_start . $query_fields . $query_indexes . $query_end;
 
         var_dump($query);
     }
@@ -79,8 +90,6 @@ class DBService
             $namespace = self::extractNamespaceFromFile($modelFolder . '/' . $file);
             $classNames[] = $namespace . '\\' . $model;
         }
-
-        var_dump($classNames);
 
         self::migrateClassName($classNames[0], $db);
 

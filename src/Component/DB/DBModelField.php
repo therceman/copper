@@ -147,8 +147,11 @@ class DBModelField
     // ============== Attributes ==============
 
     const ATTR_BINARY = 'BINARY';
+    /** Unsigned type can be used to permit only nonnegative numbers in a column or when you need a larger upper numeric range for the column. e.g. signed -127 to 127 , unsigned 0 to 255 */
     const ATTR_UNSIGNED = 'UNSIGNED';
+    /** Pads the displayed value of the field with zeros up to the display width specified in the column definition (Type), e.g. INT(8) will fill up to 7 zeros - 00000001 */
     const ATTR_UNSIGNED_ZEROFILL = 'UNSIGNED ZEROFILL';
+    /** Updates field value to current timestamp when on UPDATE */
     const ATTR_ON_UPDATE_CURRENT_TIMESTAMP = 'on update CURRENT_TIMESTAMP';
 
     // ============== Index ==============
@@ -206,6 +209,7 @@ class DBModelField
     public function type(string $type): DBModelField
     {
         $this->type = $type;
+
         return $this;
     }
 
@@ -216,16 +220,7 @@ class DBModelField
     public function length(int $length): DBModelField
     {
         $this->length = $length;
-        return $this;
-    }
 
-    /**
-     * @param array $values
-     * @return DBModelField
-     */
-    public function values(array $values): DBModelField
-    {
-        $this->values = $values;
         return $this;
     }
 
@@ -236,6 +231,10 @@ class DBModelField
     public function default(string $default): DBModelField
     {
         $this->default = $default;
+
+        if ($default === self::DEFAULT_NULL)
+            $this->null = true;
+
         return $this;
     }
 
@@ -246,6 +245,7 @@ class DBModelField
     public function attr(string $attr): DBModelField
     {
         $this->attr = $attr;
+
         return $this;
     }
 
@@ -256,6 +256,8 @@ class DBModelField
     public function null(bool $null = true): DBModelField
     {
         $this->null = $null;
+        $this->default = self::DEFAULT_NULL;
+
         return $this;
     }
 
@@ -266,6 +268,10 @@ class DBModelField
     public function index(string $index): DBModelField
     {
         $this->index = $index;
+
+        if ($index === self::INDEX_PRIMARY && strtolower($this->name) === 'id' && strpos($this->type, 'INT') !== false)
+            $this->autoIncrement(true);
+
         return $this;
     }
 
@@ -276,13 +282,67 @@ class DBModelField
     public function autoIncrement(bool $auto_increment = true): DBModelField
     {
         $this->auto_increment = $auto_increment;
+
         return $this;
     }
 
+    // ----------------- Shortcuts -----------------
+
     public function primary()
     {
-        $this->auto_increment = true;
-        $this->index = self::INDEX_PRIMARY;
+        $this->index(self::INDEX_PRIMARY);
+
+        return $this;
+    }
+
+    public function unique()
+    {
+        $this->index(self::INDEX_UNIQUE);
+
+        return $this;
+    }
+
+    public function nullByDefault()
+    {
+        $this->default(self::DEFAULT_NULL);
+
+        return $this;
+    }
+
+    public function currentTimestampByDefault()
+    {
+        $this->default(self::DEFAULT_CURRENT_TIMESTAMP);
+
+        return $this;
+    }
+
+    public function binary()
+    {
+        $this->attr(self::ATTR_BINARY);
+
+        return $this;
+    }
+
+    /** See description for ATTR_UNSIGNED */
+    public function unsigned()
+    {
+        $this->attr(self::ATTR_UNSIGNED);
+
+        return $this;
+    }
+
+    /** See description for ATTR_UNSIGNED_ZEROFILL */
+    public function zeroFill()
+    {
+        $this->attr(self::ATTR_UNSIGNED_ZEROFILL);
+
+        return $this;
+    }
+
+    /** See description for ATTR_ON_UPDATE_CURRENT_TIMESTAMP */
+    public function currentTimestampOnUpdate()
+    {
+        $this->attr(self::ATTR_ON_UPDATE_CURRENT_TIMESTAMP);
 
         return $this;
     }
