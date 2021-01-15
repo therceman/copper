@@ -8,6 +8,7 @@ use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
 use Copper\Kernel;
+use PDOException;
 
 class DBService
 {
@@ -22,15 +23,30 @@ class DBService
         return null;
     }
 
-    public static function migrateClassName(string $className, DBHandler $db)
+    private static function tableExists($tableName, DBHandler $db)
+    {
+        try {
+            $result = $db->pdo->query("SELECT 1 FROM $tableName LIMIT 1");
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return ($result !== false);
+    }
+
+    public static function migrateClassName(string $className, DBHandler $db, $force = false)
     {
         /** @var DBModel $model */
         $model = new $className();
 
-        $query_start = 'CREATE ' . 'TABLE `' . $db->config->dbname . '`.`' . $model->tableName . '` ( ';
+        if (self::tableExists($model->tableName, $db) && $force === false)
+            return ["status" => false, "msg" => "Table `$model->tableName` already exists and " . '$force' . " flag is not true"];
+
+        $query_start = 'CREATE ' . 'TABLE IF NOT EXISTS `' . $db->config->dbname . '`.`' . $model->tableName . '` ( ';
 
         $fields = [];
-        $indexes = [DBModelField::INDEX_PRIMARY => [], DBModelField::INDEX_UNIQUE => []];
+        $primaryIndexList = [];
+        $uniqueIndexList = [];
 
         foreach ($model->fields as $field) {
             $str = "`$field->name` $field->type";
@@ -52,29 +68,34 @@ class DBService
 
             $fields[] = $str;
 
-            if ($field->index !== false)
-                $indexes[$field->index][] = $field->name;
+            if ($field->index === DBModelField::INDEX_PRIMARY)
+                $primaryIndexList[] = $field->name;
+
+            if ($field->index === DBModelField::INDEX_UNIQUE)
+                $uniqueIndexList[] = "UNIQUE `$field->indexName` (`$field->name`)";
         }
 
         $query_fields = join(' , ', $fields);
 
-        $query_index_list = [];
-        foreach ($indexes as $indexName => $indexList) {
-            if (count($indexList) > 0)
-                $query_index_list[] = $indexName . ' (`' . join('`, `', $indexList) . '`)';
-        }
-        $query_indexes = (count($query_index_list) > 0) ? ', ' . join(' , ', $query_index_list) : '';
+        $query_primary_indexes = (count($primaryIndexList) > 0) ? ', PRIMARY KEY (`' . join('`, `', $primaryIndexList) . '`)' : '';
+        $query_unique_indexes = (count($uniqueIndexList) > 0) ? ', ' . join(', ', $uniqueIndexList) : '';
 
         $query_end = ') ENGINE = ' . $db->config->engine . ';';
 
-        $query = $query_start . $query_fields . $query_indexes . $query_end;
+        $query = $query_start . $query_fields . $query_primary_indexes . $query_unique_indexes . $query_end;
 
-        var_dump($query);
+        try {
+            $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
+            $db->pdo->exec($query);
+            return ["status" => true, "msg" => "Created `$model->tableName` Table"];
+        } catch (PDOException $e) {
+            return ["status" => false, "msg" => $e->getMessage()];
+        }
     }
 
     public static function migrate(DBHandler $db)
     {
-        $response = ["status" => false, "msg" => "Something Went Wrong"];
+        $response = ["status" => false, "result" => []];
 
         $modelFolder = Kernel::getProjectPath() . '/src/Model';
 
@@ -91,7 +112,9 @@ class DBService
             $classNames[] = $namespace . '\\' . $model;
         }
 
-        self::migrateClassName($classNames[0], $db);
+        foreach ($classNames as $className) {
+            $response["result"][$className] = self::migrateClassName($className, $db);
+        }
 
         return $response;
     }

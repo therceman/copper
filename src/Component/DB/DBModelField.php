@@ -182,6 +182,9 @@ class DBModelField
     /** @var bool|string (optional) Index - const [INDEX_*] */
     public $index = false;
 
+    /** @var bool|string (optional) Index Name for Unique Index */
+    public $indexName = false;
+
     /** @var bool (optional) Auto Increment - on INSERT when Type is *INT */
     public $auto_increment = false;
 
@@ -262,15 +265,21 @@ class DBModelField
     }
 
     /**
-     * @param string $index
+     * @param string $index Index
+     * @param bool $indexName (optional) Index Name for Unique Index
      * @return DBModelField
      */
-    public function index(string $index): DBModelField
+    public function index(string $index, $indexName = false): DBModelField
     {
         $this->index = $index;
 
         if ($index === self::INDEX_PRIMARY && strtolower($this->name) === 'id' && strpos($this->type, 'INT') !== false)
             $this->autoIncrement(true);
+
+        if ($indexName !== false)
+            $this->indexName = $indexName;
+        else
+            $this->indexName = 'index_' . $this->name;
 
         return $this;
     }
@@ -288,6 +297,9 @@ class DBModelField
 
     // ----------------- Shortcuts -----------------
 
+    /**
+     * @return $this
+     */
     public function primary()
     {
         $this->index(self::INDEX_PRIMARY);
@@ -295,13 +307,21 @@ class DBModelField
         return $this;
     }
 
-    public function unique()
+    /**
+     * @param bool|string $indexName (optional) Index Name for Unique Index
+     *
+     * @return $this
+     */
+    public function unique($indexName = false)
     {
-        $this->index(self::INDEX_UNIQUE);
+        $this->index(self::INDEX_UNIQUE, $indexName);
 
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function nullByDefault()
     {
         $this->default(self::DEFAULT_NULL);
@@ -309,6 +329,9 @@ class DBModelField
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function currentTimestampByDefault()
     {
         $this->default(self::DEFAULT_CURRENT_TIMESTAMP);
@@ -316,6 +339,9 @@ class DBModelField
         return $this;
     }
 
+    /**
+     * @return $this
+     */
     public function binary()
     {
         $this->attr(self::ATTR_BINARY);
@@ -323,7 +349,11 @@ class DBModelField
         return $this;
     }
 
-    /** See description for ATTR_UNSIGNED */
+    /**
+     * See description for ATTR_UNSIGNED
+     *
+     * @return $this
+     */
     public function unsigned()
     {
         $this->attr(self::ATTR_UNSIGNED);
@@ -331,7 +361,11 @@ class DBModelField
         return $this;
     }
 
-    /** See description for ATTR_UNSIGNED_ZEROFILL */
+    /**
+     * See description for ATTR_UNSIGNED_ZEROFILL
+     *
+     * @return $this
+     */
     public function zeroFill()
     {
         $this->attr(self::ATTR_UNSIGNED_ZEROFILL);
@@ -339,7 +373,11 @@ class DBModelField
         return $this;
     }
 
-    /** See description for ATTR_ON_UPDATE_CURRENT_TIMESTAMP */
+    /**
+     * See description for ATTR_ON_UPDATE_CURRENT_TIMESTAMP
+     *
+     * @return $this
+     */
     public function currentTimestampOnUpdate()
     {
         $this->attr(self::ATTR_ON_UPDATE_CURRENT_TIMESTAMP);

@@ -74,8 +74,7 @@ class CPController extends AbstractController
     {
         $result = DBService::migrate($this->db);
 
-        echo '<br>';
-        var_dump($result);
+        echo '<pre>'.print_r($result, true).'</pre>';
 
         return $this->response(PHP_EOL . '<br>ok');
     }
