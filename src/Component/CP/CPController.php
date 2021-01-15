@@ -78,4 +78,13 @@ class CPController extends AbstractController
 
         return $this->response(PHP_EOL . '<br>ok');
     }
+
+    private function db_seed()
+    {
+        $result = DBService::seed($this->db);
+
+        echo '<pre>'.print_r($result, true).'</pre>';
+
+        return $this->response(PHP_EOL . '<br>ok');
+    }
 }

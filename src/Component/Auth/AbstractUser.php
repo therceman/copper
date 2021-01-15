@@ -7,18 +7,24 @@ use Copper\Entity\AbstractEntity;
 
 class AbstractUser extends AbstractEntity
 {
-    const ROLE_ADMIN = 'admin';
-    const ROLE_GUEST = 'guest';
+    const ROLE_USER = 3;
+    const ROLE_ADMIN = 2;
+    const ROLE_SUPER_ADMIN = 1;
+    const ROLE_GUEST = 0;
 
     /** @var int */
     public $id;
     /** @var string */
     public $login;
     /** @var string */
+    public $password;
+    /** @var int */
     public $role;
 
     /**
-     * @param array|string $role
+     * @param array|int $role
+     *
+     * @return bool
      */
     public function hasRole($role)
     {

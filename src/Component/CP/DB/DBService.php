@@ -7,6 +7,7 @@ namespace Copper\Component\CP\DB;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
+use Copper\Entity\FunctionResponse;
 use Copper\Kernel;
 use PDOException;
 
@@ -34,13 +35,22 @@ class DBService
         return ($result !== false);
     }
 
+    /**
+     * @param string $className
+     * @param DBHandler $db
+     * @param bool $force
+     *
+     * @return FunctionResponse
+     */
     public static function migrateClassName(string $className, DBHandler $db, $force = false)
     {
+        $response = new FunctionResponse();
+
         /** @var DBModel $model */
         $model = new $className();
 
         if (self::tableExists($model->tableName, $db) && $force === false)
-            return ["status" => false, "msg" => "Table `$model->tableName` already exists and " . '$force' . " flag is not true"];
+            return $response->error("Table `$model->tableName` already exists and " . '$force' . " flag is not true");
 
         $query_start = 'CREATE ' . 'TABLE IF NOT EXISTS `' . $db->config->dbname . '`.`' . $model->tableName . '` ( ';
 
@@ -87,20 +97,23 @@ class DBService
         try {
             $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
             $db->pdo->exec($query);
-            return ["status" => true, "msg" => "Created `$model->tableName` Table"];
+            return $response->success("Created `$model->tableName` Table");
         } catch (PDOException $e) {
-            return ["status" => false, "msg" => $e->getMessage()];
+            return $response->error($e->getMessage());
         }
     }
 
-    public static function migrate(DBHandler $db)
+    /**
+     * @return FunctionResponse
+     */
+    public static function getModelClassNames()
     {
-        $response = ["status" => false, "result" => []];
+        $response = new FunctionResponse(true);
 
         $modelFolder = Kernel::getProjectPath() . '/src/Model';
 
         if (file_exists($modelFolder) === false)
-            $response['msg'] = 'Model Folder not found';
+            return $response->error('Model Folder not found');
 
         $modelFiles = array_diff(scandir($modelFolder), array('.', '..'));
 
@@ -112,10 +125,45 @@ class DBService
             $classNames[] = $namespace . '\\' . $model;
         }
 
-        foreach ($classNames as $className) {
-            $response["result"][$className] = self::migrateClassName($className, $db);
-        }
+        $response->success("ok", $classNames);
 
         return $response;
+    }
+
+    /**
+     * @param DBHandler $db
+     *
+     * @return FunctionResponse
+     */
+    public static function migrate(DBHandler $db)
+    {
+        $response = new FunctionResponse(true);
+
+        $modelClassNamesResponse = self::getModelClassNames();
+
+        if ($modelClassNamesResponse->hasError())
+            return $modelClassNamesResponse;
+
+        $migrateResponseHasError = false;
+
+        foreach ($modelClassNamesResponse->result as $className) {
+            $migrateResponse = self::migrateClassName($className, $db);
+            $response->result[$className] = $migrateResponse;
+
+            if ($migrateResponse->hasError())
+                $migrateResponseHasError = true;
+        }
+
+        if ($migrateResponseHasError)
+            $response->error('Full Migration Failed');
+        else
+            $response->success('Full Migration Completed!');
+
+        return $response;
+    }
+
+    public static function seed(DBHandler $db)
+    {
+
     }
 }
