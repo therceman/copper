@@ -43,9 +43,9 @@ class Kernel
     public function __construct()
     {
         $this->configureRoutes();
+        $this->configureDB();
         $this->configureAuth();
         $this->configureFlashMessage();
-        $this->configureDB();
         $this->configureCP();
     }
 
@@ -236,7 +236,7 @@ class Kernel
             $projectAuthConfig = $loader->load($this::AUTH_CONFIG_FILE);
         }
 
-        $this->auth = new AuthHandler($packageAuthConfig, $projectAuthConfig);
+        $this->auth = new AuthHandler($packageAuthConfig, $projectAuthConfig, $this->db);
     }
 
     /**
@@ -288,7 +288,7 @@ class Kernel
 
         if ($this->cp->config->enabled === false) {
             $this->routes->remove(ROUTE_get_copper_cp);
-            $this->routes->remove(ROUTE_post_copper_cp);
+            $this->routes->remove(ROUTE_copper_cp_action);
         }
     }
 }

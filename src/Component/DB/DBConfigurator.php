@@ -5,6 +5,9 @@ namespace Copper\Component\DB;
 
 class DBConfigurator
 {
+    /** @var bool */
+    public $enabled;
+
     /** @var string */
     public $host;
     /** @var string */

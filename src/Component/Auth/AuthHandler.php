@@ -2,6 +2,7 @@
 
 namespace Copper\Component\Auth;
 
+use Copper\Component\DB\DBHandler;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class AuthHandler
@@ -12,17 +13,22 @@ class AuthHandler
     public $session;
     /** @var AuthConfigurator */
     public $config;
+    /** @var DBHandler */
+    public $db;
 
     /**
      * AuthHandler constructor.
      *
-     * @param AuthConfigurator $projectAuthConfig
      * @param AuthConfigurator $packageAuthConfig
+     * @param AuthConfigurator $projectAuthConfig
+     * @param DBHandler $db
      */
-    public function __construct(AuthConfigurator $packageAuthConfig, AuthConfigurator $projectAuthConfig = null)
+    public function __construct(AuthConfigurator $packageAuthConfig, AuthConfigurator $projectAuthConfig = null, DBHandler $db = null)
     {
         $this->session = new Session();
         $this->session->start();
+
+        $this->db = $db;
 
         $this->config = $this->mergeConfig($packageAuthConfig, $projectAuthConfig);
     }
@@ -94,7 +100,7 @@ class AuthHandler
         if ($this->check() === false)
             return $guestUser;
 
-        $user = call_user_func_array($this->config->userHandlerClosure, [$this->id()]);
+        $user = call_user_func_array($this->config->userHandlerClosure, [$this->id(), $this->db]);
 
         if ($user === null)
             return $guestUser;
@@ -111,7 +117,7 @@ class AuthHandler
      */
     public function validate(string $login, string $password)
     {
-        return call_user_func_array($this->config->validateHandlerClosure, [$login, $password]);
+        return call_user_func_array($this->config->validateHandlerClosure, [$login, $password, $this->db]);
     }
 
 }

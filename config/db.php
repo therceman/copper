@@ -5,6 +5,9 @@ use Copper\Component\DB\DBConfigurator;
 
 return function (DBConfigurator $db) {
 
+    // Enable / Disable DB support
+    $db->enabled = false;
+
     $db->host = 'localhost';
     $db->dbname = '';
     $db->user = 'root';

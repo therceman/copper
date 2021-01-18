@@ -31,7 +31,7 @@ class DBHandler
 
     private function init()
     {
-        if (trim($this->config->dbname) === '')
+        if (trim($this->config->dbname) === '' || $this->config->enabled === false)
             return;
 
         $dsn = 'mysql:host=' . $this->config->host . ';dbname=' . $this->config->dbname;
@@ -56,8 +56,13 @@ class DBHandler
         return $packageConfig;
     }
 
+    public static function hashWithSalt($str, $salt)
+    {
+        return md5($salt . $str);
+    }
+
     public function hash($str)
     {
-        return md5($this->config->hashSalt . $str);
+        return self::hashWithSalt($str, $this->config->hashSalt);
     }
 }
