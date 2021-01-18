@@ -151,7 +151,7 @@ class DBService
         }
     }
 
-    private static function getClassNames($folder)
+    public static function getClassNames($folder)
     {
         $response = new FunctionResponse(true);
 

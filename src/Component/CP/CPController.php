@@ -4,6 +4,8 @@ namespace Copper\Component\CP;
 
 use Copper\Component\CP\DB\DBService;
 use Copper\Controller\AbstractController;
+use Copper\Entity\AbstractEntity;
+use Copper\Entity\FunctionResponse;
 use Copper\Kernel;
 
 class CPController extends AbstractController
@@ -11,6 +13,7 @@ class CPController extends AbstractController
     const ACTION_AUTHORIZE = 'authorize';
     const ACTION_DB_MIGRATE = 'db_migrate';
     const ACTION_DB_SEED = 'db_seed';
+    const ACTION_DB_GEN_MODEL_FIELDS = 'gen_model_fields';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -23,7 +26,9 @@ class CPController extends AbstractController
         if ($this->hasAccess() === false)
             return $this->render('cp/login');
 
-        return $this->render('cp/index');
+        $entity_list = DBService::getClassNames('Entity')->result;
+
+        return $this->render('cp/index', ['entity_list' => $entity_list]);
     }
 
     public function postAction($action)
@@ -40,6 +45,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_SEED:
                 return $this->db_seed();
+                break;
+            case self::ACTION_DB_GEN_MODEL_FIELDS:
+                return $this->db_gen_model_fields();
                 break;
         }
 
@@ -78,7 +86,7 @@ class CPController extends AbstractController
     {
         $result = DBService::migrate($this->db);
 
-        echo '<pre>'.print_r($result, true).'</pre>';
+        echo '<pre>' . print_r($result, true) . '</pre>';
 
         return $this->response(PHP_EOL . '<br>ok');
     }
@@ -87,7 +95,31 @@ class CPController extends AbstractController
     {
         $result = DBService::seed($this->db);
 
-        echo '<pre>'.print_r($result, true).'</pre>';
+        echo '<pre>' . print_r($result, true) . '</pre>';
+
+        return $this->response(PHP_EOL . '<br>ok');
+    }
+
+    private function db_gen_model_fields()
+    {
+        $result = new FunctionResponse();
+
+        $className = $this->request->get('class_name');
+
+        /** @var AbstractEntity $entity */
+        $entity = new $className();
+
+        $fields = $entity->toArray();
+
+        $out = "\r\n\r\n";
+
+        foreach ($fields as $fieldKey => $fieldValue) {
+            $out .= 'const ' . strtoupper($fieldKey) . " = '$fieldKey';\r\n";
+        }
+
+        $result->success("ok", $out);
+
+        echo '<pre>' . print_r($result, true) . '</pre>';
 
         return $this->response(PHP_EOL . '<br>ok');
     }
