@@ -79,7 +79,7 @@ class DBService
             $db->pdo->exec($query);
             return $response->success("Seeded `$model->tableName` Table");
         } catch (PDOException $e) {
-            return $response->error($e->getMessage());
+            return $response->error($e->getMessage(), $query);
         }
     }
 

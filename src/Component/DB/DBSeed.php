@@ -38,7 +38,7 @@ abstract class DBSeed
         $seedData = [];
         foreach ($model->fields as $field) {
             if (array_key_exists($field->name, $entityFields) === false)
-                return;
+                continue;
 
             $value = $entityFields[$field->name];
 
