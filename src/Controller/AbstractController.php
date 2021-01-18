@@ -118,6 +118,37 @@ class AbstractController
     }
 
     /**
+     * Dumps data in formatted style
+     *
+     * @param mixed $data
+     *
+     * @return string
+     */
+    protected function dump($data, $echo = true)
+    {
+        $dump = "<pre>" . print_r($data, true) . "</pre>";
+
+        if ($echo === true)
+            echo $dump;
+
+        return $dump;
+    }
+
+    /**
+     * Dumps data in formatted style as response
+     *
+     * @param mixed $data
+     * @param int $status
+     * @param array $headers
+     *
+     * @return Response
+     */
+    protected function dump_response($data, $status = 200, $headers = [])
+    {
+        return new Response($this->dump($data, false), $status, $headers);
+    }
+
+    /**
      * Returns a RedirectResponse to the given route with the given parameters.
      *
      * @param string $route The name of the route
