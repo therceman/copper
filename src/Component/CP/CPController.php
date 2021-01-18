@@ -10,6 +10,7 @@ class CPController extends AbstractController
 {
     const ACTION_AUTHORIZE = 'authorize';
     const ACTION_DB_MIGRATE = 'db_migrate';
+    const ACTION_DB_SEED = 'db_seed';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -36,6 +37,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_MIGRATE:
                 return $this->db_migrate();
+                break;
+            case self::ACTION_DB_SEED:
+                return $this->db_seed();
                 break;
         }
 

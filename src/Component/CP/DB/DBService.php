@@ -7,6 +7,7 @@ namespace Copper\Component\CP\DB;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
+use Copper\Component\DB\DBSeed;
 use Copper\Entity\FunctionResponse;
 use Copper\Kernel;
 use PDOException;
@@ -33,6 +34,53 @@ class DBService
         }
 
         return ($result !== false);
+    }
+
+    private static function tableEmpty($tableName, DBHandler $db)
+    {
+        try {
+            $result = $db->pdo->query("SELECT EXISTS (SELECT 1 FROM $tableName)");
+            $result = ($result->fetchAll()[0][0] === '0');
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return ($result !== false);
+    }
+
+    public static function seedClassName(string $className, DBHandler $db, $force = false)
+    {
+        $response = new FunctionResponse();
+
+        /** @var DBSeed $seed */
+        $seed = new $className();
+        /** @var DBModel $model */
+        $model = new $seed->modelClassName();
+
+        if (self::tableEmpty($model->tableName, $db) === false && $force === false)
+            return $response->error("Table `$model->tableName` already seeded and " . '$force' . " flag is not true");
+
+        $query = 'INSERT INTO ' . $model->tableName . '(' . join(', ', $model->getFieldNames()) . ') VALUES ';
+
+        $query_values = [];
+
+        foreach ($seed->seeds as $seedValueList) {
+            $values = [];
+            foreach ($seedValueList as $value) {
+                $values[] = $value;
+            }
+            $query_values[] = '(' . join(', ', $values) . ')';
+        }
+
+        $query = $query . join(', ', $query_values);
+
+        try {
+            $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
+            $db->pdo->exec($query);
+            return $response->success("Seeded `$model->tableName` Table");
+        } catch (PDOException $e) {
+            return $response->error($e->getMessage());
+        }
     }
 
     /**
@@ -103,17 +151,14 @@ class DBService
         }
     }
 
-    /**
-     * @return FunctionResponse
-     */
-    public static function getModelClassNames()
+    private static function getClassNames($folder)
     {
         $response = new FunctionResponse(true);
 
-        $modelFolder = Kernel::getProjectPath() . '/src/Model';
+        $modelFolder = Kernel::getProjectPath() . '/src/' . $folder;
 
         if (file_exists($modelFolder) === false)
-            return $response->error('Model Folder not found');
+            return $response->error("[$folder] Folder not found");
 
         $modelFiles = array_diff(scandir($modelFolder), array('.', '..'));
 
@@ -128,6 +173,22 @@ class DBService
         $response->success("ok", $classNames);
 
         return $response;
+    }
+
+    /**
+     * @return FunctionResponse
+     */
+    public static function getModelClassNames()
+    {
+        return self::getClassNames('Model');
+    }
+
+    /**
+     * @return FunctionResponse
+     */
+    public static function getSeedClassNames()
+    {
+        return self::getClassNames('Seed');
     }
 
     /**
@@ -164,6 +225,28 @@ class DBService
 
     public static function seed(DBHandler $db)
     {
+        $response = new FunctionResponse(true);
 
+        $seedClassNamesResponse = self::getSeedClassNames();
+
+        if ($seedClassNamesResponse->hasError())
+            return $seedClassNamesResponse;
+
+        $seedResponseHasError = false;
+
+        foreach ($seedClassNamesResponse->result as $className) {
+            $seedResponse = self::seedClassName($className, $db);
+            $response->result[$className] = $seedResponse;
+
+            if ($seedResponse->hasError())
+                $seedResponseHasError = true;
+        }
+
+        if ($seedResponseHasError)
+            $response->error('Full Seeding Failed');
+        else
+            $response->success('Full Seeding Completed!');
+
+        return $response;
     }
 }

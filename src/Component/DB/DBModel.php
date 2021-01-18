@@ -12,14 +12,24 @@ abstract class DBModel
     /** @var DBModelField[] */
     public $fields = [];
 
-    abstract function setTableName();
+    abstract function getTableName();
 
     abstract function setFields();
 
     public function __construct()
     {
-        $this->setTableName();
+        $this->tableName = $this->getTableName();
         $this->setFields();
+    }
+
+    public function getFieldNames() {
+        $names = [];
+
+        foreach ($this->fields as $field) {
+            $names[] = $field->name;
+        }
+
+        return $names;
     }
 
     /**
