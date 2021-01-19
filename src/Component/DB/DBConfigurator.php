@@ -22,4 +22,7 @@ class DBConfigurator
 
     /** @var string */
     public $hashSalt;
+
+    /** @var string */
+    public $timezone;
 }

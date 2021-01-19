@@ -16,4 +16,6 @@ return function (DBConfigurator $db) {
     $db->engine = 'InnoDB';
 
     $db->hashSalt = 'this_is_secret_salt__change_me';
+
+    $db->timezone = 'Europe/Riga';
 };

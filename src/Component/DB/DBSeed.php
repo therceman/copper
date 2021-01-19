@@ -30,32 +30,10 @@ abstract class DBSeed
      */
     public function seed(AbstractEntity $entity)
     {
-        $entityFields = $entity->toArray();
-
         /** @var DBModel $model */
         $model = new $this->modelClassName();
 
-        $seedData = [];
-        foreach ($model->fields as $field) {
-            if (array_key_exists($field->name, $entityFields) === false)
-                continue;
-
-            $value = $entityFields[$field->name];
-
-            if (is_string($value))
-                $value = "'$value'";
-
-            if ($value === null && in_array($field->type, [$field::DATETIME, $field::DATE]) && $field->null !== true)
-                $value = 'now()';
-
-            if ($value === null && $field->type === $field::YEAR && $field->null !== true)
-                $value = 'YEAR(CURDATE())';
-
-            if ($value === null)
-                $value = 'NULL';
-
-            $seedData[] = $value;
-        }
+        $seedData = $model->getFieldValuesFromEntity($entity);
 
         $this->seeds[] = $seedData;
     }

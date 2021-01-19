@@ -25,7 +25,7 @@ class DBHandler
     public function __construct(DBConfigurator $packageConfig, DBConfigurator $projectConfig = null)
     {
         $this->config = $this->mergeConfig($packageConfig, $projectConfig);
-
+        date_default_timezone_set($this->config->timezone);
         $this->init();
     }
 

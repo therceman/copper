@@ -12,8 +12,6 @@ class AbstractUser extends AbstractEntity
     const ROLE_SUPER_ADMIN = 1;
     const ROLE_GUEST = 0;
 
-    /** @var int */
-    public $id;
     /** @var string */
     public $login;
     /** @var string */

@@ -4,6 +4,9 @@ namespace Copper\Entity;
 
 class AbstractEntity
 {
+    /** @var int */
+    public $id;
+
     /**
      * @param null|$array
      *
