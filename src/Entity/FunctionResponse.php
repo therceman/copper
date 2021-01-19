@@ -13,15 +13,11 @@ class FunctionResponse
     /** @var mixed */
     public $result;
 
-    /** @var bool */
-    public $result_is_array;
-
-    public function __construct($result_is_array = false)
+    public function __construct($status = false, $msg = '', $result = [])
     {
-        $this->status = false;
-        $this->msg = '';
-        $this->result = ($result_is_array === true) ? [] : null;
-        $this->result_is_array = $result_is_array;
+        $this->status = $status;
+        $this->msg = $msg;
+        $this->result = $result;
     }
 
     /**

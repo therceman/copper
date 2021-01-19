@@ -66,9 +66,17 @@ class DBService
 
         foreach ($seed->seeds as $seedValueList) {
             $values = [];
+
             foreach ($seedValueList as $value) {
+                if (is_string($value))
+                    $value = "'" . str_replace("'", "''", $value) . "'";
+
+                if ($value === null)
+                    $value = 'NULL';
+
                 $values[] = $value;
             }
+
             $query_values[] = '(' . join(', ', $values) . ')';
         }
 
@@ -153,7 +161,7 @@ class DBService
 
     public static function getClassNames($folder)
     {
-        $response = new FunctionResponse(true);
+        $response = new FunctionResponse();
 
         $modelFolder = Kernel::getProjectPath() . '/src/' . $folder;
 
@@ -198,7 +206,7 @@ class DBService
      */
     public static function migrate(DBHandler $db)
     {
-        $response = new FunctionResponse(true);
+        $response = new FunctionResponse();
 
         $modelClassNamesResponse = self::getModelClassNames();
 
@@ -225,7 +233,7 @@ class DBService
 
     public static function seed(DBHandler $db)
     {
-        $response = new FunctionResponse(true);
+        $response = new FunctionResponse();
 
         $seedClassNamesResponse = self::getSeedClassNames();
 

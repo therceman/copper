@@ -5,9 +5,19 @@ namespace Copper\Component\DB;
 
 
 use Copper\Entity\AbstractEntity;
+use Copper\Entity\FunctionResponse;
 
 abstract class DBModel
 {
+    const ID = 'id';
+    
+    // State Fields Support
+
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+    const REMOVED_AT = 'removed_at';
+    const ENABLED = 'enabled';
+
     /** @var string */
     public $tableName = '';
 
@@ -36,6 +46,30 @@ abstract class DBModel
     }
 
     /**
+     * Check if model has required fields, else return error with missing fields list
+     *
+     * @param array $fieldNames
+     *
+     * @return FunctionResponse
+     */
+    public function hasFields(array $fieldNames)
+    {
+        $response = new FunctionResponse();
+
+        $missingFields = [];
+
+        foreach ($fieldNames as $field) {
+            if (array_search($field, $this->getFieldNames()) === false)
+                $missingFields[] = $field;
+        }
+
+        if (count($missingFields) > 0)
+            return $response->fail('Model has missing fields', $missingFields);
+
+        return $response->ok();
+    }
+
+    /**
      * Add Field to Model
      *
      * @param string $name (optional)Name
@@ -51,6 +85,14 @@ abstract class DBModel
         $this->fields[] = $field;
 
         return $field;
+    }
+
+    public function addStateFields($enabledByDefault = false)
+    {
+        $this->field(self::CREATED_AT, DBModelField::DATETIME)->currentTimestampByDefault();
+        $this->field(self::UPDATED_AT, DBModelField::DATETIME)->currentTimestampOnUpdate()->nullByDefault();
+        $this->field(self::REMOVED_AT, DBModelField::DATETIME)->nullByDefault();
+        $this->field(self::ENABLED, DBModelField::BOOLEAN)->default(intval($enabledByDefault));
     }
 
     /**
@@ -78,14 +120,11 @@ abstract class DBModel
             if ($value === null && $field->type === $field::YEAR && $field->null !== true)
                 $value = DBHandler::year();
 
-            if (is_string($value) && $escapeStrings === true)
-                $value = DBHandler::escape($value);
-
             if ($value === null && $removeNullFields === true)
                 continue;
 
-            if ($value === null)
-                $value = DBHandler::null();
+            if (is_bool($value) && $field->type === $field::BOOLEAN)
+                $value = intval($value);
 
             $formattedValues[$field->name] = $value;
         }

@@ -44,6 +44,25 @@ abstract class DBCollectionService
         return new $entityClassName();
     }
 
+    /**
+     * @param DBHandler $db
+     * @param int $id
+     * @param bool $enabled
+     *
+     * @return FunctionResponse
+     */
+    private static function updateEnabledStatus(DBHandler $db, int $id, $enabled = true)
+    {
+        $hasFieldsResponse = self::getModel()->hasFields([DBModel::ENABLED]);
+
+        if ($hasFieldsResponse->hasError() === true)
+            return $hasFieldsResponse;
+
+        return static::update($db, $id, [
+            DBModel::ENABLED => $enabled
+        ]);
+    }
+
     public static function getList(DBHandler $db, $limit = 20, $offset = 0, $returnRemoved = false)
     {
 
@@ -55,13 +74,19 @@ abstract class DBCollectionService
      *
      * @param DBHandler $db
      * @param int $id
+     * @param bool $returnRemoved
      *
      * @return AbstractEntity|null
      */
-    public static function get(DBHandler $db, int $id)
+    public static function get(DBHandler $db, int $id, $returnRemoved = true)
     {
         try {
-            $result = $db->query->from(self::getTable(), $id)->fetch();
+            $stm = $db->query->from(self::getTable(), $id);
+
+            if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
+                $stm = $stm->where(DBCondition::notNull(DBModel::ID));
+
+            $result = $stm->fetch();
             $user = ($result === false) ? null : static::getEntity()::fromArray($result);
         } catch (Exception $e) {
             $user = null;
@@ -119,35 +144,100 @@ abstract class DBCollectionService
     }
 
     /**
-     * Delete entry by ID
+     * Remove entry by ID without undo action support
      *
      * @param DBHandler $db Database
      * @param int $id Id
-     * @param bool $force TODO - $db->query->delete vs UPDATE removed_at timestamp
      *
-     * @return bool
+     * @return FunctionResponse
      */
-    public static function delete(DBHandler $db, int $id, $force = false)
+    public static function removeWithoutUndo(DBHandler $db, int $id)
     {
-        // TODO set removed_at timestamp
-        // TODO set enabled = false
+        $response = new FunctionResponse();
 
         try {
-            $result = $db->query->delete(self::getTable(), $id)->execute();
+            $stm = $db->query->delete(self::getTable(), $id);
+            $resultRowCount = $stm->execute();
+
+            if ($resultRowCount === false)
+                throw new Exception($stm->getMessage());
+
+            if ($resultRowCount === 0)
+                $response->fail("Entry with ID '$id' not found.");
+            else
+                $response->result($resultRowCount);
         } catch (Exception $e) {
-            $result = false;
+            $response->fail($e->getMessage());
         }
 
-        return $result;
+        return $response;
     }
 
-    public static function undo_delete(DBHandler $db, int $id) {
-        // TODO - remove removed_at timestamp
+    /**
+     * Remove entry by ID with undo action support (if entity has EntityStateFields Trait usage)
+     *
+     * @param DBHandler $db Database
+     * @param int $id Id
+     *
+     * @return FunctionResponse
+     */
+    public static function remove(DBHandler $db, int $id)
+    {
+        $hasFieldsResponse = self::getModel()->hasFields([DBModel::REMOVED_AT, DBModel::ENABLED]);
 
-        // We don't set enabled = true
-        // IF admin removed bad user and accidentally clicked undo, the bad user will be active instantly - VERY BAD
+        if ($hasFieldsResponse->hasError() === true)
+            return $hasFieldsResponse;
 
+        return static::update($db, $id, [
+            DBModel::REMOVED_AT => DBHandler::datetime(),
+            DBModel::ENABLED => false
+        ]);
+    }
 
+    /**
+     * Undo Remove for entry by ID (if entity has EntityStateFields Trait usage)
+     *
+     * @param DBHandler $db Database
+     * @param int $id Id
+     *
+     * @return FunctionResponse
+     */
+    public static function undoRemove(DBHandler $db, int $id)
+    {
+        $hasFieldsResponse = self::getModel()->hasFields([DBModel::REMOVED_AT]);
+
+        if ($hasFieldsResponse->hasError() === true)
+            return $hasFieldsResponse;
+
+        return static::update($db, $id, [
+            DBModel::REMOVED_AT => null
+        ]);
+    }
+
+    /**
+     * Enable entry (if entity has EntityStateFields Trait usage)
+     *
+     * @param DBHandler $db
+     * @param int $id
+     *
+     * @return FunctionResponse
+     */
+    public static function enable(DBHandler $db, int $id)
+    {
+        return static::updateEnabledStatus($db, $id, true);
+    }
+
+    /**
+     * Disable entry (if entity has EntityStateFields Trait usage)
+     *
+     * @param DBHandler $db
+     * @param int $id
+     *
+     * @return FunctionResponse
+     */
+    public static function disable(DBHandler $db, int $id)
+    {
+        return static::updateEnabledStatus($db, $id, false);
     }
 
     /**
@@ -160,7 +250,7 @@ abstract class DBCollectionService
      */
     public static function create(DBHandler $db, AbstractEntity $entity)
     {
-        $response = new FunctionResponse(true);
+        $response = new FunctionResponse();
 
         $insertData = self::getModel()->getFieldValuesFromEntity($entity);
         $formattedInsertData = self::getModel()->formatFieldValues($insertData);
@@ -199,12 +289,18 @@ abstract class DBCollectionService
         $entity = self::getEntity()::fromArray($fields);
 
         $updateData = self::getModel()->getFieldValuesFromEntity($entity, array_keys($fields));
+        $formattedUpdateData = self::getModel()->formatFieldValues($updateData, false);
 
         try {
-            $status = $db->query->update(self::getTable(), $updateData, $id)->execute();
-            $response->okOrFail($status, $updateData);
+            $stm = $db->query->update(self::getTable(), $formattedUpdateData, $id);
+            $resultRowCount = $stm->execute();
+
+            if ($resultRowCount === false)
+                throw new Exception($stm->getMessage());
+
+            $response->result($resultRowCount);
         } catch (Exception $e) {
-            $response->fail($e->getMessage(), $updateData);
+            $response->fail($e->getMessage(), $formattedUpdateData);
         }
 
         return $response;
