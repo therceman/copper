@@ -5,7 +5,7 @@ namespace Copper\Component\DB;
 
 
 use Copper\Entity\AbstractEntity;
-use Copper\Entity\FunctionResponse;
+use Copper\FunctionResponse;
 
 abstract class DBModel
 {

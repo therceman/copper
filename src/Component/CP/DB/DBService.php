@@ -8,7 +8,7 @@ use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
 use Copper\Component\DB\DBSeed;
-use Copper\Entity\FunctionResponse;
+use Copper\FunctionResponse;
 use Copper\Kernel;
 use PDOException;
 
@@ -215,18 +215,20 @@ class DBService
 
         $migrateResponseHasError = false;
 
+        $results = [];
+
         foreach ($modelClassNamesResponse->result as $className) {
             $migrateResponse = self::migrateClassName($className, $db);
-            $response->result[$className] = $migrateResponse;
+            $results[$className] = $migrateResponse;
 
             if ($migrateResponse->hasError())
                 $migrateResponseHasError = true;
         }
 
         if ($migrateResponseHasError)
-            $response->error('Full Migration Failed');
+            $response->error('Full Migration Failed', $results);
         else
-            $response->success('Full Migration Completed!');
+            $response->success('Full Migration Completed!', $results);
 
         return $response;
     }
@@ -242,18 +244,20 @@ class DBService
 
         $seedResponseHasError = false;
 
+        $results = [];
+
         foreach ($seedClassNamesResponse->result as $className) {
             $seedResponse = self::seedClassName($className, $db);
-            $response->result[$className] = $seedResponse;
+            $results[$className] = $seedResponse;
 
             if ($seedResponse->hasError())
                 $seedResponseHasError = true;
         }
 
         if ($seedResponseHasError)
-            $response->error('Full Seeding Failed');
+            $response->error('Full Seeding Failed', $results);
         else
-            $response->success('Full Seeding Completed!');
+            $response->success('Full Seeding Completed!', $results);
 
         return $response;
     }

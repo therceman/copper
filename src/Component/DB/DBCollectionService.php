@@ -5,7 +5,7 @@ namespace Copper\Component\DB;
 
 
 use Copper\Entity\AbstractEntity;
-use Copper\Entity\FunctionResponse;
+use Copper\FunctionResponse;
 use Envms\FluentPDO\Exception;
 
 abstract class DBCollectionService
@@ -65,8 +65,12 @@ abstract class DBCollectionService
 
     public static function getList(DBHandler $db, $limit = 20, $offset = 0, $returnRemoved = false)
     {
+        $filter = [];
 
+        if ($returnRemoved === false)
+            $filter = [DBModel::REMOVED_AT => null];
 
+        return self::find($db, $filter, $limit, $offset);
     }
 
     /**
@@ -78,15 +82,16 @@ abstract class DBCollectionService
      *
      * @return AbstractEntity|null
      */
-    public static function get(DBHandler $db, int $id, $returnRemoved = true)
+    public static function get(DBHandler $db, int $id, $returnRemoved = false)
     {
         try {
             $stm = $db->query->from(self::getTable(), $id);
 
             if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
-                $stm = $stm->where(DBCondition::notNull(DBModel::ID));
+                $stm = $stm->where(DBModel::REMOVED_AT, null);
 
             $result = $stm->fetch();
+
             $user = ($result === false) ? null : static::getEntity()::fromArray($result);
         } catch (Exception $e) {
             $user = null;
@@ -100,26 +105,31 @@ abstract class DBCollectionService
      * Usage: find($db, ['enabled' => true], 20, 20) - Find all enabled users and show second page of results.
      *
      * @param DBHandler $db Database
-     * @param array $filter Filter: Key => Value array
+     * @param array|string $filter Filter: Key => Value (array) OR DBCondition::action
      * @param int $limit Limit
      * @param int $offset Offset
      *
      * @return AbstractEntity[]
      */
-    public static function find(DBHandler $db, array $filter, $limit = 50, $offset = 0)
+    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0)
     {
         try {
-            $result = $db->query->from(self::getTable())->where($filter)->limit($limit)->offset($offset)->fetchAll();
+            $stm = $db->query->from(self::getTable())->where($filter)->limit($limit)->offset($offset);
+            $result = $stm->fetchAll();
 
-            $userList = [];
+            $list = [];
+
+            if ($result === false)
+                return $list;
+
             foreach ($result as $entry) {
-                $userList[] = static::getEntity()::fromArray($entry);
+                $list[] = static::getEntity()::fromArray($entry);
             }
         } catch (Exception $e) {
-            $userList = [];
+            $list = [];
         }
 
-        return $userList;
+        return $list;
     }
 
     /**

@@ -5,6 +5,8 @@ use Copper\Component\DB\DBConfigurator;
 
 return function (DBConfigurator $db) {
 
+    // 	Table Collation: utf8mb4_unicode_ci
+
     // Enable / Disable DB support
     $db->enabled = false;
 

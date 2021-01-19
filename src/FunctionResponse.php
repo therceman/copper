@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Copper\Entity;
+namespace Copper;
 
 
 class FunctionResponse
@@ -13,7 +13,7 @@ class FunctionResponse
     /** @var mixed */
     public $result;
 
-    public function __construct($status = false, $msg = '', $result = [])
+    public function __construct($status = false, $msg = '', $result = null)
     {
         $this->status = $status;
         $this->msg = $msg;

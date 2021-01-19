@@ -5,7 +5,7 @@ namespace Copper\Component\CP;
 use Copper\Component\CP\DB\DBService;
 use Copper\Controller\AbstractController;
 use Copper\Entity\AbstractEntity;
-use Copper\Entity\FunctionResponse;
+use Copper\FunctionResponse;
 use Copper\Kernel;
 
 class CPController extends AbstractController
@@ -102,7 +102,7 @@ class CPController extends AbstractController
 
     private function db_gen_model_fields()
     {
-        $result = new FunctionResponse();
+        $response = new FunctionResponse();
 
         $className = $this->request->get('class_name');
 
@@ -117,9 +117,9 @@ class CPController extends AbstractController
             $out .= 'const ' . strtoupper($fieldKey) . " = '$fieldKey';\r\n";
         }
 
-        $result->success("ok", $out);
+        $response->success("ok", $out);
 
-        echo '<pre>' . print_r($result, true) . '</pre>';
+        echo '<pre>' . print_r($response, true) . '</pre>';
 
         return $this->response(PHP_EOL . '<br>ok');
     }

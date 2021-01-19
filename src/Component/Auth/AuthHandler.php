@@ -15,6 +15,8 @@ class AuthHandler
     public $config;
     /** @var DBHandler */
     public $db;
+    /** @var AbstractUser */
+    public $user;
 
     /**
      * AuthHandler constructor.
@@ -29,6 +31,7 @@ class AuthHandler
         $this->session->start();
 
         $this->db = $db;
+        $this->user = null;
 
         $this->config = $this->mergeConfig($packageAuthConfig, $projectAuthConfig);
     }
@@ -100,12 +103,14 @@ class AuthHandler
         if ($this->check() === false)
             return $guestUser;
 
+        if ($this->user !== null)
+            return $this->user;
+
         $user = call_user_func_array($this->config->userHandlerClosure, [$this->id(), $this->db]);
 
-        if ($user === null)
-            return $guestUser;
+        $this->user = ($user === null) ? $guestUser : $user;
 
-        return $user;
+        return $this->user;
     }
 
     /**
