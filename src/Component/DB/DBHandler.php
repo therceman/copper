@@ -56,6 +56,28 @@ class DBHandler
         return $packageConfig;
     }
 
+    public static function escape($str, $surround = true)
+    {
+        $str = str_replace("'", "''", $str);
+
+        return ($surround === true) ? "'$str'" : $str;
+    }
+
+    public static function datetime()
+    {
+        return date('Y-m-d H:i:s');
+    }
+
+    public static function year()
+    {
+        return date('Y');
+    }
+
+    public static function null()
+    {
+        return 'NULL';
+    }
+
     public static function hashWithSalt($str, $salt)
     {
         return md5($salt . $str);

@@ -160,28 +160,24 @@ abstract class DBCollectionService
      */
     public static function create(DBHandler $db, AbstractEntity $entity)
     {
-        $response = new FunctionResponse();
+        $response = new FunctionResponse(true);
 
         $insertData = self::getModel()->getFieldValuesFromEntity($entity);
+        $formattedInsertData = self::getModel()->formatFieldValues($insertData);
 
-        foreach ($entity->toArray() as $key => $value) {
-            $insertData[$key] = str_replace("'", "", $value);
-
-            if (array_key_exists($key, $insertData) && $value === null && $key !== 'created_at')
-                unset($insertData[$key]);
-        }
-
-
-        $insertData['created_at'] = date('Y-m-d H:i:s');
-
-        var_dump($insertData);
+        $entity = $entity::fromArray($formattedInsertData);
 
         try {
-            $id = $db->query->insertInto(self::getTable(), $insertData)->execute();
-            $entity->id = $id;
-            $response->okOrFail(($id !== false), $entity);
+            $stm = $db->query->insertInto(self::getTable(), $formattedInsertData);
+            $resultId = $stm->execute();
+
+            if ($resultId === false)
+                throw new Exception($stm->getMessage());
+
+            $entity->id = $resultId;
+            $response->result($entity->toArray());
         } catch (Exception $e) {
-            $response->fail($e->getMessage(), $insertData);
+            $response->fail($e->getMessage(), $formattedInsertData);
         }
 
         return $response;

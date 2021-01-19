@@ -54,8 +54,49 @@ abstract class DBModel
     }
 
     /**
+     * Format Field Values for Update/Insert
+     *
+     * @param array $fieldValues
+     * @param bool $escapeStrings
+     * @param bool $removeNullFields
+     *
+     * @return array
+     */
+    public function formatFieldValues(array $fieldValues, $removeNullFields = true, $escapeStrings = false)
+    {
+        $formattedValues = [];
+
+        foreach ($this->fields as $field) {
+            if (array_key_exists($field->name, $fieldValues) === false)
+                continue;
+
+            $value = $fieldValues[$field->name];
+
+            if ($value === null && in_array($field->type, [$field::DATETIME, $field::DATE]) && $field->null !== true)
+                $value = DBHandler::datetime();
+
+            if ($value === null && $field->type === $field::YEAR && $field->null !== true)
+                $value = DBHandler::year();
+
+            if (is_string($value) && $escapeStrings === true)
+                $value = DBHandler::escape($value);
+
+            if ($value === null && $removeNullFields === true)
+                continue;
+
+            if ($value === null)
+                $value = DBHandler::null();
+
+            $formattedValues[$field->name] = $value;
+        }
+
+        return $formattedValues;
+    }
+
+    /**
      * @param AbstractEntity $entity
      * @param array|false $onlySelectedFields
+     *
      * @return array
      */
     public function getFieldValuesFromEntity(AbstractEntity $entity, $onlySelectedFields = false)
@@ -71,22 +112,7 @@ abstract class DBModel
             if ($onlySelectedFields !== false && array_search($field->name, $onlySelectedFields) === false)
                 continue;
 
-            // value processing should be separated
-            $value = $entityFields[$field->name];
-
-            if (is_string($value))
-                $value = "'$value'";
-
-            if ($value === null && in_array($field->type, [$field::DATETIME, $field::DATE]) && $field->null !== true)
-                $value = 'now()';
-
-            if ($value === null && $field->type === $field::YEAR && $field->null !== true)
-                $value = 'YEAR(CURDATE())';
-
-            if ($value === null)
-                $value = 'NULL';
-
-            $fieldValues[$field->name] = $value;
+            $fieldValues[$field->name] = $entityFields[$field->name];
         }
 
         return $fieldValues;
