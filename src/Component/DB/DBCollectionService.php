@@ -65,12 +65,7 @@ abstract class DBCollectionService
 
     public static function getList(DBHandler $db, $limit = 20, $offset = 0, $returnRemoved = false)
     {
-        $filter = [];
-
-        if ($returnRemoved === false)
-            $filter = [DBModel::REMOVED_AT => null];
-
-        return self::find($db, $filter, $limit, $offset);
+        return self::find($db, [], $limit, $offset, $returnRemoved);
     }
 
     /**
@@ -108,13 +103,18 @@ abstract class DBCollectionService
      * @param array|string $filter Filter: Key => Value (array) OR DBCondition::action
      * @param int $limit Limit
      * @param int $offset Offset
+     * @param bool $returnRemoved
      *
      * @return AbstractEntity[]
      */
-    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0)
+    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $returnRemoved = false)
     {
         try {
             $stm = $db->query->from(self::getTable())->where($filter)->limit($limit)->offset($offset);
+
+            if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
+                $stm = $stm->where(DBModel::REMOVED_AT, null);
+
             $result = $stm->fetchAll();
 
             $list = [];
