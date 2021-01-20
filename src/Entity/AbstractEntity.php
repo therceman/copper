@@ -2,6 +2,8 @@
 
 namespace Copper\Entity;
 
+use Copper\AnnotationReader;
+
 class AbstractEntity
 {
     /** @var int */
@@ -20,8 +22,15 @@ class AbstractEntity
         $self = new static();
 
         foreach ($array as $key => $value) {
-            if (property_exists($self, $key))
+            if (property_exists($self, $key)) {
+                // TODO Class Property Types should be cached somehow for better performance
+                $type = AnnotationReader::getTypeName(static::class, $key);
+
+                if ($value !== null)
+                    settype($value, $type);
+
                 $self->$key = $value;
+            }
         }
 
         return $self;
@@ -30,7 +39,8 @@ class AbstractEntity
     /**
      * @return array
      */
-    public function toArray() {
-        return (array) $this;
+    public function toArray()
+    {
+        return (array)$this;
     }
 }

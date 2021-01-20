@@ -376,6 +376,18 @@ class DBCondition
             case self::GT_OR_EQ:
                 $str = $field . ' >= ?';
                 break;
+            case self::BETWEEN:
+                $str = $field . ' > ' . $value[0] . ' OR ' . $field . ' < ' . $value[1];
+                break;
+            case self::BETWEEN_INCLUDE:
+                $str = $field . ' >= ' . $value[0] . ' OR ' . $field . ' <= ' . $value[1];
+                break;
+            case self::NOT_BETWEEN:
+                $str = $field . ' < ' . $value[0] . ' OR ' . $field . ' > ' . $value[1];
+                break;
+            case self::NOT_BETWEEN_INCLUDE:
+                $str = $field . ' <= ' . $value[0] . ' OR ' . $field . ' => ' . $value[1];
+                break;
         }
 
         return $str;
@@ -395,6 +407,20 @@ class DBCondition
 
             if ($cond->cond === self::NOT && $value !== null)
                 $value = [$value];
+
+            if (in_array($cond->cond, [
+                self::BETWEEN,
+                self::BETWEEN_INCLUDE,
+                self::NOT_BETWEEN,
+                self::NOT_BETWEEN_INCLUDE
+            ])) {
+                if ($cond->chain === self::CHAIN_OR)
+                    $stm->whereOr($condStr);
+                else
+                    $stm->where($condStr);
+
+                continue;
+            }
 
             if ($cond->chain === self::CHAIN_OR)
                 $stm->whereOr($condStr, $value);

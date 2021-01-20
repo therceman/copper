@@ -25,7 +25,7 @@ class DBService
         return null;
     }
 
-    private static function tableExists($tableName, DBHandler $db)
+    public static function tableExists($tableName, DBHandler $db)
     {
         try {
             $result = $db->pdo->query("SELECT 1 FROM $tableName LIMIT 1");
@@ -36,7 +36,7 @@ class DBService
         return ($result !== false);
     }
 
-    private static function tableEmpty($tableName, DBHandler $db)
+    public static function tableEmpty($tableName, DBHandler $db)
     {
         try {
             $result = $db->pdo->query("SELECT EXISTS (SELECT 1 FROM $tableName)");
@@ -46,6 +46,22 @@ class DBService
         }
 
         return ($result !== false);
+    }
+
+    public static function escapeStr($str)
+    {
+        return str_replace("'", "\'", $str);
+    }
+
+    public static function escapeStrArray($strArray)
+    {
+        $array = [];
+
+        foreach ($strArray as $str) {
+            $array[] = self::escapeStr($str);
+        }
+
+        return $array;
     }
 
     public static function seedClassName(string $className, DBHandler $db, $force = false)
@@ -105,8 +121,21 @@ class DBService
         /** @var DBModel $model */
         $model = new $className();
 
-        if (self::tableExists($model->tableName, $db) && $force === false)
+        $tableExists = self::tableExists($model->tableName, $db);
+
+        if ($tableExists && $force === false)
             return $response->error("Table `$model->tableName` already exists and " . '$force' . " flag is not true");
+
+        if ($tableExists && $force === true) {
+            $query = 'DROP TABLE `' . $db->config->dbname . '`.`' . $model->tableName . '`';
+
+            try {
+                $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
+                $db->pdo->exec($query);
+            } catch (PDOException $e) {
+                return $response->error($e->getMessage());
+            }
+        }
 
         $query_start = 'CREATE ' . 'TABLE IF NOT EXISTS `' . $db->config->dbname . '`.`' . $model->tableName . '` ( ';
 
@@ -120,14 +149,23 @@ class DBService
             if ($field->attr !== false)
                 $str .= ' ' . $field->attr . ' ';
 
-            if ($field->length !== false)
-                $str .= '(' . (is_array($field->length) ? "'" . join("','", $field->length) . "'" : $field->length) . ')';
+            if ($field->type === DBModelField::VARCHAR && $field->length === false)
+                $field->length = $db->config->default_varchar_length;
+
+            if ($field->length !== false) {
+                if ($field->type === DBModelField::DECIMAL)
+                    $str .= '(' . join(",",  self::escapeStrArray($field->length)) . ')';
+                else
+                    $str .= '(' . (is_array($field->length)
+                            ? "'" . join("','", self::escapeStrArray($field->length)) . "'"
+                            : self::escapeStr($field->length)) . ')';
+            }
 
             $str .= ($field->null === false) ? " NOT NULL" : " NULL";
 
             if ($field->default !== DBModelField::DEFAULT_NONE)
                 $str .= " DEFAULT " . (in_array($field->default, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
-                        ? $field->default : "'$field->default'");
+                        ? $field->default : "'" . self::escapeStr($field->default) . "'");
 
             if ($field->auto_increment)
                 $str .= ' AUTO_INCREMENT';
@@ -155,7 +193,7 @@ class DBService
             $db->pdo->exec($query);
             return $response->success("Created `$model->tableName` Table");
         } catch (PDOException $e) {
-            return $response->error($e->getMessage());
+            return $response->error($e->getMessage(), $query);
         }
     }
 

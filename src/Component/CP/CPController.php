@@ -6,7 +6,7 @@ use Copper\Component\CP\DB\DBService;
 use Copper\Controller\AbstractController;
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
-use Copper\Kernel;
+use Copper\Test\DB\TestDB;
 
 class CPController extends AbstractController
 {
@@ -14,6 +14,7 @@ class CPController extends AbstractController
     const ACTION_DB_MIGRATE = 'db_migrate';
     const ACTION_DB_SEED = 'db_seed';
     const ACTION_DB_GEN_MODEL_FIELDS = 'gen_model_fields';
+    const ACTION_DB_TEST = 'db_test';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -48,6 +49,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_GEN_MODEL_FIELDS:
                 return $this->db_gen_model_fields();
+                break;
+            case self::ACTION_DB_TEST:
+                return $this->db_test();
                 break;
         }
 
@@ -122,5 +126,14 @@ class CPController extends AbstractController
         echo '<pre>' . print_r($response, true) . '</pre>';
 
         return $this->response(PHP_EOL . '<br>ok');
+    }
+
+    private function db_test()
+    {
+        $test = new TestDB($this->db);
+
+        $response = $test->run();
+
+        return $this->dump_response($response);
     }
 }

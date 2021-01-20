@@ -10,7 +10,7 @@ use Copper\FunctionResponse;
 abstract class DBModel
 {
     const ID = 'id';
-    
+
     // State Fields Support
 
     const CREATED_AT = 'created_at';
@@ -32,6 +32,23 @@ abstract class DBModel
     {
         $this->tableName = $this->getTableName();
         $this->setFields();
+    }
+
+    /**
+     * @param $name
+     *
+     * @return DBModelField|null
+     */
+    public function getFieldByName($name)
+    {
+        $foundField = null;
+
+        foreach ($this->fields as $field) {
+            if ($field->name === $name)
+                $foundField = $field;
+        }
+
+        return $foundField;
     }
 
     public function getFieldNames()
@@ -96,15 +113,34 @@ abstract class DBModel
     }
 
     /**
+     * @param $name
+     *
+     * @return string
+     */
+    public static function formatFieldName($name)
+    {
+        return preg_replace("/[^a-zA-Z0-9_]+/", "", $name);
+    }
+
+    /**
+     * @param $number
+     *
+     * @return float
+     */
+    public static function formatNumber($number)
+    {
+        return floatval(preg_replace('/[^.0-9]/', '', $number));
+    }
+
+    /**
      * Format Field Values for Update/Insert
      *
      * @param array $fieldValues
-     * @param bool $escapeStrings
      * @param bool $removeNullFields
      *
      * @return array
      */
-    public function formatFieldValues(array $fieldValues, $removeNullFields = true, $escapeStrings = false)
+    public function formatFieldValues(array $fieldValues, $removeNullFields = true)
     {
         $formattedValues = [];
 
@@ -119,6 +155,9 @@ abstract class DBModel
 
             if ($value === null && $field->type === $field::YEAR && $field->null !== true)
                 $value = DBHandler::year();
+
+            if ($value === null && in_array($field->default, [$field::DEFAULT_NONE, $field::DEFAULT_CURRENT_TIMESTAMP, $field::DEFAULT_NONE]) === false && $field->null !== true)
+                $value = $field->default;
 
             if ($value === null && $removeNullFields === true)
                 continue;

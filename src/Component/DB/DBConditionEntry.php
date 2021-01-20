@@ -25,11 +25,7 @@ class DBConditionEntry
 
     public function formatField()
     {
-        $field = $this->field;
-
-        $field = preg_replace("/[^a-zA-Z0-9_]+/", "", $field);
-
-        return $field;
+        return DBModel::formatFieldName($this->field);
     }
 
     public function formatValue()
@@ -38,6 +34,16 @@ class DBConditionEntry
 
         if (is_bool($value) === true)
             $value = intval($value);
+
+        if (in_array($this->cond, [
+            DBCondition::BETWEEN,
+            DBCondition::BETWEEN_INCLUDE,
+            DBCondition::NOT_BETWEEN,
+            DBCondition::NOT_BETWEEN_INCLUDE
+        ])) {
+            $value[0] = DBModel::formatNumber($value[0]);
+            $value[1] = DBModel::formatNumber($value[1]);
+        }
 
         return $value;
     }

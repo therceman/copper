@@ -20,4 +20,6 @@ return function (DBConfigurator $db) {
     $db->hashSalt = 'this_is_secret_salt__change_me';
 
     $db->timezone = 'Europe/Riga';
+
+    $db->default_varchar_length = 255;
 };

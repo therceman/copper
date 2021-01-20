@@ -2,6 +2,7 @@
 
 use Copper\Component\CP\CPController;
 
+$db_test_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_TEST]);
 $migrate_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_MIGRATE]);
 $seed_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_SEED]);
 $gen_model_fields_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GEN_MODEL_FIELDS]);
@@ -14,6 +15,9 @@ $entity_list = $view->dataBag->get('entity_list');
 <h4>Welcome to Copper <b>Control Panel</b>!</h4>
 
 <ul>
+    <li>
+        <a target="_blank" href="<?= $db_test_url ?>">DB Test</a><span></span>
+    </li>
     <li>
         <a target="_blank" href="<?= $migrate_url ?>">Migrate</a>
     </li>

@@ -34,7 +34,7 @@ abstract class DBSeed
         $model = new $this->modelClassName();
 
         $seedData = $model->getFieldValuesFromEntity($entity);
-        $formattedSeedData = $model->formatFieldValues($seedData, false, true);
+        $formattedSeedData = $model->formatFieldValues($seedData, false);
 
         $this->seeds[] = $formattedSeedData;
     }
