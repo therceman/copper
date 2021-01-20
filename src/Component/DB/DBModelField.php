@@ -228,10 +228,10 @@ class DBModelField
     }
 
     /**
-     * @param string $default
+     * @param string|bool $default
      * @return DBModelField
      */
-    public function default(string $default): DBModelField
+    public function default($default): DBModelField
     {
         $this->default = $default;
 

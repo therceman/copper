@@ -109,7 +109,7 @@ abstract class DBModel
         $this->field(self::CREATED_AT, DBModelField::DATETIME)->currentTimestampByDefault();
         $this->field(self::UPDATED_AT, DBModelField::DATETIME)->currentTimestampOnUpdate()->nullByDefault();
         $this->field(self::REMOVED_AT, DBModelField::DATETIME)->nullByDefault();
-        $this->field(self::ENABLED, DBModelField::BOOLEAN)->default(intval($enabledByDefault));
+        $this->field(self::ENABLED, DBModelField::BOOLEAN)->default($enabledByDefault);
     }
 
     /**

@@ -154,7 +154,7 @@ class DBService
 
             if ($field->length !== false) {
                 if ($field->type === DBModelField::DECIMAL)
-                    $str .= '(' . join(",",  self::escapeStrArray($field->length)) . ')';
+                    $str .= '(' . join(",", self::escapeStrArray($field->length)) . ')';
                 else
                     $str .= '(' . (is_array($field->length)
                             ? "'" . join("','", self::escapeStrArray($field->length)) . "'"
@@ -162,6 +162,9 @@ class DBService
             }
 
             $str .= ($field->null === false) ? " NOT NULL" : " NULL";
+
+            if (is_bool($field->default) === true)
+                $field->default = intval($field->default);
 
             if ($field->default !== DBModelField::DEFAULT_NONE)
                 $str .= " DEFAULT " . (in_array($field->default, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
