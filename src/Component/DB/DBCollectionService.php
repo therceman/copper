@@ -87,12 +87,12 @@ abstract class DBCollectionService
 
             $result = $stm->fetch();
 
-            $user = ($result === false) ? null : static::getEntity()::fromArray($result);
+            $entry = ($result === false) ? null : static::getEntity()::fromArray($result);
         } catch (Exception $e) {
-            $user = null;
+            $entry = null;
         }
 
-        return $user;
+        return $entry;
     }
 
     /**
@@ -100,7 +100,7 @@ abstract class DBCollectionService
      * Usage: find($db, ['enabled' => true], 20, 20) - Find all enabled users and show second page of results.
      *
      * @param DBHandler $db Database
-     * @param array|string $filter Filter: Key => Value (array) OR DBCondition::action
+     * @param array|string|DBCondition $filter Filter: Key => Value (array) OR DBCondition::action
      * @param int $limit Limit
      * @param int $offset Offset
      * @param bool $returnRemoved
@@ -110,7 +110,12 @@ abstract class DBCollectionService
     public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $returnRemoved = false)
     {
         try {
-            $stm = $db->query->from(self::getTable())->where($filter)->limit($limit)->offset($offset);
+            $stm = $db->query->from(self::getTable());
+
+            if ($filter instanceof DBCondition)
+                $stm = $filter->buildForSelectStatement($stm);
+            else
+                $stm = $stm->where($filter);
 
             if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
                 $stm = $stm->where(DBModel::REMOVED_AT, null);
@@ -145,12 +150,12 @@ abstract class DBCollectionService
     {
         try {
             $result = $db->query->from(self::getTable())->where($filter)->fetch();
-            $user = ($result === false) ? null : static::getEntity()::fromArray($result);
+            $entry = ($result === false) ? null : static::getEntity()::fromArray($result);
         } catch (Exception $e) {
-            $user = null;
+            $entry = null;
         }
 
-        return $user;
+        return $entry;
     }
 
     /**
