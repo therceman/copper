@@ -16,12 +16,14 @@ class DBCondition
     const GT_OR_EQ = 6;
     const BETWEEN = 7;
     const BETWEEN_INCLUDE = 8;
-    const NOT_BETWEEN = 7;
-    const NOT_BETWEEN_INCLUDE = 8;
+    const NOT_BETWEEN = 9;
+    const NOT_BETWEEN_INCLUDE = 10;
+    const LIKE = 11;
+    const NOT_LIKE = 12;
 
-    const CHAIN_NULL = 10;
-    const CHAIN_OR = 11;
-    const CHAIN_AND = 12;
+    const CHAIN_NULL = 20;
+    const CHAIN_OR = 21;
+    const CHAIN_AND = 22;
 
     /** @var DBConditionEntry[] */
     private $conditions;
@@ -199,11 +201,68 @@ class DBCondition
         return new self($field, [$start, $end], self::NOT_BETWEEN_INCLUDE, self::CHAIN_NULL);
     }
 
+    /**
+     * Like
+     *
+     * a%   - Finds any values that start with "a";
+     *
+     * %a   - Finds any values that end with "a"
+     *
+     * %or% - Finds any values that have "or" in any position
+     *
+     * _r%  - Finds any values that have "r" in the second position
+     *
+     * a_%  - Finds any values that start with "a" and are at least 2 characters in length
+     *
+     * a__% - Finds any values that start with "a" and are at least 3 characters in length
+     *
+     * a%o  - Finds any values that start with "a" and ends with "o"
+     *
+     * @param string $field
+     * @param mixed $value
+     *
+     * @return DBCondition
+     */
+    public static function like(string $field, $value)
+    {
+        return new self($field, $value, self::LIKE, self::CHAIN_NULL);
+    }
+
+    /**
+     * Not Like
+     *
+     * (see like documentation for all cases)
+     *
+     * @param string $field
+     * @param mixed $value
+     *
+     * @return DBCondition
+     */
+    public static function notLike(string $field, $value)
+    {
+        return new self($field, $value, self::NOT_LIKE, self::CHAIN_NULL);
+    }
+
     // ------------ Shortcuts ---------------
 
     public static function notNull($field)
     {
         return self::not($field, null);
+    }
+
+    /**
+     * Is Like
+     *
+     * (see like for documentation)
+     *
+     * @param string $field
+     * @param mixed $value
+     *
+     * @return DBCondition
+     */
+    public static function isLike(string $field, $value)
+    {
+        return self::like($field, $value);
     }
 
     // ------------ Chain ---------------
@@ -348,6 +407,34 @@ class DBCondition
         return $this;
     }
 
+    public function andLike($field, $value)
+    {
+        $this->addCondition($field, $value, self::LIKE, self::CHAIN_AND);
+
+        return $this;
+    }
+
+    public function andNotLike($field, $value)
+    {
+        $this->addCondition($field, $value, self::NOT_LIKE, self::CHAIN_AND);
+
+        return $this;
+    }
+
+    public function orLike($field, $value)
+    {
+        $this->addCondition($field, $value, self::LIKE, self::CHAIN_OR);
+
+        return $this;
+    }
+
+    public function orNotLike($field, $value)
+    {
+        $this->addCondition($field, $value, self::NOT_LIKE, self::CHAIN_OR);
+
+        return $this;
+    }
+
     // ------------- Generate -------------
 
     private function getConditionString($field, $cond, $value)
@@ -377,16 +464,22 @@ class DBCondition
                 $str = $field . ' >= ?';
                 break;
             case self::BETWEEN:
-                $str = $field . ' > ' . $value[0] . ' OR ' . $field . ' < ' . $value[1];
+                $str = $field . ' > ' . $value[0] . ' AND ' . $field . ' < ' . $value[1];
                 break;
             case self::BETWEEN_INCLUDE:
-                $str = $field . ' >= ' . $value[0] . ' OR ' . $field . ' <= ' . $value[1];
+                $str = $field . ' >= ' . $value[0] . ' AND ' . $field . ' <= ' . $value[1];
                 break;
             case self::NOT_BETWEEN:
                 $str = $field . ' < ' . $value[0] . ' OR ' . $field . ' > ' . $value[1];
                 break;
             case self::NOT_BETWEEN_INCLUDE:
-                $str = $field . ' <= ' . $value[0] . ' OR ' . $field . ' => ' . $value[1];
+                $str = $field . ' <= ' . $value[0] . ' OR ' . $field . ' >= ' . $value[1];
+                break;
+            case self::LIKE:
+                $str = $field . ' LIKE ?';
+                break;
+            case self::NOT_LIKE:
+                $str = $field . ' NOT LIKE ?';
                 break;
         }
 

@@ -26,6 +26,7 @@ class TestDBSeed extends DBSeed
         $user->role = TestDBEntity::ROLE_SUPER_ADMIN;
         $user->email = 'super_admin@arkadia_trade.com';
         $user->enabled = true;
+        $user->salary = 57;
 
         $this->seed($user);
 
@@ -39,6 +40,7 @@ class TestDBSeed extends DBSeed
         $user->name = "Admin Сделанный lietotāj's";
         $user->email = 'admin@arkadia_trade.com';
         $user->enabled = true;
+        $user->salary = 150;
 
         $this->seed($user);
 
@@ -51,6 +53,7 @@ class TestDBSeed extends DBSeed
         $user->role = TestDBEntity::ROLE_USER;
         $user->email = 'user@arkadia_trade.com';
         $user->enabled = true;
+        $user->salary = 100;
 
         $this->seed($user);
 
@@ -63,6 +66,7 @@ class TestDBSeed extends DBSeed
         $user->role = TestDBEntity::ROLE_USER;
         $user->email = 'user_disabled@arkadia_trade.com';
         $user->enabled = false;
+        $user->salary = 100;
 
         $this->seed($user);
 
@@ -76,6 +80,7 @@ class TestDBSeed extends DBSeed
         $user->email = 'removed_user@arkadia_trade.com';
         $user->removed_at = DBHandler::datetime();
         $user->enabled = false;
+        $user->salary = 151;
 
         $this->seed($user);
     }

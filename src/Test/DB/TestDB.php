@@ -5,6 +5,7 @@ namespace Copper\Test\DB;
 
 
 use Copper\Component\CP\DB\DBService;
+use Copper\Component\DB\DBCondition;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBOrder;
 use Copper\FunctionResponse;
@@ -317,6 +318,165 @@ class TestDB
     {
         $response = new FunctionResponse();
 
+        // is
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::is(TestDBModel::NAME, "Admin Сделанный lietotāj's")
+        );
+
+        if ($entityList[0]->id !== 2)
+            return $response->fail('User List first entry should be with ID 2', $entityList[0]);
+
+        // not
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::not(TestDBModel::NAME, null)
+        );
+
+        if ($entityList[0]->id !== 2)
+            return $response->fail('User List first entry should be with ID 2', $entityList[0]);
+
+        // lt
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::lt(TestDBModel::SALARY, 57)
+        );
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('User List first entry should be with ID 6', $entityList[0]);
+
+        // ltOrEq
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::ltOrEq(TestDBModel::SALARY, 57)
+        );
+
+        if ($entityList[1]->id !== 6) // by default sorted by ID ASC
+            return $response->fail('User List second entry should be with ID 1', $entityList[1]);
+
+        // gt
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::gt(TestDBModel::SALARY, 56)
+        );
+
+        if ($entityList[0]->id !== 1)
+            return $response->fail('User List first entry should be with ID 1', $entityList[0]);
+
+        // gt or eq
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::gtOrEq(TestDBModel::SALARY, 56)
+        );
+
+        if ($entityList[4]->id !== 6) // by default sorted by ID ASC
+            return $response->fail('User List 4 entry should be with ID 6', $entityList[4]);
+
+        // between
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::between(TestDBModel::SALARY, 57, 150)
+        );
+
+        if (count($entityList) !== 2)
+            return $response->fail('User List should contain exactly 2 rows', $entityList);
+
+        if ($entityList[1]->id !== 4)
+            return $response->fail('User List 1 entry should be with ID 4', $entityList[1]);
+
+        // between include
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::betweenInclude(TestDBModel::SALARY, 57, 150)
+        );
+
+        if (count($entityList) !== 4)
+            return $response->fail('User List should contain exactly 4 rows', $entityList);
+
+        if ($entityList[0]->id !== 1)
+            return $response->fail('User List 1 entry should be with ID 1', $entityList[0]);
+
+        // not between
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::notBetween(TestDBModel::SALARY, 57, 150)
+        );
+
+        if (count($entityList) !== 1)
+            return $response->fail('User List should contain exactly 1 rows', $entityList);
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('User List 1 entry should be with ID 6', $entityList[0]);
+
+        // not between include
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::notBetweenInclude(TestDBModel::SALARY, 57, 150)
+        );
+
+        if (count($entityList) !== 3)
+            return $response->fail('User List should contain exactly 3 rows', $entityList);
+
+        if ($entityList[0]->id !== 1)
+            return $response->fail('User List 1 entry should be with ID 1', $entityList[0]);
+
+        if ($entityList[2]->id !== 6)
+            return $response->fail('User List last entry should be with ID 6', $entityList[2]);
+
+        // like
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::like(TestDBModel::LOGIN, "__m%"),
+            20, 0, false, true);
+
+        if (count($entityList) !== 2)
+            return $response->fail('User List should contain exactly 2 rows', $entityList);
+
+        if ($entityList[1]->id !== 5)
+            return $response->fail('User List 2 entry should be with ID 5', $entityList[1]);
+
+        // not like
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::notLike(TestDBModel::LOGIN, "%_user"),
+            20, 0, false, true);
+
+        if (count($entityList) !== 3)
+            return $response->fail('User List should contain exactly 3 rows', $entityList);
+
+        if ($entityList[2]->id !== 3)
+            return $response->fail('User List 3 entry should be with ID 3', $entityList[2]);
+
+        // ----------- Chains -----------
+
+        // or chain
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::is(TestDBModel::NAME, "Admin Сделанный lietotāj's")
+                ->or(TestDBModel::EMAIL, "user_disabled@arkadia_trade.com")
+                ->or(TestDBModel::SALARY, 57)
+        );
+
+        if (count($entityList) !== 3)
+            return $response->fail('User List should contain exactly 2 rows', $entityList);
+
+        if ($entityList[1]->id !== 2)
+            return $response->fail('User List last entry should be with ID 2', $entityList[1]);
+
+        // and chain
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::isLike(TestDBModel::LOGIN, "_e%")
+                ->and(TestDBModel::ROLE, 3)
+                ->andBetweenInclude(TestDBModel::SALARY, 56, 200),
+            20, 0, false, true);
+
+        if (count($entityList) !== 2)
+            return $response->fail('User List should contain exactly 2 rows', $entityList);
+
+        if ($entityList[0]->id !== 5)
+            return $response->fail('User List first entry should be with ID 5', $entityList[0]);
+
         return $response->ok();
     }
 
@@ -336,7 +496,7 @@ class TestDB
         $results[] = ['findFirst', $this->findFirst()];
         $results[] = ['find', $this->find()];
         $results[] = ['DBOrder', $this->db_order()];
-        //$results[] = ['DBCondition', $this->db_condition()];
+        $results[] = ['DBCondition', $this->db_condition()];
 
         $failedTests = [];
 
