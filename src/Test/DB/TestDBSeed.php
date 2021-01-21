@@ -67,6 +67,7 @@ class TestDBSeed extends DBSeed
         $user->email = 'user_disabled@arkadia_trade.com';
         $user->enabled = false;
         $user->salary = 100;
+        $user->enum = 'apple';
 
         $this->seed($user);
 

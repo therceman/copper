@@ -14,6 +14,7 @@ class TestDBModel extends DBModel
     const ROLE = 'role';
     const EMAIL = 'email';
     const SALARY = 'salary';
+    const ENUM = 'enum';
 
     public function getTableName()
     {
@@ -29,6 +30,7 @@ class TestDBModel extends DBModel
         $this->field(self::ROLE, DBModelField::TINYINT)->default(2)->unsigned();
         $this->field(self::EMAIL, DBModelField::VARCHAR, 50)->unique();
         $this->field(self::SALARY, DBModelField::DECIMAL, [6, 2])->default(123.57);
+        $this->field(self::ENUM, DBModelField::ENUM, ['apple','banana'])->default('banana');
 
         // ------ State Fields ------
         $this->addStateFields();

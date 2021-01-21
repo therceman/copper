@@ -4,6 +4,7 @@ use Copper\Component\CP\CPController;
 
 $db_test_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_TEST]);
 $migrate_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_MIGRATE]);
+$generator_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]);
 $seed_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_SEED]);
 $gen_model_fields_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GEN_MODEL_FIELDS]);
 $entity_list = $view->dataBag->get('entity_list');
@@ -19,10 +20,13 @@ $entity_list = $view->dataBag->get('entity_list');
         <a target="_blank" href="<?= $db_test_url ?>">DB Test</a><span></span>
     </li>
     <li>
-        <a target="_blank" href="<?= $migrate_url ?>">Migrate</a>
+        <a target="_blank" href="<?= $migrate_url ?>">DB Migrate</a>
     </li>
     <li>
-        <a target="_blank" href="<?= $seed_url ?>">Seed</a>
+        <a target="_blank" href="<?= $seed_url ?>">DB Seed</a>
+    </li>
+    <li>
+        <a target="_blank" href="<?= $generator_url ?>">DB Generator</a>
     </li>
     <li>
         <form action="<?= $gen_model_fields_url ?>">

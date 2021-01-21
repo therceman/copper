@@ -15,6 +15,7 @@ class CPController extends AbstractController
     const ACTION_DB_SEED = 'db_seed';
     const ACTION_DB_GEN_MODEL_FIELDS = 'gen_model_fields';
     const ACTION_DB_TEST = 'db_test';
+    const ACTION_DB_GENERATOR = 'db_generator';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -52,6 +53,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_TEST:
                 return $this->db_test();
+                break;
+            case self::ACTION_DB_GENERATOR:
+                return $this->db_generator();
                 break;
         }
 
@@ -135,5 +139,10 @@ class CPController extends AbstractController
         $response = $test->run();
 
         return $this->dump_response($response);
+    }
+
+    private function db_generator()
+    {
+        return $this->render('cp/generator');
     }
 }
