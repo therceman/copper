@@ -63,9 +63,20 @@ abstract class DBCollectionService
         ]);
     }
 
-    public static function getList(DBHandler $db, $limit = 20, $offset = 0, $returnRemoved = false)
+    /**
+     * Get entry list
+     *
+     * @param DBHandler $db
+     * @param int $limit
+     * @param int $offset
+     * @param bool $order
+     * @param bool $returnRemoved
+     *
+     * @return AbstractEntity[]
+     */
+    public static function getList(DBHandler $db, $limit = 20, $offset = 0, $order = false, $returnRemoved = false)
     {
-        return self::find($db, [], $limit, $offset, $returnRemoved);
+        return self::find($db, [], $limit, $offset, $order, $returnRemoved);
     }
 
     /**
@@ -100,17 +111,18 @@ abstract class DBCollectionService
      * Usage: find($db, ['enabled' => true], 20, 20) - Find all enabled users and show second page of results.
      *
      * @param DBHandler $db Database
-     * @param array|string|DBCondition $filter Filter: Key => Value (array) OR DBCondition::action
+     * @param array|DBCondition $filter Filter: Key => Value (array) OR DBCondition::action
      * @param int $limit Limit
      * @param int $offset Offset
+     * @param bool|DBOrder $order Order
      * @param bool $returnRemoved
      *
      * @return AbstractEntity[]
      */
-    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $returnRemoved = false)
+    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $order = false, $returnRemoved = false)
     {
         try {
-            $stm = $db->query->from(self::getTable());
+            $stm = $db->query->from(self::getTable())->limit($limit)->offset($offset);
 
             if ($filter instanceof DBCondition)
                 $stm = $filter->buildForSelectStatement($stm);
@@ -119,6 +131,9 @@ abstract class DBCollectionService
 
             if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
                 $stm = $stm->where(DBModel::REMOVED_AT, null);
+
+            if ($order !== false && $order instanceof DBOrder)
+                $stm->order($order);
 
             $result = $stm->fetchAll();
 

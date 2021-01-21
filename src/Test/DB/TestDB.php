@@ -6,6 +6,7 @@ namespace Copper\Test\DB;
 
 use Copper\Component\CP\DB\DBService;
 use Copper\Component\DB\DBHandler;
+use Copper\Component\DB\DBOrder;
 use Copper\FunctionResponse;
 
 class TestDB
@@ -34,6 +35,9 @@ class TestDB
 
         /** @var TestDBEntity $entity */
         $entity = TestDBService::get($this->db, 2);
+
+        if ($entity === null)
+            return $response->fail('User with ID 2 should be returned.', $entity);
 
         if ($entity->role !== 2)
             return $response->fail('Role != 2 (provided by default)', $entity->role);
@@ -140,19 +144,180 @@ class TestDB
         return $response->ok("success", null);
     }
 
-    private function delete()
+    private function remove()
     {
+        /** @var TestDBEntity $entity */
+        $entity = TestDBService::get($this->db, 3);
 
+        if ($entity->enabled !== true)
+            return new FunctionResponse(false, 'User->enabled should be true', $entity);
+
+        // remove
+
+        $response = TestDBService::remove($this->db, 3);
+
+        if ($response->hasError() === true)
+            return $response->fail('User is not removed', $response->msg);
+
+        /** @var TestDBEntity $entity */
+        $entity = TestDBService::get($this->db, 3, true);
+
+        if ($entity->removed_at === null)
+            return $response->fail('User->removed_at should not be null', $response->msg);
+
+        if ($entity->enabled !== false)
+            return $response->fail('User->enabled should be false', $response->msg);
+
+        // undoRemove
+
+        $response = TestDBService::undoRemove($this->db, 3);
+
+        if ($response->hasError() === true)
+            return $response->fail('User undo for removal failed', $response->msg);
+
+        /** @var TestDBEntity $entity */
+        $entity = TestDBService::get($this->db, 3);
+
+        if ($entity->removed_at !== null)
+            return $response->fail('User->removed_at should be null', $response->msg);
+
+        if ($entity->enabled !== false)
+            return $response->fail('User->enabled should be false', $response->msg);
+
+        return $response->ok();
     }
 
     private function getList()
     {
+        $response = new FunctionResponse();
 
+        // limit & offset
+
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::getList($this->db, 2, 1);
+
+        if (count($entityList) === 0)
+            return $response->fail('User List should not be empty');
+
+        if ($entityList[0]->id !== 2)
+            return $response->fail('User List first entry should be with ID = 2');
+
+        if ($entityList[1]->id !== 3)
+            return $response->fail('User List second entry should be with ID = 3');
+
+        // all list
+
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::getList($this->db);
+
+        if (count($entityList) !== 5)
+            return $response->fail('User List should contain exactly 5 rows');
+
+        if ($entityList[4]->id !== 6)
+            return $response->fail('User List 4 entry should be with ID = 6');
+
+        // all list with removed
+
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::getList($this->db, 20, 0, false, true);
+
+        if (count($entityList) !== 6)
+            return $response->fail('User List should contain exactly 6 rows');
+
+        if ($entityList[4]->id !== 5)
+            return $response->fail('User List 4 entry should be with ID = 5');
+
+        return $response->ok();
+    }
+
+    private function findFirst()
+    {
+        $response = new FunctionResponse();
+
+        /** @var TestDBEntity $entity */
+        $entity = TestDBService::findFirst($this->db, [
+            TestDBModel::EMAIL => 'admin@arkadia_trade.com',
+            TestDBModel::PASSWORD => DBHandler::hashWithSalt('admin_pass', TestDBSeed::HASH_SALT)
+        ]);
+
+        if ($entity === null)
+            return $response->fail('User should be returned.', $entity);
+
+        if ($entity->id !== 2)
+            return $response->fail('User with ID 2 should be returned.', $entity);
+
+        return $response->ok();
     }
 
     private function find()
     {
+        $response = new FunctionResponse();
 
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::find($this->db, [
+            TestDBModel::ROLE => TestDBEntity::ROLE_USER,
+        ]);
+
+        if (count($entityList) !== 3)
+            return $response->fail('User List should contain exactly 3 rows', $entity);
+
+        if ($entityList[0]->id !== 3)
+            return $response->fail('User List first entry should be with ID 3', $entity);
+
+        return $response->ok();
+    }
+
+    private function db_order()
+    {
+        $response = new FunctionResponse();
+
+        // Single Order
+
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::find($this->db, [
+            TestDBModel::ROLE => TestDBEntity::ROLE_USER,
+        ], 20, 0, DBOrder::DESC(TestDBModel::ID));
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('User List first entry should be with ID 6', $entity);
+
+        if ($entityList[2]->id !== 3)
+            return $response->fail('User List last entry should be with ID 3', $entity);
+
+        // Multi Order [second DESC]
+
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::find($this->db, [
+            TestDBModel::ROLE => TestDBEntity::ROLE_USER,
+        ], 20, 0, DBOrder::ASC(TestDBModel::SALARY)->andDESC(TestDBModel::ID));
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('User List first entry should be with ID 6', $entity);
+
+        if ($entityList[1]->id !== 4)
+            return $response->fail('User List second entry should be with ID 4', $entity);
+
+        // Multi Order [second ASC]
+
+        /** @var TestDBEntity[] $entity */
+        $entityList = TestDBService::find($this->db, [
+            TestDBModel::ROLE => TestDBEntity::ROLE_USER,
+        ], 20, 0, DBOrder::ASC(TestDBModel::SALARY)->andASC(TestDBModel::ID));
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('User List first entry should be with ID 6', $entity);
+
+        if ($entityList[1]->id !== 3)
+            return $response->fail('User List second entry should be with ID 3', $entity);
+
+        return $response->ok();
+    }
+
+    private function db_condition()
+    {
+        $response = new FunctionResponse();
+
+        return $response->ok();
     }
 
     public function run()
@@ -166,6 +331,12 @@ class TestDB
         $results[] = ['get', $this->get()];
         $results[] = ['create', $this->create()];
         $results[] = ['update', $this->update()];
+        $results[] = ['remove', $this->remove()];
+        $results[] = ['getList', $this->getList()];
+        $results[] = ['findFirst', $this->findFirst()];
+        $results[] = ['find', $this->find()];
+        $results[] = ['DBOrder', $this->db_order()];
+        //$results[] = ['DBCondition', $this->db_condition()];
 
         $failedTests = [];
 

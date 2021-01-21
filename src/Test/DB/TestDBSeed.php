@@ -17,7 +17,7 @@ class TestDBSeed extends DBSeed
 
     public function setSeeds()
     {
-        // ----------- Super Admin -----------
+        // ----------- Super Admin 1 -----------
 
         $user = new TestDBEntity();
 
@@ -29,7 +29,7 @@ class TestDBSeed extends DBSeed
 
         $this->seed($user);
 
-        // ----------- Admin -----------
+        // ----------- Admin 2 -----------
 
         $user = new TestDBEntity();
 
@@ -42,7 +42,7 @@ class TestDBSeed extends DBSeed
 
         $this->seed($user);
 
-        // ----------- User -----------
+        // ----------- User 3 -----------
 
         $user = new TestDBEntity();
 
@@ -54,7 +54,7 @@ class TestDBSeed extends DBSeed
 
         $this->seed($user);
 
-        // ----------- Disabled User -----------
+        // ----------- Disabled User 4 -----------
 
         $user = new TestDBEntity();
 
@@ -66,7 +66,7 @@ class TestDBSeed extends DBSeed
 
         $this->seed($user);
 
-        // ----------- Removed User -----------
+        // ----------- Removed User 5 -----------
 
         $user = new TestDBEntity();
 
