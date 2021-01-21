@@ -29,10 +29,10 @@ use Copper\Component\CP\CPController;
 </style>
 
 <body class="markdown-body">
-<h4>DataBase File Generator</h4>
+<h4>DataBase Class Files Generator</h4>
 
 <div style="margin-bottom:20px;">
-    <span>Table Name:</span> <input id=table autocomplete="off" placeholder="Table name">
+    <span>Table Name:</span> <input id=table autocomplete="off" placeholder="Table name" autofocus>
     <span>Entity Name:</span> <input id=entity autocomplete="off" placeholder="Entity name">
     <input type="checkbox" id="relation" style="margin-left:20px"><span>Is Relation Table ?</span>
     <div style="display: inline-block; float:right;">
@@ -248,6 +248,10 @@ use Copper\Component\CP\CPController;
     </tbody>
 </table>
 
+<div style="float:right">
+    <button id="generate">Generate Class Files</button>
+</div>
+
 <form method="post" action="<?= $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_LOGOUT]) ?>">
     <button type="submit">Logout</button>
 </form>
@@ -365,10 +369,28 @@ use Copper\Component\CP\CPController;
         field.type = $type.value;
         field.length = ($length.value === '') ? false : $length.value;
         field.default = ($default.value === 'USER_DEFINED') ? $default_value : $default.value;
-        field.attr = $attributes.value;
+        field.attr = ($attributes.value === '') ? false : $attributes.value;
         field.null = ($null.checked === true);
-        field.index = $index.value;
+        field.index = ($index.value === '') ? false : $index.value;
         field.auto_increment = ($auto_increment.checked === true);
+
+        if (field.name.trim() === '')
+            return alert('Name can not be blank.');
+
+        let primaryExists = false;
+        let fieldExists = false;
+        fields.forEach(f => {
+            if (f.name === field.name)
+                fieldExists = true;
+            if (f.index === 'PRIMARY' && field.index === 'PRIMARY')
+                primaryExists = f.name;
+        })
+
+        if (fieldExists)
+            return alert(`Field with name [${field.name}] already exists.`);
+
+        if (primaryExists !== false)
+            return alert('Field with index = PRIMARY already exists: [' + primaryExists + ']');
 
         fields.push(field);
 
@@ -450,6 +472,61 @@ use Copper\Component\CP\CPController;
     $name.value = 'id';
     $name.dispatchEvent(new Event('input'));
     $add.dispatchEvent(new Event('click'));
+
+    $auto_increment.checked = false;
+    $index.value = '';
+    $attributes.value = '';
+    $type.value = 'VARCHAR';
+    $name.value = '';
+
+    // --------- GENERATE ------------
+
+    document.getElementById('generate').addEventListener('click', e => {
+        let http = new XMLHttpRequest();
+        let url = 'db_generator_run';
+
+        let params = JSON.stringify({
+            "table" : $table.value,
+            "entity" : $entity.value,
+            "relation" : ($relation.checked === true),
+            "fields" : fields
+        });
+
+        http.open('POST', url, true);
+
+        http.setRequestHeader('Content-type', 'application/json');
+
+        http.onreadystatechange = function () {
+            if (http.readyState === 4 && http.status === 200) {
+                alert(http.responseText);
+            }
+        }
+
+        http.send(params);
+    })
+
+    // ------------- DEMO ------------------
+
+    $name.value = 'name';
+    $type.value = 'VARCHAR';
+    $length.value = 200;
+    $type.dispatchEvent(new Event('input'));
+    $add.dispatchEvent(new Event('click'));
+
+    $name.value = 'desc';
+    $type.value = 'TEXT';
+    $length.value = '';
+    $type.dispatchEvent(new Event('input'));
+    $add.dispatchEvent(new Event('click'));
+
+    $name.value = 'package_id';
+    $type.value = 'TINYINT';
+    $type.dispatchEvent(new Event('input'));
+    $add.dispatchEvent(new Event('click'));
+
+    $table.value = 'products';
+    $table.dispatchEvent(new Event('input'));
+
 
 </script>
 </body>

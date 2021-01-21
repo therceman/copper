@@ -2,6 +2,7 @@
 
 namespace Copper\Component\CP;
 
+use Copper\Component\CP\DB\DBGenerator;
 use Copper\Component\CP\DB\DBService;
 use Copper\Controller\AbstractController;
 use Copper\Entity\AbstractEntity;
@@ -16,6 +17,7 @@ class CPController extends AbstractController
     const ACTION_DB_GEN_MODEL_FIELDS = 'gen_model_fields';
     const ACTION_DB_TEST = 'db_test';
     const ACTION_DB_GENERATOR = 'db_generator';
+    const ACTION_DB_GENERATOR_RUN = 'db_generator_run';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -56,6 +58,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_GENERATOR:
                 return $this->db_generator();
+                break;
+            case self::ACTION_DB_GENERATOR_RUN:
+                return $this->db_generator_run();
                 break;
         }
 
@@ -144,5 +149,16 @@ class CPController extends AbstractController
     private function db_generator()
     {
         return $this->render('cp/generator');
+    }
+
+    private function db_generator_run()
+    {
+        $content = $this->request->getContent();
+
+        print_r($content);
+
+        $response = DBGenerator::run();
+
+        return $this->json($response);
     }
 }
