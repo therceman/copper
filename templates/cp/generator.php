@@ -10,7 +10,7 @@ use Copper\Component\CP\CPController;
     table {
         border-collapse: collapse;
         margin-bottom: 20px;
-        width: 1600px;
+        width: 1400px;
     }
 
     table td {
@@ -20,24 +20,63 @@ use Copper\Component\CP\CPController;
     }
 
     body {
-        width: 1600px;
+        width: 1400px;
     }
 
     input[type=checkbox] + span {
         margin-left: 5px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    #names input {
+        width: 165px;
     }
 </style>
 
 <body class="markdown-body">
 <h4>DataBase Class Files Generator</h4>
 
-<div style="margin-bottom:20px;">
-    <span>Table Name:</span> <input id=table autocomplete="off" placeholder="Table name" autofocus>
-    <span>Entity Name:</span> <input id=entity autocomplete="off" placeholder="Entity name">
-    <input type="checkbox" id="relation" style="margin-left:20px"><span>Is Relation Table ?</span>
-    <div style="display: inline-block; float:right;">
+<div style="margin-bottom:10px;">
+    <div style="float:left;margin-top: 5px;">
+        <input type="checkbox" id="use_state_fields" checked="checked">
+        <label for="use_state_fields" title="State Fields Are: [created_at, update_at, removed_at, enabled]. This fields will be auto created.">
+            Use State Fields
+        </label>
+        <input type="checkbox" id="relation"><span>Is Relation Table ?</span>
+    </div>
+    <div style="float:right; margin-top: 5px;">
         <input type="checkbox" id="int_auto_unsigned" checked="checked"><span>INT type fields are auto UNSIGNED</span>
     </div>
+    <div style="clear: both"></div>
+    <div style="margin-top: 10px;">
+        <span>Files To Create: </span>
+        <input type="checkbox" id="create_entity" checked="checked"><label for="create_entity">Entity</label>
+        <input type="checkbox" id="create_model" checked="checked"><label for="create_model">Model</label>
+        <input type="checkbox" id="create_service" checked="checked"><label for="create_service">Service</label>
+        <input type="checkbox" id="create_controller" checked="checked"><label for="create_seed">Controller</label>
+        <input type="checkbox" id="create_seed"><label for="create_seed">Seed</label>
+    </div>
+    <div style="margin-top: -20px; float:right">
+        <span>Files To Override: </span>
+        <input type="checkbox" id="entity_override"><label for="entity_override">Entity</label>
+        <input type="checkbox" id="model_override"><label for="model_override">Model</label>
+        <input type="checkbox" id="service_override"><label for="service_override">Service</label>
+        <input type="checkbox" id="controller_override"><label for="seed_override">Controller</label>
+        <input type="checkbox" id="seed_override"><label for="seed_override">Seed</label>
+    </div>
+</div>
+
+
+<div style="margin-bottom:10px;" id="names">
+    <span>Table:</span> <input id=table autocomplete="off" placeholder="Table name" autofocus>
+    <span>Entity:</span> <input id=entity autocomplete="off" placeholder="Entity name">
+    <span>Model:</span> <input id=model autocomplete="off" placeholder="Model name">
+    <span>Service:</span> <input id=service autocomplete="off" placeholder="Service name">
+    <span>Controller:</span> <input id=controller autocomplete="off" placeholder="Controller name">
+    <span>Seed:</span> <input id=seed autocomplete="off" placeholder="Seed name">
 </div>
 
 <table id=fields class="controls">
@@ -58,7 +97,7 @@ use Copper\Component\CP\CPController;
             <input id="name">
         </td>
         <td>
-            <select id="type">
+            <select id="type" style="width: 185px;">
                 <option title="A 4-byte integer, signed range is -2,147,483,648 to 2,147,483,647, unsigned range is 0 to 4,294,967,295">
                     INT
                 </option>
@@ -188,7 +227,7 @@ use Copper\Component\CP\CPController;
             <input id="length" type="number">
         </td>
         <td>
-            <input type="text" id="default_value" disabled="disabled">
+            <input type="text" id="default_value" class="hidden" style="width: 134px;">
             <select id="default">
                 <option value="NONE" selected="selected">
                     None
@@ -203,6 +242,7 @@ use Copper\Component\CP\CPController;
                     CURRENT_TIMESTAMP
                 </option>
             </select>
+            <button class=hidden id="cancel_default_value">X</button>
         </td>
         <td>
             <select id="attributes">
@@ -349,8 +389,15 @@ use Copper\Component\CP\CPController;
 
     let $add = document.querySelector('#add');
     let $name = document.querySelector('#name');
+
     let $table = document.querySelector('#table');
+
     let $entity = document.querySelector('#entity');
+    let $model = document.querySelector('#model');
+    let $service = document.querySelector('#service');
+    let $controller = document.querySelector('#controller');
+    let $seed = document.querySelector('#seed');
+
     let $relation = document.querySelector('#relation');
     let $attributes = document.querySelector('#attributes');
     let $default = document.querySelector('#default');
@@ -361,6 +408,20 @@ use Copper\Component\CP\CPController;
     let $length = document.querySelector('#length');
     let $auto_increment = document.querySelector('#auto_increment');
     let $int_auto_unsigned = document.querySelector('#int_auto_unsigned');
+    let $cancel_default_value = document.querySelector('#cancel_default_value');
+    let $use_state_fields = document.querySelector('#use_state_fields');
+
+    let $create_entity = document.querySelector('#create_entity');
+    let $create_model = document.querySelector('#create_model');
+    let $create_service = document.querySelector('#create_service');
+    let $create_controller = document.querySelector('#create_controller');
+    let $create_seed = document.querySelector('#create_seed');
+
+    let $entity_override = document.querySelector('#entity_override');
+    let $model_override = document.querySelector('#model_override');
+    let $service_override = document.querySelector('#service_override');
+    let $controller_override = document.querySelector('#controller_override');
+    let $seed_override = document.querySelector('#seed_override');
 
     $add.addEventListener('click', e => {
         let field = new Field();
@@ -406,11 +467,23 @@ use Copper\Component\CP\CPController;
         }
     })
 
+    $cancel_default_value.addEventListener('click', e => {
+        $default_value.classList.toggle('hidden', true);
+        $cancel_default_value.classList.toggle('hidden', true);
+        $default.classList.toggle('hidden', false);
+
+        $default.value = 'NONE';
+    })
+
     $default.addEventListener('input', e => {
-        $default_value.disabled = ($default.value !== 'USER_DEFINED');
+        let isUserDefined = ($default.value !== 'USER_DEFINED');
 
         if ($default.value === 'NULL')
             $null.checked = true;
+
+        $default_value.classList.toggle('hidden', isUserDefined);
+        $cancel_default_value.classList.toggle('hidden', isUserDefined);
+        $default.classList.toggle('hidden', (isUserDefined === false));
     })
 
     $type.addEventListener('input', e => {
@@ -446,7 +519,35 @@ use Copper\Component\CP\CPController;
 
     $relation.addEventListener('input', e => {
         $entity.disabled = ($relation.checked);
+        $service.disabled = ($relation.checked);
+        $controller.disabled = ($relation.checked);
+
+        $create_entity.checked = ($relation.checked === false);
+        $create_service.checked = ($relation.checked === false);
+        $create_controller.checked = ($relation.checked === false);
     })
+
+    $create_entity.addEventListener('input', e => {
+        $entity.disabled = ($create_entity.checked === false);
+    })
+
+    $create_model.addEventListener('input', e => {
+        $model.disabled = ($create_model.checked === false);
+    })
+
+    $create_service.addEventListener('input', e => {
+        $service.disabled = ($create_service.checked === false);
+    })
+
+    $create_controller.addEventListener('input', e => {
+        $controller.disabled = ($create_controller.checked === false);
+    })
+
+    $create_seed.addEventListener('input', e => {
+        $seed.disabled = ($create_seed.checked === false);
+    })
+
+    $create_seed.dispatchEvent(new Event('input'));
 
     $table.addEventListener('input', e => {
         let tableVal = $table.value;
@@ -463,6 +564,10 @@ use Copper\Component\CP\CPController;
         })
 
         $entity.value = entityVal;
+        $model.value = entityVal + 'Model';
+        $service.value = entityVal + 'Service';
+        $controller.value = entityVal + 'Controller';
+        $seed.value = entityVal + 'Seed';
     });
 
     $type.dispatchEvent(new Event('input'));
@@ -486,10 +591,29 @@ use Copper\Component\CP\CPController;
         let url = 'db_generator_run';
 
         let params = JSON.stringify({
-            "table" : $table.value,
-            "entity" : $entity.value,
-            "relation" : ($relation.checked === true),
-            "fields" : fields
+            "table": $table.value,
+
+            "entity": $entity.value,
+            "model": $model.value,
+            "service": $service.value,
+            "controller": $controller.value,
+            "seed": $seed.value,
+
+            "create_entity": ($create_entity.checked === true),
+            "create_model": ($create_model.checked === true),
+            "create_service": ($create_service.checked === true),
+            "create_controller": ($create_controller.checked === true),
+            "create_seed": ($create_seed.checked === true),
+
+            "entity_override": ($entity_override.checked === true),
+            "model_override": ($model_override.checked === true),
+            "service_override": ($service_override.checked === true),
+            "controller_override": ($controller_override.checked === true),
+            "seed_override": ($seed_override.checked === true),
+
+            "use_state_fields": ($use_state_fields.checked === true),
+
+            "fields": fields
         });
 
         http.open('POST', url, true);

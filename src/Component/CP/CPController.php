@@ -155,9 +155,7 @@ class CPController extends AbstractController
     {
         $content = $this->request->getContent();
 
-        print_r($content);
-
-        $response = DBGenerator::run();
+        $response = DBGenerator::run($content);
 
         return $this->json($response);
     }
