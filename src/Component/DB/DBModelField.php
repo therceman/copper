@@ -366,7 +366,7 @@ class DBModelField
      *
      * @return $this
      */
-    public function zeroFill()
+    public function unsignedZeroFill()
     {
         $this->attr(self::ATTR_UNSIGNED_ZEROFILL);
 

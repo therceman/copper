@@ -42,7 +42,8 @@ use Copper\Component\CP\CPController;
 <div style="margin-bottom:10px;">
     <div style="float:left;margin-top: 5px;">
         <input type="checkbox" id="use_state_fields" checked="checked">
-        <label for="use_state_fields" title="State Fields Are: [created_at, update_at, removed_at, enabled]. This fields will be auto created.">
+        <label for="use_state_fields"
+               title="State Fields Are: [created_at, update_at, removed_at, enabled]. This fields will be auto created.">
             Use State Fields
         </label>
         <input type="checkbox" id="relation"><span>Is Relation Table ?</span>
@@ -253,11 +254,11 @@ use Copper\Component\CP\CPController;
                 <option value="UNSIGNED">
                     UNSIGNED
                 </option>
-                <option value="UNSIGNED_ZEROFILL">
-                    UNSIGNED_ZEROFILL
+                <option value="UNSIGNED ZEROFILL">
+                    UNSIGNED ZEROFILL
                 </option>
-                <option value="ON_UPDATE_CURRENT_TIMESTAMP">
-                    ON_UPDATE_CURRENT_TIMESTAMP
+                <option value="on update CURRENT_TIMESTAMP">
+                    on update CURRENT_TIMESTAMP
                 </option>
             </select>
         </td>
@@ -429,7 +430,7 @@ use Copper\Component\CP\CPController;
         field.name = $name.value;
         field.type = $type.value;
         field.length = ($length.value === '') ? false : $length.value;
-        field.default = ($default.value === 'USER_DEFINED') ? $default_value : $default.value;
+        field.default = ($default.value === 'USER_DEFINED') ? $default_value.value : $default.value;
         field.attr = ($attributes.value === '') ? false : $attributes.value;
         field.null = ($null.checked === true);
         field.index = ($index.value === '') ? false : $index.value;
@@ -493,14 +494,27 @@ use Copper\Component\CP\CPController;
         $default.querySelector('option[value=CURRENT_TIMESTAMP]').disabled = false;
         $attributes.querySelector('option[value=BINARY]').disabled = false;
         $attributes.querySelector('option[value=UNSIGNED]').disabled = true;
-        $attributes.querySelector('option[value=UNSIGNED_ZEROFILL]').disabled = true;
-        $attributes.querySelector('option[value=ON_UPDATE_CURRENT_TIMESTAMP]').disabled = true;
+        $attributes.querySelector('option[value="UNSIGNED ZEROFILL"]').disabled = true;
+        $attributes.querySelector('option[value="on update CURRENT_TIMESTAMP"]').disabled = true;
         $auto_increment.disabled = true;
+
+        $length.type = 'number';
+
+        if (['DECIMAL', 'ENUM'].indexOf(val) >= 0)
+            $length.type = 'text';
 
         $attributes.value = '';
 
-        if (['DATE', 'DATETIME', 'TIMESTAMP', 'TIME'].indexOf(val) >= 0)
-            $attributes.querySelector('option[value=ON_UPDATE_CURRENT_TIMESTAMP]').disabled = false;
+        if (['DATE', 'DATETIME', 'TIMESTAMP', 'TIME'].indexOf(val) >= 0) {
+            $attributes.querySelector('option[value="on update CURRENT_TIMESTAMP"]').disabled = false;
+            $length.disabled = true;
+            $length.value = '';
+        }
+
+        if (val === 'YEAR') {
+            $length.disabled = true;
+            $length.value = '';
+        }
 
         if (['INT', 'TINYINT', 'SMALLINT', 'MEDIUMINT', 'BIGINT'].indexOf(val) >= 0) {
             $length.disabled = true;
@@ -513,7 +527,7 @@ use Copper\Component\CP\CPController;
             $default.querySelector('option[value=CURRENT_TIMESTAMP]').disabled = true;
             $attributes.querySelector('option[value=BINARY]').disabled = true;
             $attributes.querySelector('option[value=UNSIGNED]').disabled = false;
-            $attributes.querySelector('option[value=UNSIGNED_ZEROFILL]').disabled = false;
+            $attributes.querySelector('option[value="UNSIGNED ZEROFILL"]').disabled = false;
         }
     })
 
@@ -640,17 +654,67 @@ use Copper\Component\CP\CPController;
     $name.value = 'desc';
     $type.value = 'TEXT';
     $length.value = '';
+    $default.value = 'NULL';
+    $default.dispatchEvent(new Event('input'));
     $type.dispatchEvent(new Event('input'));
     $add.dispatchEvent(new Event('click'));
+
+    $default.value = 'NONE';
+    $default.dispatchEvent(new Event('input'));
+    $null.checked = false;
 
     $name.value = 'package_id';
     $type.value = 'TINYINT';
+    $default.value = 'USER_DEFINED';
+    $default.dispatchEvent(new Event('input'));
+    $default_value.value = '1';
     $type.dispatchEvent(new Event('input'));
     $add.dispatchEvent(new Event('click'));
 
+    $name.value = 'enum';
+    $type.value = 'ENUM';
+    $type.dispatchEvent(new Event('input'));
+    $default.value = 'USER_DEFINED';
+    $default.dispatchEvent(new Event('input'));
+    $default_value.value = 'banana';
+    $length.value = 'apple,banana';
+    $add.dispatchEvent(new Event('click'));
+
+    $name.value = 'dec';
+    $type.value = 'DECIMAL';
+    $type.dispatchEvent(new Event('input'));
+    $default.value = 'USER_DEFINED';
+    $default.dispatchEvent(new Event('input'));
+    $length.value = '6,3';
+    $default_value.value = '125.33';
+    $add.dispatchEvent(new Event('click'));
+
+    $default.value = 'NONE';
+    $default_value.value = '';
+    $default.dispatchEvent(new Event('input'));
+
+    $name.value = 'date';
+    $type.value = 'TIMESTAMP';
+    $type.dispatchEvent(new Event('input'));
+    $default.value = 'CURRENT_TIMESTAMP';
+    $default.dispatchEvent(new Event('input'));
+    $attributes.value = 'on update CURRENT_TIMESTAMP'
+    $add.dispatchEvent(new Event('click'));
+
+    $default.value = 'NONE';
+    $default_value.value = '';
+    $default.dispatchEvent(new Event('input'));
+
+    $name.value = 'bin_var';
+    $type.value = 'VARCHAR';
+    $type.dispatchEvent(new Event('input'));
+    $null.checked = true;
+    $attributes.value = 'BINARY'
+    $add.dispatchEvent(new Event('click'));
+    $null.checked = false;
+
     $table.value = 'products';
     $table.dispatchEvent(new Event('input'));
-
 
 </script>
 </body>
