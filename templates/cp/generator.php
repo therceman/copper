@@ -933,4 +933,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     $table.dispatchEvent(new Event('input'));
 
 </script>
+
+<h6>Developed on MySQL version() === 10.4.14-MariaDB</h6>
+
 </body>

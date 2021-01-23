@@ -53,7 +53,7 @@ class DBGenerator
 
         $responses['entity'] = self::createEntity($create_entity, $entity, $fields, $use_state_fields, $entity_override);
         $responses['model'] = self::createModel($table, $create_model, $model, $fields, $use_state_fields, $model_override);
-
+        $responses['service'] = self::createService($create_service, $model, $entity, $service, $service_override);
 
         return $response->ok('success', $responses);
     }
@@ -84,6 +84,50 @@ class DBGenerator
                 DBModelField::DOUBLE,
                 DBModelField::REAL
             ]) !== false);
+    }
+
+    private static function createService($create, $model, $entity, $name, $override)
+    {
+        $response = new FunctionResponse();
+
+        $filePath = self::filePath($name, 'Service');
+
+        if ($create === false)
+            return $response->ok('Skipped');
+
+        if (file_exists($filePath) && $override === false)
+            return $response->fail($name . ' is not created. Override is set to false.');
+
+        $useEntity = 'use App\Entity\\' . $entity;
+        $useModel = 'use App\Model\\' . $model;
+
+        $content = <<<XML
+<?php
+
+
+namespace App\Service;
+
+$useEntity;
+$useModel;
+use Copper\Component\DB\DBCollectionService;
+
+class $name extends DBCollectionService
+{
+    public static function getModelClassName()
+    {
+        return $model::class;
+    }
+
+    public static function getEntityClassName()
+    {
+        return $entity::class;
+    }
+
+}
+XML;
+        file_put_contents($filePath, $content);
+
+        return $response->ok();
     }
 
     private static function createModel($table, $create, $name, $fields, $use_state_fields, $override)
