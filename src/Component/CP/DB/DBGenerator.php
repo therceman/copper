@@ -54,13 +54,20 @@ class DBGenerator
         $responses['entity'] = self::createEntity($create_entity, $entity, $fields, $use_state_fields, $entity_override);
         $responses['model'] = self::createModel($table, $create_model, $model, $fields, $use_state_fields, $model_override);
         $responses['service'] = self::createService($create_service, $model, $entity, $service, $service_override);
+        $responses['seed'] = self::createSeed($create_seed, $model, $entity, $seed, $seed_override);
+        $responses['controller'] = self::createController($create_controller, $model, $entity, $service, $controller, $controller_override);
 
         return $response->ok('success', $responses);
     }
 
     private static function filePath($name, $type)
     {
-        return Kernel::getProjectPath() . '/src/' . $type . '/' . $name . '.php';
+        $folder = Kernel::getProjectPath() . '/src/' . $type;
+
+        if (file_exists($folder) === false)
+            mkdir($folder);
+
+        return $folder . '/' . $name . '.php';
     }
 
     private static function isTypeInteger($type)
@@ -84,6 +91,106 @@ class DBGenerator
                 DBModelField::DOUBLE,
                 DBModelField::REAL
             ]) !== false);
+    }
+
+    private static function createController($create, $model, $entity, $service, $name, $override)
+    {
+        $response = new FunctionResponse();
+
+        $filePath = self::filePath($name, 'Controller');
+
+        if ($create === false)
+            return $response->ok('Skipped');
+
+        if (file_exists($filePath) && $override === false)
+            return $response->fail($name . ' is not created. Override is set to false.');
+
+        $template = strtolower($entity);
+
+        $content = <<<XML
+<?php
+
+namespace App\Controller;
+
+use App\Model\\$model;
+use App\Service\\$service;
+use Copper\Component\DB\DBModel;
+use Copper\Component\DB\DBOrder;
+use Copper\Controller\AbstractController;
+
+class $name extends AbstractController
+{
+    /** @var DBModel */
+    public \$model;
+
+    public function init()
+    {
+        \$this->model = new $model();
+    }
+
+    public function getIndex()
+    {
+        \$limit = \$this->request->query->get('limit', 20);
+        \$offset = \$this->request->query->get('offset', 0);
+        \$order = \$this->request->query->get('order', DBOrder::ASC);
+        \$order_by = \$this->request->query->get('order_by', DBModel::ID);
+
+        \$dbOrder = new DBOrder(\$this->model, \$order_by, (\$order === DBOrder::ASC));
+
+        \$list = $service::getList(\$this->db, \$limit, \$offset, \$dbOrder);
+
+        return \$this->render('$template/list', ['list' => \$list]);
+    }
+
+}
+XML;
+        file_put_contents($filePath, $content);
+
+        return $response->ok();
+    }
+
+    private static function createSeed($create, $model, $entity, $name, $override)
+    {
+        $response = new FunctionResponse();
+
+        $filePath = self::filePath($name, 'Seed');
+
+        if ($create === false)
+            return $response->ok('Skipped');
+
+        if (file_exists($filePath) && $override === false)
+            return $response->fail($name . ' is not created. Override is set to false.');
+
+        $var = strtolower($entity);
+
+        $content = <<<XML
+<?php
+
+namespace App\Seed;
+
+use App\Entity\\$entity;
+use App\Model\\$model;
+use Copper\Component\DB\DBSeed;
+
+class $name extends DBSeed
+{
+    public function getModelClassName()
+    {
+        return $model::class;
+    }
+
+    public function setSeeds()
+    {
+        // $$var = new $entity();
+        // $${var}->enabled = true;
+        // \$this->seed(\$$var);
+    }
+}
+XML;
+        file_put_contents($filePath, $content);
+
+        return $response->ok();
+
     }
 
     private static function createService($create, $model, $entity, $name, $override)

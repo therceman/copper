@@ -69,7 +69,7 @@ abstract class DBCollectionService
      * @param DBHandler $db
      * @param int $limit
      * @param int $offset
-     * @param bool $order
+     * @param bool|DBOrder $order
      * @param bool $returnRemoved
      *
      * @return AbstractEntity[]

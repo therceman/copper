@@ -3,7 +3,6 @@
 namespace Copper\Test\DB;
 
 use Copper\Component\DB\DBHandler;
-use Copper\Component\DB\DBModelField;
 use Copper\Component\DB\DBSeed;
 
 class TestDBSeed extends DBSeed

@@ -59,6 +59,13 @@ class AbstractController
         $this->auth = $auth;
         $this->db = $db;
         $this->cp = $cp;
+
+        $this->init();
+    }
+
+    public function init()
+    {
+        // alias for __constructor (but without parameters)
     }
 
     /**
