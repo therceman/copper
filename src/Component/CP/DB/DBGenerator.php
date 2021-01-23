@@ -54,6 +54,7 @@ class DBGenerator
         $responses['entity'] = self::createEntity($create_entity, $entity, $fields, $use_state_fields, $entity_override);
         $responses['model'] = self::createModel($table, $create_model, $model, $fields, $use_state_fields, $model_override);
 
+
         return $response->ok('success', $responses);
     }
 
@@ -125,8 +126,8 @@ class DBGenerator
 
             $fieldSetStr .= ($fLength !== false) ? ', ' . $fLength . ')' : ')';
 
-            if (strtolower($fName) === 'id' && $fIndex === DBModelField::INDEX_PRIMARY && strpos($fType, 'INT') !== false)
-                $fAutoIncrement = false;
+            // if (strtolower($fName) === 'id' && $fIndex === DBModelField::INDEX_PRIMARY && strpos($fType, 'INT') !== false)
+            //    $fAutoIncrement = false;
 
             if ($fIndex === DBModelField::INDEX_PRIMARY)
                 $fieldSetStr .= '->primary()';

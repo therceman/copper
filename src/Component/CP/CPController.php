@@ -148,7 +148,10 @@ class CPController extends AbstractController
 
     private function db_generator()
     {
-        return $this->render('cp/generator');
+
+        return $this->render('cp/generator', [
+            'default_varchar_length' => $this->db->config->default_varchar_length
+        ]);
     }
 
     private function db_generator_run()

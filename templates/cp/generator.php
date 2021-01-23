@@ -2,6 +2,8 @@
 
 use Copper\Component\CP\CPController;
 
+$default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
+
 ?>
 
 <?= $view->render('header') ?>
@@ -204,24 +206,24 @@ use Copper\Component\CP\CPController;
                     <option title="An enumeration, chosen from the list of up to 65,535 values or the special '' error value">
                         ENUM
                     </option>
-                    <option title="A single value chosen from a set of up to 64 members">SET</option>
+                    <!--                    <option title="A single value chosen from a set of up to 64 members">SET</option>-->
                 </optgroup>
-                <optgroup label="Spatial">
-                    <option title="A type that can store a geometry of any type">GEOMETRY</option>
-                    <option title="A point in 2-dimensional space">POINT</option>
-                    <option title="A curve with linear interpolation between points">LINESTRING</option>
-                    <option title="A polygon">POLYGON</option>
-                    <option title="A collection of points">MULTIPOINT</option>
-                    <option title="A collection of curves with linear interpolation between points">MULTILINESTRING
-                    </option>
-                    <option title="A collection of polygons">MULTIPOLYGON</option>
-                    <option title="A collection of geometry objects of any type">GEOMETRYCOLLECTION</option>
-                </optgroup>
-                <optgroup label="JSON">
-                    <option title="Stores and enables efficient access to data in JSON (JavaScript Object Notation) documents">
-                        JSON
-                    </option>
-                </optgroup>
+                <!--                <optgroup label="Spatial">-->
+                <!--                    <option title="A type that can store a geometry of any type">GEOMETRY</option>-->
+                <!--                    <option title="A point in 2-dimensional space">POINT</option>-->
+                <!--                    <option title="A curve with linear interpolation between points">LINESTRING</option>-->
+                <!--                    <option title="A polygon">POLYGON</option>-->
+                <!--                    <option title="A collection of points">MULTIPOINT</option>-->
+                <!--                    <option title="A collection of curves with linear interpolation between points">MULTILINESTRING-->
+                <!--                    </option>-->
+                <!--                    <option title="A collection of polygons">MULTIPOLYGON</option>-->
+                <!--                    <option title="A collection of geometry objects of any type">GEOMETRYCOLLECTION</option>-->
+                <!--                </optgroup>-->
+                <!--                <optgroup label="JSON">-->
+                <!--                    <option title="Stores and enables efficient access to data in JSON (JavaScript Object Notation) documents">-->
+                <!--                        JSON-->
+                <!--                    </option>-->
+                <!--                </optgroup>-->
             </select>
         </td>
         <td>
@@ -296,6 +298,165 @@ use Copper\Component\CP\CPController;
 <form method="post" action="<?= $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_LOGOUT]) ?>">
     <button type="submit">Logout</button>
 </form>
+
+<script>
+    // ============== TYPE ==============
+
+    // ------- Numeric -------
+
+    /** A 1-byte integer, signed range is -128 to 127, unsigned range is 0 to 255 */
+    const TINYINT = 'TINYINT';
+
+    /** A 2-byte integer, signed range is -32,768 to 32,767, unsigned range is 0 to 65,535 */
+    const SMALLINT = 'SMALLINT';
+
+    /** A 3-byte integer, signed range is -8,388,608 to 8,388,607, unsigned range is 0 to 16,777,215 */
+    const MEDIUMINT = 'MEDIUMINT';
+
+    /** A 4-byte integer, signed range is -2,147,483,648 to 2,147,483,647, unsigned range is 0 to 4,294,967,295 */
+    const INT = 'INT';
+
+    /** An 8-byte integer, signed range is -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807, unsigned range is 0 to 18,446,744,073,709,551,615 */
+    const BIGINT = 'BIGINT';
+
+    /** A fixed-point number (M, D) - the maximum number of digits (M) is 65 (default 10), the maximum number of decimals (D) is 30 (default 0) */
+    const DECIMAL = 'DECIMAL';
+
+    /** A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38 */
+    const FLOAT = 'FLOAT';
+
+    /** A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308 */
+    const DOUBLE = 'DOUBLE';
+
+    /** Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT) */
+    const REAL = 'REAL';
+
+    /** A bit-field type (M), storing M of bits per value (default is 1, maximum is 64) */
+    const BIT = 'BIT';
+
+    /** A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true */
+    const BOOLEAN = 'BOOLEAN';
+
+    /** An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE */
+    const SERIAL = 'SERIAL';
+
+    // ------- Date and time -------
+
+    /** A date, supported range is 1000-01-01 to 9999-12-31 */
+    const DATE = 'DATE';
+
+    /** A date and time combination, supported range is 1000-01-01 00:00:00 to 9999-12-31 23:59:59 */
+    const DATETIME = 'DATETIME';
+
+    /** A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC) */
+    const TIMESTAMP = 'TIMESTAMP';
+
+    /** A time, range is -838:59:59 to 838:59:59 */
+    const TIME = 'TIME';
+
+    /** A year in four-digit (4, default) or two-digit (2) format, the allowable values are 70 (1970) to 69 (2069) or 1901 to 2155 and 0000 */
+    const YEAR = 'YEAR';
+
+    // ------- String -------
+
+    /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
+    const CHAR = 'CHAR';
+
+    /** A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size */
+    const VARCHAR = 'VARCHAR';
+
+    /** A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes */
+    const TINYTEXT = 'TINYTEXT';
+
+    /** A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes */
+    const TEXT = 'TEXT';
+
+    /** A TEXT column with a maximum length of 16,777,215 (2^24 - 1) characters, stored with a three-byte prefix indicating the length of the value in bytes */
+    const MEDIUMTEXT = 'MEDIUMTEXT';
+
+    /** A TEXT column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) characters, stored with a four-byte prefix indicating the length of the value in bytes */
+    const LONGTEXT = 'LONGTEXT';
+
+    /** Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings */
+    const BINARY = 'BINARY';
+
+    /** Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings */
+    const VARBINARY = 'VARBINARY';
+
+    /** A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value */
+    const TINYBLOB = 'TINYBLOB';
+
+    /** A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value */
+    const BLOB = 'BLOB';
+
+    /** A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value */
+    const MEDIUMBLOB = 'MEDIUMBLOB';
+
+    /** A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value */
+    const LONGBLOB = 'LONGBLOB';
+
+    /** An enumeration, chosen from the list of up to 65,535 values or the special '' error value */
+    const ENUM = 'ENUM';
+
+    // /** A single value chosen from a set of up to 64 members */
+    // const SET = 'SET';
+
+    // // ------- Spatial -------
+    //
+    // /** A type that can store a geometry of any type */
+    // const GEOMETRY = 'GEOMETRY';
+    //
+    // /** A point in 2-dimensional space */
+    // const POINT = 'POINT';
+    //
+    // /** A curve with linear interpolation between points */
+    // const LINESTRING = 'LINESTRING';
+    //
+    // /** A polygon */
+    // const POLYGON = 'POLYGON';
+    //
+    // /** A collection of points */
+    // const MULTIPOINT = 'MULTIPOINT';
+    //
+    // /** A collection of curves with linear interpolation between points */
+    // const MULTILINESTRING = 'MULTILINESTRING';
+    //
+    // /** A collection of polygons */
+    // const MULTIPOLYGON = 'MULTIPOLYGON';
+    //
+    // /** A collection of geometry objects of any type */
+    // const GEOMETRYCOLLECTION = 'GEOMETRYCOLLECTION';
+
+    // ------- JSON -------
+
+    /** Stores and enables efficient access to data in JSON (JavaScript Object Notation) documents */
+        // const JSON = 'JSON';
+
+        // ============== Default ==============
+
+    const DEFAULT_NONE = 'NONE';
+    const DEFAULT_NULL = 'NULL';
+    const DEFAULT_CURRENT_TIMESTAMP = 'CURRENT_TIMESTAMP';
+
+    // ============== Attributes ==============
+
+    const ATTR_BINARY = 'BINARY';
+    /** Unsigned type can be used to permit only nonnegative numbers in a column or when you need a larger upper numeric range for the column. e.g. signed -127 to 127 , unsigned 0 to 255 */
+    const ATTR_UNSIGNED = 'UNSIGNED';
+    /** Pads the displayed value of the field with zeros up to the display width specified in the column definition (Type), e.g. INT(8) will fill up to 7 zeros - 00000001 */
+    const ATTR_UNSIGNED_ZEROFILL = 'UNSIGNED ZEROFILL';
+    /** Updates field value to current timestamp when on UPDATE */
+    const ATTR_ON_UPDATE_CURRENT_TIMESTAMP = 'on update CURRENT_TIMESTAMP';
+
+    // ============== Index ==============
+
+    const INDEX_PRIMARY = 'PRIMARY';
+    const INDEX_UNIQUE = 'UNIQUE';
+</script>
+
+<script>
+    const DEFAULT_USER_DEFINED = 'USER_DEFINED';
+</script>
 
 <script>
     class Field {
@@ -430,7 +591,7 @@ use Copper\Component\CP\CPController;
         field.name = $name.value;
         field.type = $type.value;
         field.length = ($length.value === '') ? false : $length.value;
-        field.default = ($default.value === 'USER_DEFINED') ? $default_value.value : $default.value;
+        field.default = ($default.value === DEFAULT_USER_DEFINED) ? $default_value.value : $default.value;
         field.attr = ($attributes.value === '') ? false : $attributes.value;
         field.null = ($null.checked === true);
         field.index = ($index.value === '') ? false : $index.value;
@@ -441,18 +602,24 @@ use Copper\Component\CP\CPController;
 
         let primaryExists = false;
         let fieldExists = false;
+        let autoIncrementExists = false;
         fields.forEach(f => {
             if (f.name === field.name)
                 fieldExists = true;
-            if (f.index === 'PRIMARY' && field.index === 'PRIMARY')
+            if (f.index === INDEX_PRIMARY && field.index === INDEX_PRIMARY)
                 primaryExists = f.name;
+            if (f.auto_increment === true && field.auto_increment === true)
+                autoIncrementExists = f.name;
         })
 
+        if (autoIncrementExists)
+            return alert(`Failed to add [${field.name}]. Field with Auto Increment already exists: [${autoIncrementExists}]`);
+
         if (fieldExists)
-            return alert(`Field with name [${field.name}] already exists.`);
+            return alert(`Failed to add [${field.name}]. Field already exists.`);
 
         if (primaryExists !== false)
-            return alert('Field with index = PRIMARY already exists: [' + primaryExists + ']');
+            return alert(`Failed to add [${field.name}]. Field with index = PRIMARY already exists: [${primaryExists}]`);
 
         fields.push(field);
 
@@ -462,9 +629,9 @@ use Copper\Component\CP\CPController;
     $name.addEventListener('input', e => {
         if ($name.value === 'id') {
             $auto_increment.checked = true;
-            $index.value = 'PRIMARY';
-            $type.value = 'MEDIUMINT';
-            $attributes.value = 'UNSIGNED'
+            $index.value = INDEX_PRIMARY;
+            $type.value = MEDIUMINT;
+            $attributes.value = ATTR_UNSIGNED;
         }
     })
 
@@ -473,13 +640,13 @@ use Copper\Component\CP\CPController;
         $cancel_default_value.classList.toggle('hidden', true);
         $default.classList.toggle('hidden', false);
 
-        $default.value = 'NONE';
+        $default.value = DEFAULT_NONE;
     })
 
     $default.addEventListener('input', e => {
-        let isUserDefined = ($default.value !== 'USER_DEFINED');
+        let isUserDefined = ($default.value !== DEFAULT_USER_DEFINED);
 
-        if ($default.value === 'NULL')
+        if ($default.value === DEFAULT_NULL)
             $null.checked = true;
 
         $default_value.classList.toggle('hidden', isUserDefined);
@@ -487,47 +654,91 @@ use Copper\Component\CP\CPController;
         $default.classList.toggle('hidden', (isUserDefined === false));
     })
 
+    $auto_increment.addEventListener('input', e => {
+        let checked = ($auto_increment.checked === true);
+
+        if (checked && [DEFAULT_NONE, DEFAULT_NULL].indexOf($default.value) < 0) {
+            alert(`Field with Auto Increment can't have default value`);
+            $auto_increment.checked = false;
+        }
+
+        $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = (checked);
+        $default.querySelector(`option[value="${DEFAULT_USER_DEFINED}"]`).disabled = (checked);
+    });
+
     $type.addEventListener('input', e => {
         let val = $type.value;
 
         $length.disabled = false;
-        $default.querySelector('option[value=CURRENT_TIMESTAMP]').disabled = false;
-        $attributes.querySelector('option[value=BINARY]').disabled = false;
-        $attributes.querySelector('option[value=UNSIGNED]').disabled = true;
-        $attributes.querySelector('option[value="UNSIGNED ZEROFILL"]').disabled = true;
-        $attributes.querySelector('option[value="on update CURRENT_TIMESTAMP"]').disabled = true;
+        $attributes.disabled = false;
+
+        $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = false;
+        $attributes.querySelector(`option[value="${ATTR_BINARY}"]`).disabled = false;
+        $attributes.querySelector(`option[value="${ATTR_UNSIGNED}"]`).disabled = true;
+        $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = true;
+        $attributes.querySelector(`option[value="${ATTR_ON_UPDATE_CURRENT_TIMESTAMP}"]`).disabled = true;
         $auto_increment.disabled = true;
 
-        $length.type = 'number';
+        $default_value.type = 'text';
+        $default_value.removeAttribute('min');
+        $default_value.removeAttribute('max');
 
-        if (['DECIMAL', 'ENUM'].indexOf(val) >= 0)
+        $length.type = 'number';
+        $length.title = '';
+
+        if ([DECIMAL, ENUM].indexOf(val) >= 0)
             $length.type = 'text';
+
+        if (val === DECIMAL) {
+            $length.value = '7,2';
+            $length.title = '7,2 = 2 numbers for decimal and 7 for total, e.g. max number is 99999,99';
+        }
+
+        if (val === ENUM)
+            $length.value = 'one, two';
+
+        if (val === VARCHAR) {
+            $length.value = <?= $default_varchar_length ?>;
+            $length.title = '7,2 = 2 numbers for decimal and 7 for total, e.g. max number is 99999,99';
+        }
 
         $attributes.value = '';
 
-        if (['DATE', 'DATETIME', 'TIMESTAMP', 'TIME'].indexOf(val) >= 0) {
-            $attributes.querySelector('option[value="on update CURRENT_TIMESTAMP"]').disabled = false;
+        if ([DATE, DATETIME, TIMESTAMP, TIME].indexOf(val) >= 0) {
+            $attributes.querySelector(`option[value="${ATTR_ON_UPDATE_CURRENT_TIMESTAMP}"]`).disabled = false;
             $length.disabled = true;
             $length.value = '';
         }
 
-        if (val === 'YEAR') {
+        if ([YEAR, BOOLEAN].indexOf(val) >= 0) {
             $length.disabled = true;
             $length.value = '';
+            $attributes.disabled = true;
+            $default.querySelector(`option[value=${DEFAULT_CURRENT_TIMESTAMP}]`).disabled = true;
+            $default_value.type = 'number';
+
+            if (val === BOOLEAN) {
+                $default.querySelector(`option[value=${DEFAULT_NULL}]`).disabled = true;
+                $default_value.min = 0;
+                $default_value.max = 1;
+            } else {
+                $default_value.min = 1901;
+                $default_value.max = 2155;
+            }
         }
 
-        if (['INT', 'TINYINT', 'SMALLINT', 'MEDIUMINT', 'BIGINT'].indexOf(val) >= 0) {
+        if ([INT, TINYINT, SMALLINT, MEDIUMINT, BIGINT].indexOf(val) >= 0) {
             $length.disabled = true;
             $auto_increment.disabled = false;
             $length.value = '';
 
             if ($int_auto_unsigned.checked)
-                $attributes.value = 'UNSIGNED';
+                $attributes.value = ATTR_UNSIGNED;
 
-            $default.querySelector('option[value=CURRENT_TIMESTAMP]').disabled = true;
-            $attributes.querySelector('option[value=BINARY]').disabled = true;
-            $attributes.querySelector('option[value=UNSIGNED]').disabled = false;
-            $attributes.querySelector('option[value="UNSIGNED ZEROFILL"]').disabled = false;
+            $default.querySelector(`option[value=${DEFAULT_CURRENT_TIMESTAMP}]`).disabled = true;
+            $attributes.querySelector(`option[value=${ATTR_BINARY}]`).disabled = true;
+            $attributes.querySelector(`option[value=${ATTR_UNSIGNED}]`).disabled = false;
+            $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = false;
         }
     })
 
@@ -595,7 +806,7 @@ use Copper\Component\CP\CPController;
     $auto_increment.checked = false;
     $index.value = '';
     $attributes.value = '';
-    $type.value = 'VARCHAR';
+    $type.value = VARCHAR;
     $name.value = '';
 
     // --------- GENERATE ------------
@@ -646,70 +857,75 @@ use Copper\Component\CP\CPController;
     // ------------- DEMO ------------------
 
     $name.value = 'name';
-    $type.value = 'VARCHAR';
+    $type.value = VARCHAR;
     $length.value = 200;
     $type.dispatchEvent(new Event('input'));
     $add.dispatchEvent(new Event('click'));
 
     $name.value = 'desc';
-    $type.value = 'TEXT';
+    $type.value = TEXT;
     $length.value = '';
-    $default.value = 'NULL';
+    $default.value = DEFAULT_NULL;
     $default.dispatchEvent(new Event('input'));
     $type.dispatchEvent(new Event('input'));
     $add.dispatchEvent(new Event('click'));
 
-    $default.value = 'NONE';
+    $default.value = DEFAULT_NONE;
     $default.dispatchEvent(new Event('input'));
     $null.checked = false;
 
     $name.value = 'package_id';
-    $type.value = 'TINYINT';
-    $default.value = 'USER_DEFINED';
+    $type.value = TINYINT;
+    $index.value = INDEX_UNIQUE;
+    $default.value = DEFAULT_USER_DEFINED;
     $default.dispatchEvent(new Event('input'));
     $default_value.value = '1';
     $type.dispatchEvent(new Event('input'));
     $add.dispatchEvent(new Event('click'));
 
+    $auto_increment.checked = false;
+    $index.value = '';
+
     $name.value = 'enum';
-    $type.value = 'ENUM';
+    $type.value = ENUM;
     $type.dispatchEvent(new Event('input'));
-    $default.value = 'USER_DEFINED';
+    $default.value = DEFAULT_USER_DEFINED;
     $default.dispatchEvent(new Event('input'));
     $default_value.value = 'banana';
     $length.value = 'apple,banana';
     $add.dispatchEvent(new Event('click'));
 
     $name.value = 'dec';
-    $type.value = 'DECIMAL';
+    $type.value = DECIMAL;
     $type.dispatchEvent(new Event('input'));
-    $default.value = 'USER_DEFINED';
+    $default.value = DEFAULT_USER_DEFINED;
+    $attributes.value = ATTR_UNSIGNED_ZEROFILL;
     $default.dispatchEvent(new Event('input'));
     $length.value = '6,3';
     $default_value.value = '125.33';
     $add.dispatchEvent(new Event('click'));
 
-    $default.value = 'NONE';
+    $default.value = DEFAULT_NONE;
     $default_value.value = '';
     $default.dispatchEvent(new Event('input'));
 
     $name.value = 'date';
-    $type.value = 'TIMESTAMP';
+    $type.value = TIMESTAMP;
     $type.dispatchEvent(new Event('input'));
-    $default.value = 'CURRENT_TIMESTAMP';
+    $default.value = DEFAULT_CURRENT_TIMESTAMP;
     $default.dispatchEvent(new Event('input'));
-    $attributes.value = 'on update CURRENT_TIMESTAMP'
+    $attributes.value = ATTR_ON_UPDATE_CURRENT_TIMESTAMP;
     $add.dispatchEvent(new Event('click'));
 
-    $default.value = 'NONE';
+    $default.value = DEFAULT_NONE;
     $default_value.value = '';
     $default.dispatchEvent(new Event('input'));
 
     $name.value = 'bin_var';
-    $type.value = 'VARCHAR';
+    $type.value = VARCHAR;
     $type.dispatchEvent(new Event('input'));
     $null.checked = true;
-    $attributes.value = 'BINARY'
+    $attributes.value = ATTR_BINARY;
     $add.dispatchEvent(new Event('click'));
     $null.checked = false;
 

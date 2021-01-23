@@ -238,6 +238,10 @@ class DBModelField
         if ($default === self::DEFAULT_NULL)
             $this->null = true;
 
+        // Field with Auto Increment can't have default value
+        if ($this->auto_increment === true)
+            $this->default = self::DEFAULT_NONE;
+
         return $this;
     }
 

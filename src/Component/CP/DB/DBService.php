@@ -146,9 +146,6 @@ class DBService
         foreach ($model->fields as $field) {
             $str = "`$field->name` $field->type";
 
-            if ($field->attr !== false)
-                $str .= ' ' . $field->attr . ' ';
-
             if ($field->type === DBModelField::VARCHAR && $field->length === false)
                 $field->length = $db->config->default_varchar_length;
 
@@ -160,6 +157,9 @@ class DBService
                             ? "'" . join("','", self::escapeStrArray($field->length)) . "'"
                             : self::escapeStr($field->length)) . ')';
             }
+
+            if ($field->attr !== false)
+                $str .= ' ' . $field->attr . ' ';
 
             $str .= ($field->null === false) ? " NOT NULL" : " NULL";
 
