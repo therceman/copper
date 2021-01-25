@@ -158,7 +158,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
                         TIMESTAMP
                     </option>
                     <option title="A time, range is -838:59:59 to 838:59:59">TIME</option>
-                    <option title="A year in four-digit (4, default) or two-digit (2) format, the allowable values are 70 (1970) to 69 (2069) or 1901 to 2155 and 0000">
+                    <option title="A year in four-digit (4, default) the allowable values are 1901 to 2155 and 0000">
                         YEAR
                     </option>
                 </optgroup>
@@ -354,7 +354,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     /** A time, range is -838:59:59 to 838:59:59 */
     const TIME = 'TIME';
 
-    /** A year in four-digit (4, default) or two-digit (2) format, the allowable values are 70 (1970) to 69 (2069) or 1901 to 2155 and 0000 */
+    /** A year in four-digit (4, default) the allowable values are 1901 to 2155 and 0000 */
     const YEAR = 'YEAR';
 
     // ------- String -------

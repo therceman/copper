@@ -182,7 +182,6 @@ class AbstractController
         return new RedirectResponse($url, $status);
     }
 
-
     /**
      * Redirects to authorization/login page with returnToRoute parameter as query string
      * If User is authorized already - show forbidden page
@@ -204,5 +203,45 @@ class AbstractController
             $parameters = [$authConfig->returnToRouteParam => $returnToRoute];
 
         return $this->redirectToRoute($authConfig->loginRoute, $parameters);
+    }
+
+    /**
+     * Extract all provided params from request
+     *
+     * @param array $keys Keys - included params
+     *
+     * @return array
+     */
+    protected function requestParams(array $keys)
+    {
+        $params = [];
+
+        foreach ($this->request->request->all() as $requestKey => $requestValue) {
+            if (array_search($requestKey, $keys) !== false)
+                $params[$requestKey] = $requestValue;
+        }
+
+        return $params;
+    }
+
+    /**
+     * Extract all params from request excluding provided keys
+     *
+     * @param array $keys Keys - excluded params
+     *
+     * @return array
+     */
+    protected function requestParamsExcluding(array $keys)
+    {
+        $params = [];
+
+        foreach ($this->request->request->all() as $requestKey => $requestValue) {
+            if (array_search($requestKey, $keys) !== false)
+                continue;
+
+            $params[$requestKey] = $requestValue;
+        }
+
+        return $params;
     }
 }

@@ -86,6 +86,44 @@ abstract class DBModel
         return $response->ok();
     }
 
+    public static function fieldTypeIsInteger($type)
+    {
+        return (in_array($type, [
+                DBModelField::INT,
+                DBModelField::TINYINT,
+                DBModelField::SMALLINT,
+                DBModelField::MEDIUMINT,
+                DBModelField::BIGINT,
+                DBModelField::SERIAL,
+                DBModelField::BIT
+            ]) !== false);
+    }
+
+    public static function fieldTypeIsFloat($type)
+    {
+        return (in_array($type, [
+                DBModelField::DECIMAL,
+                DBModelField::FLOAT,
+                DBModelField::DOUBLE,
+                DBModelField::REAL
+            ]) !== false);
+    }
+
+    public static function fieldTypeIsBoolean($type)
+    {
+        return ($type === DBModelField::BOOLEAN);
+    }
+
+    public static function fieldTypeIsEnum($type)
+    {
+        return ($type === DBModelField::ENUM);
+    }
+
+    public static function fieldTypeIsDecimal($type)
+    {
+        return ($type === DBModelField::DECIMAL);
+    }
+
     /**
      * Add Field to Model
      *
@@ -95,7 +133,7 @@ abstract class DBModel
      *
      * @return DBModelField
      */
-    public function field(string $name, $type = false, $length = false)
+    public function addField(string $name, $type = false, $length = false)
     {
         $field = new DBModelField($name, $type, $length);
 
@@ -106,10 +144,10 @@ abstract class DBModel
 
     public function addStateFields($enabledByDefault = false)
     {
-        $this->field(self::CREATED_AT, DBModelField::DATETIME)->currentTimestampByDefault();
-        $this->field(self::UPDATED_AT, DBModelField::DATETIME)->currentTimestampOnUpdate()->nullByDefault();
-        $this->field(self::REMOVED_AT, DBModelField::DATETIME)->nullByDefault();
-        $this->field(self::ENABLED, DBModelField::BOOLEAN)->default($enabledByDefault);
+        $this->addField(self::CREATED_AT, DBModelField::DATETIME)->currentTimestampByDefault();
+        $this->addField(self::UPDATED_AT, DBModelField::DATETIME)->currentTimestampOnUpdate()->nullByDefault();
+        $this->addField(self::REMOVED_AT, DBModelField::DATETIME)->nullByDefault();
+        $this->addField(self::ENABLED, DBModelField::BOOLEAN)->default($enabledByDefault);
     }
 
     /**

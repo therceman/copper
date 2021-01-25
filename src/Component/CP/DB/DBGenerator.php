@@ -4,6 +4,7 @@
 namespace Copper\Component\CP\DB;
 
 
+use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
 use Copper\FunctionResponse;
 use Copper\Kernel;
@@ -72,25 +73,12 @@ class DBGenerator
 
     private static function isTypeInteger($type)
     {
-        return (in_array($type, [
-                DBModelField::INT,
-                DBModelField::TINYINT,
-                DBModelField::SMALLINT,
-                DBModelField::MEDIUMINT,
-                DBModelField::BIGINT,
-                DBModelField::SERIAL,
-                DBModelField::BIT
-            ]) !== false);
+        return DBModel::fieldTypeIsInteger($type);
     }
 
     private static function isTypeFloat($type)
     {
-        return (in_array($type, [
-                DBModelField::DECIMAL,
-                DBModelField::FLOAT,
-                DBModelField::DOUBLE,
-                DBModelField::REAL
-            ]) !== false);
+        return DBModel::fieldTypeIsFloat($type);
     }
 
     private static function createController($create, $model, $entity, $service, $name, $override)
@@ -128,7 +116,7 @@ class $name extends AbstractController
         \$this->model = new $model();
     }
 
-    public function getIndex()
+    public function getList()
     {
         \$limit = \$this->request->query->get('limit', 20);
         \$offset = \$this->request->query->get('offset', 0);
@@ -268,7 +256,7 @@ XML;
 
             $constFields .= self::T . "const $fNameUp = '$fName';\r\n";
 
-            $fieldSetStr = self::T2 . '$this->' . "field(self::$fNameUp, DBModelField::$fType";
+            $fieldSetStr = self::T2 . '$this->' . "addField(self::$fNameUp, DBModelField::$fType";
 
             if (in_array($fType, [DBModelField::DECIMAL, DBModelField::ENUM]) !== false) {
                 $q = ($fType === DBModelField::DECIMAL) ? '' : "'";
