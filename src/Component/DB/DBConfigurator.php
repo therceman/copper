@@ -28,4 +28,7 @@ class DBConfigurator
 
     /** @var int */
     public $default_varchar_length;
+
+    /** @var array */
+    public $default_decimal_length;
 }

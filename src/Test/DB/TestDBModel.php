@@ -15,6 +15,7 @@ class TestDBModel extends DBModel
     const EMAIL = 'email';
     const SALARY = 'salary';
     const ENUM = 'enum';
+    const DEC_DEF = 'dec_def';
 
     public function getTableName()
     {
@@ -31,6 +32,7 @@ class TestDBModel extends DBModel
         $this->addField(self::EMAIL, DBModelField::VARCHAR, 50)->unique();
         $this->addField(self::SALARY, DBModelField::DECIMAL, ['6', 2])->default(123.57);
         $this->addField(self::ENUM, DBModelField::ENUM, ['apple','banana'])->default('banana');
+        $this->addField(self::DEC_DEF, DBModelField::DECIMAL)->default(0);
 
         // ------ State Fields ------
         $this->addStateFields();

@@ -10,6 +10,9 @@ use Envms\FluentPDO\Exception;
 
 abstract class DBCollectionService
 {
+    /** @var array */
+    private static $models = [];
+
     abstract protected static function getModelClassName();
 
     abstract protected static function getEntityClassName();
@@ -21,7 +24,10 @@ abstract class DBCollectionService
     {
         $modelClassName = static::getModelClassName();
 
-        return new $modelClassName();
+        if (!array_key_exists($modelClassName, self::$models))
+            self::$models[$modelClassName] = new $modelClassName();
+
+        return self::$models[$modelClassName];
     }
 
     /**

@@ -156,7 +156,7 @@ abstract class DBModel
             if ($value === null && $field->getType() === $field::YEAR && $field->getNull() !== true)
                 $value = DBHandler::year();
 
-            if ($value === null && in_array($field->getDefault(), [$field::DEFAULT_NONE, $field::DEFAULT_CURRENT_TIMESTAMP, $field::DEFAULT_NONE]) === false && $field->getNull() !== true)
+            if ($value === null && in_array($field->getDefault(), [$field::DEFAULT_NONE, $field::DEFAULT_CURRENT_TIMESTAMP, $field::DEFAULT_NULL], true) === false && $field->getNull() !== true)
                 $value = $field->getDefault();
 
             if ($value === null && $removeNullFields === true)

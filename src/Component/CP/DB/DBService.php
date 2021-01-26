@@ -104,7 +104,7 @@ class DBService
         try {
             $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
             $db->pdo->exec($query);
-            return $response->success("Seeded `$model->tableName` Table");
+            return $response->success("Seeded `$model->tableName` Table", $query);
         } catch (PDOException $e) {
             return $response->error($e->getMessage(), $query);
         }
@@ -148,9 +148,6 @@ class DBService
 
         foreach ($model->fields as $field) {
             $str = '`' . $field->getName() . '` ' . $field->getType();
-
-            if ($field->getType() === DBModelField::VARCHAR && $field->getLength() === false)
-                $field->length($db->config->default_varchar_length);
 
             if ($field->getLength() !== false) {
                 if ($field->getType() === DBModelField::DECIMAL)
@@ -197,7 +194,7 @@ class DBService
         try {
             $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
             $db->pdo->exec($query);
-            return $response->success("Created `$model->tableName` Table", [$model, $query]);
+            return $response->success("Created `$model->tableName` Table", $query);
         } catch (PDOException $e) {
             return $response->error($e->getMessage(), $query);
         }

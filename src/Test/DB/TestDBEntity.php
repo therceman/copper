@@ -19,4 +19,6 @@ class TestDBEntity extends AbstractUser
     public $salary;
     /** @var string */
     public $enum;
+    /** @var float */
+    public $dec_def;
 }

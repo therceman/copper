@@ -60,7 +60,7 @@ class ValidatorHandler
         foreach ($model->getFieldNames() as $name) {
             $field = $model->getFieldByName($name);
 
-            $length = $field->getMaxLength($this->dbConfig->default_varchar_length);
+            $length = $field->getMaxLength();
 
             if ($field->typeIsInteger())
                 $rule = ValidatorRule::integer($name, $field->getLength(), ($field->getNull() !== false));

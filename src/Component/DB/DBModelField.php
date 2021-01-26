@@ -219,6 +219,12 @@ class DBModelField
 
     public function getLength()
     {
+        if ($this->type === self::DECIMAL && $this->length === false)
+            return DBHandler::getConfig()->default_decimal_length;
+
+        if ($this->type === self::VARCHAR && $this->length === false)
+            return DBHandler::getConfig()->default_varchar_length;
+
         return $this->length;
     }
 
@@ -227,23 +233,28 @@ class DBModelField
         return $this->default;
     }
 
-    public function getAttr() {
+    public function getAttr()
+    {
         return $this->attr;
     }
 
-    public function getNull() {
+    public function getNull()
+    {
         return $this->null;
     }
 
-    public function getIndex() {
+    public function getIndex()
+    {
         return $this->index;
     }
 
-    public function getIndexName() {
+    public function getIndexName()
+    {
         return $this->indexName;
     }
 
-    public function getAutoIncrement() {
+    public function getAutoIncrement()
+    {
         return $this->autoIncrement;
     }
 
@@ -500,28 +511,80 @@ class DBModelField
     }
 
     /**
-     * Get Field Length by Type.
+     * Get Max Field Length by Type.
      *
-     * minus sign is ignored for negative numbers.
+     * Minus (-) sign is ignored for negative numbers.
+     * Decimal number length is returned as array [maxDigits, maxDecimals]
      *
-     * @param int $default_varchar_length
-     *
-     * @return int
+     * @return int|array
      */
-    public function getMaxLength(int $default_varchar_length)
+    public function getMaxLength()
     {
+        $dbConfig = DBHandler::getConfig();
+
+        $default_varchar_length = $dbConfig->default_varchar_length;
+        $default_decimal_length = $dbConfig->default_decimal_length;
+
         $length = 0;
 
         if ($this->type === DBModelField::TINYINT)
             $length = 3;
+
         elseif ($this->type === DBModelField::SMALLINT)
             $length = 5;
+
         elseif ($this->type === DBModelField::MEDIUMINT)
             $length = ($this->attr === DBModelField::ATTR_UNSIGNED) ? 8 : 7;
+
         elseif ($this->type === DBModelField::INT)
             $length = 10;
-        elseif ($this->type === DBModelField::INT)
+
+        elseif ($this->type === DBModelField::BIGINT)
+            $length = ($this->attr === DBModelField::ATTR_UNSIGNED) ? 20 : 19;
+
+        elseif ($this->type === DBModelField::DECIMAL)
+            $length = ($this->getLength() === false) ? $default_decimal_length : $this->getLength();
+
+        elseif ($this->type === DBModelField::BOOLEAN)
+            $length = 1;
+
+        elseif ($this->type === DBModelField::DATE)
             $length = 10;
+
+        elseif ($this->type === DBModelField::DATETIME)
+            $length = 19;
+
+        elseif ($this->type === DBModelField::TIME)
+            $length = 9;
+
+        elseif ($this->type === DBModelField::YEAR)
+            $length = 4;
+
+        elseif ($this->type === DBModelField::VARCHAR)
+            $length = ($this->getLength() === false) ? $default_varchar_length : $this->getLength();
+
+        elseif ($this->type === DBModelField::TINYTEXT)
+            $length = 255;
+
+        elseif ($this->type === DBModelField::TEXT)
+            $length = 65535;
+
+        elseif ($this->type === DBModelField::MEDIUMTEXT)
+            $length = 16777215;
+
+        elseif ($this->type === DBModelField::LONGTEXT)
+            $length = 4294967295;
+
+        elseif ($this->type === DBModelField::ENUM) {
+            $longestValue = '';
+
+            foreach ($this->length as $value) {
+                if (strlen(strval($value)) > strlen($longestValue))
+                    $longestValue = $value;
+            }
+
+            $length = strlen($longestValue);
+        }
 
         return $length;
     }

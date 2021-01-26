@@ -22,4 +22,5 @@ return function (DBConfigurator $db) {
     $db->timezone = 'Europe/Riga';
 
     $db->default_varchar_length = 255;
+    $db->default_decimal_length = [9, 2];
 };

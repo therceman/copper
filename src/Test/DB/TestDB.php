@@ -57,6 +57,15 @@ class TestDB
 
         // TODO -------------- NAME -------------- & others
 
+
+        // Default Varchar Length
+        if ($this->model->getFieldByName(TestDBModel::NAME)->getLength() !== $this->db->config->default_varchar_length)
+            return $response->fail('Wrong Default Varchar Length');
+
+        // Default Decimal Length
+        if ($this->model->getFieldByName(TestDBModel::DEC_DEF)->getLength() !== $this->db->config->default_decimal_length)
+            return $response->fail('Wrong Default Decimal Length');
+
         if (count($results) > 0)
             return $response->fail('Fail', $results);
 
@@ -69,15 +78,10 @@ class TestDB
 
         $migrateResponse = DBService::migrateClassName(TestDBModel::class, $this->db, true);
 
-        /** @var DBModel $model */
-        $model = $migrateResponse->result[0];
-        $query = $migrateResponse->result[1];
+        $query = $migrateResponse->result;
 
-        if ($model->getFieldByName(TestDBModel::NAME)->getLength() !== $this->db->config->default_varchar_length)
-            return $response->fail('Wrong Default Varchar Length');
-
-        if ($query !== "CREATE TABLE IF NOT EXISTS `arkadia.trade`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT UNSIGNED  NOT NULL DEFAULT '2' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
-            return $response->fail('Wrong Query');
+        if ($query !== "CREATE TABLE IF NOT EXISTS `arkadia.trade`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT UNSIGNED  NOT NULL DEFAULT '2' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
+            return $response->fail('Wrong Query', $query);
 
         if ($migrateResponse->hasError())
             return $response->fail($migrateResponse->msg);
