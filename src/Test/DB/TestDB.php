@@ -7,6 +7,7 @@ namespace Copper\Test\DB;
 use Copper\Component\CP\DB\DBService;
 use Copper\Component\DB\DBCondition;
 use Copper\Component\DB\DBHandler;
+use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBOrder;
 use Copper\FunctionResponse;
 
@@ -23,9 +24,65 @@ class TestDB
         $this->model = new TestDBModel();
     }
 
+    private function model()
+    {
+        $response = new FunctionResponse();
+
+        $results = [];
+
+        // -------------- ID --------------
+
+        $field = $this->model->getFieldByName(TestDBModel::ID);
+
+        if ($field->getAttr() !== $field::ATTR_UNSIGNED)
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong Attr');
+
+        if ($field->getIndex() !== $field::INDEX_PRIMARY)
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong Index');
+
+        if ($field->getIndexName() !== 'index_' . $field->getName())
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong Index Name');
+
+        if ($field->getAutoIncrement() !== true)
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong AutoIncrement');
+
+        if ($field->getLength() !== false)
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong Length');
+
+        if ($field->getNull() !== false)
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong Null');
+
+        if ($field->getNull() !== false)
+            $results[$field->getName()] = new FunctionResponse(false, 'Wrong Null');
+
+        // TODO -------------- NAME -------------- & others
+
+        if (count($results) > 0)
+            return $response->fail('Fail', $results);
+
+        return $response->ok();
+    }
+
     private function migrate()
     {
-        return DBService::migrateClassName(TestDBModel::class, $this->db, true);
+        $response = new FunctionResponse();
+
+        $migrateResponse = DBService::migrateClassName(TestDBModel::class, $this->db, true);
+
+        /** @var DBModel $model */
+        $model = $migrateResponse->result[0];
+        $query = $migrateResponse->result[1];
+
+        if ($model->getFieldByName(TestDBModel::NAME)->getLength() !== $this->db->config->default_varchar_length)
+            return $response->fail('Wrong Default Varchar Length');
+
+        if ($query !== "CREATE TABLE IF NOT EXISTS `arkadia.trade`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT UNSIGNED  NOT NULL DEFAULT '2' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
+            return $response->fail('Wrong Query');
+
+        if ($migrateResponse->hasError())
+            return $response->fail($migrateResponse->msg);
+
+        return $response->ok($migrateResponse->msg);
     }
 
     private function seed()
@@ -280,7 +337,7 @@ class TestDB
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::find($this->db, [
             TestDBModel::ROLE => TestDBEntity::ROLE_USER,
-        ], 20, 0, DBOrder::DESC($this->model,TestDBModel::ID));
+        ], 20, 0, DBOrder::DESC($this->model, TestDBModel::ID));
 
         if ($entityList[0]->id !== 6)
             return $response->fail('User List first entry should be with ID 6', $entity);
@@ -293,7 +350,7 @@ class TestDB
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::find($this->db, [
             TestDBModel::ROLE => TestDBEntity::ROLE_USER,
-        ], 20, 0, DBOrder::ASC($this->model,TestDBModel::SALARY)->andDESC(TestDBModel::ID));
+        ], 20, 0, DBOrder::ASC($this->model, TestDBModel::SALARY)->andDESC(TestDBModel::ID));
 
         if ($entityList[0]->id !== 6)
             return $response->fail('User List first entry should be with ID 6', $entity);
@@ -306,7 +363,7 @@ class TestDB
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::find($this->db, [
             TestDBModel::ROLE => TestDBEntity::ROLE_USER,
-        ], 20, 0, DBOrder::ASC($this->model,TestDBModel::SALARY)->andASC(TestDBModel::ID));
+        ], 20, 0, DBOrder::ASC($this->model, TestDBModel::SALARY)->andASC(TestDBModel::ID));
 
         if ($entityList[0]->id !== 6)
             return $response->fail('User List first entry should be with ID 6', $entity);
@@ -489,6 +546,7 @@ class TestDB
 
         $results = [];
 
+        $results[] = ['model', $this->model()];
         $results[] = ['migrate', $this->migrate()];
         $results[] = ['seed', $this->seed()];
         $results[] = ['get', $this->get()];

@@ -60,37 +60,39 @@ class ValidatorHandler
         foreach ($model->getFieldNames() as $name) {
             $field = $model->getFieldByName($name);
 
-            if (DBModel::fieldTypeIsInteger($field->type))
-                $rule = ValidatorRule::integer($name, $field->length, ($field->null !== false));
+            $length = $field->getMaxLength($this->dbConfig->default_varchar_length);
 
-            elseif (DBModel::fieldTypeIsFloat($field->type))
+            if ($field->typeIsInteger())
+                $rule = ValidatorRule::integer($name, $field->getLength(), ($field->getNull() !== false));
+
+            elseif ($field->typeIsFloat())
                 $rule = ValidatorRule::float($name);
 
-            else if (DBModel::fieldTypeIsBoolean($field->type))
+            else if ($field->typeIsBoolean())
                 $rule = ValidatorRule::boolean($name);
 
-            else if (DBModel::fieldTypeIsEnum($field->type))
-                $rule = ValidatorRule::enum($name, $field->length);
+            else if ($field->typeIsEnum())
+                $rule = ValidatorRule::enum($name, $field->getLength());
 
-            else if (DBModel::fieldTypeIsDecimal($field->type))
-                $rule = ValidatorRule::decimal($name, $field->length[0], $field->length[1]);
+            else if ($field->typeIsDecimal())
+                $rule = ValidatorRule::decimal($name, $field->getLength()[0], $field->getLength()[1]);
 
-            else if (DBModel::fieldTypeIsDate($field->type))
-                $rule = ValidatorRule::date($name, ($field->null !== false));
+            else if ($field->typeIsDate())
+                $rule = ValidatorRule::date($name, ($field->getNull() !== false));
 
-            else if (DBModel::fieldTypeIsTime($field->type))
+            else if ($field->typeIsTime())
                 $rule = ValidatorRule::time($name);
 
-            else if (DBModel::fieldTypeIsDatetime($field->type))
+            else if ($field->typeIsDatetime())
                 $rule = ValidatorRule::datetime($name);
 
-            else if (DBModel::fieldTypeIsYear($field->type))
+            else if ($field->typeIsYear())
                 $rule = ValidatorRule::year($name);
 
             else
                 $rule = ValidatorRule::string($name);
 
-            if ($field->null === false)
+            if ($field->getNull() === false)
                 $rule->required();
 
             $this->addRule($rule);

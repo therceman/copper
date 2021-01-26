@@ -44,7 +44,7 @@ abstract class DBModel
         $foundField = null;
 
         foreach ($this->fields as $field) {
-            if ($field->name === $name)
+            if ($field->getName() === $name)
                 $foundField = $field;
         }
 
@@ -56,7 +56,7 @@ abstract class DBModel
         $names = [];
 
         foreach ($this->fields as $field) {
-            $names[] = $field->name;
+            $names[] = $field->getName();
         }
 
         return $names;
@@ -84,90 +84,6 @@ abstract class DBModel
             return $response->fail('Model has missing fields', $missingFields);
 
         return $response->ok();
-    }
-
-    public static function fieldTypeIsInteger($type)
-    {
-        return (in_array($type, [
-                DBModelField::INT,
-                DBModelField::TINYINT,
-                DBModelField::SMALLINT,
-                DBModelField::MEDIUMINT,
-                DBModelField::BIGINT,
-                DBModelField::SERIAL,
-                DBModelField::BIT
-            ]) !== false);
-    }
-
-    public static function fieldTypeIsFloat($type)
-    {
-        return (in_array($type, [
-                DBModelField::DECIMAL,
-//                DBModelField::FLOAT,
-//                DBModelField::DOUBLE,
-//                DBModelField::REAL
-            ]) !== false);
-    }
-
-    public static function fieldTypeIsBoolean($type)
-    {
-        return ($type === DBModelField::BOOLEAN);
-    }
-
-    public static function fieldTypeIsEnum($type)
-    {
-        return ($type === DBModelField::ENUM);
-    }
-
-    public static function fieldTypeIsDecimal($type)
-    {
-        return ($type === DBModelField::DECIMAL);
-    }
-
-    public static function fieldTypeIsYear($type)
-    {
-        return ($type === DBModelField::YEAR);
-    }
-
-    public static function fieldTypeIsTime($type)
-    {
-        return ($type === DBModelField::TIME);
-    }
-
-    public static function fieldTypeIsDate($type)
-    {
-        return ($type === DBModelField::DATE);
-    }
-
-    public static function fieldTypeIsDatetime($type)
-    {
-        return (in_array($type, [
-                DBModelField::DATETIME,
-//                DBModelField::TIMESTAMP,
-            ]) !== false);
-    }
-
-    /**
-     * Get Field Length by Type.
-     *
-     * minus sign is ignored for negative numbers.
-     *
-     * @param DBModelField $field
-     * @param int $default_varchar_length
-     */
-    public static function fieldLength(DBModelField $field, int $default_varchar_length) {
-        $length = 0;
-
-        if ($field->type === DBModelField::TINYINT)
-            $length = 3;
-        elseif ($field->type === DBModelField::SMALLINT)
-            $length = 5;
-        elseif ($field->type === DBModelField::MEDIUMINT)
-            $length = ($field->attr === $field::ATTR_UNSIGNED) ? 8 : 7;
-        elseif ($field->type === DBModelField::INT)
-            $length = 10;
-        elseif ($field->type === DBModelField::INT)
-            $length = 10;
     }
 
     /**
@@ -229,27 +145,27 @@ abstract class DBModel
         $formattedValues = [];
 
         foreach ($this->fields as $field) {
-            if (array_key_exists($field->name, $fieldValues) === false)
+            if (array_key_exists($field->getName(), $fieldValues) === false)
                 continue;
 
-            $value = $fieldValues[$field->name];
+            $value = $fieldValues[$field->getName()];
 
-            if ($value === null && in_array($field->type, [$field::DATETIME, $field::DATE]) && $field->null !== true)
+            if ($value === null && in_array($field->getType(), [$field::DATETIME, $field::DATE]) && $field->getNull() !== true)
                 $value = DBHandler::datetime();
 
-            if ($value === null && $field->type === $field::YEAR && $field->null !== true)
+            if ($value === null && $field->getType() === $field::YEAR && $field->getNull() !== true)
                 $value = DBHandler::year();
 
-            if ($value === null && in_array($field->default, [$field::DEFAULT_NONE, $field::DEFAULT_CURRENT_TIMESTAMP, $field::DEFAULT_NONE]) === false && $field->null !== true)
-                $value = $field->default;
+            if ($value === null && in_array($field->getDefault(), [$field::DEFAULT_NONE, $field::DEFAULT_CURRENT_TIMESTAMP, $field::DEFAULT_NONE]) === false && $field->getNull() !== true)
+                $value = $field->getDefault();
 
             if ($value === null && $removeNullFields === true)
                 continue;
 
-            if (is_bool($value) && $field->type === $field::BOOLEAN)
+            if (is_bool($value) && $field->getType() === $field::BOOLEAN)
                 $value = intval($value);
 
-            $formattedValues[$field->name] = $value;
+            $formattedValues[$field->getName()] = $value;
         }
 
         return $formattedValues;
@@ -268,13 +184,13 @@ abstract class DBModel
         $fieldValues = [];
 
         foreach ($this->fields as $field) {
-            if (array_key_exists($field->name, $entityFields) === false)
+            if (array_key_exists($field->getName(), $entityFields) === false)
                 continue;
 
-            if ($onlySelectedFields !== false && array_search($field->name, $onlySelectedFields) === false)
+            if ($onlySelectedFields !== false && array_search($field->getName(), $onlySelectedFields) === false)
                 continue;
 
-            $fieldValues[$field->name] = $entityFields[$field->name];
+            $fieldValues[$field->getName()] = $entityFields[$field->getName()];
         }
 
         return $fieldValues;

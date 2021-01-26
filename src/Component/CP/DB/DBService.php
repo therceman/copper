@@ -144,42 +144,42 @@ class DBService
         $uniqueIndexList = [];
 
         foreach ($model->fields as $field) {
-            $str = "`$field->name` $field->type";
+            $str = '`' . $field->getName() . '` ' . $field->getType();
 
-            if ($field->type === DBModelField::VARCHAR && $field->length === false)
-                $field->length = $db->config->default_varchar_length;
+            if ($field->getType() === DBModelField::VARCHAR && $field->getLength() === false)
+                $field->length($db->config->default_varchar_length);
 
-            if ($field->length !== false) {
-                if ($field->type === DBModelField::DECIMAL)
-                    $str .= '(' . join(",", self::escapeStrArray($field->length)) . ')';
+            if ($field->getLength() !== false) {
+                if ($field->getType() === DBModelField::DECIMAL)
+                    $str .= '(' . join(",", self::escapeStrArray($field->getLength())) . ')';
                 else
-                    $str .= '(' . (is_array($field->length)
-                            ? "'" . join("','", self::escapeStrArray($field->length)) . "'"
-                            : self::escapeStr($field->length)) . ')';
+                    $str .= '(' . (is_array($field->getLength())
+                            ? "'" . join("','", self::escapeStrArray($field->getLength())) . "'"
+                            : self::escapeStr($field->getLength())) . ')';
             }
 
-            if ($field->attr !== false)
-                $str .= ' ' . $field->attr . ' ';
+            if ($field->getAttr() !== false)
+                $str .= ' ' . $field->getAttr() . ' ';
 
-            $str .= ($field->null === false) ? " NOT NULL" : " NULL";
+            $str .= ($field->getNull() === false) ? " NOT NULL" : " NULL";
 
-            if (is_bool($field->default) === true)
-                $field->default = intval($field->default);
+            if (is_bool($field->getDefault()) === true)
+                $field->default(intval($field->getDefault()));
 
-            if ($field->default !== DBModelField::DEFAULT_NONE)
-                $str .= " DEFAULT " . (in_array($field->default, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
-                        ? $field->default : "'" . self::escapeStr($field->default) . "'");
+            if ($field->getDefault() !== DBModelField::DEFAULT_NONE)
+                $str .= " DEFAULT " . (in_array($field->getDefault(), [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
+                        ? $field->getDefault() : "'" . self::escapeStr($field->getDefault()) . "'");
 
-            if ($field->auto_increment)
+            if ($field->getAutoIncrement())
                 $str .= ' AUTO_INCREMENT';
 
             $fields[] = $str;
 
-            if ($field->index === DBModelField::INDEX_PRIMARY)
-                $primaryIndexList[] = $field->name;
+            if ($field->getIndex() === DBModelField::INDEX_PRIMARY)
+                $primaryIndexList[] = $field->getName();
 
-            if ($field->index === DBModelField::INDEX_UNIQUE)
-                $uniqueIndexList[] = "UNIQUE `$field->indexName` (`$field->name`)";
+            if ($field->getIndex() === DBModelField::INDEX_UNIQUE)
+                $uniqueIndexList[] = 'UNIQUE `' . $field->getIndexName() . '` (`' . $field->getName() . '`)';
         }
 
         $query_fields = join(' , ', $fields);
@@ -194,7 +194,7 @@ class DBService
         try {
             $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
             $db->pdo->exec($query);
-            return $response->success("Created `$model->tableName` Table");
+            return $response->success("Created `$model->tableName` Table", [$model, $query]);
         } catch (PDOException $e) {
             return $response->error($e->getMessage(), $query);
         }

@@ -163,31 +163,31 @@ class DBModelField
     // ============== Fields ==============
 
     /** @var string Name */
-    public $name;
+    private $name;
 
     /** @var string Type - const [*] */
-    public $type;
+    private $type;
 
     /** @var bool|int|array (optional) Length or array of Values (if Type is ENUM) */
-    public $length = false;
+    private $length = false;
 
     /** @var string (optional) Default - value or const [DEFAULT_*] */
-    public $default = self::DEFAULT_NONE;
+    private $default = self::DEFAULT_NONE;
 
     /** @var bool|string (optional) Attributes - const [ATTR_*] */
-    public $attr = false;
+    private $attr = false;
 
     /** @var bool (optional) Null */
-    public $null = false;
+    private $null = false;
 
     /** @var bool|string (optional) Index - const [INDEX_*] */
-    public $index = false;
+    private $index = false;
 
     /** @var bool|string (optional) Index Name for Unique Index */
-    public $indexName = false;
+    private $indexName = false;
 
     /** @var bool (optional) Auto Increment - on INSERT when Type is *INT */
-    public $auto_increment = false;
+    private $autoIncrement = false;
 
     /**
      * DBModelField constructor.
@@ -204,6 +204,47 @@ class DBModelField
 
         if ($length !== false)
             $this->length = $length;
+    }
+
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getLength()
+    {
+        return $this->length;
+    }
+
+    public function getDefault()
+    {
+        return $this->default;
+    }
+
+    public function getAttr() {
+        return $this->attr;
+    }
+
+    public function getNull() {
+        return $this->null;
+    }
+
+    public function getIndex() {
+        return $this->index;
+    }
+
+    public function getIndexName() {
+        return $this->indexName;
+    }
+
+    public function getAutoIncrement() {
+        return $this->autoIncrement;
     }
 
     /**
@@ -240,7 +281,7 @@ class DBModelField
             $this->null = true;
 
         // Field with Auto Increment can't have default value
-        if ($this->auto_increment === true)
+        if ($this->autoIncrement === true)
             $this->default = self::DEFAULT_NONE;
 
         return $this;
@@ -292,12 +333,12 @@ class DBModelField
     }
 
     /**
-     * @param bool $auto_increment
+     * @param bool $autoIncrement
      * @return DBModelField
      */
-    public function autoIncrement(bool $auto_increment = true): DBModelField
+    public function autoIncrement(bool $autoIncrement = true): DBModelField
     {
-        $this->auto_increment = $auto_increment;
+        $this->autoIncrement = $autoIncrement;
 
         return $this;
     }
@@ -305,11 +346,13 @@ class DBModelField
     // ----------------- Shortcuts -----------------
 
     /**
+     * @param bool|string $indexName (optional) Index Name for Primary Index
+     *
      * @return $this
      */
-    public function primary()
+    public function primary($indexName = false)
     {
-        $this->index(self::INDEX_PRIMARY);
+        $this->index(self::INDEX_PRIMARY, $indexName);
 
         return $this;
     }
@@ -390,6 +433,96 @@ class DBModelField
         $this->attr(self::ATTR_ON_UPDATE_CURRENT_TIMESTAMP);
 
         return $this;
+    }
+
+    // --------------------------------------
+
+    public function typeIsInteger()
+    {
+        return (in_array($this->type, [
+                DBModelField::INT,
+                DBModelField::TINYINT,
+                DBModelField::SMALLINT,
+                DBModelField::MEDIUMINT,
+                DBModelField::BIGINT,
+//                DBModelField::SERIAL,
+//                DBModelField::BIT
+            ]) !== false);
+    }
+
+    public function typeIsFloat()
+    {
+        return (in_array($this->type, [
+                DBModelField::DECIMAL,
+//                DBModelField::FLOAT,
+//                DBModelField::DOUBLE,
+//                DBModelField::REAL
+            ]) !== false);
+    }
+
+    public function typeIsBoolean()
+    {
+        return ($this->type === DBModelField::BOOLEAN);
+    }
+
+    public function typeIsEnum()
+    {
+        return ($this->type === DBModelField::ENUM);
+    }
+
+    public function typeIsDecimal()
+    {
+        return ($this->type === DBModelField::DECIMAL);
+    }
+
+    public function typeIsYear()
+    {
+        return ($this->type === DBModelField::YEAR);
+    }
+
+    public function typeIsTime()
+    {
+        return ($this->type === DBModelField::TIME);
+    }
+
+    public function typeIsDate()
+    {
+        return ($this->type === DBModelField::DATE);
+    }
+
+    public function typeIsDatetime()
+    {
+        return (in_array($this->type, [
+                DBModelField::DATETIME,
+//                DBModelField::TIMESTAMP,
+            ]) !== false);
+    }
+
+    /**
+     * Get Field Length by Type.
+     *
+     * minus sign is ignored for negative numbers.
+     *
+     * @param int $default_varchar_length
+     *
+     * @return int
+     */
+    public function getMaxLength(int $default_varchar_length)
+    {
+        $length = 0;
+
+        if ($this->type === DBModelField::TINYINT)
+            $length = 3;
+        elseif ($this->type === DBModelField::SMALLINT)
+            $length = 5;
+        elseif ($this->type === DBModelField::MEDIUMINT)
+            $length = ($this->attr === DBModelField::ATTR_UNSIGNED) ? 8 : 7;
+        elseif ($this->type === DBModelField::INT)
+            $length = 10;
+        elseif ($this->type === DBModelField::INT)
+            $length = 10;
+
+        return $length;
     }
 
 }
