@@ -595,7 +595,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
         field.attr = ($attributes.value === '') ? false : $attributes.value;
         field.null = ($null.checked === true);
         field.index = ($index.value === '') ? false : $index.value;
-        field.autoIncrement = ($auto_increment.checked === true);
+        field.auto_increment = ($auto_increment.checked === true);
 
         if (field.name.trim() === '')
             return alert('Name can not be blank.');

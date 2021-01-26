@@ -250,7 +250,7 @@ XML;
             $fAttr = $field['attr'];
             $fNull = $field['null'];
             $fIndex = $field['index'];
-            $fAutoIncrement = $field['autoIncrement'];
+            $fAutoIncrement = $field['auto_increment'];
 
             $fNameUp = strtoupper($fName);
 
