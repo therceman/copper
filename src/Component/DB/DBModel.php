@@ -103,9 +103,9 @@ abstract class DBModel
     {
         return (in_array($type, [
                 DBModelField::DECIMAL,
-                DBModelField::FLOAT,
-                DBModelField::DOUBLE,
-                DBModelField::REAL
+//                DBModelField::FLOAT,
+//                DBModelField::DOUBLE,
+//                DBModelField::REAL
             ]) !== false);
     }
 
@@ -122,6 +122,52 @@ abstract class DBModel
     public static function fieldTypeIsDecimal($type)
     {
         return ($type === DBModelField::DECIMAL);
+    }
+
+    public static function fieldTypeIsYear($type)
+    {
+        return ($type === DBModelField::YEAR);
+    }
+
+    public static function fieldTypeIsTime($type)
+    {
+        return ($type === DBModelField::TIME);
+    }
+
+    public static function fieldTypeIsDate($type)
+    {
+        return ($type === DBModelField::DATE);
+    }
+
+    public static function fieldTypeIsDatetime($type)
+    {
+        return (in_array($type, [
+                DBModelField::DATETIME,
+//                DBModelField::TIMESTAMP,
+            ]) !== false);
+    }
+
+    /**
+     * Get Field Length by Type.
+     *
+     * minus sign is ignored for negative numbers.
+     *
+     * @param DBModelField $field
+     * @param int $default_varchar_length
+     */
+    public static function fieldLength(DBModelField $field, int $default_varchar_length) {
+        $length = 0;
+
+        if ($field->type === DBModelField::TINYINT)
+            $length = 3;
+        elseif ($field->type === DBModelField::SMALLINT)
+            $length = 5;
+        elseif ($field->type === DBModelField::MEDIUMINT)
+            $length = ($field->attr === $field::ATTR_UNSIGNED) ? 8 : 7;
+        elseif ($field->type === DBModelField::INT)
+            $length = 10;
+        elseif ($field->type === DBModelField::INT)
+            $length = 10;
     }
 
     /**

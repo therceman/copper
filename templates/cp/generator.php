@@ -131,19 +131,19 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
                     <option title="A fixed-point number (M, D) - the maximum number of digits (M) is 65 (default 10), the maximum number of decimals (D) is 30 (default 0)">
                         DECIMAL
                     </option>
-                    <option title="A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38">
-                        FLOAT
-                    </option>
-                    <option title="A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308">
-                        DOUBLE
-                    </option>
-                    <option title="Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT)">
-                        REAL
-                    </option>
-                    <option disabled="disabled">-</option>
-                    <option title="A bit-field type (M), storing M of bits per value (default is 1, maximum is 64)">
-                        BIT
-                    </option>
+                    <!--                    <option title="A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38">-->
+                    <!--                        FLOAT-->
+                    <!--                    </option>-->
+                    <!--                    <option title="A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308">-->
+                    <!--                        DOUBLE-->
+                    <!--                    </option>-->
+                    <!--                    <option title="Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT)">-->
+                    <!--                        REAL-->
+                    <!--                    </option>-->
+                    <!--                    <option disabled="disabled">-</option>-->
+                    <!--                    <option title="A bit-field type (M), storing M of bits per value (default is 1, maximum is 64)">-->
+                    <!--                        BIT-->
+                    <!--                    </option>-->
                     <option title="A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true">
                         BOOLEAN
                     </option>
@@ -154,18 +154,18 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
                     <option title="A date and time combination, supported range is 1000-01-01 00:00:00 to 9999-12-31 23:59:59">
                         DATETIME
                     </option>
-                    <option title="A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC)">
-                        TIMESTAMP
-                    </option>
+                    <!--                    <option title="A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC)">-->
+                    <!--                        TIMESTAMP-->
+                    <!--                    </option>-->
                     <option title="A time, range is -838:59:59 to 838:59:59">TIME</option>
                     <option title="A year in four-digit (4, default) the allowable values are 1901 to 2155 and 0000">
                         YEAR
                     </option>
                 </optgroup>
                 <optgroup label="String">
-                    <option title="A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored">
-                        CHAR
-                    </option>
+                    <!--                    <option title="A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored">-->
+                    <!--                        CHAR-->
+                    <!--                    </option>-->
                     <option title="A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size">
                         VARCHAR
                     </option>
@@ -182,26 +182,26 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
                     <option title="A TEXT column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) characters, stored with a four-byte prefix indicating the length of the value in bytes">
                         LONGTEXT
                     </option>
-                    <option disabled="disabled">-</option>
-                    <option title="Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings">
-                        BINARY
-                    </option>
-                    <option title="Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings">
-                        VARBINARY
-                    </option>
-                    <option disabled="disabled">-</option>
-                    <option title="A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value">
-                        TINYBLOB
-                    </option>
-                    <option title="A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value">
-                        BLOB
-                    </option>
-                    <option title="A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value">
-                        MEDIUMBLOB
-                    </option>
-                    <option title="A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value">
-                        LONGBLOB
-                    </option>
+                    <!--                    <option disabled="disabled">-</option>-->
+                    <!--                    <option title="Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings">-->
+                    <!--                        BINARY-->
+                    <!--                    </option>-->
+                    <!--                    <option title="Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings">-->
+                    <!--                        VARBINARY-->
+                    <!--                    </option>-->
+                    <!--                    <option disabled="disabled">-</option>-->
+                    <!--                    <option title="A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value">-->
+                    <!--                        TINYBLOB-->
+                    <!--                    </option>-->
+                    <!--                    <option title="A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value">-->
+                    <!--                        BLOB-->
+                    <!--                    </option>-->
+                    <!--                    <option title="A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value">-->
+                    <!--                        MEDIUMBLOB-->
+                    <!--                    </option>-->
+                    <!--                    <option title="A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value">-->
+                    <!--                        LONGBLOB-->
+                    <!--                    </option>-->
                     <option disabled="disabled">-</option>
                     <option title="An enumeration, chosen from the list of up to 65,535 values or the special '' error value">
                         ENUM
@@ -250,15 +250,15 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
         <td>
             <select id="attributes">
                 <option value=""></option>
-                <option value="BINARY">
-                    BINARY
-                </option>
+                <!--                <option value="BINARY">-->
+                <!--                    BINARY-->
+                <!--                </option>-->
                 <option value="UNSIGNED">
                     UNSIGNED
                 </option>
-                <option value="UNSIGNED ZEROFILL">
-                    UNSIGNED ZEROFILL
-                </option>
+                <!--                <option value="UNSIGNED ZEROFILL">-->
+                <!--                    UNSIGNED ZEROFILL-->
+                <!--                </option>-->
                 <option value="on update CURRENT_TIMESTAMP">
                     on update CURRENT_TIMESTAMP
                 </option>
@@ -322,23 +322,23 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     /** A fixed-point number (M, D) - the maximum number of digits (M) is 65 (default 10), the maximum number of decimals (D) is 30 (default 0) */
     const DECIMAL = 'DECIMAL';
 
-    /** A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38 */
-    const FLOAT = 'FLOAT';
-
-    /** A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308 */
-    const DOUBLE = 'DOUBLE';
-
-    /** Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT) */
-    const REAL = 'REAL';
-
-    /** A bit-field type (M), storing M of bits per value (default is 1, maximum is 64) */
-    const BIT = 'BIT';
+    // /** A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38 */
+    // const FLOAT = 'FLOAT';
+    //
+    // /** A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308 */
+    // const DOUBLE = 'DOUBLE';
+    //
+    // /** Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT) */
+    // const REAL = 'REAL';
+    //
+    // /** A bit-field type (M), storing M of bits per value (default is 1, maximum is 64) */
+    // const BIT = 'BIT';
 
     /** A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true */
     const BOOLEAN = 'BOOLEAN';
 
-    /** An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE */
-    const SERIAL = 'SERIAL';
+    // /** An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE */
+    // const SERIAL = 'SERIAL';
 
     // ------- Date and time -------
 
@@ -348,8 +348,8 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     /** A date and time combination, supported range is 1000-01-01 00:00:00 to 9999-12-31 23:59:59 */
     const DATETIME = 'DATETIME';
 
-    /** A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC) */
-    const TIMESTAMP = 'TIMESTAMP';
+    // /** A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC) */
+    // const TIMESTAMP = 'TIMESTAMP';
 
     /** A time, range is -838:59:59 to 838:59:59 */
     const TIME = 'TIME';
@@ -359,8 +359,8 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
     // ------- String -------
 
-    /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
-    const CHAR = 'CHAR';
+    // /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
+    // const CHAR = 'CHAR';
 
     /** A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size */
     const VARCHAR = 'VARCHAR';
@@ -377,23 +377,23 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     /** A TEXT column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) characters, stored with a four-byte prefix indicating the length of the value in bytes */
     const LONGTEXT = 'LONGTEXT';
 
-    /** Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings */
-    const BINARY = 'BINARY';
-
-    /** Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings */
-    const VARBINARY = 'VARBINARY';
-
-    /** A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value */
-    const TINYBLOB = 'TINYBLOB';
-
-    /** A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value */
-    const BLOB = 'BLOB';
-
-    /** A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value */
-    const MEDIUMBLOB = 'MEDIUMBLOB';
-
-    /** A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value */
-    const LONGBLOB = 'LONGBLOB';
+    // /** Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings */
+    // const BINARY = 'BINARY';
+    //
+    // /** Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings */
+    // const VARBINARY = 'VARBINARY';
+    //
+    // /** A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value */
+    // const TINYBLOB = 'TINYBLOB';
+    //
+    // /** A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value */
+    // const BLOB = 'BLOB';
+    //
+    // /** A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value */
+    // const MEDIUMBLOB = 'MEDIUMBLOB';
+    //
+    // /** A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value */
+    // const LONGBLOB = 'LONGBLOB';
 
     /** An enumeration, chosen from the list of up to 65,535 values or the special '' error value */
     const ENUM = 'ENUM';
@@ -440,11 +440,11 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
     // ============== Attributes ==============
 
-    const ATTR_BINARY = 'BINARY';
-    /** Unsigned type can be used to permit only nonnegative numbers in a column or when you need a larger upper numeric range for the column. e.g. signed -127 to 127 , unsigned 0 to 255 */
+    // const ATTR_BINARY = 'BINARY';
+    // /** Unsigned type can be used to permit only nonnegative numbers in a column or when you need a larger upper numeric range for the column. e.g. signed -127 to 127 , unsigned 0 to 255 */
     const ATTR_UNSIGNED = 'UNSIGNED';
-    /** Pads the displayed value of the field with zeros up to the display width specified in the column definition (Type), e.g. INT(8) will fill up to 7 zeros - 00000001 */
-    const ATTR_UNSIGNED_ZEROFILL = 'UNSIGNED ZEROFILL';
+    // /** Pads the displayed value of the field with zeros up to the display width specified in the column definition (Type), e.g. INT(8) will fill up to 7 zeros - 00000001 */
+    // const ATTR_UNSIGNED_ZEROFILL = 'UNSIGNED ZEROFILL';
     /** Updates field value to current timestamp when on UPDATE */
     const ATTR_ON_UPDATE_CURRENT_TIMESTAMP = 'on update CURRENT_TIMESTAMP';
 
@@ -643,6 +643,13 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
         $default.value = DEFAULT_NONE;
     })
 
+    $null.addEventListener('input', e => {
+        $default.querySelector(`option[value="${DEFAULT_NONE}"]`).disabled = ($null.checked);
+
+        if ($default.value === DEFAULT_NONE)
+            $default.value = DEFAULT_NULL
+    });
+
     $default.addEventListener('input', e => {
         let isUserDefined = ($default.value !== DEFAULT_USER_DEFINED);
 
@@ -673,9 +680,9 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
         $attributes.disabled = false;
 
         $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = false;
-        $attributes.querySelector(`option[value="${ATTR_BINARY}"]`).disabled = false;
+        // $attributes.querySelector(`option[value="${ATTR_BINARY}"]`).disabled = false;
         $attributes.querySelector(`option[value="${ATTR_UNSIGNED}"]`).disabled = true;
-        $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = true;
+        // $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = true;
         $attributes.querySelector(`option[value="${ATTR_ON_UPDATE_CURRENT_TIMESTAMP}"]`).disabled = true;
         $auto_increment.disabled = true;
 
@@ -704,7 +711,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
         $attributes.value = '';
 
-        if ([DATE, DATETIME, TIMESTAMP, TIME].indexOf(val) >= 0) {
+        if ([DATE, DATETIME, /*TIMESTAMP,*/ TIME].indexOf(val) >= 0) {
             $attributes.querySelector(`option[value="${ATTR_ON_UPDATE_CURRENT_TIMESTAMP}"]`).disabled = false;
             $length.disabled = true;
             $length.value = '';
@@ -735,10 +742,13 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
             if ($int_auto_unsigned.checked)
                 $attributes.value = ATTR_UNSIGNED;
 
+            if ($default.value === DEFAULT_CURRENT_TIMESTAMP)
+                $default.value = DEFAULT_NONE;
+
             $default.querySelector(`option[value=${DEFAULT_CURRENT_TIMESTAMP}]`).disabled = true;
-            $attributes.querySelector(`option[value=${ATTR_BINARY}]`).disabled = true;
+            // $attributes.querySelector(`option[value=${ATTR_BINARY}]`).disabled = true;
             $attributes.querySelector(`option[value=${ATTR_UNSIGNED}]`).disabled = false;
-            $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = false;
+            // $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = false;
         }
     })
 
@@ -899,7 +909,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     $type.value = DECIMAL;
     $type.dispatchEvent(new Event('input'));
     $default.value = DEFAULT_USER_DEFINED;
-    $attributes.value = ATTR_UNSIGNED_ZEROFILL;
+    // $attributes.value = ATTR_UNSIGNED_ZEROFILL;
     $default.dispatchEvent(new Event('input'));
     $length.value = '6,3';
     $default_value.value = '125.33';
@@ -910,7 +920,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     $default.dispatchEvent(new Event('input'));
 
     $name.value = 'date';
-    $type.value = TIMESTAMP;
+    $type.value = DATETIME;
     $type.dispatchEvent(new Event('input'));
     $default.value = DEFAULT_CURRENT_TIMESTAMP;
     $default.dispatchEvent(new Event('input'));
@@ -920,14 +930,6 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     $default.value = DEFAULT_NONE;
     $default_value.value = '';
     $default.dispatchEvent(new Event('input'));
-
-    $name.value = 'bin_var';
-    $type.value = VARCHAR;
-    $type.dispatchEvent(new Event('input'));
-    $null.checked = true;
-    $attributes.value = ATTR_BINARY;
-    $add.dispatchEvent(new Event('click'));
-    $null.checked = false;
 
     $table.value = 'products';
     $table.dispatchEvent(new Event('input'));

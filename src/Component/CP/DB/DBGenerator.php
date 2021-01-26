@@ -275,10 +275,10 @@ XML;
 
             if ($fAttr === DBModelField::ATTR_UNSIGNED)
                 $fieldSetStr .= '->unsigned()';
-            elseif ($fAttr === DBModelField::ATTR_BINARY)
-                $fieldSetStr .= '->binary()';
-            elseif ($fAttr === DBModelField::ATTR_UNSIGNED_ZEROFILL)
-                $fieldSetStr .= '->unsignedZeroFill()';
+//            elseif ($fAttr === DBModelField::ATTR_BINARY)
+//                $fieldSetStr .= '->binary()';
+//            elseif ($fAttr === DBModelField::ATTR_UNSIGNED_ZEROFILL)
+//                $fieldSetStr .= '->unsignedZeroFill()';
             elseif ($fAttr === DBModelField::ATTR_ON_UPDATE_CURRENT_TIMESTAMP)
                 $fieldSetStr .= '->currentTimestampOnUpdate()';
 

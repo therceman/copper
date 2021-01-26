@@ -29,11 +29,6 @@ class ValidatorRule
     const DATETIME = 17;
     const YEAR = 18;
 
-    const REGEX_RULES = [
-        self::TIME => '/-?(\d{1,3}:\d{1,2}:\d{1,2})/m',
-        self::YEAR => '/(\d{4})/m',
-    ];
-
     /** @var string */
     public $name;
     /** @var integer */

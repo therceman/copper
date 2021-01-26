@@ -9,6 +9,7 @@ class DBModelField
     // ============== TYPE ==============
 
     // ------- Numeric -------
+    // Length for this fields only used for Zerofill Attribute. E.g. length = 4, value = 2  ===> 0002
 
     /** A 1-byte integer, signed range is -128 to 127, unsigned range is 0 to 255 */
     const TINYINT = 'TINYINT';
@@ -28,23 +29,23 @@ class DBModelField
     /** A fixed-point number (M, D) - the maximum number of digits (M) is 65 (default 10), the maximum number of decimals (D) is 30 (default 0) */
     const DECIMAL = 'DECIMAL';
 
-    /** A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38 */
-    const FLOAT = 'FLOAT';
+//    /** A small floating-point number, allowable values are -3.402823466E+38 to -1.175494351E-38, 0, and 1.175494351E-38 to 3.402823466E+38 */
+//    const FLOAT = 'FLOAT';
+//
+//    /** A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308 */
+//    const DOUBLE = 'DOUBLE';
+//
+//    /** Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT) */
+//    const REAL = 'REAL';
 
-    /** A double-precision floating-point number, allowable values are -1.7976931348623157E+308 to -2.2250738585072014E-308, 0, and 2.2250738585072014E-308 to 1.7976931348623157E+308 */
-    const DOUBLE = 'DOUBLE';
-
-    /** Synonym for DOUBLE (exception: in REAL_AS_FLOAT SQL mode it is a synonym for FLOAT) */
-    const REAL = 'REAL';
-
-    /** A bit-field type (M), storing M of bits per value (default is 1, maximum is 64) */
-    const BIT = 'BIT';
+//    /** A bit-field type (M), storing M of bits per value (default is 1, maximum is 64) */
+//    const BIT = 'BIT';
 
     /** A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true */
     const BOOLEAN = 'BOOLEAN';
 
-    /** An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE */
-    const SERIAL = 'SERIAL';
+//    /** An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE */
+//    const SERIAL = 'SERIAL';
 
     // ------- Date and time -------
 
@@ -54,8 +55,8 @@ class DBModelField
     /** A date and time combination, supported range is 1000-01-01 00:00:00 to 9999-12-31 23:59:59 */
     const DATETIME = 'DATETIME';
 
-    /** A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC) */
-    const TIMESTAMP = 'TIMESTAMP';
+//    /** A timestamp, range is 1970-01-01 00:00:01 UTC to 2038-01-09 03:14:07 UTC, stored as the number of seconds since the epoch (1970-01-01 00:00:00 UTC) */
+//    const TIMESTAMP = 'TIMESTAMP';
 
     /** A time, range is -838:59:59 to 838:59:59 */
     const TIME = 'TIME';
@@ -65,8 +66,8 @@ class DBModelField
 
     // ------- String -------
 
-    /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
-    const CHAR = 'CHAR';
+//    /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
+//    const CHAR = 'CHAR';
 
     /** A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size */
     const VARCHAR = 'VARCHAR';
@@ -83,60 +84,60 @@ class DBModelField
     /** A TEXT column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) characters, stored with a four-byte prefix indicating the length of the value in bytes */
     const LONGTEXT = 'LONGTEXT';
 
-    /** Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings */
-    const BINARY = 'BINARY';
-
-    /** Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings */
-    const VARBINARY = 'VARBINARY';
-
-    /** A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value */
-    const TINYBLOB = 'TINYBLOB';
-
-    /** A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value */
-    const BLOB = 'BLOB';
-
-    /** A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value */
-    const MEDIUMBLOB = 'MEDIUMBLOB';
-
-    /** A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value */
-    const LONGBLOB = 'LONGBLOB';
+//    /** Similar to the CHAR type, but stores binary byte strings rather than non-binary character strings */
+//    const BINARY = 'BINARY';
+//
+//    /** Similar to the VARCHAR type, but stores binary byte strings rather than non-binary character strings */
+//    const VARBINARY = 'VARBINARY';
+//
+//    /** A BLOB column with a maximum length of 255 (2^8 - 1) bytes, stored with a one-byte prefix indicating the length of the value */
+//    const TINYBLOB = 'TINYBLOB';
+//
+//    /** A BLOB column with a maximum length of 65,535 (2^16 - 1) bytes, stored with a two-byte prefix indicating the length of the value */
+//    const BLOB = 'BLOB';
+//
+//    /** A BLOB column with a maximum length of 16,777,215 (2^24 - 1) bytes, stored with a three-byte prefix indicating the length of the value */
+//    const MEDIUMBLOB = 'MEDIUMBLOB';
+//
+//    /** A BLOB column with a maximum length of 4,294,967,295 or 4GiB (2^32 - 1) bytes, stored with a four-byte prefix indicating the length of the value */
+//    const LONGBLOB = 'LONGBLOB';
 
     /** An enumeration, chosen from the list of up to 65,535 values or the special '' error value */
     const ENUM = 'ENUM';
 
-    /** A single value chosen from a set of up to 64 members */
-    const SET = 'SET';
+//    /** A single value chosen from a set of up to 64 members */
+//    const SET = 'SET';
 
-    // ------- Spatial -------
-
-    /** A type that can store a geometry of any type */
-    const GEOMETRY = 'GEOMETRY';
-
-    /** A point in 2-dimensional space */
-    const POINT = 'POINT';
-
-    /** A curve with linear interpolation between points */
-    const LINESTRING = 'LINESTRING';
-
-    /** A polygon */
-    const POLYGON = 'POLYGON';
-
-    /** A collection of points */
-    const MULTIPOINT = 'MULTIPOINT';
-
-    /** A collection of curves with linear interpolation between points */
-    const MULTILINESTRING = 'MULTILINESTRING';
-
-    /** A collection of polygons */
-    const MULTIPOLYGON = 'MULTIPOLYGON';
-
-    /** A collection of geometry objects of any type */
-    const GEOMETRYCOLLECTION = 'GEOMETRYCOLLECTION';
-
-    // ------- JSON -------
-
-    /** Stores and enables efficient access to data in JSON (JavaScript Object Notation) documents */
-    const JSON = 'JSON';
+//    // ------- Spatial -------
+//
+//    /** A type that can store a geometry of any type */
+//    const GEOMETRY = 'GEOMETRY';
+//
+//    /** A point in 2-dimensional space */
+//    const POINT = 'POINT';
+//
+//    /** A curve with linear interpolation between points */
+//    const LINESTRING = 'LINESTRING';
+//
+//    /** A polygon */
+//    const POLYGON = 'POLYGON';
+//
+//    /** A collection of points */
+//    const MULTIPOINT = 'MULTIPOINT';
+//
+//    /** A collection of curves with linear interpolation between points */
+//    const MULTILINESTRING = 'MULTILINESTRING';
+//
+//    /** A collection of polygons */
+//    const MULTIPOLYGON = 'MULTIPOLYGON';
+//
+//    /** A collection of geometry objects of any type */
+//    const GEOMETRYCOLLECTION = 'GEOMETRYCOLLECTION';
+//
+//    // ------- JSON -------
+//
+//    /** Stores and enables efficient access to data in JSON (JavaScript Object Notation) documents */
+//    const JSON = 'JSON';
 
     // ============== Default ==============
 
@@ -146,11 +147,11 @@ class DBModelField
 
     // ============== Attributes ==============
 
-    const ATTR_BINARY = 'BINARY';
-    /** Unsigned type can be used to permit only nonnegative numbers in a column or when you need a larger upper numeric range for the column. e.g. signed -127 to 127 , unsigned 0 to 255 */
+//    const ATTR_BINARY = 'BINARY';
+//    /** Unsigned type can be used to permit only nonnegative numbers in a column or when you need a larger upper numeric range for the column. e.g. signed -127 to 127 , unsigned 0 to 255 */
     const ATTR_UNSIGNED = 'UNSIGNED';
-    /** Pads the displayed value of the field with zeros up to the display width specified in the column definition (Type), e.g. INT(8) will fill up to 7 zeros - 00000001 */
-    const ATTR_UNSIGNED_ZEROFILL = 'UNSIGNED ZEROFILL';
+//    /** Pads the displayed value of the field with zeros up to the display width specified in the column definition (Type), e.g. INT(8) will fill up to 7 zeros - 00000001 */
+//    const ATTR_UNSIGNED_ZEROFILL = 'UNSIGNED ZEROFILL';
     /** Updates field value to current timestamp when on UPDATE */
     const ATTR_ON_UPDATE_CURRENT_TIMESTAMP = 'on update CURRENT_TIMESTAMP';
 
@@ -263,7 +264,9 @@ class DBModelField
     public function null(bool $null = true): DBModelField
     {
         $this->null = $null;
-        $this->default = self::DEFAULT_NULL;
+
+        if ($this->default === self::DEFAULT_NONE)
+            $this->default = self::DEFAULT_NULL;
 
         return $this;
     }
@@ -343,15 +346,15 @@ class DBModelField
         return $this;
     }
 
-    /**
-     * @return $this
-     */
-    public function binary()
-    {
-        $this->attr(self::ATTR_BINARY);
-
-        return $this;
-    }
+//    /**
+//     * @return $this
+//     */
+//    public function binary()
+//    {
+//        $this->attr(self::ATTR_BINARY);
+//
+//        return $this;
+//    }
 
     /**
      * See description for ATTR_UNSIGNED
@@ -365,17 +368,17 @@ class DBModelField
         return $this;
     }
 
-    /**
-     * See description for ATTR_UNSIGNED_ZEROFILL
-     *
-     * @return $this
-     */
-    public function unsignedZeroFill()
-    {
-        $this->attr(self::ATTR_UNSIGNED_ZEROFILL);
-
-        return $this;
-    }
+//    /**
+//     * See description for ATTR_UNSIGNED_ZEROFILL
+//     *
+//     * @return $this
+//     */
+//    public function unsignedZeroFill()
+//    {
+//        $this->attr(self::ATTR_UNSIGNED_ZEROFILL);
+//
+//        return $this;
+//    }
 
     /**
      * See description for ATTR_ON_UPDATE_CURRENT_TIMESTAMP

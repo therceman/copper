@@ -9,6 +9,8 @@ use Copper\Component\CP\CPPhpFileLoader;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
+use Copper\Component\Validator\ValidatorHandler;
+use Copper\Component\Validator\ValidatorPhpFileLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,6 +30,7 @@ class Kernel
     const AUTH_CONFIG_FILE = 'auth.php';
     const DB_CONFIG_FILE = 'db.php';
     const CP_CONFIG_FILE = 'cp.php';
+    const VALIDATOR_CONFIG_FILE = 'validator.php';
 
     /** @var RouteCollection */
     protected $routes;
@@ -39,6 +42,8 @@ class Kernel
     protected $db;
     /** @var CPHandler */
     protected $cp;
+    /** @var ValidatorHandler */
+    protected $validator;
 
     public function __construct()
     {
@@ -47,6 +52,7 @@ class Kernel
         $this->configureAuth();
         $this->configureFlashMessage();
         $this->configureCP();
+        $this->configureValidator();
     }
 
     /**
@@ -290,5 +296,25 @@ class Kernel
             $this->routes->remove(ROUTE_get_copper_cp);
             $this->routes->remove(ROUTE_copper_cp_action);
         }
+    }
+
+    /**
+     *  Configure default and application Validator from {APP|CORE}/config/validator.php
+     */
+    protected function configureValidator()
+    {
+        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
+        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
+
+        $loader = new ValidatorPhpFileLoader(new FileLocator($packagePath));
+        $packageConfig = $loader->load($this::VALIDATOR_CONFIG_FILE);
+
+        $projectConfig = null;
+        if (file_exists($projectPath . '/' . $this::VALIDATOR_CONFIG_FILE)) {
+            $loader = new ValidatorPhpFileLoader(new FileLocator($projectPath));
+            $projectConfig = $loader->load($this::VALIDATOR_CONFIG_FILE);
+        }
+
+        $this->validator = new ValidatorHandler($this->db->config, $packageConfig, $projectConfig);
     }
 }
