@@ -73,6 +73,9 @@ class DBService
         /** @var DBModel $model */
         $model = new $seed->modelClassName();
 
+        if (count($seed->seeds) === 0)
+            return $response->error("Table `$model->tableName` has empty seeds");
+
         if (self::tableEmpty($model->tableName, $db) === false && $force === false)
             return $response->error("Table `$model->tableName` already seeded and " . '$force' . " flag is not true");
 

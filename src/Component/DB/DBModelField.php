@@ -259,10 +259,11 @@ class DBModelField
     }
 
     /**
-     * @param int $length
+     * @param bool|int|array $length
+     *
      * @return DBModelField
      */
-    public function length(int $length): DBModelField
+    public function length($length): DBModelField
     {
         $this->length = $length;
 

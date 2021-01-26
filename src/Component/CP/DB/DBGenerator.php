@@ -71,16 +71,6 @@ class DBGenerator
         return $folder . '/' . $name . '.php';
     }
 
-    private static function isTypeInteger($type)
-    {
-        return DBModel::fieldTypeIsInteger($type);
-    }
-
-    private static function isTypeFloat($type)
-    {
-        return DBModel::fieldTypeIsFloat($type);
-    }
-
     private static function createController($create, $model, $entity, $service, $name, $override)
     {
         $response = new FunctionResponse();
@@ -242,26 +232,28 @@ XML;
         $stateFieldsFunc = ($use_state_fields)
             ? self::T2 . '// ------ State Fields ------' . "\r\n" . self::T2 . '$this->addStateFields();' : '';
 
-        foreach ($fields as $field) {
-            $fName = $field['name'];
-            $fType = $field['type'];
-            $fLength = $field['length'];
-            $fDefault = $field['default'];
-            $fAttr = $field['attr'];
-            $fNull = $field['null'];
-            $fIndex = $field['index'];
-            $fAutoIncrement = $field['auto_increment'];
+        foreach ($fields as $fieldData) {
+            $fName = $fieldData['name'];
+            $fType = $fieldData['type'];
+            $fLength = $fieldData['length'];
+            $fDefault = $fieldData['default'];
+            $fAttr = $fieldData['attr'];
+            $fNull = $fieldData['null'];
+            $fIndex = $fieldData['index'];
+            $fAutoIncrement = $fieldData['auto_increment'];
+
+            $field = new DBModelField($fName, $fType);
+
+            if (in_array($fType, [DBModelField::DECIMAL, DBModelField::ENUM]) !== false) {
+                $q = ($fType === DBModelField::DECIMAL) ? '' : "'";
+                $fLength = "[$q" . join("$q, $q", explode(',', $fLength)) . "$q]";
+            }
 
             $fNameUp = strtoupper($fName);
 
             $constFields .= self::T . "const $fNameUp = '$fName';\r\n";
 
             $fieldSetStr = self::T2 . '$this->' . "addField(self::$fNameUp, DBModelField::$fType";
-
-            if (in_array($fType, [DBModelField::DECIMAL, DBModelField::ENUM]) !== false) {
-                $q = ($fType === DBModelField::DECIMAL) ? '' : "'";
-                $fLength = "[$q" . join("$q, $q", explode(',', $fLength)) . "$q]";
-            }
 
             $fieldSetStr .= ($fLength !== false) ? ', ' . $fLength . ')' : ')';
 
@@ -290,7 +282,7 @@ XML;
             elseif ($fDefault === DBModelField::DEFAULT_CURRENT_TIMESTAMP)
                 $fieldSetStr .= '->currentTimestampByDefault()';
             elseif ($fDefault !== DBModelField::DEFAULT_NONE) {
-                if (self::isTypeFloat($fType) === false && self::isTypeInteger($fType) === false)
+                if ($field->typeIsFloat() === false && $field->typeIsInteger() === false)
                     $fDefault = "'$fDefault'";
 
                 $fieldSetStr .= "->default($fDefault)";
@@ -353,13 +345,15 @@ XML;
             $fName = $field['name'];
             $type = 'string';
 
-            if (self::isTypeInteger($field['type']))
+            $field = new DBModelField($fName, $field['type']);
+
+            if ($field->typeIsInteger())
                 $type = 'integer';
 
-            if (self::isTypeFloat($field['type']))
+            if ($field->typeIsFloat())
                 $type = 'float';
 
-            if ($field['type'] === DBModelField::BOOLEAN)
+            if ($field->typeIsBoolean())
                 $type = 'boolean';
 
             $fields_content .= "    /** @var $type */\r\n    public $$fName;\r\n";
