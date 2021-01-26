@@ -20,14 +20,14 @@ abstract class DBCollectionService
     /**
      * @return DBModel
      */
-    private static function getModel()
+    public static function getModel()
     {
         $modelClassName = static::getModelClassName();
 
-        if (!array_key_exists($modelClassName, self::$models))
-            self::$models[$modelClassName] = new $modelClassName();
+        if (array_key_exists(static::class, self::$models) === false)
+            self::$models[static::class] = new $modelClassName();
 
-        return self::$models[$modelClassName];
+        return self::$models[static::class];
     }
 
     /**
