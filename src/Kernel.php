@@ -26,6 +26,7 @@ use Symfony\Component\Config\FileLocator;
 final class Kernel
 {
     const CONFIG_FOLDER = 'config';
+    const ROUTES_FOLDER = 'routes';
     const ROUTES_CONFIG_FILE = 'routes.php';
     const AUTH_CONFIG_FILE = 'auth.php';
     const DB_CONFIG_FILE = 'db.php';
@@ -266,7 +267,17 @@ final class Kernel
         $loader = new PhpFileLoader(new FileLocator($path));
         self::$routes = $loader->load($this::ROUTES_CONFIG_FILE);
 
-        // Load application routes
+        // Load application low level routes
+        $path = $this::getProjectPath() . '/' . $this::ROUTES_FOLDER;
+        if (file_exists($path)) {
+            $files = array_diff(scandir($path), array('..', '.'));
+            foreach ($files as $file) {
+                $loader = new PhpFileLoader(new FileLocator($path));
+                self::$routes->addCollection($loader->load($file));
+            }
+        }
+
+        // Load application top level routes
         $path = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
         if (file_exists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
             $loader = new PhpFileLoader(new FileLocator($path));
