@@ -39,9 +39,12 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 </style>
 
 <body class="markdown-body">
-<h4>DataBase Class Files Generator</h4>
+<h4>DataBase Resource Generator</h4>
 
 <div style="margin-bottom:10px;">
+    <div style="margin-bottom: 5px;">
+        Resource: <input id=resource autocomplete="off" placeholder="Resource name" autofocus spellcheck="false">
+    </div>
     <div style="float:left;margin-top: 5px;">
         <input type="checkbox" id="use_state_fields" checked="checked">
         <label for="use_state_fields"
@@ -74,7 +77,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
 
 <div style="margin-bottom:10px;" id="names">
-    <span>Table:</span> <input id=table autocomplete="off" placeholder="Table name" autofocus>
+    <span>Table:</span> <input id=table autocomplete="off" placeholder="Table name">
     <span>Entity:</span> <input id=entity autocomplete="off" placeholder="Entity name">
     <span>Model:</span> <input id=model autocomplete="off" placeholder="Model name">
     <span>Service:</span> <input id=service autocomplete="off" placeholder="Service name">
@@ -552,8 +555,9 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     let $add = document.querySelector('#add');
     let $name = document.querySelector('#name');
 
-    let $table = document.querySelector('#table');
+    let $resource = document.querySelector('#resource');
 
+    let $table = document.querySelector('#table');
     let $entity = document.querySelector('#entity');
     let $model = document.querySelector('#model');
     let $service = document.querySelector('#service');
@@ -784,6 +788,17 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
     $create_seed.dispatchEvent(new Event('input'));
 
+    $resource.addEventListener('input', e => {
+        let val = $resource.value;
+
+        $table.value = val.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+        $entity.value = val;
+        $model.value = val + 'Model';
+        $service.value = val + 'Service';
+        $controller.value = val + 'Controller';
+        $seed.value = val + 'Seed';
+    })
+
     $table.addEventListener('input', e => {
         let tableVal = $table.value;
         let entityVal = '';
@@ -797,12 +812,6 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
             entityVal += val;
         })
-
-        $entity.value = entityVal;
-        $model.value = entityVal + 'Model';
-        $service.value = entityVal + 'Service';
-        $controller.value = entityVal + 'Controller';
-        $seed.value = entityVal + 'Seed';
     });
 
     $type.dispatchEvent(new Event('input'));
