@@ -6,6 +6,7 @@ namespace Copper\Component\Validator;
 
 use Copper\Component\DB\DBConfigurator;
 use Copper\Component\DB\DBModel;
+use Copper\FunctionResponse;
 use Copper\Kernel;
 
 class ValidatorHandler
@@ -97,10 +98,16 @@ class ValidatorHandler
 
             $this->addRule($rule);
         }
+
+        return $this->validate($params);
     }
 
-    public function validate()
+    public function validate($params)
     {
+        $response = new FunctionResponse();
 
+        // validation login for rules here
+
+        return $response->ok();
     }
 }

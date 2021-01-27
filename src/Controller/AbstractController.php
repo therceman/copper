@@ -7,6 +7,7 @@ use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Templating\ViewHandler;
+use Copper\Component\Validator\ValidatorHandler;
 use Copper\RequestTrait;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +39,8 @@ class AbstractController
     protected $db;
     /** @var CPHandler */
     protected $cp;
+    /** @var ValidatorHandler */
+    protected $validator;
 
     /**
      * AbstractController constructor.
@@ -48,9 +51,10 @@ class AbstractController
      * @param FlashMessageHandler $flashMessage
      * @param DBHandler $db
      * @param CPHandler $cp
+     * @param ValidatorHandler $validator
      */
     function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, AuthHandler $auth,
-                         FlashMessageHandler $flashMessage, DBHandler $db, CPHandler $cp)
+                         FlashMessageHandler $flashMessage, DBHandler $db, CPHandler $cp, ValidatorHandler $validator)
     {
         $this->request = $request;
         $this->requestContext = $requestContext;
@@ -59,6 +63,7 @@ class AbstractController
         $this->auth = $auth;
         $this->db = $db;
         $this->cp = $cp;
+        $this->validator = $validator;
 
         $this->init();
     }

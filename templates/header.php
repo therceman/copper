@@ -24,6 +24,34 @@
             padding: .2em .4em
         }
     </style>
+    <style>
+        table.styled {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table.styled td, table.styled th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        table.styled tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table.styled tr:hover {
+            background-color: #ddd;
+        }
+
+        table.styled th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: left;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
 </head>
 
 <?php

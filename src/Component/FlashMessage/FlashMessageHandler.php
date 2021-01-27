@@ -43,6 +43,22 @@ class FlashMessageHandler
     }
 
     /**
+     * @return FlashMessage|false
+     */
+    public function getError()
+    {
+        return $this->first(FlashMessage::ERROR);
+    }
+
+    /**
+     * @return bool
+     */
+    public function existsError()
+    {
+        return $this->session->getFlashBag()->has(FlashMessage::ERROR);
+    }
+
+    /**
      * Returns true if the message with type exists, false if not.
      *
      * @param string $type
@@ -76,7 +92,8 @@ class FlashMessageHandler
      *
      * @return FlashMessage[]
      */
-    public function all() {
+    public function all()
+    {
         $flashMessageList = [];
 
         foreach ($this->session->getFlashBag()->all() as $type => $msg) {

@@ -76,10 +76,15 @@ class DBService
         if (count($seed->seeds) === 0)
             return $response->error("Table `$model->tableName` has empty seeds");
 
+        if (self::tableExists($model->tableName, $db) === false)
+            return $response->error("Table `$model->tableName` doesn't exist");
+
         if (self::tableEmpty($model->tableName, $db) === false && $force === false)
             return $response->error("Table `$model->tableName` already seeded and " . '$force' . " flag is not true");
 
-        $query = 'INSERT INTO ' . $model->tableName . '(' . join(', ', $model->getFieldNames()) . ') VALUES ';
+        $fieldNames = '`'.join('`, `', $model->getFieldNames()).'`';
+
+        $query = 'INSERT INTO ' . $model->tableName . '(' . $fieldNames . ') VALUES ';
 
         $query_values = [];
 
