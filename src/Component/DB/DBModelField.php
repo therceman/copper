@@ -4,6 +4,8 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Kernel;
+
 class DBModelField
 {
     // ============== TYPE ==============
@@ -219,11 +221,13 @@ class DBModelField
 
     public function getLength()
     {
+        $dbConfig = Kernel::getDb()->config;
+
         if ($this->type === self::DECIMAL && $this->length === false)
-            return DBHandler::getConfig()->default_decimal_length;
+            return $dbConfig->default_decimal_length;
 
         if ($this->type === self::VARCHAR && $this->length === false)
-            return DBHandler::getConfig()->default_varchar_length;
+            return $dbConfig->default_varchar_length;
 
         return $this->length;
     }
@@ -520,7 +524,7 @@ class DBModelField
      */
     public function getMaxLength()
     {
-        $dbConfig = DBHandler::getConfig();
+        $dbConfig = Kernel::getDb()->config;
 
         $default_varchar_length = $dbConfig->default_varchar_length;
         $default_decimal_length = $dbConfig->default_decimal_length;

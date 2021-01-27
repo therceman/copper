@@ -3,6 +3,7 @@
 namespace Copper\Component\Auth;
 
 use Copper\Component\DB\DBHandler;
+use Copper\Kernel;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class AuthHandler
@@ -23,14 +24,13 @@ class AuthHandler
      *
      * @param AuthConfigurator $packageAuthConfig
      * @param AuthConfigurator $projectAuthConfig
-     * @param DBHandler $db
      */
-    public function __construct(AuthConfigurator $packageAuthConfig, AuthConfigurator $projectAuthConfig = null, DBHandler $db = null)
+    public function __construct(AuthConfigurator $packageAuthConfig, AuthConfigurator $projectAuthConfig = null)
     {
         $this->session = new Session();
         $this->session->start();
 
-        $this->db = $db;
+        $this->db = Kernel::getDb();
         $this->user = null;
 
         $this->config = $this->mergeConfig($packageAuthConfig, $projectAuthConfig);

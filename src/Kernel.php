@@ -23,7 +23,7 @@ use Symfony\Component\Routing\Loader\PhpFileLoader;
 
 use Symfony\Component\Config\FileLocator;
 
-class Kernel
+final class Kernel
 {
     const CONFIG_FOLDER = 'config';
     const ROUTES_CONFIG_FILE = 'routes.php';
@@ -33,17 +33,17 @@ class Kernel
     const VALIDATOR_CONFIG_FILE = 'validator.php';
 
     /** @var RouteCollection */
-    protected $routes;
+    private static $routes;
     /** @var AuthHandler */
-    protected $auth;
+    private static $auth;
     /** @var FlashMessageHandler */
-    protected $flashMessage;
+    private static $flashMessage;
     /** @var DBHandler */
-    protected $db;
+    private static $db;
     /** @var CPHandler */
-    protected $cp;
+    private static $cp;
     /** @var ValidatorHandler */
-    protected $validator;
+    private static $validator;
 
     public function __construct()
     {
@@ -114,6 +114,54 @@ class Kernel
     }
 
     /**
+     * @return RouteCollection
+     */
+    public static function getRoutes(): RouteCollection
+    {
+        return self::$routes;
+    }
+
+    /**
+     * @return AuthHandler
+     */
+    public static function getAuth(): AuthHandler
+    {
+        return self::$auth;
+    }
+
+    /**
+     * @return FlashMessageHandler
+     */
+    public static function getFlashMessage(): FlashMessageHandler
+    {
+        return self::$flashMessage;
+    }
+
+    /**
+     * @return DBHandler
+     */
+    public static function getDb(): DBHandler
+    {
+        return self::$db;
+    }
+
+    /**
+     * @return CPHandler
+     */
+    public static function getCp(): CPHandler
+    {
+        return self::$cp;
+    }
+
+    /**
+     * @return ValidatorHandler
+     */
+    public static function getValidator(): ValidatorHandler
+    {
+        return self::$validator;
+    }
+
+    /**
      * Handles Request
      *
      * @param Request $request
@@ -125,7 +173,7 @@ class Kernel
         $requestContext = new RequestContext();
         $requestContext->fromRequest($request);
 
-        $matcher = new UrlMatcher($this->routes, $requestContext);
+        $matcher = new UrlMatcher(self::$routes, $requestContext);
 
         try {
             $this->configureMatchedRequestAttributes($matcher, $request);
@@ -149,7 +197,7 @@ class Kernel
      *
      * @return Response
      */
-    protected function errorResponse($message, $status = 404)
+    protected function errorResponse(string $message, $status = 404)
     {
         return new Response('<b>Error</b>: ' . $message, $status);
     }
@@ -193,7 +241,8 @@ class Kernel
             }
 
             // pass Templating and RequestContext initialized class to controller
-            $instance = new $controller[0]($request, $requestContext, $this->routes, $this->auth, $this->flashMessage, $this->db, $this->cp);
+            $instance = new $controller[0]($request, $requestContext,
+                self::$routes, self::$auth, self::$flashMessage, self::$db, self::$cp, self::$validator);
 
             $controller = [$instance, $controller[1]];
         }
@@ -215,13 +264,13 @@ class Kernel
         // Load default routes
         $path = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
         $loader = new PhpFileLoader(new FileLocator($path));
-        $this->routes = $loader->load($this::ROUTES_CONFIG_FILE);
+        self::$routes = $loader->load($this::ROUTES_CONFIG_FILE);
 
         // Load application routes
         $path = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
         if (file_exists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
             $loader = new PhpFileLoader(new FileLocator($path));
-            $this->routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
+            self::$routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
         }
     }
 
@@ -242,7 +291,7 @@ class Kernel
             $projectAuthConfig = $loader->load($this::AUTH_CONFIG_FILE);
         }
 
-        $this->auth = new AuthHandler($packageAuthConfig, $projectAuthConfig, $this->db);
+        self::$auth = new AuthHandler($packageAuthConfig, $projectAuthConfig);
     }
 
     /**
@@ -250,7 +299,7 @@ class Kernel
      */
     protected function configureFlashMessage()
     {
-        $this->flashMessage = new FlashMessageHandler($this->auth->session);
+        self::$flashMessage = new FlashMessageHandler(self::$auth->session);
     }
 
     /**
@@ -270,7 +319,7 @@ class Kernel
             $projectConfig = $loader->load($this::DB_CONFIG_FILE);
         }
 
-        $this->db = new DBHandler($packageConfig, $projectConfig);
+        self::$db = new DBHandler($packageConfig, $projectConfig);
     }
 
     /**
@@ -290,11 +339,11 @@ class Kernel
             $projectConfig = $loader->load($this::CP_CONFIG_FILE);
         }
 
-        $this->cp = new CPHandler($packageConfig, $projectConfig);
+        self::$cp = new CPHandler($packageConfig, $projectConfig);
 
-        if ($this->cp->config->enabled === false) {
-            $this->routes->remove(ROUTE_get_copper_cp);
-            $this->routes->remove(ROUTE_copper_cp_action);
+        if (self::$cp->config->enabled === false) {
+            self::$routes->remove(ROUTE_get_copper_cp);
+            self::$routes->remove(ROUTE_copper_cp_action);
         }
     }
 
@@ -315,6 +364,6 @@ class Kernel
             $projectConfig = $loader->load($this::VALIDATOR_CONFIG_FILE);
         }
 
-        $this->validator = new ValidatorHandler($this->db->config, $packageConfig, $projectConfig);
+        self::$validator = new ValidatorHandler($packageConfig, $projectConfig);
     }
 }

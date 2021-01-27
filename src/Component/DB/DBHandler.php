@@ -5,7 +5,7 @@ namespace Copper\Component\DB;
 use Envms\FluentPDO\Query;
 use PDO;
 
-final class DBHandler
+class DBHandler
 {
     /** @var PDO */
     public $pdo;
@@ -15,13 +15,6 @@ final class DBHandler
 
     /** @var DBConfigurator */
     public $config;
-
-    /** @var PDO */
-    private static $global_pdo;
-    /** @var Query */
-    private static $global_query;
-    /** @var DBConfigurator */
-    private static $global_config;
 
     /**
      * DBHandler constructor.
@@ -34,30 +27,6 @@ final class DBHandler
         $this->config = $this->mergeConfig($packageConfig, $projectConfig);
         date_default_timezone_set($this->config->timezone);
         $this->init();
-
-        $this->initGlobals();
-    }
-
-    public static function getPDO()
-    {
-        return self::$global_pdo;
-    }
-
-    public static function getQuery()
-    {
-        return self::$global_query;
-    }
-
-    public static function getConfig()
-    {
-        return self::$global_config;
-    }
-
-    private function initGlobals()
-    {
-        self::$global_pdo = $this->pdo;
-        self::$global_query = $this->query;
-        self::$global_config = $this->config;
     }
 
     private function init()

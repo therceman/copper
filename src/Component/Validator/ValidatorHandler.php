@@ -6,6 +6,7 @@ namespace Copper\Component\Validator;
 
 use Copper\Component\DB\DBConfigurator;
 use Copper\Component\DB\DBModel;
+use Copper\Kernel;
 
 class ValidatorHandler
 {
@@ -19,13 +20,12 @@ class ValidatorHandler
     /**
      * ValidatorHandler constructor.
      *
-     * @param DBConfigurator $dbConfig
      * @param ValidatorConfigurator $packageConfig
      * @param ValidatorConfigurator $projectConfig
      */
-    public function __construct(DBConfigurator $dbConfig, ValidatorConfigurator $packageConfig, ValidatorConfigurator $projectConfig = null)
+    public function __construct(ValidatorConfigurator $packageConfig, ValidatorConfigurator $projectConfig = null)
     {
-        $this->dbConfig = $dbConfig;
+        $this->dbConfig = Kernel::getDb()->config;
         $this->config = $this->mergeConfig($packageConfig, $projectConfig);
         $this->rules = [];
     }
