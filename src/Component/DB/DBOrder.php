@@ -42,7 +42,7 @@ class DBOrder
 
         foreach ($this->fields as $key => $data) {
             $order = ($data[1]) ? self::ASC : self::DESC;
-            $queryList[] = DBModel::formatFieldName($data[0]) . ' ' . $order;
+            $queryList[] = '`' . DBModel::formatFieldName($data[0]) . '` ' . $order;
         }
 
         return join(', ', $queryList);

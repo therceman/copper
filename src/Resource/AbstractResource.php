@@ -4,11 +4,25 @@
 namespace Copper\Resource;
 
 
+use Copper\Component\DB\DBModel;
+use Copper\Component\DB\DBSeed;
+use Copper\Entity\AbstractEntity;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 abstract class AbstractResource
 {
+    private static $model = null;
+
+    const PATH_GROUP = 'abstract_resource';
+
+    const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
+    const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';
+    const POST_UPDATE = 'postUpdate@/' . self::PATH_GROUP . '/update/{id}';
+    const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
+    const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
+    const POST_DELETE = 'postDelete@/' . self::PATH_GROUP . '/delete/{id}';
+
     abstract static function getControllerClassName();
 
     abstract static function getModelClassName();
@@ -21,7 +35,41 @@ abstract class AbstractResource
 
     static function getSeedClassName()
     {
-        // provide Seed Class Name if exists
+        return DBSeed::class;
+    }
+
+    static function getService()
+    {
+        return static::getServiceClassName();
+    }
+
+    /**
+     * @return DBSeed|string
+     */
+    static function getSeed()
+    {
+        return static::getSeedClassName();
+    }
+
+    /**
+     * @return AbstractEntity
+     */
+    static function getEntity()
+    {
+        return static::getEntityClassName();
+    }
+
+    /**
+     * @return DBModel
+     */
+    static function getModel()
+    {
+        if (self::$model !== null)
+            return self::$model;
+
+        $className = static::getModelClassName();
+
+        return self::$model = new $className();
     }
 
     /**
