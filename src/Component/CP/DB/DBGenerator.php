@@ -83,27 +83,42 @@ class DBGenerator
         if (file_exists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
-        $template = strtolower($entity);
+        $content = "<?php
 
-        $content = <<<XML
-<?php
+namespace App\\Controller;
 
-namespace App\Controller;
-
-use App\Model\\$model;
-use App\Service\\$service;
-use Copper\Component\DB\DBModel;
-use Copper\Component\DB\DBOrder;
-use Copper\Controller\AbstractController;
+use App\\Entity\\$entity;
+use App\\Model\\$model;
+use App\\Service\\$service;
+use App\\Resource\\{$entity}Resource;
+use Copper\\Component\\DB\\DBModel;
+use Copper\\Component\\DB\\DBOrder;
+use Copper\\Controller\\AbstractController;
 
 class $name extends AbstractController
 {
-    /** @var DBModel */
-    public \$model;
+    const EXCLUDED_UPDATE_PARAMS = [$model::ID];
+    const EXCLUDED_CREATE_PARAMS = [$model::ID];
+
+    const TEMPLATE_LIST = 'collection/list';
+    const TEMPLATE_EDIT = 'collection/edit';
+    const TEMPLATE_NEW = 'collection/new';
+
+    /** @var ProductResource */
+    public \$resource = {$entity}Resource::class;
+
+    /** @var $service */
+    private \$service;
+    /** @var $model */
+    private \$model;
+    /** @var $entity */
+    private \$entity;
 
     public function init()
     {
-        \$this->model = new $model();
+        \$this->service = \$this->resource::getService();
+        \$this->model = \$this->resource::getModel();
+        \$this->entity = \$this->resource::getEntity();
     }
 
     public function getList()
@@ -113,15 +128,72 @@ class $name extends AbstractController
         \$order = \$this->request->query->get('order', DBOrder::ASC);
         \$order_by = \$this->request->query->get('order_by', DBModel::ID);
 
-        \$dbOrder = new DBOrder(\$this->model, \$order_by, (\$order === DBOrder::ASC));
+        \$dbOrder = new DBOrder(\$this->model, \$order_by, (strtoupper(\$order) === DBOrder::ASC));
 
-        \$list = $service::getList(\$this->db, \$limit, \$offset, \$dbOrder);
+        \$list = \$this->service::getList(\$this->db, \$limit, \$offset, \$dbOrder);
 
-        return \$this->render('$template/list', ['list' => \$list]);
+        return \$this->render(self::TEMPLATE_LIST, ['list' => \$list, 'resource' => \$this->resource]);
     }
 
-}
-XML;
+    public function getEdit(\$id)
+    {
+        \$entry = \$this->service::get(\$this->db, \$id);
+
+        return \$this->render(self::TEMPLATE_EDIT, ['entry' => \$entry]);
+    }
+
+    public function postUpdate(\$id)
+    {
+        \$updateParams = \$this->requestParamsExcluding(self::EXCLUDED_UPDATE_PARAMS);
+
+        \$validateResponse = \$this->validator->validateModel(\$updateParams, \$this->model);
+
+        if (\$validateResponse->hasError()) {
+            \$this->flashMessage->set('error', \$validateResponse->msg);
+        } else {
+            \$updateResponse = \$this->service::update(\$this->db, \$id, \$updateParams);
+
+            if (\$updateResponse->hasError())
+                \$this->flashMessage->set('error', \$updateResponse->msg);
+        }
+
+        return \$this->getEdit(\$id);
+    }
+
+    public function getNew()
+    {
+        return \$this->render(self::TEMPLATE_NEW);
+    }
+
+    public function postCreate()
+    {
+        \$createParams = \$this->requestParamsExcluding(self::EXCLUDED_CREATE_PARAMS);
+
+        \$validateResponse = \$this->validator->validateModel(\$createParams, \$this->model);
+
+        if (\$validateResponse->hasError()) {
+            \$this->flashMessage->set('error', \$validateResponse->msg);
+        } else {
+            \$createResponse = \$this->service::create(\$this->db, \$this->entity::fromArray(\$createParams));
+
+            if (\$createResponse->hasError())
+                \$this->flashMessage->set('error', \$createResponse->msg);
+        }
+
+        return \$this->getNew();
+    }
+
+    public function postDelete(\$id)
+    {
+        \$removeResponse = \$this->service::remove(\$this->db, \$id);
+
+        if (\$removeResponse->hasError())
+            \$this->flashMessage->set('error', \$removeResponse->msg);
+
+        return \$this->getList();
+    }
+
+}";
         file_put_contents($filePath, $content);
 
         return $response->ok();
