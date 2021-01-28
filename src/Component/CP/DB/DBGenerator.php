@@ -71,6 +71,71 @@ class DBGenerator
         return $folder . '/' . $name . '.php';
     }
 
+    private static function createResource()
+    {
+        $content = "<?php
+
+
+namespace App\Resource;
+
+
+use App\Controller\ProductController;
+use App\Entity\Product;
+use App\Model\ProductModel;
+use App\Seed\ProductSeed;
+use App\Service\ProductService;
+use Copper\Resource\AbstractResource;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+class ProductResource extends AbstractResource
+{
+    static function getEntityClassName()
+    {
+        return Product::class;
+    }
+
+    static function getControllerClassName()
+    {
+        return ProductController::class;
+    }
+
+    static function getModelClassName()
+    {
+        return ProductModel::class;
+    }
+
+    static function getServiceClassName()
+    {
+        return ProductService::class;
+    }
+
+    static function getSeedClassName()
+    {
+        return ProductSeed::class;
+    }
+
+    const PATH_GROUP = 'product';
+
+    const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
+    const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';
+    const POST_UPDATE = 'postUpdate@/' . self::PATH_GROUP . '/update/{id}';
+    const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
+    const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
+    const POST_DELETE = 'postDelete@/' . self::PATH_GROUP . '/delete/{id}';
+
+    public static function registerRoutes(RoutingConfigurator \$routes)
+    {
+        self::addRouteHelper(\$routes, self::GET_LIST);
+        self::addRouteHelper(\$routes, self::GET_EDIT);
+        self::addRouteHelper(\$routes, self::POST_UPDATE);
+        self::addRouteHelper(\$routes, self::GET_NEW);
+        self::addRouteHelper(\$routes, self::POST_CREATE);
+        self::addRouteHelper(\$routes, self::POST_DELETE);
+    }
+}";
+
+    }
+
     private static function createController($create, $model, $entity, $service, $name, $override)
     {
         $response = new FunctionResponse();
