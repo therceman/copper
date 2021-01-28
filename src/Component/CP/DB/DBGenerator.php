@@ -75,6 +75,8 @@ class DBGenerator
     {
         $response = new FunctionResponse();
 
+        $resource = $entity . 'Resource';
+
         $filePath = self::filePath($name, 'Controller');
 
         if ($create === false)
@@ -90,7 +92,7 @@ namespace App\\Controller;
 use App\\Entity\\$entity;
 use App\\Model\\$model;
 use App\\Service\\$service;
-use App\\Resource\\{$entity}Resource;
+use App\\Resource\\$resource;
 use Copper\\Component\\DB\\DBModel;
 use Copper\\Component\\DB\\DBOrder;
 use Copper\\Controller\\AbstractController;
@@ -104,8 +106,8 @@ class $name extends AbstractController
     const TEMPLATE_EDIT = 'collection/edit';
     const TEMPLATE_NEW = 'collection/new';
 
-    /** @var ProductResource */
-    public \$resource = {$entity}Resource::class;
+    /** @var $resource */
+    public \$resource = $resource::class;
 
     /** @var $service */
     private \$service;
