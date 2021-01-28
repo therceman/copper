@@ -8,23 +8,13 @@ use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
 use Copper\Component\DB\DBSeed;
+use Copper\FileReader;
 use Copper\FunctionResponse;
 use Copper\Kernel;
 use PDOException;
 
 class DBService
 {
-    private static function extractNamespaceFromFile($file)
-    {
-        $src = file_get_contents($file);
-
-        if (preg_match('#^namespace\s+(.+?);$#sm', $src, $m)) {
-            return $m[1];
-        }
-
-        return null;
-    }
-
     public static function tableExists($tableName, DBHandler $db)
     {
         try {
@@ -207,26 +197,9 @@ class DBService
 
     public static function getClassNames($folder)
     {
-        $response = new FunctionResponse();
+        $folderPath = Kernel::getProjectPath() . '/src/' . $folder;
 
-        $modelFolder = Kernel::getProjectPath() . '/src/' . $folder;
-
-        if (file_exists($modelFolder) === false)
-            return $response->error("[$folder] Folder not found");
-
-        $modelFiles = array_diff(scandir($modelFolder), array('.', '..'));
-
-        $classNames = [];
-
-        foreach ($modelFiles as $file) {
-            $model = str_replace('.php', '', $file);
-            $namespace = self::extractNamespaceFromFile($modelFolder . '/' . $file);
-            $classNames[] = $namespace . '\\' . $model;
-        }
-
-        $response->success("ok", $classNames);
-
-        return $response;
+        return FileReader::getClassNamesInFolder($folderPath);
     }
 
     /**

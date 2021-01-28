@@ -11,9 +11,12 @@ use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Component\Validator\ValidatorPhpFileLoader;
+use Copper\Resource\AbstractResource;
+use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -27,6 +30,8 @@ final class Kernel
 {
     const CONFIG_FOLDER = 'config';
     const ROUTES_FOLDER = 'routes';
+    const SRC_RESOURCE_FOLDER = 'src/Resource';
+
     const ROUTES_CONFIG_FILE = 'routes.php';
     const AUTH_CONFIG_FILE = 'auth.php';
     const DB_CONFIG_FILE = 'db.php';
@@ -275,6 +280,26 @@ final class Kernel
                 $loader = new PhpFileLoader(new FileLocator($path));
                 self::$routes->addCollection($loader->load($file));
             }
+        }
+
+        // Load application resource routes
+        $path = $this::getProjectPath() . '/' . $this::SRC_RESOURCE_FOLDER;
+        $resourceFiles = FileReader::getFilesInFolder($path);
+
+        foreach ($resourceFiles->result as $key => $resourceFile) {
+            $filePath = $path . '/' . $resourceFile;
+
+            /** @var AbstractResource $resourceClass */
+            $resourceClass = FileReader::getFilePathClassName($filePath);
+
+            if (in_array('registerRoutes', get_class_methods($resourceClass)) === false)
+                continue;
+
+            $collection = new RouteCollection();
+            $resourceClass::registerRoutes(new RoutingConfigurator($collection, $loader, $path, $filePath));
+            $collection->addResource(new FileResource($filePath));
+
+            self::$routes->addCollection($collection);
         }
 
         // Load application top level routes
