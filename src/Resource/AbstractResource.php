@@ -90,7 +90,7 @@ abstract class AbstractResource
      *
      * @return RouteConfigurator
      */
-    public static function addRouteHelper(RoutingConfigurator $routes, string $name)
+    public static function addRoute(RoutingConfigurator $routes, string $name)
     {
         $nameParts = explode('@/', $name);
 

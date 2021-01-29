@@ -24,6 +24,7 @@ class DBGenerator
 
         $content = json_decode($jsonContent, true);
 
+        $resource = $content['resource'] ?? false;
         $table = $content['table'] ?? false;
         $entity = $content['entity'] ?? false;
         $model = $content['model'] ?? false;
@@ -35,12 +36,14 @@ class DBGenerator
 
         $use_state_fields = $content['use_state_fields'] ?? false;
 
+        $resource_override = $content['resource_override'] ?? false;
         $model_override = $content['model_override'] ?? false;
         $entity_override = $content['entity_override'] ?? false;
         $service_override = $content['service_override'] ?? false;
         $seed_override = $content['seed_override'] ?? false;
         $controller_override = $content['controller_override'] ?? false;
 
+        $create_resource = $content['create_resource'] ?? false;
         $create_entity = $content['create_entity'] ?? false;
         $create_model = $content['create_model'] ?? false;
         $create_service = $content['create_service'] ?? false;
@@ -58,6 +61,12 @@ class DBGenerator
         $responses['seed'] = self::createSeed($create_seed, $model, $entity, $seed, $seed_override);
         $responses['controller'] = self::createController($create_controller, $model, $entity, $service, $controller, $controller_override);
 
+        $is_relation = false;
+        if ($create_service === false && $create_controller === false && $create_entity === false)
+            $is_relation = true;
+
+        $responses['resource'] = self::createResource($create_resource, $model, $entity, $service, $controller, $seed, $resource, $resource_override, $is_relation);
+
         return $response->ok('success', $responses);
     }
 
@@ -71,50 +80,77 @@ class DBGenerator
         return $folder . '/' . $name . '.php';
     }
 
-    private static function createResource()
+    private static function createResource($create, $model, $entity, $service, $controller, $seed, $name, $override, $is_relation)
     {
-        $content = "<?php
+        $response = new FunctionResponse();
 
+        $name = str_replace('resource', 'Resource', $name);
+
+        $pathGroup = strtolower(str_replace('Resource', '', $name));
+
+        $filePath = self::filePath($name, 'Resource');
+
+        if ($create === false)
+            return $response->ok('Skipped');
+
+        if (file_exists($filePath) && $override === false)
+            return $response->fail($name . ' is not created. Override is set to false.');
+
+        $relationContent = "<?php
 
 namespace App\Resource;
 
+use App\Model\\$model;
+use Copper\Resource\AbstractRelationResource;
 
-use App\Controller\ProductController;
-use App\Entity\Product;
-use App\Model\ProductModel;
-use App\Seed\ProductSeed;
-use App\Service\ProductService;
+class $name extends AbstractRelationResource
+{
+    public static function getModelClassName()
+    {
+        return $model::class;
+    }
+}";
+
+        $content = "<?php
+
+namespace App\Resource;
+
+use App\Controller\\$controller;
+use App\Entity\\$entity;
+use App\Model\\$model;
+use App\Seed\\$seed;
+use App\Service\\$service;
 use Copper\Resource\AbstractResource;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-class ProductResource extends AbstractResource
+class $name extends AbstractResource
 {
     static function getEntityClassName()
     {
-        return Product::class;
+        return $entity::class;
     }
 
     static function getControllerClassName()
     {
-        return ProductController::class;
+        return $controller::class;
     }
 
     static function getModelClassName()
     {
-        return ProductModel::class;
+        return $model::class;
     }
 
     static function getServiceClassName()
     {
-        return ProductService::class;
+        return $service::class;
     }
 
     static function getSeedClassName()
     {
-        return ProductSeed::class;
+        return $seed::class;
     }
 
-    const PATH_GROUP = 'product';
+    const PATH_GROUP = '$pathGroup';
 
     const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
     const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';
@@ -125,15 +161,19 @@ class ProductResource extends AbstractResource
 
     public static function registerRoutes(RoutingConfigurator \$routes)
     {
-        self::addRouteHelper(\$routes, self::GET_LIST);
-        self::addRouteHelper(\$routes, self::GET_EDIT);
-        self::addRouteHelper(\$routes, self::POST_UPDATE);
-        self::addRouteHelper(\$routes, self::GET_NEW);
-        self::addRouteHelper(\$routes, self::POST_CREATE);
-        self::addRouteHelper(\$routes, self::POST_DELETE);
+        self::addRoute(\$routes, self::GET_LIST);
+        self::addRoute(\$routes, self::GET_EDIT);
+        self::addRoute(\$routes, self::POST_UPDATE);
+        self::addRoute(\$routes, self::GET_NEW);
+        self::addRoute(\$routes, self::POST_CREATE);
+        self::addRoute(\$routes, self::POST_DELETE);
     }
 }";
+        $fileContent = ($is_relation === true) ? $relationContent : $content;
 
+        file_put_contents($filePath, $fileContent);
+
+        return $response->ok();
     }
 
     private static function createController($create, $model, $entity, $service, $name, $override)

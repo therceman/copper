@@ -36,6 +36,10 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     #names input {
         width: 165px;
     }
+
+    span.help {
+        font-size: 10px;
+    }
 </style>
 
 <body class="markdown-body">
@@ -44,6 +48,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 <div style="margin-bottom:10px;">
     <div style="margin-bottom: 5px;">
         Resource: <input id=resource autocomplete="off" placeholder="Resource name" autofocus spellcheck="false">
+        <span class="help">Hit [Enter] after input</span>
     </div>
     <div style="float:left;margin-top: 5px;">
         <input type="checkbox" id="use_state_fields" checked="checked">
@@ -59,6 +64,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     <div style="clear: both"></div>
     <div style="margin-top: 10px;">
         <span>Files To Create: </span>
+        <input type="checkbox" id="create_resource" checked="checked"><label for="create_resource">Resource</label>
         <input type="checkbox" id="create_entity" checked="checked"><label for="create_entity">Entity</label>
         <input type="checkbox" id="create_model" checked="checked"><label for="create_model">Model</label>
         <input type="checkbox" id="create_service" checked="checked"><label for="create_service">Service</label>
@@ -67,6 +73,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     </div>
     <div style="margin-top: -20px; float:right">
         <span>Files To Override: </span>
+        <input type="checkbox" id="resource_override"><label for="resource_override">Resource</label>
         <input type="checkbox" id="entity_override"><label for="entity_override">Entity</label>
         <input type="checkbox" id="model_override"><label for="model_override">Model</label>
         <input type="checkbox" id="service_override"><label for="service_override">Service</label>
@@ -577,12 +584,14 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     let $cancel_default_value = document.querySelector('#cancel_default_value');
     let $use_state_fields = document.querySelector('#use_state_fields');
 
+    let $create_resource = document.querySelector('#create_resource');
     let $create_entity = document.querySelector('#create_entity');
     let $create_model = document.querySelector('#create_model');
     let $create_service = document.querySelector('#create_service');
     let $create_controller = document.querySelector('#create_controller');
     let $create_seed = document.querySelector('#create_seed');
 
+    let $resource_override = document.querySelector('#resource_override');
     let $entity_override = document.querySelector('#entity_override');
     let $model_override = document.querySelector('#model_override');
     let $service_override = document.querySelector('#service_override');
@@ -768,36 +777,51 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
     $create_entity.addEventListener('input', e => {
         $entity.disabled = ($create_entity.checked === false);
+        $entity_override.disabled = ($create_entity.checked === false);
     })
 
     $create_model.addEventListener('input', e => {
         $model.disabled = ($create_model.checked === false);
+        $model_override.disabled = ($create_model.checked === false);
     })
 
     $create_service.addEventListener('input', e => {
         $service.disabled = ($create_service.checked === false);
+        $service_override.disabled = ($create_service.checked === false);
     })
 
     $create_controller.addEventListener('input', e => {
         $controller.disabled = ($create_controller.checked === false);
+        $controller_override.disabled = ($create_controller.checked === false);
     })
 
     $create_seed.addEventListener('input', e => {
         $seed.disabled = ($create_seed.checked === false);
+        $seed_override.disabled = ($create_seed.checked === false);
     })
 
     $create_seed.dispatchEvent(new Event('input'));
 
-    $resource.addEventListener('input', e => {
-        let val = $resource.value;
+    $resource.addEventListener('change', e => {
+        let val = $resource.value.replace('resource', ' ').replace('Resource', ' ');
 
-        $table.value = val.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
-        $entity.value = val;
-        $model.value = val + 'Model';
-        $service.value = val + 'Service';
-        $controller.value = val + 'Controller';
-        $seed.value = val + 'Seed';
-    })
+        val = val.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+
+        let valParts = val.toLowerCase().trim().replace(/ /g, '_').split('_');
+
+        let camelCaseVal = '';
+        valParts.forEach(part => {
+            camelCaseVal += part.charAt(0).toUpperCase() + part.slice(1);
+        })
+
+        $resource.value = camelCaseVal + 'Resource';
+        $table.value = valParts.join('_');
+        $entity.value = camelCaseVal;
+        $model.value = camelCaseVal + 'Model';
+        $service.value = camelCaseVal + 'Service';
+        $controller.value = camelCaseVal + 'Controller';
+        $seed.value = camelCaseVal + 'Seed';
+    });
 
     $table.addEventListener('input', e => {
         let tableVal = $table.value;
@@ -834,21 +858,24 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
         let http = new XMLHttpRequest();
         let url = 'db_generator_run';
 
-        let params = JSON.stringify({
+        let JSONParams = {
             "table": $table.value,
 
+            "resource": $resource.value,
             "entity": $entity.value,
             "model": $model.value,
             "service": $service.value,
             "controller": $controller.value,
             "seed": $seed.value,
 
+            "create_resource": ($create_resource.checked === true),
             "create_entity": ($create_entity.checked === true),
             "create_model": ($create_model.checked === true),
             "create_service": ($create_service.checked === true),
             "create_controller": ($create_controller.checked === true),
             "create_seed": ($create_seed.checked === true),
 
+            "resource_override": ($resource_override.checked === true),
             "entity_override": ($entity_override.checked === true),
             "model_override": ($model_override.checked === true),
             "service_override": ($service_override.checked === true),
@@ -858,7 +885,27 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
             "use_state_fields": ($use_state_fields.checked === true),
 
             "fields": fields
-        });
+        }
+
+        if (JSONParams.create_resource && $resource.value.trim() === '')
+            return alert("Resource name is empty");
+
+        if (JSONParams.create_controller && $controller.value.trim() === '')
+            return alert("Controller name is empty");
+
+        if (JSONParams.create_seed && $seed.value.trim() === '')
+            return alert("Seed name is empty");
+
+        if (JSONParams.create_entity && $entity.value.trim() === '')
+            return alert("Entity name is empty");
+
+        if (JSONParams.create_model && ($model.value.trim() === '' || $table.value.trim() === ''))
+            return alert("Model or Table name is empty");
+
+        if (JSONParams.create_service && $service.value.trim() === '')
+            return alert("Service name is empty");
+
+        let params = JSON.stringify(JSONParams);
 
         http.open('POST', url, true);
 
