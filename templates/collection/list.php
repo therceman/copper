@@ -30,8 +30,10 @@ $limit = $view->query('limit', 20);
     <h3><?= ucfirst($model->tableName) ?> List</h3>
     <div style="float:right;margin-top:-40px;">
         <form style="float: left" action="<?= $view->path($resource::GET_LIST) ?>" method="get">
-            Offset: <input type="number" name="offset" value="<?= $offset ?>">
-            Limit: <input type="number" name="limit" value="<?= $limit ?>" autocomplete="off">
+            <label for="offset">Offset: </label>
+            <input type="number" id="offset" name="offset" value="<?= $offset ?>">
+            <label for="limit">Limit: </label>
+            <input type="number" id="limit" name="limit" value="<?= $limit ?>" autocomplete="off">
             <button>Filter</button>
         </form>
         <form style="float: right;margin-left: 10px;" action="<?= $view->path($resource::GET_NEW) ?>" method="get">
@@ -67,7 +69,7 @@ $limit = $view->query('limit', 20);
 
     $tableThList = document.querySelectorAll('table th');
 
-    $tableThList.forEach($th => {
+    $tableThList.forEach(function ($th) {
         let id = $th.id;
         let current_order_by = false;
 
@@ -80,10 +82,10 @@ $limit = $view->query('limit', 20);
         if ($th.id === '')
             return;
 
-        $th.addEventListener('click', e => {
+        $th.addEventListener('click', function (e) {
             let url = order_url.replace('__field__', $th.id);
             url = url.replace('__order__', (current_order_by && order === 'asc') ? 'desc' : 'asc');
             window.location.href = url;
-        })
+        });
     })
 </script>

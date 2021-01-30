@@ -30,6 +30,11 @@
         }
     </style>
     <style>
+        .content_wrapper {
+            width: 1280px;
+            margin: 0 auto;
+        }
+
         table.collection {
             font-family: Arial, Helvetica, sans-serif;
             border-collapse: collapse;

@@ -1,3 +1,85 @@
-<?php
+<?php /** @var \Copper\Component\Templating\ViewHandler $view */
 
-echo 'hello';
+use Copper\Entity\AbstractEntity;
+
+/** @var AbstractEntity $entity */
+$entity = $view->dataBag->get('entity');
+
+/** @var Copper\Resource\AbstractResource $resource */
+$resource = $view->dataBag->get('resource');
+
+$model = $resource::getModel();
+
+?>
+
+<?= $view->render('header') ?>
+
+<style>
+    input:not([type=checkbox]) {
+        width: 500px;
+    }
+    textarea {
+        width: 500px;
+        height: 150px;
+    }
+</style>
+
+<?php if ($view->flashMessage->existsError()) { ?>
+    <div style="border: 1px solid #ccc; padding: 10px; margin:5px; border-radius: 5px;">
+        <span>Error:</span>
+        <code><?= $view->out($view->flashMessage->getError()) ?></code>
+    </div>
+<?php } ?>
+
+<div class="content_wrapper" style="padding: 0 20px">
+    <h3>Edit Entity #<?= $entity->id ?></h3>
+    <div style="float:right;margin-top:-40px;">
+        <form style="float: right;margin-left: 10px;"
+              action="<?= $view->path($resource::POST_DELETE, [$model::ID => $entity->id]) ?>" method="post">
+            <button>Delete</button>
+        </form>
+    </div>
+    <form action="<?= $view->path($resource::POST_UPDATE, [$model::ID => $entity->id]) ?>" method="post">
+        <table class="entry">
+            <?php foreach ($model->getFieldNames() as $fieldName) {
+                $field = $model->getFieldByName($fieldName);
+
+                $id = $fieldName;
+                $name = $fieldName;
+                $value = $entity->$fieldName;
+
+                $disabled = '';
+                if ($model->hasStateFields() && in_array($name, [$model::REMOVED_AT, $model::UPDATED_AT, $model::CREATED_AT]))
+                    $disabled = 'disabled';
+
+                if ($name === $model::ID)
+                    continue;
+
+                $input = "<input type='text' $disabled name='$name' value='$value'>";
+
+                if ($field->typeIsBoolean()) {
+                    $checked = (boolval($value) === true) ? 'checked' : '';
+                    // trick to pass enabled=0 to server (when checkbox is unchecked)
+                    $input = "<input type=hidden name='$name' value='0'>";
+                    $input .= "<input type=checkbox $checked name='$name' value='1'>";
+                }
+
+                if ($field->typeIsText()) {
+                    $input = "<textarea name='$name'>$value</textarea>";
+                }
+
+                if ($field->typeIsDecimal()) {
+                    $min = $field->unsigned() ? 'min="0"' : '';
+                    $input = "<input type='number' name='$name' $min value='$value' step='.01'>";
+                }
+
+                echo "
+            <tr>
+                <td><label>$name</label></td>
+                <td>$input</td>
+            </tr>";
+            } ?>
+        </table>
+        <button style="float:right">Update</button>
+    </form>
+</div>

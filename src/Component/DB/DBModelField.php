@@ -466,6 +466,16 @@ class DBModelField
             ]) !== false);
     }
 
+    public function typeIsText()
+    {
+        return (in_array($this->type, [
+                DBModelField::TINYTEXT,
+                DBModelField::TEXT,
+                DBModelField::MEDIUMTEXT,
+                DBModelField::LONGTEXT,
+            ]) !== false);
+    }
+
     public function typeIsFloat()
     {
         return (in_array($this->type, [

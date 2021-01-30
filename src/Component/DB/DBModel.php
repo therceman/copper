@@ -18,6 +18,9 @@ abstract class DBModel
     const REMOVED_AT = 'removed_at';
     const ENABLED = 'enabled';
 
+    /** @var bool */
+    public $stateFieldsEnabled = false;
+
     /** @var string */
     public $tableName = '';
 
@@ -104,12 +107,19 @@ abstract class DBModel
         return $field;
     }
 
+    public function hasStateFields()
+    {
+        return $this->stateFieldsEnabled;
+    }
+
     public function addStateFields($enabledByDefault = false)
     {
         $this->addField(self::CREATED_AT, DBModelField::DATETIME)->currentTimestampByDefault();
         $this->addField(self::UPDATED_AT, DBModelField::DATETIME)->currentTimestampOnUpdate()->nullByDefault();
         $this->addField(self::REMOVED_AT, DBModelField::DATETIME)->nullByDefault();
         $this->addField(self::ENABLED, DBModelField::BOOLEAN)->default($enabledByDefault);
+
+        $this->stateFieldsEnabled = true;
     }
 
     /**
@@ -165,7 +175,7 @@ abstract class DBModel
             if (is_bool($value) && $field->getType() === $field::BOOLEAN)
                 $value = intval($value);
 
-            $formattedValues[$field->getName()] = $value;
+            $formattedValues['`'.$field->getName().'`'] = $value;
         }
 
         return $formattedValues;

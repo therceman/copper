@@ -59,7 +59,7 @@ class DBGenerator
         $responses['model'] = self::createModel($table, $create_model, $model, $fields, $use_state_fields, $model_override);
         $responses['service'] = self::createService($create_service, $model, $entity, $service, $service_override);
         $responses['seed'] = self::createSeed($create_seed, $model, $entity, $seed, $seed_override);
-        $responses['controller'] = self::createController($create_controller, $model, $entity, $service, $controller, $controller_override);
+        $responses['controller'] = self::createController($create_controller, $model, $entity, $service, $controller, $controller_override, $use_state_fields);
 
         $is_relation = false;
         if ($create_service === false && $create_controller === false && $create_entity === false)
@@ -176,7 +176,7 @@ class $name extends AbstractResource
         return $response->ok();
     }
 
-    private static function createController($create, $model, $entity, $service, $name, $override)
+    private static function createController($create, $model, $entity, $service, $name, $override, $use_state_fields)
     {
         $response = new FunctionResponse();
 
@@ -189,6 +189,11 @@ class $name extends AbstractResource
 
         if (file_exists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
+
+        $excluded_param = "[$model::ID]";
+
+        if ($use_state_fields)
+            $excluded_param = "[$model::ID, $model::CREATED_AT, $model::UPDATED_AT, $model::REMOVED_AT]";
 
         $content = "<?php
 
@@ -204,8 +209,8 @@ use Copper\\Controller\\AbstractController;
 
 class $name extends AbstractController
 {
-    const EXCLUDED_UPDATE_PARAMS = [$model::ID];
-    const EXCLUDED_CREATE_PARAMS = [$model::ID];
+    const EXCLUDED_UPDATE_PARAMS = $excluded_param;
+    const EXCLUDED_CREATE_PARAMS = $excluded_param;
 
     const TEMPLATE_LIST = 'collection/list';
     const TEMPLATE_EDIT = 'collection/edit';
@@ -244,9 +249,9 @@ class $name extends AbstractController
 
     public function getEdit(\$id)
     {
-        \$entry = \$this->service::get(\$this->db, \$id);
+        \$entity = \$this->service::get(\$this->db, \$id);
 
-        return \$this->render(self::TEMPLATE_EDIT, ['entry' => \$entry]);
+        return \$this->render(self::TEMPLATE_EDIT, ['entity' => \$entity, 'resource' => \$this->resource]);
     }
 
     public function postUpdate(\$id)
@@ -264,12 +269,12 @@ class $name extends AbstractController
                 \$this->flashMessage->set('error', \$updateResponse->msg);
         }
 
-        return \$this->getEdit(\$id);
+        return \$this->redirectToRoute(\$this->resource::GET_EDIT, ['id' => \$id]);
     }
 
     public function getNew()
     {
-        return \$this->render(self::TEMPLATE_NEW);
+        return \$this->render(self::TEMPLATE_NEW, ['resource' => \$this->resource]);
     }
 
     public function postCreate()
@@ -287,7 +292,7 @@ class $name extends AbstractController
                 \$this->flashMessage->set('error', \$createResponse->msg);
         }
 
-        return \$this->getNew();
+        return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }
 
     public function postDelete(\$id)
@@ -297,7 +302,7 @@ class $name extends AbstractController
         if (\$removeResponse->hasError())
             \$this->flashMessage->set('error', \$removeResponse->msg);
 
-        return \$this->getList();
+        return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }
 
 }";
