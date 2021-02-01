@@ -288,6 +288,7 @@ abstract class DBCollectionService
     {
         $response = new FunctionResponse();
 
+        // prepareDataForInsert($entity)
         $insertData = self::getModel()->getFieldValuesFromEntity($entity);
         $formattedInsertData = self::getModel()->formatFieldValues($insertData);
 
@@ -324,6 +325,7 @@ abstract class DBCollectionService
 
         $entity = self::getEntity()::fromArray($fields);
 
+        // prepareDataForUpdate($fields, $entity?);
         $updateData = self::getModel()->getFieldValuesFromEntity($entity, array_keys($fields));
         $formattedUpdateData = self::getModel()->formatFieldValues($updateData, false);
 

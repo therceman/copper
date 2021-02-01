@@ -10,11 +10,11 @@ use Copper\Entity\AbstractEntity;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-abstract class AbstractResource
+abstract class AbstractCollectionResource
 {
     private static $model = null;
 
-    const PATH_GROUP = 'abstract_resource';
+    const PATH_GROUP = 'abstract_collection_resource';
 
     const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
     const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';

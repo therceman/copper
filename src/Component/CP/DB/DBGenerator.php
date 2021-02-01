@@ -59,7 +59,7 @@ class DBGenerator
         $responses['model'] = self::createModel($table, $create_model, $model, $fields, $use_state_fields, $model_override);
         $responses['service'] = self::createService($create_service, $model, $entity, $service, $service_override);
         $responses['seed'] = self::createSeed($create_seed, $model, $entity, $seed, $seed_override);
-        $responses['controller'] = self::createController($create_controller, $model, $entity, $service, $controller, $controller_override, $use_state_fields);
+        $responses['controller'] = self::createController($create_controller, $resource, $model, $entity, $service, $controller, $controller_override, $use_state_fields);
 
         $is_relation = false;
         if ($create_service === false && $create_controller === false && $create_entity === false)
@@ -84,9 +84,7 @@ class DBGenerator
     {
         $response = new FunctionResponse();
 
-        $name = str_replace('resource', 'Resource', $name);
-
-        $pathGroup = strtolower(str_replace('Resource', '', $name));
+        $pathGroup = strtolower($name);
 
         $filePath = self::filePath($name, 'Resource');
 
@@ -120,10 +118,10 @@ use App\Entity\\$entity;
 use App\Model\\$model;
 use App\Seed\\$seed;
 use App\Service\\$service;
-use Copper\Resource\AbstractResource;
+use Copper\Resource\AbstractCollectionResource;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-class $name extends AbstractResource
+class $name extends AbstractCollectionResource
 {
     static function getEntityClassName()
     {
@@ -176,11 +174,9 @@ class $name extends AbstractResource
         return $response->ok();
     }
 
-    private static function createController($create, $model, $entity, $service, $name, $override, $use_state_fields)
+    private static function createController($create, $resource, $model, $entity, $service, $name, $override, $use_state_fields)
     {
         $response = new FunctionResponse();
-
-        $resource = $entity . 'Resource';
 
         $filePath = self::filePath($name, 'Controller');
 

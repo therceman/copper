@@ -11,7 +11,7 @@ use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Component\Validator\ValidatorPhpFileLoader;
-use Copper\Resource\AbstractResource;
+use Copper\Resource\AbstractCollectionResource;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -289,7 +289,7 @@ final class Kernel
         foreach ($resourceFiles->result as $key => $resourceFile) {
             $filePath = $path . '/' . $resourceFile;
 
-            /** @var AbstractResource $resourceClass */
+            /** @var AbstractCollectionResource $resourceClass */
             $resourceClass = FileReader::getFilePathClassName($filePath);
 
             if (in_array('registerRoutes', get_class_methods($resourceClass)) === false)

@@ -5,10 +5,17 @@ use Copper\Entity\AbstractEntity;
 /** @var AbstractEntity $entity */
 $entity = $view->dataBag->get('entity');
 
-/** @var Copper\Resource\AbstractResource $resource */
+/** @var Copper\Resource\AbstractCollectionResource $resource */
 $resource = $view->dataBag->get('resource');
 
 $model = $resource::getModel();
+
+$action = $entity->exists() ? 'Update' : 'Create';
+
+$action_url = $entity->exists()
+    ? $view->path($resource::POST_UPDATE, [$model::ID => $entity->id])
+    : $view->path($resource::POST_CREATE);
+
 
 ?>
 
@@ -18,9 +25,14 @@ $model = $resource::getModel();
     input:not([type=checkbox]) {
         width: 500px;
     }
+
     textarea {
         width: 500px;
         height: 150px;
+    }
+
+    form {
+        margin-bottom: 10px;
     }
 </style>
 
@@ -32,21 +44,25 @@ $model = $resource::getModel();
 <?php } ?>
 
 <div class="content_wrapper" style="padding: 0 20px">
-    <h3>Edit Entity #<?= $entity->id ?></h3>
-    <div style="float:right;margin-top:-40px;">
-        <form style="float: right;margin-left: 10px;"
-              action="<?= $view->path($resource::POST_DELETE, [$model::ID => $entity->id]) ?>" method="post">
-            <button>Delete</button>
-        </form>
-    </div>
-    <form action="<?= $view->path($resource::POST_UPDATE, [$model::ID => $entity->id]) ?>" method="post">
+    <h3><?= $entity->exists() ? 'Edit Entity #' . $entity->id : 'Create New Entity'; ?></h3>
+
+    <?php if ($entity->exists()) : ?>
+        <div style="float:right;margin-top:-40px;">
+            <form style="float: right;margin-left: 10px;"
+                  action="<?= $view->path($resource::POST_DELETE, [$model::ID => $entity->id]) ?>" method="post">
+                <button>Delete</button>
+            </form>
+        </div>
+    <?php endif; ?>
+
+    <form action="<?= $action_url ?>" method="post">
         <table class="entry">
             <?php foreach ($model->getFieldNames() as $fieldName) {
                 $field = $model->getFieldByName($fieldName);
 
                 $id = $fieldName;
                 $name = $fieldName;
-                $value = $entity->$fieldName;
+                $value = $entity->$fieldName ?? '';
 
                 $disabled = '';
                 if ($model->hasStateFields() && in_array($name, [$model::REMOVED_AT, $model::UPDATED_AT, $model::CREATED_AT]))
@@ -80,6 +96,10 @@ $model = $resource::getModel();
             </tr>";
             } ?>
         </table>
-        <button style="float:right">Update</button>
+        <button style="float:right"><?= $action ?></button>
     </form>
+    <form action="<?= $view->path($resource::GET_LIST) ?>" method="get">
+        <button style="float:left">Cancel</button>
+    </form>
+
 </div>

@@ -803,7 +803,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     $create_seed.dispatchEvent(new Event('input'));
 
     $resource.addEventListener('change', e => {
-        let val = $resource.value.replace('resource', ' ').replace('Resource', ' ');
+        let val = $resource.value;
 
         val = val.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 
@@ -814,9 +814,9 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
             camelCaseVal += part.charAt(0).toUpperCase() + part.slice(1);
         })
 
-        $resource.value = camelCaseVal + 'Resource';
+        $resource.value = camelCaseVal;
         $table.value = valParts.join('_');
-        $entity.value = camelCaseVal;
+        $entity.value = camelCaseVal + 'Entity';
         $model.value = camelCaseVal + 'Model';
         $service.value = camelCaseVal + 'Service';
         $controller.value = camelCaseVal + 'Controller';

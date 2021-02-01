@@ -43,4 +43,9 @@ class AbstractEntity
     {
         return (array)$this;
     }
+
+    public function exists()
+    {
+        return ($this->id !== null);
+    }
 }
