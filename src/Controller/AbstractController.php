@@ -81,7 +81,7 @@ class AbstractController
      *
      * @return Response
      */
-    public function render($view, $parameters = [])
+    public function viewResponse($view, $parameters = [])
     {
         return new Response($this->renderView($view, $parameters));
     }
@@ -171,7 +171,7 @@ class AbstractController
      */
     protected function redirectToRoute($route, $parameters = [], $status = 302)
     {
-        return $this->redirect($this->path($route, $parameters), $status);
+        return $this->redirect($this->url($route, $parameters), $status);
     }
 
     /**
@@ -200,7 +200,7 @@ class AbstractController
         $authConfig = $this->auth->config;
 
         if ($this->auth->check() === true)
-            return $this->render($authConfig->forbiddenTemplate);
+            return $this->viewResponse($authConfig->forbiddenTemplate);
 
         $parameters = [];
 

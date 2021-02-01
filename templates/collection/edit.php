@@ -13,8 +13,8 @@ $model = $resource::getModel();
 $action = $entity->exists() ? 'Update' : 'Create';
 
 $action_url = $entity->exists()
-    ? $view->path($resource::POST_UPDATE, [$model::ID => $entity->id])
-    : $view->path($resource::POST_CREATE);
+    ? $view->url($resource::POST_UPDATE, [$model::ID => $entity->id])
+    : $view->url($resource::POST_CREATE);
 
 
 ?>
@@ -36,7 +36,7 @@ $action_url = $entity->exists()
     }
 </style>
 
-<?php if ($view->flashMessage->existsError()) { ?>
+<?php if ($view->flashMessage->hasError()) { ?>
     <div style="border: 1px solid #ccc; padding: 10px; margin:5px; border-radius: 5px;">
         <span>Error:</span>
         <code><?= $view->out($view->flashMessage->getError()) ?></code>
@@ -49,8 +49,8 @@ $action_url = $entity->exists()
     <?php if ($entity->exists()) : ?>
         <div style="float:right;margin-top:-40px;">
             <form style="float: right;margin-left: 10px;"
-                  action="<?= $view->path($resource::POST_DELETE, [$model::ID => $entity->id]) ?>" method="post">
-                <button>Delete</button>
+                  action="<?= $view->url($resource::POST_REMOVE, [$model::ID => $entity->id]) ?>" method="post">
+                <button>Remove</button>
             </form>
         </div>
     <?php endif; ?>
@@ -98,7 +98,7 @@ $action_url = $entity->exists()
         </table>
         <button style="float:right"><?= $action ?></button>
     </form>
-    <form action="<?= $view->path($resource::GET_LIST) ?>" method="get">
+    <form action="<?= $view->url($resource::GET_LIST) ?>" method="get">
         <button style="float:left">Cancel</button>
     </form>
 

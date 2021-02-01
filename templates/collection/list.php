@@ -19,7 +19,7 @@ $limit = $view->query('limit', 20);
 
 <?= $view->render('header') ?>
 
-<?php if ($view->flashMessage->existsError()) { ?>
+<?php if ($view->flashMessage->hasError()) { ?>
     <div style="border: 1px solid #ccc; padding: 10px; margin:5px; border-radius: 5px;">
         <span>Error:</span>
         <code><?= $view->out($view->flashMessage->getError()) ?></code>
@@ -29,14 +29,14 @@ $limit = $view->query('limit', 20);
 <div class="content_wrapper" style="padding: 0 20px">
     <h3><?= ucfirst($model->tableName) ?> List</h3>
     <div style="float:right;margin-top:-40px;">
-        <form style="float: left" action="<?= $view->path($resource::GET_LIST) ?>" method="get">
+        <form style="float: left" action="<?= $view->url($resource::GET_LIST) ?>" method="get">
             <label for="offset">Offset: </label>
             <input type="number" id="offset" name="offset" value="<?= $offset ?>">
             <label for="limit">Limit: </label>
             <input type="number" id="limit" name="limit" value="<?= $limit ?>" autocomplete="off">
             <button>Filter</button>
         </form>
-        <form style="float: right;margin-left: 10px;" action="<?= $view->path($resource::GET_NEW) ?>" method="get">
+        <form style="float: right;margin-left: 10px;" action="<?= $view->url($resource::GET_NEW) ?>" method="get">
             <button>Create New</button>
         </form>
     </div>
@@ -53,7 +53,7 @@ $limit = $view->query('limit', 20);
                     <td><?= $entry->$fieldName ?></td>
                 <?php endforeach; ?>
                 <td style="text-align: center">
-                    <form action="<?= $view->path($resource::GET_EDIT, [$model::ID => $entry->id]) ?>">
+                    <form action="<?= $view->url($resource::GET_EDIT, [$model::ID => $entry->id]) ?>">
                         <button>Edit</button>
                     </form>
                 </td>
@@ -65,7 +65,7 @@ $limit = $view->query('limit', 20);
 <script>
     let order = '<?= $order ?>';
     let order_by = '<?= $order_by ?>'.toLowerCase();
-    let order_url = '<?= $view->path($resource::GET_LIST, ['order_by' => '__field__', 'order' => '__order__']) ?>';
+    let order_url = '<?= $view->url($resource::GET_LIST, ['order_by' => '__field__', 'order' => '__order__']) ?>';
 
     $tableThList = document.querySelectorAll('table th');
 

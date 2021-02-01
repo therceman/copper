@@ -39,35 +39,42 @@ trait RequestTrait
     }
 
     /**
-     * Returns the absolute URL (with scheme and host) for the given route.
-     * If schemeRelative is enabled, it'll create a scheme-relative URL
+     * Returns a path relative to the current path, e.g. "../parent-file".
      *
      * @param $name
      * @param array $parameters
-     * @param bool $schemeRelative
-     *
      * @return string
      */
-    public function url($name, $parameters = [], $schemeRelative = false)
+    public function relativePath($name, $parameters = [])
     {
-        $type = ($schemeRelative) ? UrlGenerator::NETWORK_PATH : UrlGenerator::ABSOLUTE_URL;
-
-        return $this->generateRouteUrl($name, $parameters, $type);
+        return $this->generateRouteUrl($name, $parameters, UrlGenerator::RELATIVE_PATH);
     }
 
     /**
-     * Returns the relative URL (without the scheme and host) for the given route.
-     * If relative is enabled, it'll create a path relative to the current path
+     * Returns a scheme-relative URL for the given route, e.g. "//example.com/dir/file".
      *
      * @param $name
      * @param array $parameters
-     * @param bool $relative
+     * @return string
+     */
+    public function networkPath($name, $parameters = [])
+    {
+        return $this->generateRouteUrl($name, $parameters, UrlGenerator::NETWORK_PATH);
+    }
+
+    /**
+     * Returns the URL (without the scheme and host) for the given route.
+     * If withScheme is enabled, it'll create the URL (with scheme and host) for the given route.
+     *
+     * @param $name
+     * @param array $parameters
+     * @param bool $withScheme
      *
      * @return string
      */
-    public function path($name, $parameters = [], $relative = false)
+    public function url($name, $parameters = [], $withScheme = false)
     {
-        $type = ($relative) ? UrlGenerator::RELATIVE_PATH : UrlGenerator::ABSOLUTE_PATH;
+        $type = ($withScheme) ? UrlGenerator::ABSOLUTE_URL : UrlGenerator::ABSOLUTE_PATH;
 
         return $this->generateRouteUrl($name, $parameters, $type);
     }

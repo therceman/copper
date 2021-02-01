@@ -2,10 +2,10 @@
 
 use Copper\Component\CP\CPController;
 
-$db_test_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_TEST]);
-$migrate_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_MIGRATE]);
-$generator_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]);
-$seed_url = $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_SEED]);
+$db_test_url = $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_TEST]);
+$migrate_url = $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_MIGRATE]);
+$generator_url = $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]);
+$seed_url = $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_SEED]);
 $entity_list = $view->dataBag->get('entity_list');
 ?>
 
@@ -29,7 +29,7 @@ $entity_list = $view->dataBag->get('entity_list');
     </li>
 </ul>
 
-<form method="post" action="<?= $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_LOGOUT]) ?>">
+<form method="post" action="<?= $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_LOGOUT]) ?>">
     <button type="submit">Logout</button>
 </form>
 </body>

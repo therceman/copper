@@ -105,7 +105,7 @@ class HomeController extends AbstractController
             'message' => 'Welcome to your Application!'
         ];
 
-        return $this->render('index', $parameters);
+        return $this->viewResponse('index', $parameters);
     }
 }
 ```
@@ -171,8 +171,9 @@ View (Templating) module :: Variables, Methods and Classes
 * `$view->out($value)`  - Escape HTML code and output as string
 * `$view->out($array)`  - Escape HTML code and output as formatted array
 * `$view->render($template)`  - Render template
-* `$view->path($name, $parameters = [], $relative = false)`      - Returns the relative URL to named route
-* `$view->url($name, $parameters = [], $schemeRelative = false)` - Returns the absolute URL to named route
+* `$view->relativePath($name, $parameters = [])`      - Returns the relative Path to named route
+* `$view->networkPath($name, $parameters = [])`      - Returns the network Path to named route
+* `$view->url($name, $parameters = [], $withScheme = false)` - Returns the URL to named route
 ### Classes 
 * [[ViewOutput][3]] - Output processor (escape, format, etc.)
   * Instances
@@ -202,7 +203,7 @@ View (Templating) module :: Variables, Methods and Classes
 Controller module :: Methods and Classes
 ----
 ### Methods
-* `$this->render($view, $parameters = [])` - Returns a Response with rendered view
+* `$this->viewResponse($view, $parameters = [])` - Returns a Response with rendered view
 * `$this->renderView($view, $parameters = [])` - Returns a rendered view
 * `$this->response($data, $status = 200, $headers = [])` - Returns a HTTP Response
 * `$this->json($data, $status = 200, $headers = [])` - Returns a JsonResponse that uses json_encode

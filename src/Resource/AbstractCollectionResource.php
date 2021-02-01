@@ -21,7 +21,7 @@ abstract class AbstractCollectionResource
     const POST_UPDATE = 'postUpdate@/' . self::PATH_GROUP . '/update/{id}';
     const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
     const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
-    const POST_DELETE = 'postDelete@/' . self::PATH_GROUP . '/delete/{id}';
+    const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
 
     abstract static function getControllerClassName();
 

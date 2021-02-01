@@ -4,5 +4,5 @@
 
 <body class="markdown-body">
 <h4>You are not allowed to see this page!</h4>
-<a href="<?=$view->path(ROUTE_index)?>">Home</a>
+<a href="<?=$view->url(ROUTE_index)?>">Home</a>
 </body>

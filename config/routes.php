@@ -28,7 +28,7 @@ return function (RoutingConfigurator $routes) {
 
     // Default index page
     $routes->add(ROUTE_index, '/')
-        ->controller([AbstractController::class, 'render'])
+        ->controller([AbstractController::class, 'viewResponse'])
         ->defaults(['view' => 'index'])
         ->methods(['GET']);
 };

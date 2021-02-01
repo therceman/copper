@@ -31,6 +31,38 @@ class FlashMessageHandler
     }
 
     /**
+     * @param string $text
+     */
+    public function setError(string $text)
+    {
+        $this->session->getFlashBag()->add(FlashMessage::ERROR, $text);
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setSuccess(string $text)
+    {
+        $this->session->getFlashBag()->add(FlashMessage::SUCCESS, $text);
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setInfo(string $text)
+    {
+        $this->session->getFlashBag()->add(FlashMessage::INFO, $text);
+    }
+
+    /**
+     * @param string $text
+     */
+    public function setWarning(string $text)
+    {
+        $this->session->getFlashBag()->add(FlashMessage::WARNING, $text);
+    }
+
+    /**
      * Get first message text by type
      *
      * @param string $type
@@ -51,11 +83,27 @@ class FlashMessageHandler
     }
 
     /**
-     * @return bool
+     * @return FlashMessage|false
      */
-    public function existsError()
+    public function getSuccess()
     {
-        return $this->session->getFlashBag()->has(FlashMessage::ERROR);
+        return $this->first(FlashMessage::SUCCESS);
+    }
+
+    /**
+     * @return FlashMessage|false
+     */
+    public function getInfo()
+    {
+        return $this->first(FlashMessage::INFO);
+    }
+
+    /**
+     * @return FlashMessage|false
+     */
+    public function getWarning()
+    {
+        return $this->first(FlashMessage::WARNING);
     }
 
     /**
@@ -65,9 +113,41 @@ class FlashMessageHandler
      *
      * @return bool
      */
-    public function exists(string $type)
+    public function has(string $type)
     {
         return $this->session->getFlashBag()->has($type);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasError()
+    {
+        return $this->session->getFlashBag()->has(FlashMessage::ERROR);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasSuccess()
+    {
+        return $this->session->getFlashBag()->has(FlashMessage::SUCCESS);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasInfo()
+    {
+        return $this->session->getFlashBag()->has(FlashMessage::INFO);
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasWarning()
+    {
+        return $this->session->getFlashBag()->has(FlashMessage::WARNING);
     }
 
     /**

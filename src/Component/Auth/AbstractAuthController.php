@@ -39,7 +39,7 @@ class AbstractAuthController extends AbstractController
 
     public function getLogin()
     {
-        return $this->render(static::LOGIN_TEMPLATE);
+        return $this->viewResponse(static::LOGIN_TEMPLATE);
     }
 
     public function postLogin()
@@ -54,7 +54,7 @@ class AbstractAuthController extends AbstractController
             return $this->generateSuccessLoginResponse($user);
         }
 
-        $this->flashMessage->set(FlashMessage::ERROR, static::DEFAULT_ERROR_MSG);
+        $this->flashMessage->setError(static::DEFAULT_ERROR_MSG);
         $this->flashMessage->set('form_login', $login);
 
         return $this->redirectToRoute($this->auth->config->loginRoute);

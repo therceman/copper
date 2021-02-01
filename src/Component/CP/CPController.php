@@ -28,11 +28,11 @@ class CPController extends AbstractController
     public function getIndex()
     {
         if ($this->hasAccess() === false)
-            return $this->render('cp/login');
+            return $this->viewResponse('cp/login');
 
         $entity_list = DBService::getClassNames('Entity')->result;
 
-        return $this->render('cp/index', ['entity_list' => $entity_list]);
+        return $this->viewResponse('cp/index', ['entity_list' => $entity_list]);
     }
 
     public function postAction($action)
@@ -64,7 +64,7 @@ class CPController extends AbstractController
                 break;
         }
 
-        $this->flashMessage->set('error', 'Wrong Action Provided');
+        $this->flashMessage->setError('Wrong Action Provided');
 
         return $this->redirectToRoute(ROUTE_get_copper_cp);
     }
@@ -90,7 +90,7 @@ class CPController extends AbstractController
         $this->setSessionAuth($hasAccess);
 
         if ($hasAccess === false)
-            $this->flashMessage->set('error', 'Wrong Auth');
+            $this->flashMessage->setError('Wrong Auth');
 
         return $this->redirectToRoute(ROUTE_get_copper_cp);
     }
@@ -149,7 +149,7 @@ class CPController extends AbstractController
     private function db_generator()
     {
 
-        return $this->render('cp/generator', [
+        return $this->viewResponse('cp/generator', [
             'default_varchar_length' => $this->db->config->default_varchar_length
         ]);
     }

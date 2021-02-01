@@ -305,7 +305,7 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     <button id="generate">Generate Class Files</button>
 </div>
 
-<form method="post" action="<?= $view->path(ROUTE_copper_cp_action, ['action' => CPController::ACTION_LOGOUT]) ?>">
+<form method="post" action="<?= $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_LOGOUT]) ?>">
     <button type="submit">Logout</button>
 </form>
 

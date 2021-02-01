@@ -155,7 +155,7 @@ class $name extends AbstractCollectionResource
     const POST_UPDATE = 'postUpdate@/' . self::PATH_GROUP . '/update/{id}';
     const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
     const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
-    const POST_DELETE = 'postDelete@/' . self::PATH_GROUP . '/delete/{id}';
+    const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
 
     public static function registerRoutes(RoutingConfigurator \$routes)
     {
@@ -164,7 +164,7 @@ class $name extends AbstractCollectionResource
         self::addRoute(\$routes, self::POST_UPDATE);
         self::addRoute(\$routes, self::GET_NEW);
         self::addRoute(\$routes, self::POST_CREATE);
-        self::addRoute(\$routes, self::POST_DELETE);
+        self::addRoute(\$routes, self::POST_REMOVE);
     }
 }";
         $fileContent = ($is_relation === true) ? $relationContent : $content;
@@ -240,14 +240,14 @@ class $name extends AbstractController
 
         \$list = \$this->service::getList(\$this->db, \$limit, \$offset, \$dbOrder);
 
-        return \$this->render(self::TEMPLATE_LIST, ['list' => \$list, 'resource' => \$this->resource]);
+        return \$this->viewResponse(self::TEMPLATE_LIST, ['list' => \$list, 'resource' => \$this->resource]);
     }
 
     public function getEdit(\$id)
     {
         \$entity = \$this->service::get(\$this->db, \$id);
 
-        return \$this->render(self::TEMPLATE_EDIT, ['entity' => \$entity, 'resource' => \$this->resource]);
+        return \$this->viewResponse(self::TEMPLATE_EDIT, ['entity' => \$entity, 'resource' => \$this->resource]);
     }
 
     public function postUpdate(\$id)
@@ -257,12 +257,12 @@ class $name extends AbstractController
         \$validateResponse = \$this->validator->validateModel(\$updateParams, \$this->model);
 
         if (\$validateResponse->hasError()) {
-            \$this->flashMessage->set('error', \$validateResponse->msg);
+            \$this->flashMessage->setError(\$validateResponse->msg);
         } else {
             \$updateResponse = \$this->service::update(\$this->db, \$id, \$updateParams);
 
             if (\$updateResponse->hasError())
-                \$this->flashMessage->set('error', \$updateResponse->msg);
+                \$this->flashMessage->setError(\$updateResponse->msg);
         }
 
         return \$this->redirectToRoute(\$this->resource::GET_EDIT, ['id' => \$id]);
@@ -270,7 +270,7 @@ class $name extends AbstractController
 
     public function getNew()
     {
-        return \$this->render(self::TEMPLATE_NEW, ['resource' => \$this->resource]);
+        return \$this->viewResponse(self::TEMPLATE_NEW, ['resource' => \$this->resource]);
     }
 
     public function postCreate()
@@ -280,23 +280,23 @@ class $name extends AbstractController
         \$validateResponse = \$this->validator->validateModel(\$createParams, \$this->model);
 
         if (\$validateResponse->hasError()) {
-            \$this->flashMessage->set('error', \$validateResponse->msg);
+            \$this->flashMessage->setError(\$validateResponse->msg);
         } else {
             \$createResponse = \$this->service::create(\$this->db, \$this->entity::fromArray(\$createParams));
 
             if (\$createResponse->hasError())
-                \$this->flashMessage->set('error', \$createResponse->msg);
+                \$this->flashMessage->setError(\$createResponse->msg);
         }
 
         return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }
 
-    public function postDelete(\$id)
+    public function postRemove(\$id)
     {
         \$removeResponse = \$this->service::remove(\$this->db, \$id);
 
         if (\$removeResponse->hasError())
-            \$this->flashMessage->set('error', \$removeResponse->msg);
+            \$this->flashMessage->setError(\$removeResponse->msg);
 
         return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }

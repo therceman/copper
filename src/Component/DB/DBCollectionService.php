@@ -180,14 +180,14 @@ abstract class DBCollectionService
     }
 
     /**
-     * Remove entry by ID without undo action support
+     * Delete entry by ID (remove without undo action support)
      *
      * @param DBHandler $db Database
      * @param int $id Id
      *
      * @return FunctionResponse
      */
-    public static function removeWithoutUndo(DBHandler $db, int $id)
+    public static function delete(DBHandler $db, int $id)
     {
         $response = new FunctionResponse();
 
