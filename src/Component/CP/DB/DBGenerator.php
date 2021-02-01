@@ -156,6 +156,7 @@ class $name extends AbstractCollectionResource
     const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
     const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
     const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
+    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
 
     public static function registerRoutes(RoutingConfigurator \$routes)
     {
@@ -165,6 +166,7 @@ class $name extends AbstractCollectionResource
         self::addRoute(\$routes, self::GET_NEW);
         self::addRoute(\$routes, self::POST_CREATE);
         self::addRoute(\$routes, self::POST_REMOVE);
+        self::addRoute(\$routes, self::POST_UNDO_REMOVE);
     }
 }";
         $fileContent = ($is_relation === true) ? $relationContent : $content;
@@ -235,10 +237,11 @@ class $name extends AbstractController
         \$offset = \$this->request->query->get('offset', 0);
         \$order = \$this->request->query->get('order', DBOrder::ASC);
         \$order_by = \$this->request->query->get('order_by', DBModel::ID);
+        \$show_removed = \$this->request->query->get('show_removed', false);
 
         \$dbOrder = new DBOrder(\$this->model, \$order_by, (strtoupper(\$order) === DBOrder::ASC));
 
-        \$list = \$this->service::getList(\$this->db, \$limit, \$offset, \$dbOrder);
+        \$list = \$this->service::getList(\$this->db, \$limit, \$offset, \$dbOrder, \$show_removed);
 
         return \$this->viewResponse(self::TEMPLATE_LIST, ['list' => \$list, 'resource' => \$this->resource]);
     }
@@ -297,6 +300,21 @@ class $name extends AbstractController
 
         if (\$removeResponse->hasError())
             \$this->flashMessage->setError(\$removeResponse->msg);
+        
+        \$this->flashMessage->setSuccess('Entity #' . \$id . ' is successfully removed');
+        \$this->flashMessage->set('undo_id', \$id);
+
+        return \$this->redirectToRoute(\$this->resource::GET_LIST);
+    }
+    
+    public function postUndoRemove(\$id)
+    {
+        \$response = \$this->service::undoRemove(\$this->db, \$id);
+
+        if (\$response->hasError())
+            \$this->flashMessage->setError(\$response->msg);
+            
+        \$this->flashMessage->setSuccess('Entity #' . \$id . ' is restored and disabled');
 
         return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }

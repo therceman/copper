@@ -3,6 +3,7 @@
 namespace Copper\Entity;
 
 use Copper\AnnotationReader;
+use Copper\Traits\EntityStateFields;
 
 class AbstractEntity
 {
@@ -47,5 +48,15 @@ class AbstractEntity
     public function exists()
     {
         return ($this->id !== null);
+    }
+
+    public function hasStateFields()
+    {
+        return array_key_exists(EntityStateFields::class, class_uses($this));
+    }
+
+    public function isRemoved()
+    {
+        return ($this->hasStateFields() && $this->removed_at !== null);
     }
 }

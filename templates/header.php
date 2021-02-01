@@ -25,8 +25,44 @@
             margin: 0;
             padding: .2em .4em
         }
+
         form {
             margin: 0;
+        }
+    </style>
+    <style>
+        .text_success {
+            color: #007bff!important
+        }
+
+        .text_error {
+            color: #dc3545 !important;
+        }
+
+        .text_info {
+            color: #17a2b8 !important;
+        }
+
+        .text_warning {
+            color: #ffc107 !important;
+        }
+
+        .bg_success {
+            background: #007bff!important;
+            color: #fff;
+        }
+
+        .bg_error {
+            background: #dc3545 !important;
+            color: #fff;
+        }
+
+        .bg_info {
+            background: #17a2b8 !important;
+        }
+
+        .bg_warning {
+            background: #ffc107 !important;
         }
     </style>
     <style>

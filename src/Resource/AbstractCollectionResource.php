@@ -22,6 +22,7 @@ abstract class AbstractCollectionResource
     const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
     const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
     const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
+    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
 
     abstract static function getControllerClassName();
 
@@ -101,7 +102,7 @@ abstract class AbstractCollectionResource
 
         if (substr($action, 0, 3) === 'get')
             $methods = ['GET'];
-        elseif (substr($action, 0, 3) === 'post')
+        elseif (substr($action, 0, 4) === 'post')
             $methods = ['POST'];
 
         return $routes->add($name, $path)

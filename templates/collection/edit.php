@@ -22,8 +22,12 @@ $action_url = $entity->exists()
 <?= $view->render('header') ?>
 
 <style>
-    input:not([type=checkbox]) {
+    input:not([type=checkbox]){
         width: 500px;
+    }
+
+    select {
+        width: 508px;
     }
 
     textarea {
@@ -87,6 +91,16 @@ $action_url = $entity->exists()
                 if ($field->typeIsDecimal()) {
                     $min = $field->unsigned() ? 'min="0"' : '';
                     $input = "<input type='number' name='$name' $min value='$value' step='.01'>";
+                }
+
+                if ($field->typeIsEnum()) {
+                    $options = $field->getLength();
+                    $select = "<select name='$name'>";
+                    foreach ($options as $option) {
+                        $selected = ($value === $option) ? 'selected' : '';
+                        $select .= "<option $selected value='$option'>$option</option>";
+                    }
+                    $input = $select . '</select>';
                 }
 
                 echo "
