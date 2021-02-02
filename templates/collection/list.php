@@ -1,5 +1,6 @@
 <?php /** @var \Copper\Component\Templating\ViewHandler $view */
 
+use Copper\Component\HTML\HTML;
 use Copper\Entity\AbstractEntity;
 
 /** @var AbstractEntity[] $list */
@@ -80,15 +81,14 @@ $undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
                     <td><?= $entry->$fieldName ?></td>
                 <?php endforeach; ?>
                 <td style="text-align: center">
-                    <?php if ($entry->isRemoved() === false) : ?>
-                        <form action="<?= $view->url($resource::GET_EDIT, [$model::ID => $entry->id]) ?>">
-                            <button>Edit</button>
-                        </form>
-                    <?php else : ?>
-                        <form method="post" action="<?= $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $entry->id]) ?>">
-                            <button>Restore</button>
-                        </form>
-                    <?php endif; ?>
+                    <?php
+                    if ($entry->isRemoved() === false)
+                        echo HTML::form($view->url($resource::GET_EDIT, [$model::ID => $entry->id]), true)
+                            ->addElement(HTML::button('Edit'));
+                    else
+                        echo HTML::form($view->url($resource::POST_UNDO_REMOVE, [$model::ID => $entry->id]))
+                            ->addElement(HTML::button('Restore'));
+                    ?>
                 </td>
             </tr>
         <?php endforeach; ?>

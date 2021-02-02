@@ -24,6 +24,14 @@ class HTML
         return $el;
     }
 
+    public static function button($text) {
+        $el = new HTMLElement('button');
+
+        $el->innerText($text);
+
+        return $el;
+    }
+
     /**
      * @param string $name
      * @param string $value
@@ -67,6 +75,16 @@ class HTML
     public static function inputNumber(string $name, $value = '')
     {
         return HTML::inputText($name, $value)->setAttr('type', 'number');
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     * @return HTMLElement
+     */
+    public static function inputFile(string $name, $value = '')
+    {
+        return HTML::inputText($name, $value)->setAttr('type', 'file');
     }
 
     /**
@@ -182,6 +200,21 @@ class HTML
         $el->name($name)->innerText($text);
 
         return $el;
+    }
+
+    public static function form(string $action, $getMethod = false)
+    {
+        $el = new HTMLElement('form');
+
+        $el->setAttr('action', $action);
+        $el->setAttr('method', ($getMethod) ? 'get' : 'post');
+
+        return $el;
+    }
+
+    public static function formUpload($action)
+    {
+        return HTML::form($action)->setAttr('enctype', 'multipart/form-data');
     }
 
 }

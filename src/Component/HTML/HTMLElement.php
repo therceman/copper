@@ -270,19 +270,19 @@ class HTMLElement
         return $this->tag;
     }
 
-    public function getStartTag()
+    public function getStartTag($newLineAfter = true)
     {
         $attrStr = $this->isAttributeListEmpty() ? '' : ' ' . $this->createAttrString($this->attributes);
         $tagStr = $this->sanitizer->key_escape($this->tag);
 
-        return '<' . $tagStr . $attrStr . '/>';
+        return '<' . $tagStr . $attrStr . '>' . (($newLineAfter) ? PHP_EOL : '');
     }
 
-    public function getEndTag()
+    public function getEndTag($newLineBefore = true)
     {
         $tagStr = $this->sanitizer->key_escape($this->tag);
 
-        return '</' . $tagStr . '>';
+        return (($newLineBefore) ? PHP_EOL : '') . '</' . $tagStr . '>';
     }
 
     public function getHTML()
@@ -293,9 +293,9 @@ class HTMLElement
     public function __toString()
     {
         if ($this->selfClosing) {
-            $tagStr = $this->getStartTag();
+            $tagStr = $this->getStartTag(false);
         } else {
-            $tagStr = $this->getStartTag() . $this->getHTML() . $this->getEndTag();
+            $tagStr = $this->getStartTag(false) . $this->getHTML() . $this->getEndTag(false);
         }
 
         if ($this->beforeHTML !== false)
