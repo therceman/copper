@@ -6,7 +6,9 @@ use Copper\Component\CP\DB\DBGenerator;
 use Copper\Component\CP\DB\DBService;
 use Copper\Controller\AbstractController;
 use Copper\Entity\AbstractEntity;
+use Copper\FileReader;
 use Copper\FunctionResponse;
+use Copper\Kernel;
 use Copper\Test\DB\TestDB;
 
 class CPController extends AbstractController
@@ -148,9 +150,13 @@ class CPController extends AbstractController
 
     private function db_generator()
     {
+        $resourceList = FileReader::getClassNamesInFolder(Kernel::getProjectPath() . '/src/Resource')->result;
+        $resource = $this->request->query->get('resource', null);
 
         return $this->viewResponse('cp/generator', [
-            'default_varchar_length' => $this->db->config->default_varchar_length
+            'default_varchar_length' => $this->db->config->default_varchar_length,
+            'resource_list' => $resourceList,
+            'resource' => $resource
         ]);
     }
 

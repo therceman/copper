@@ -1,8 +1,39 @@
 <?php /** @var \Copper\Component\Templating\ViewHandler $view */
 
 use Copper\Component\CP\CPController;
+use Copper\Component\DB\DBModel;
+use Copper\Component\HTML\HTML;
+use Copper\Resource\AbstractResource;
 
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
+
+/** @var AbstractResource[] $resource_list */
+$resource_list = $view->dataBag->get('resource_list', []);
+
+/** @var AbstractResource $resource */
+$resource = $view->dataBag->get('resource', null);
+
+/** @var DBModel $model */
+$model = null;
+
+$resourceName = '';
+$tableName = '';
+$entityName = '';
+$modelName = '';
+$serviceName = '';
+$controllerName = '';
+$seedName = '';
+
+if ($resource !== null) {
+    $model = $resource::getModel();
+    $resourceName = str_replace('App\\Resource\\', '', $resource);
+    $tableName = $model->getTableName();
+    $entityName = str_replace('App\\Entity\\', '', $resource::getEntityClassName());
+    $modelName = str_replace('App\\Model\\', '', $resource::getModelClassName());
+    $serviceName = str_replace('App\\Service\\', '', $resource::getServiceClassName());
+    $controllerName = str_replace('App\\Controller\\', '', $resource::getControllerClassName());
+    $seedName = str_replace('App\\Seed\\', '', $resource::getSeedClassName());
+}
 
 ?>
 
@@ -47,9 +78,18 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
 <div style="margin-bottom:10px;">
     <div style="margin-bottom: 5px;">
-        Resource: <input id=resource autocomplete="off" placeholder="Resource name" autofocus spellcheck="false">
+        <span>Resource</span>
+        <?= HTML::input()->id('resource')->value($resourceName)->placeholder('Resource Name')->autofocus() ?>
         <span class="help">Hit [Enter] after input</span>
+        <div style="float:right">
+            <?php
+            echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
+                ->addElement(HTML::select($resource_list, 'resource', $resource, true))
+                ->addElement(HTML::button('Read'));
+            ?>
+        </div>
     </div>
+
     <div style="float:left;margin-top: 5px;">
         <input type="checkbox" id="use_state_fields" checked="checked">
         <label for="use_state_fields"
@@ -64,12 +104,12 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
     <div style="clear: both"></div>
     <div style="margin-top: 10px;">
         <span>Files To Create: </span>
-        <input type="checkbox" id="create_resource" checked="checked"><label for="create_resource">Resource</label>
-        <input type="checkbox" id="create_entity" checked="checked"><label for="create_entity">Entity</label>
-        <input type="checkbox" id="create_model" checked="checked"><label for="create_model">Model</label>
-        <input type="checkbox" id="create_service" checked="checked"><label for="create_service">Service</label>
-        <input type="checkbox" id="create_controller" checked="checked"><label for="create_seed">Controller</label>
-        <input type="checkbox" id="create_seed"><label for="create_seed">Seed</label>
+        <?= HTML::checkbox('Resource', ($resourceName !== ''), null, 'create_resource', false) ?>
+        <?= HTML::checkbox('Entity', ($entityName !== ''), null, 'create_entity', false) ?>
+        <?= HTML::checkbox('Model', ($modelName !== ''), null, 'create_model', false) ?>
+        <?= HTML::checkbox('Service', ($serviceName !== ''), null, 'create_service', false) ?>
+        <?= HTML::checkbox('Controller', ($controllerName !== ''), null, 'create_controller', false) ?>
+        <?= HTML::checkbox('Seed', ($seedName !== ''), null, 'create_seed', false) ?>
     </div>
     <div style="margin-top: -20px; float:right">
         <span>Files To Override: </span>
@@ -84,12 +124,12 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
 
 <div style="margin-bottom:10px;" id="names">
-    <span>Table:</span> <input id=table autocomplete="off" placeholder="Table name">
-    <span>Entity:</span> <input id=entity autocomplete="off" placeholder="Entity name">
-    <span>Model:</span> <input id=model autocomplete="off" placeholder="Model name">
-    <span>Service:</span> <input id=service autocomplete="off" placeholder="Service name">
-    <span>Controller:</span> <input id=controller autocomplete="off" placeholder="Controller name">
-    <span>Seed:</span> <input id=seed autocomplete="off" placeholder="Seed name">
+    <span>Table:</span> <?= HTML::input()->id('table')->value($tableName)->placeholder('Table name') ?>
+    <span>Entity:</span> <?= HTML::input()->id('entity')->value($entityName)->placeholder('Entity name') ?>
+    <span>Model:</span> <?= HTML::input()->id('model')->value($modelName)->placeholder('Model name') ?>
+    <span>Service:</span> <?= HTML::input()->id('service')->value($serviceName)->placeholder('Service name') ?>
+    <span>Controller:</span> <?= HTML::input()->id('controller')->value($controllerName)->placeholder('Controller name') ?>
+    <span>Seed:</span> <?= HTML::input()->id('seed')->value($seedName)->placeholder('Seed name') ?>
 </div>
 
 <table id=fields class="controls">
@@ -920,75 +960,88 @@ $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
         http.send(params);
     })
 
-    // ------------- DEMO ------------------
+</script>
 
-    $name.value = 'name';
-    $type.value = VARCHAR;
-    $length.value = 200;
-    $type.dispatchEvent(new Event('input'));
-    $add.dispatchEvent(new Event('click'));
+<?php if ($resource === null) : ?>
+    <script>
+        // ------------- DEMO ------------------
 
-    $name.value = 'desc';
-    $type.value = TEXT;
-    $length.value = '';
-    $default.value = DEFAULT_NULL;
-    $default.dispatchEvent(new Event('input'));
-    $type.dispatchEvent(new Event('input'));
-    $add.dispatchEvent(new Event('click'));
+        $name.value = 'name';
+        $type.value = VARCHAR;
+        $length.value = 200;
+        $type.dispatchEvent(new Event('input'));
+        $add.dispatchEvent(new Event('click'));
 
-    $default.value = DEFAULT_NONE;
-    $default.dispatchEvent(new Event('input'));
-    $null.checked = false;
+        $name.value = 'desc';
+        $type.value = TEXT;
+        $length.value = '';
+        $default.value = DEFAULT_NULL;
+        $default.dispatchEvent(new Event('input'));
+        $type.dispatchEvent(new Event('input'));
+        $add.dispatchEvent(new Event('click'));
 
-    $name.value = 'package_id';
-    $type.value = TINYINT;
-    $index.value = INDEX_UNIQUE;
-    $default.value = DEFAULT_USER_DEFINED;
-    $default.dispatchEvent(new Event('input'));
-    $default_value.value = '1';
-    $type.dispatchEvent(new Event('input'));
-    $add.dispatchEvent(new Event('click'));
+        $default.value = DEFAULT_NONE;
+        $default.dispatchEvent(new Event('input'));
+        $null.checked = false;
 
-    $auto_increment.checked = false;
-    $index.value = '';
+        $name.value = 'package_id';
+        $type.value = TINYINT;
+        $index.value = INDEX_UNIQUE;
+        $default.value = DEFAULT_USER_DEFINED;
+        $default.dispatchEvent(new Event('input'));
+        $default_value.value = '1';
+        $type.dispatchEvent(new Event('input'));
+        $add.dispatchEvent(new Event('click'));
 
-    $name.value = 'enum';
-    $type.value = ENUM;
-    $type.dispatchEvent(new Event('input'));
-    $default.value = DEFAULT_USER_DEFINED;
-    $default.dispatchEvent(new Event('input'));
-    $default_value.value = 'banana';
-    $length.value = 'apple,banana';
-    $add.dispatchEvent(new Event('click'));
+        $auto_increment.checked = false;
+        $index.value = '';
 
-    $name.value = 'dec';
-    $type.value = DECIMAL;
-    $type.dispatchEvent(new Event('input'));
-    $default.value = DEFAULT_USER_DEFINED;
-    // $attributes.value = ATTR_UNSIGNED_ZEROFILL;
-    $default.dispatchEvent(new Event('input'));
-    $length.value = '6,3';
-    $default_value.value = '125.33';
-    $add.dispatchEvent(new Event('click'));
+        $name.value = 'enum';
+        $type.value = ENUM;
+        $type.dispatchEvent(new Event('input'));
+        $default.value = DEFAULT_USER_DEFINED;
+        $default.dispatchEvent(new Event('input'));
+        $default_value.value = 'banana';
+        $length.value = 'apple,banana';
+        $add.dispatchEvent(new Event('click'));
 
-    $default.value = DEFAULT_NONE;
-    $default_value.value = '';
-    $default.dispatchEvent(new Event('input'));
+        $name.value = 'dec';
+        $type.value = DECIMAL;
+        $type.dispatchEvent(new Event('input'));
+        $default.value = DEFAULT_USER_DEFINED;
+        // $attributes.value = ATTR_UNSIGNED_ZEROFILL;
+        $default.dispatchEvent(new Event('input'));
+        $length.value = '6,3';
+        $default_value.value = '125.33';
+        $add.dispatchEvent(new Event('click'));
 
-    $name.value = 'date';
-    $type.value = DATETIME;
-    $type.dispatchEvent(new Event('input'));
-    $default.value = DEFAULT_CURRENT_TIMESTAMP;
-    $default.dispatchEvent(new Event('input'));
-    $attributes.value = ATTR_ON_UPDATE_CURRENT_TIMESTAMP;
-    $add.dispatchEvent(new Event('click'));
+        $default.value = DEFAULT_NONE;
+        $default_value.value = '';
+        $default.dispatchEvent(new Event('input'));
 
-    $default.value = DEFAULT_NONE;
-    $default_value.value = '';
-    $default.dispatchEvent(new Event('input'));
+        $name.value = 'date';
+        $type.value = DATETIME;
+        $type.dispatchEvent(new Event('input'));
+        $default.value = DEFAULT_CURRENT_TIMESTAMP;
+        $default.dispatchEvent(new Event('input'));
+        $attributes.value = ATTR_ON_UPDATE_CURRENT_TIMESTAMP;
+        $add.dispatchEvent(new Event('click'));
 
-    $table.value = 'products';
-    $table.dispatchEvent(new Event('input'));
+        $default.value = DEFAULT_NONE;
+        $default_value.value = '';
+        $default.dispatchEvent(new Event('input'));
+
+        $table.value = 'products';
+        $table.dispatchEvent(new Event('input'));
+
+    </script>
+<?php endif; ?>
+
+<?php
+
+?>
+
+<script>
 
 </script>
 

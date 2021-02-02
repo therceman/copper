@@ -6,7 +6,7 @@ use Copper\Entity\AbstractEntity;
 /** @var AbstractEntity[] $list */
 $list = $view->dataBag->get('list');
 
-/** @var Copper\Resource\AbstractCollectionResource $resource */
+/** @var Copper\Resource\AbstractResource $resource */
 $resource = $view->dataBag->get('resource');
 
 $model = $resource::getModel();
@@ -83,7 +83,7 @@ $undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
                 <td style="text-align: center">
                     <?php
                     if ($entry->isRemoved() === false)
-                        echo HTML::form($view->url($resource::GET_EDIT, [$model::ID => $entry->id]), true)
+                        echo HTML::formGet($view->url($resource::GET_EDIT, [$model::ID => $entry->id]))
                             ->addElement(HTML::button('Edit'));
                     else
                         echo HTML::form($view->url($resource::POST_UNDO_REMOVE, [$model::ID => $entry->id]))

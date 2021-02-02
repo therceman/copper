@@ -4,7 +4,6 @@
 namespace Copper\Component\CP\DB;
 
 
-use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
 use Copper\FunctionResponse;
 use Copper\Kernel;
@@ -94,21 +93,6 @@ class DBGenerator
         if (file_exists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
-        $relationContent = "<?php
-
-namespace App\Resource;
-
-use App\Model\\$model;
-use Copper\Resource\AbstractRelationResource;
-
-class $name extends AbstractRelationResource
-{
-    public static function getModelClassName()
-    {
-        return $model::class;
-    }
-}";
-
         $content = "<?php
 
 namespace App\Resource;
@@ -169,9 +153,7 @@ class $name extends AbstractCollectionResource
         self::addRoute(\$routes, self::POST_UNDO_REMOVE);
     }
 }";
-        $fileContent = ($is_relation === true) ? $relationContent : $content;
-
-        file_put_contents($filePath, $fileContent);
+        file_put_contents($filePath, $content);
 
         return $response->ok();
     }

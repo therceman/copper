@@ -5,7 +5,7 @@ use Copper\Entity\AbstractEntity;
 /** @var AbstractEntity $entity */
 $entity = $view->dataBag->get('entity');
 
-/** @var Copper\Resource\AbstractCollectionResource $resource */
+/** @var Copper\Resource\AbstractResource $resource */
 $resource = $view->dataBag->get('resource');
 
 $model = $resource::getModel();

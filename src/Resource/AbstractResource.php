@@ -10,7 +10,7 @@ use Copper\Entity\AbstractEntity;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-abstract class AbstractCollectionResource
+abstract class AbstractResource
 {
     private static $model = null;
 
@@ -24,21 +24,48 @@ abstract class AbstractCollectionResource
     const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
     const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
 
-    abstract static function getControllerClassName();
-
+    /**
+     * @return string
+     */
     abstract static function getModelClassName();
 
+    /**
+     * @return string
+     */
     abstract static function getEntityClassName();
 
-    abstract static function getServiceClassName();
-
-    abstract static function registerRoutes(RoutingConfigurator $routes);
-
-    static function getSeedClassName()
+    /**
+     * @return string|false
+     */
+    static function getControllerClassName()
     {
-        return DBSeed::class;
+        return false;
     }
 
+    /**
+     * @return string|false
+     */
+    static function getServiceClassName()
+    {
+        return false;
+    }
+
+    /**
+     * @return string|false
+     */
+    static function getSeedClassName()
+    {
+        return false;
+    }
+
+    static function registerRoutes(RoutingConfigurator $routes)
+    {
+        return $routes;
+    }
+
+    /**
+     * @return mixed|false
+     */
     static function getService()
     {
         return static::getServiceClassName();
@@ -53,7 +80,7 @@ abstract class AbstractCollectionResource
     }
 
     /**
-     * @return AbstractEntity
+     * @return AbstractEntity|false
      */
     static function getEntity()
     {

@@ -37,13 +37,15 @@ class HTML
      * @param string $name
      * @param string $value
      *
-     * @return HTMLElement
+     * @return HtmlInputElement
      */
-    public static function input(string $name, $value = '')
+    public static function input(string $name = null, $value = null)
     {
-        $el = new HTMLElement('input', true);
+        $el = new HtmlInputElement();
 
-        $el->name($name)->setAttr('value', $value)->setAttr('type', 'text');
+        $el->name($name);
+        $el->value($value)->type('text');
+        $el->autocomplete(false)->spellcheck(false);
 
         return $el;
     }
@@ -51,52 +53,51 @@ class HTML
     /**
      * @param string $name
      * @param string $value
-     * @return HTMLElement
+     * @return HtmlInputElement
      */
-    public static function inputHidden(string $name, $value = '')
+    public static function inputHidden(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->setAttr('type', 'hidden');
+        return HTML::input($name, $value)->type( 'hidden');
     }
 
     /**
      * @param string $name
      * @param string $value
-     * @return HTMLElement
+     * @return HtmlInputElement
      */
-    public static function inputPassword(string $name, $value = '')
+    public static function inputPassword(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->setAttr('type', 'password');
+        return HTML::input($name, $value)->type( 'password');
     }
 
     /**
      * @param string $name
      * @param string $value
-     * @return HTMLElement
+     * @return HtmlInputElement
      */
-    public static function inputNumber(string $name, $value = '')
+    public static function inputNumber(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->setAttr('type', 'number');
+        return HTML::input($name, $value)->type( 'number');
     }
 
     /**
      * @param string $name
      * @param string $value
-     * @return HTMLElement
+     * @return HtmlInputElement
      */
-    public static function inputFile(string $name, $value = '')
+    public static function inputFile(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->setAttr('type', 'file');
+        return HTML::input($name, $value)->type( 'file');
     }
 
     /**
      * @param string $name
-     * @param string|integer $value
      * @param boolean $checked
-     * @return HTMLElement
+     * @return HtmlInputElement
      */
-    public static function inputCheckbox(string $name, $value = 1, $checked = false)
+    public static function inputCheckbox(string $name = null, $checked = false)
     {
-        $checkboxEl = HTML::input($name, $value)->setAttr('type', 'checkbox');
+        $checkboxEl = HTML::input($name)->type( 'checkbox');
 
         if ($checked !== false)
             $checkboxEl->setAttr('checked', true);
@@ -105,24 +106,27 @@ class HTML
     }
 
     /**
-     * @param string $name
      * @param string|false $label
      * @param false $checked
+     * @param string $name
      * @param false $id
+     * @param bool $hiddenInput
      *
      * @return HTMLElementList
      */
-    public static function checkbox(string $name, string $label, $checked = false, $id = false)
+    public static function checkbox(string $label, $checked = false, string $name = null, $id = null, $hiddenInput = true)
     {
         $id = ($id === false) ? 'checkbox_' . $name : $id;
 
         $htmlElList = new HTMLElementList();
 
+        if ($hiddenInput === true)
+            $htmlElList->add(HTML::inputHidden($name, 0));
+
+        $htmlElList->add(HTML::inputCheckbox($name,  $checked)->value(1)->id($id));
+
         if ($label !== false)
             $htmlElList->add(HTML::label($label, $id));
-
-        $htmlElList->add(HTML::inputHidden($name, 0));
-        $htmlElList->add(HTML::inputCheckbox($name, 1, $checked)->id($id));
 
         return $htmlElList;
     }
@@ -144,7 +148,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function select(string $name, array $options, $selVal = "", $useTextAsValue = false)
+    public static function select(array $options, string $name = null, $selVal = "", $useTextAsValue = false)
     {
         $el = new HTMLElement('select');
 
@@ -176,7 +180,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function selectCollection(string $name, array $options, string $valField, string $textField, $selVal = '')
+    public static function selectCollection(array $options, string $valField, string $textField, string $name = null, $selVal = '')
     {
         $customOptions = [];
 
@@ -185,7 +189,7 @@ class HTML
             $customOptions[$val[$valField]] = $val[$textField];
         }
 
-        return static::select($name, $customOptions, $selVal);
+        return static::select($customOptions, $name, $selVal);
     }
 
     /**
@@ -194,7 +198,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function textarea(string $name, string $text)
+    public static function textarea(string $name = null, string $text = '')
     {
         $el = new HTMLElement('textarea');
 
@@ -203,14 +207,19 @@ class HTML
         return $el;
     }
 
-    public static function form(string $action, $getMethod = false)
+    public static function form(string $action)
     {
         $el = new HTMLElement('form');
 
         $el->setAttr('action', $action);
-        $el->setAttr('method', ($getMethod) ? 'get' : 'post');
+        $el->setAttr('method', 'post');
 
         return $el;
+    }
+
+    public static function formGet(string $action)
+    {
+        return HTML::form($action)->setAttr('method', 'get');
     }
 
     public static function formUpload($action)

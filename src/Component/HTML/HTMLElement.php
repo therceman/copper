@@ -122,6 +122,14 @@ class HTMLElement
         return join('; ', $strList);
     }
 
+    public function removeAttr(string $attr)
+    {
+        if (array_key_exists($attr, $this->attributes))
+            unset($this->attributes[$attr]);
+
+        return $this;
+    }
+
     /**
      * @param string $attr
      * @param string|array $value
@@ -130,6 +138,9 @@ class HTMLElement
      */
     public function setAttr(string $attr, $value)
     {
+        if ($value === null)
+            return $this->removeAttr($attr);
+
         if (array_key_exists($attr, $this->attributes) && is_array($this->attributes[$attr])) {
             $this->attributes[$attr] = is_array($value) ? $value : [$value];
         } else {
@@ -141,14 +152,14 @@ class HTMLElement
 
     public function disabled()
     {
-        $this->attributes[self::ATTR_DISABLED] = false;
+        $this->setAttr(self::ATTR_DISABLED, false);
 
         return $this;
     }
 
-    public function name($value)
+    public function name($name)
     {
-        $this->attributes[self::ATTR_NAME] = $value;
+        $this->setAttr(self::ATTR_NAME, $name);
 
         return $this;
     }
@@ -160,7 +171,17 @@ class HTMLElement
      */
     public function class($value)
     {
-        $this->attributes[self::ATTR_CLASS] = (is_array($value) === true) ? $value : [$value];
+        $this->setAttr(self::ATTR_CLASS, $value);
+
+        return $this;
+    }
+
+    public function deleteClass($value)
+    {
+        foreach ($this->attributes[self::ATTR_CLASS] as $key => $val) {
+            if ($val === $value)
+                unset($this->attributes[self::ATTR_CLASS][$key]);
+        }
 
         return $this;
     }
@@ -172,6 +193,9 @@ class HTMLElement
      */
     public function addClass($value)
     {
+        if ($value === null)
+            return $this->deleteClass($value);
+
         $this->attributes[self::ATTR_CLASS][] = $value;
 
         return $this;
@@ -185,7 +209,15 @@ class HTMLElement
      */
     public function style(string $key, $value)
     {
-        $this->attributes[self::ATTR_STYLE] = (is_array($value) === true) ? $value : [$key => $value];
+        $this->setAttr(self::ATTR_STYLE, (is_array($value)) ? $value : [$key => $value]);
+
+        return $this;
+    }
+
+    public function deleteStyle(string $key)
+    {
+        if (array_key_exists($key, $this->attributes[self::ATTR_STYLE]))
+            unset($this->attributes[self::ATTR_STYLE][$key]);
 
         return $this;
     }
@@ -198,14 +230,17 @@ class HTMLElement
      */
     public function addStyle(string $key, $value)
     {
+        if ($value === null)
+            return $this->deleteStyle($key);
+
         $this->attributes[self::ATTR_STYLE][$key] = $value;
 
         return $this;
     }
 
-    public function id($value)
+    public function id($id)
     {
-        $this->attributes[self::ATTR_ID] = $value;
+        $this->setAttr(self::ATTR_ID, $id);
 
         return $this;
     }
