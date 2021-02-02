@@ -4,7 +4,7 @@
 namespace Copper\Component\HTML;
 
 
-class HTMLElementGroup
+class HTMLElementList
 {
     /** @var HTMLElement[] */
     private $list;

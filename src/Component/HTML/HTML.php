@@ -24,7 +24,8 @@ class HTML
         return $el;
     }
 
-    public static function button($text) {
+    public static function button($text)
+    {
         $el = new HTMLElement('button');
 
         $el->innerText($text);
@@ -38,7 +39,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function inputText(string $name, $value = '')
+    public static function input(string $name, $value = '')
     {
         $el = new HTMLElement('input', true);
 
@@ -54,7 +55,7 @@ class HTML
      */
     public static function inputHidden(string $name, $value = '')
     {
-        return HTML::inputText($name, $value)->setAttr('type', 'hidden');
+        return HTML::input($name, $value)->setAttr('type', 'hidden');
     }
 
     /**
@@ -64,7 +65,7 @@ class HTML
      */
     public static function inputPassword(string $name, $value = '')
     {
-        return HTML::inputText($name, $value)->setAttr('type', 'password');
+        return HTML::input($name, $value)->setAttr('type', 'password');
     }
 
     /**
@@ -74,7 +75,7 @@ class HTML
      */
     public static function inputNumber(string $name, $value = '')
     {
-        return HTML::inputText($name, $value)->setAttr('type', 'number');
+        return HTML::input($name, $value)->setAttr('type', 'number');
     }
 
     /**
@@ -84,7 +85,7 @@ class HTML
      */
     public static function inputFile(string $name, $value = '')
     {
-        return HTML::inputText($name, $value)->setAttr('type', 'file');
+        return HTML::input($name, $value)->setAttr('type', 'file');
     }
 
     /**
@@ -95,7 +96,7 @@ class HTML
      */
     public static function inputCheckbox(string $name, $value = 1, $checked = false)
     {
-        $checkboxEl = HTML::inputText($name, $value)->setAttr('type', 'checkbox');
+        $checkboxEl = HTML::input($name, $value)->setAttr('type', 'checkbox');
 
         if ($checked !== false)
             $checkboxEl->setAttr('checked', true);
@@ -109,13 +110,13 @@ class HTML
      * @param false $checked
      * @param false $id
      *
-     * @return HTMLElementGroup
+     * @return HTMLElementList
      */
-    public static function checkboxGroup(string $name, string $label, $checked = false, $id = false)
+    public static function checkbox(string $name, string $label, $checked = false, $id = false)
     {
-        $id = ($id === false) ? 'checkbox_combo__' . $name : $id;
+        $id = ($id === false) ? 'checkbox_' . $name : $id;
 
-        $htmlElList = new HTMLElementGroup();
+        $htmlElList = new HTMLElementList();
 
         if ($label !== false)
             $htmlElList->add(HTML::label($label, $id));
@@ -165,7 +166,7 @@ class HTML
     }
 
     /**
-     * Accepts $options as collection
+     * Accepts $options as collection, e.g. [["id" => 1, "name" => "alfa"]]
      *
      * @param string $name
      * @param array $options
