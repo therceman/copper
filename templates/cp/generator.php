@@ -13,6 +13,8 @@ $resource_list = $view->dataBag->get('resource_list', []);
 /** @var AbstractResource $resource */
 $resource = $view->dataBag->get('resource', null);
 
+$demo = $view->query('demo', false);
+
 /** @var DBModel $model */
 $model = null;
 
@@ -84,8 +86,20 @@ if ($resource !== null) {
         <div style="float:right">
             <?php
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
+                ->addStyle('display', 'inline-block')
                 ->addElement(HTML::select($resource_list, 'resource', $resource, true))
                 ->addElement(HTML::button('Read'));
+            ?>
+            <?php
+            echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
+                ->addStyle('display', 'inline-block')
+                ->addElement(HTML::button('Clear'));
+            ?>
+            <?php
+            echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
+                ->addStyle('display', 'inline-block')
+                ->addElement(HTML::inputHidden('demo', 1))
+                ->addElement(HTML::button('Demo'));
             ?>
         </div>
     </div>
@@ -117,7 +131,7 @@ if ($resource !== null) {
         <input type="checkbox" id="entity_override"><label for="entity_override">Entity</label>
         <input type="checkbox" id="model_override"><label for="model_override">Model</label>
         <input type="checkbox" id="service_override"><label for="service_override">Service</label>
-        <input type="checkbox" id="controller_override"><label for="seed_override">Controller</label>
+        <input type="checkbox" id="controller_override"><label for="controller_override">Controller</label>
         <input type="checkbox" id="seed_override"><label for="seed_override">Seed</label>
     </div>
 </div>
@@ -220,9 +234,9 @@ if ($resource !== null) {
                         VARCHAR
                     </option>
                     <option disabled="disabled">-</option>
-                    <option title="A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes">
-                        TINYTEXT
-                    </option>
+<!--                    <option title="A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes">-->
+<!--                        TINYTEXT-->
+<!--                    </option>-->
                     <option title="A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes">
                         TEXT
                     </option>
@@ -416,7 +430,7 @@ if ($resource !== null) {
     const VARCHAR = 'VARCHAR';
 
     /** A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes */
-    const TINYTEXT = 'TINYTEXT';
+    // const TINYTEXT = 'TINYTEXT';
 
     /** A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes */
     const TEXT = 'TEXT';
@@ -892,6 +906,8 @@ if ($resource !== null) {
     $type.value = VARCHAR;
     $name.value = '';
 
+    $type.dispatchEvent(new Event('input'));
+
     // --------- GENERATE ------------
 
     document.getElementById('generate').addEventListener('click', e => {
@@ -962,7 +978,7 @@ if ($resource !== null) {
 
 </script>
 
-<?php if ($resource === null) : ?>
+<?php if ($resource === null && $demo !== false) : ?>
     <script>
         // ------------- DEMO ------------------
 

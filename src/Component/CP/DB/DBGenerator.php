@@ -64,7 +64,10 @@ class DBGenerator
         if ($create_service === false && $create_controller === false && $create_entity === false)
             $is_relation = true;
 
-        $responses['resource'] = self::createResource($create_resource, $model, $entity, $service, $controller, $seed, $resource, $resource_override, $is_relation);
+        if ($create_seed === false)
+            $seed = false;
+
+        $responses['resource'] = self::createResource($create_resource, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
 
         return $response->ok('success', $responses);
     }
@@ -79,7 +82,7 @@ class DBGenerator
         return $folder . '/' . $name . '.php';
     }
 
-    private static function createResource($create, $model, $entity, $service, $controller, $seed, $name, $override, $is_relation)
+    private static function createResource($create, $model, $entity, $service, $controller, $seed, $name, $override)
     {
         $response = new FunctionResponse();
 
@@ -93,6 +96,13 @@ class DBGenerator
         if (file_exists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
+        $seedClass = ($seed !== false) ? "use App\Seed\\$seed;" : '';
+        $seedFunc = ($seed !== false) ? "
+    static function getSeedClassName()
+    {
+        return $seed::class;
+    }" : '';
+
         $content = "<?php
 
 namespace App\Resource;
@@ -100,12 +110,12 @@ namespace App\Resource;
 use App\Controller\\$controller;
 use App\Entity\\$entity;
 use App\Model\\$model;
-use App\Seed\\$seed;
+$seedClass
 use App\Service\\$service;
-use Copper\Resource\AbstractCollectionResource;
+use Copper\Resource\AbstractResource;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
-class $name extends AbstractCollectionResource
+class $name extends AbstractResource
 {
     static function getEntityClassName()
     {
@@ -126,12 +136,7 @@ class $name extends AbstractCollectionResource
     {
         return $service::class;
     }
-
-    static function getSeedClassName()
-    {
-        return $seed::class;
-    }
-
+    $seedFunc
     const PATH_GROUP = '$pathGroup';
 
     const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
@@ -282,9 +287,10 @@ class $name extends AbstractController
 
         if (\$removeResponse->hasError())
             \$this->flashMessage->setError(\$removeResponse->msg);
-        
-        \$this->flashMessage->setSuccess('Entity #' . \$id . ' is successfully removed');
-        \$this->flashMessage->set('undo_id', \$id);
+        else {
+            \$this->flashMessage->setSuccess('Entity #' . \$id . ' is successfully removed');
+            \$this->flashMessage->set('undo_id', \$id);
+        }
 
         return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }
@@ -295,8 +301,8 @@ class $name extends AbstractController
 
         if (\$response->hasError())
             \$this->flashMessage->setError(\$response->msg);
-            
-        \$this->flashMessage->setSuccess('Entity #' . \$id . ' is restored and disabled');
+        else
+            \$this->flashMessage->setSuccess('Entity #' . \$id . ' is restored and disabled');
 
         return \$this->redirectToRoute(\$this->resource::GET_LIST);
     }

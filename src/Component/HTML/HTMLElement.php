@@ -202,14 +202,21 @@ class HTMLElement
     }
 
     /**
-     * @param string $key
-     * @param array|string $value
+     * @param array $arr - [["display" => "block"], ["color":"red"]]
      *
      * @return $this
      */
-    public function style(string $key, $value)
+    public function style(array $arr)
     {
-        $this->setAttr(self::ATTR_STYLE, (is_array($value)) ? $value : [$key => $value]);
+        $styles = [];
+
+        foreach ($arr as $keyValuePair) {
+            foreach ($keyValuePair as $key => $value) {
+                $styles[$key] = $value;
+            }
+        }
+
+        $this->setAttr(self::ATTR_STYLE, $styles);
 
         return $this;
     }
