@@ -107,7 +107,7 @@ if ($resource !== null) {
     <div style="float:left;margin-top: 5px;">
         <input type="checkbox" id="use_state_fields" checked="checked">
         <label for="use_state_fields"
-               title="State Fields Are: [created_at, update_at, removed_at, enabled]. This fields will be auto created.">
+               title="State Fields Are: [created_at, update_at, removed_at, enabled]. This fields will be auto created for Model & Entity.">
             Use State Fields
         </label>
         <input type="checkbox" id="relation"><span>Is Relation Table ?</span>
@@ -234,9 +234,9 @@ if ($resource !== null) {
                         VARCHAR
                     </option>
                     <option disabled="disabled">-</option>
-<!--                    <option title="A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes">-->
-<!--                        TINYTEXT-->
-<!--                    </option>-->
+                    <!--                    <option title="A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes">-->
+                    <!--                        TINYTEXT-->
+                    <!--                    </option>-->
                     <option title="A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes">
                         TEXT
                     </option>
@@ -1054,11 +1054,37 @@ if ($resource !== null) {
 <?php endif; ?>
 
 <?php
+function fillModelFields(DBModel $model)
+{
+    if ($model === null)
+        return;
 
+    $modelFields = [];
+
+    foreach ($model->fields as $field) {
+        $modelFields[] = [
+            'name' => $field->getName(),
+            'type' => $field->getType(),
+            'length' => $field->getLength(),
+            'default' => $field->getDefault(),
+            'attr' => $field->getAttr(),
+            'null' =>  $field->getNull(),
+            'index' => $field->getIndex(),
+            'auto_increment' => $field->getAutoIncrement()
+        ];
+    }
+
+    echo '<script> let modelFields = ' . json_encode($modelFields) . '</script>';
+}
+
+fillModelFields($model);
 ?>
 
 <script>
-
+    if (modelFields !== void 0) {
+        fields = modelFields;
+        generateFields();
+    }
 </script>
 
 <h6>Developed on MySQL version() === 10.4.14-MariaDB</h6>

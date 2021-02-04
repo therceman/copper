@@ -4,6 +4,7 @@
 namespace Copper\Component\CP\DB;
 
 
+use Copper\ArrayReader;
 use Copper\Component\DB\DBModelField;
 use Copper\FunctionResponse;
 use Copper\Kernel;
@@ -31,7 +32,7 @@ class DBGenerator
         $seed = $content['seed'] ?? false;
         $controller = $content['controller'] ?? false;
 
-        $fields = $content['fields'] ?? false;
+        $fields = self::formatFields(ArrayReader::clean($content['fields'])) ?? false;
 
         $use_state_fields = $content['use_state_fields'] ?? false;
 
@@ -70,6 +71,18 @@ class DBGenerator
         $responses['resource'] = self::createResource($create_resource, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
 
         return $response->ok('success', $responses);
+    }
+
+    private static function formatFields($fields)
+    {
+        foreach ($fields as $key => $field) {
+            foreach ($field as $fKey => $fVal) {
+                if (is_array($fVal))
+                    $fields[$key][$fKey] = join($fVal, ',');
+            }
+        }
+
+        return $fields;
     }
 
     private static function filePath($name, $type)
@@ -439,6 +452,15 @@ XML;
 
             $constFields .= self::T . "const $fNameUp = '$fName';\r\n";
 
+            if ($fType === DBModelField::ENUM) {
+                foreach (explode(',', $fieldData['length']) as $enumKey) {
+                    $enumKeyUp = strtoupper($enumKey);
+                    $constFields .= self::T . "const {$fNameUp}__$enumKeyUp = '$enumKey';\r\n";
+                    $fLength = str_replace("'" . $enumKey . "'", "self::{$fNameUp}__$enumKeyUp", $fLength);
+                }
+                $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper($fDefault), $fDefault);
+            }
+
             $fieldSetStr = self::T2 . '$this->' . "addField(self::$fNameUp, DBModelField::$fType";
 
             $fieldSetStr .= ($fLength !== false) ? ', ' . $fLength . ')' : ')';
@@ -468,7 +490,7 @@ XML;
             elseif ($fDefault === DBModelField::DEFAULT_CURRENT_TIMESTAMP)
                 $fieldSetStr .= '->currentTimestampByDefault()';
             elseif ($fDefault !== DBModelField::DEFAULT_NONE) {
-                if ($field->typeIsFloat() === false && $field->typeIsInteger() === false)
+                if ($field->typeIsFloat() === false && $field->typeIsInteger() === false && $field->typeIsEnum() === false)
                     $fDefault = "'$fDefault'";
 
                 $fieldSetStr .= "->default($fDefault)";
