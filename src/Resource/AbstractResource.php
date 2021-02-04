@@ -4,6 +4,7 @@
 namespace Copper\Resource;
 
 
+use Copper\ArrayReader;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSeed;
 use Copper\Entity\AbstractEntity;
@@ -98,6 +99,11 @@ abstract class AbstractResource
         $className = static::getModelClassName();
 
         return self::$model = new $className();
+    }
+
+    static function getName()
+    {
+        return ArrayReader::lastValue(explode('\\', static::class));
     }
 
     /**

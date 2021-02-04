@@ -5,17 +5,16 @@ use Copper\Entity\AbstractEntity;
 /** @var AbstractEntity $entity */
 $entity = $view->dataBag->get('entity');
 
-/** @var Copper\Resource\AbstractResource $resource */
-$resource = $view->dataBag->get('resource');
+/** @var Copper\Resource\AbstractResource $Resource */
+$Resource = $view->dataBag->get('resource');
 
-$model = $resource::getModel();
+$model = $Resource::getModel();
 
 $action = $entity->exists() ? 'Update' : 'Create';
 
 $action_url = $entity->exists()
-    ? $view->url($resource::POST_UPDATE, [$model::ID => $entity->id])
-    : $view->url($resource::POST_CREATE);
-
+    ? $view->url($Resource::POST_UPDATE, [$model::ID => $entity->id])
+    : $view->url($Resource::POST_CREATE);
 
 ?>
 
@@ -48,12 +47,13 @@ $action_url = $entity->exists()
 <?php } ?>
 
 <div class="content_wrapper" style="padding: 0 20px">
-    <h3><?= $entity->exists() ? 'Edit Entity #' . $entity->id : 'Create New Entity'; ?></h3>
+    <h3><?= $entity->exists() ? 'Edit ' . $Resource::getName() . ' #' . $entity->id 
+            : 'Create New ' . $Resource::getName(); ?></h3>
 
     <?php if ($entity->exists()) : ?>
         <div style="float:right;margin-top:-40px;">
             <form style="float: right;margin-left: 10px;"
-                  action="<?= $view->url($resource::POST_REMOVE, [$model::ID => $entity->id]) ?>" method="post">
+                  action="<?= $view->url($Resource::POST_REMOVE, [$model::ID => $entity->id]) ?>" method="post">
                 <button>Remove</button>
             </form>
         </div>
@@ -112,7 +112,7 @@ $action_url = $entity->exists()
         </table>
         <button style="float:right"><?= $action ?></button>
     </form>
-    <form action="<?= $view->url($resource::GET_LIST) ?>" method="get">
+    <form action="<?= $view->url($Resource::GET_LIST) ?>" method="get">
         <button style="float:left">Cancel</button>
     </form>
 

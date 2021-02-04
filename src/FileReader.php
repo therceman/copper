@@ -4,8 +4,6 @@
 namespace Copper;
 
 
-use App\Entity\WarehouseEntity;
-use App\Resource\Warehouse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileReader

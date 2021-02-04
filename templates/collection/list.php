@@ -6,10 +6,10 @@ use Copper\Entity\AbstractEntity;
 /** @var AbstractEntity[] $list */
 $list = $view->dataBag->get('list');
 
-/** @var Copper\Resource\AbstractResource $resource */
-$resource = $view->dataBag->get('resource');
+/** @var Copper\Resource\AbstractResource $Resource */
+$Resource = $view->dataBag->get('resource');
 
-$model = $resource::getModel();
+$model = $Resource::getModel();
 
 $order_by = $view->query('order_by', 'id');
 $order = $view->query('order', 'asc');
@@ -20,7 +20,7 @@ $show_removed = $view->query('show_removed');
 $show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
 
 $undoId = $view->flashMessage->get('undo_id', 0);
-$undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
+$undoAction = $view->url($Resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
 
 ?>
 
@@ -51,9 +51,9 @@ $undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
 <?php } ?>
 
 <div class="content_wrapper" style="padding: 0 20px">
-    <h3><?= ucfirst($model->tableName) ?> List</h3>
+    <h3><?= $Resource::getName() ?> List</h3>
     <div>
-        <form style="float: left" action="<?= $view->url($resource::GET_LIST) ?>" method="get">
+        <form style="float: left" action="<?= $view->url($Resource::GET_LIST) ?>" method="get">
             <label for="show_removed">Show Removed: </label>
             <input type="checkbox" id="show_removed" <?= $show_removed_checked ?> name="show_removed">
             <label for="offset">Offset: </label>
@@ -62,7 +62,7 @@ $undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
             <input type="number" id="limit" name="limit" value="<?= $limit ?>" autocomplete="off">
             <button>Filter</button>
         </form>
-        <form style="float: right;margin-left: 40px;margin-bottom: 10px" action="<?= $view->url($resource::GET_NEW) ?>"
+        <form style="float: right;margin-left: 40px;margin-bottom: 10px" action="<?= $view->url($Resource::GET_NEW) ?>"
               method="get">
             <button>Create New</button>
         </form>
@@ -83,10 +83,10 @@ $undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
                 <td style="text-align: center">
                     <?php
                     if ($entry->isRemoved() === false)
-                        echo HTML::formGet($view->url($resource::GET_EDIT, [$model::ID => $entry->id]))
+                        echo HTML::formGet($view->url($Resource::GET_EDIT, [$model::ID => $entry->id]))
                             ->addElement(HTML::button('Edit'));
                     else
-                        echo HTML::form($view->url($resource::POST_UNDO_REMOVE, [$model::ID => $entry->id]))
+                        echo HTML::form($view->url($Resource::POST_UNDO_REMOVE, [$model::ID => $entry->id]))
                             ->addElement(HTML::button('Restore'));
                     ?>
                 </td>
@@ -98,7 +98,7 @@ $undoAction = $view->url($resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
 <script>
     let order = '<?= $order ?>';
     let order_by = '<?= $order_by ?>'.toLowerCase();
-    let order_url = '<?= $view->url($resource::GET_LIST, [
+    let order_url = '<?= $view->url($Resource::GET_LIST, [
         'order_by' => '__field__',
         'order' => '__order__',
         'offset' => $offset,

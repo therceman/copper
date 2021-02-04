@@ -2,7 +2,7 @@
 
 use Copper\Entity\AbstractEntity;
 
-$resource = $view->dataBag->set('entity', new AbstractEntity());
+$view->dataBag->set('entity', new AbstractEntity());
 
 ?>
 
