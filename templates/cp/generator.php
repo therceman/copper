@@ -772,15 +772,33 @@ if ($resource !== null) {
         if ($use_state_fields.checked === true)
             return false;
 
-        let confirmAgree = confirm('Do you want to remove [created_at, updated_at, removed_at, enabled] fields?');
+        let createdAtFound = false;
+        let updatedAtFound = false;
+        let removedAtFound = false;
+        let enabledAtFound = false;
+
+        fields.forEach((v, k) => {
+            if (v.name === 'created_at')
+                createdAtFound = k;
+            if (v.name === 'updated_at')
+                updatedAtFound = k;
+            if (v.name === 'removed_at')
+                removedAtFound = k;
+            if (v.name === 'enabled')
+                enabledAtFound = k;
+        });
+
+        let confirmAgree = false;
+        if (createdAtFound !== false && updatedAtFound !== false && removedAtFound !== false && enabledAtFound !== false)
+            confirmAgree = confirm('Do you want to remove [created_at, updated_at, removed_at, enabled] fields?');
 
         if (confirmAgree === false)
             return false;
 
-        fields.forEach((v, k) => {
-            if (['created_at', 'updated_at', 'removed_at', 'enabled'].includes(v.name))
-                delete fields[k];
-        });
+        delete fields[createdAtFound];
+        delete fields[updatedAtFound];
+        delete fields[removedAtFound];
+        delete fields[enabledAtFound];
 
         generateFields();
     })
