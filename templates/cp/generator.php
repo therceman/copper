@@ -54,6 +54,14 @@ if ($resource !== null) {
         padding: 3px 5px;
     }
 
+    table tr:hover {
+        background: lightgoldenrodyellow;
+    }
+
+    table tr.selected {
+        background: lightgreen;
+    }
+
     body {
         width: 1400px;
     }
@@ -153,11 +161,11 @@ if ($resource !== null) {
         <td>Type</td>
         <td>Length</td>
         <td>Default</td>
-        <td>Attributes</td>
+        <td style="width: 260px;">Attributes</td>
         <td>Null</td>
         <td>Index</td>
         <td>Auto Increment</td>
-        <td>Action</td>
+        <td style="width: 115px;">Action</td>
     </tr>
     <tr>
         <td>
@@ -347,6 +355,10 @@ if ($resource !== null) {
         </td>
         <td>
             <button id="add">ADD</button>
+            <button class="hidden" id="update" onclick="updateSelectedField()">✓</button>
+            <button class="hidden" id="down" onclick="moveDownSelectedField()">↓</button>
+            <button class="hidden" id="up" onclick="moveUpSelectedField()">↑</button>
+            <button class="hidden" id="cancel" onclick="cancelFieldEdit()">X</button>
         </td>
     </tr>
     </thead>
@@ -559,6 +571,11 @@ if ($resource !== null) {
         fields.forEach((field, key) => {
             let TR = document.createElement('tr');
 
+            TR.id = 'field_' + key;
+
+            if (selectedFieldKey === key)
+                TR.classList.add('selected');
+
             Object.keys(field).forEach(key => {
                 let val = field[key]
                 let TD = document.createElement('td');
@@ -579,33 +596,41 @@ if ($resource !== null) {
             })
             TD.appendChild(DEL);
 
-            let DOWN = document.createElement('button');
-            DOWN.innerHTML = '&darr;';
-            DOWN.addEventListener('click', e => {
-                if (key === (fields.length - 1))
-                    return;
-
-                let temp = fields[key];
-                fields[key] = fields[key + 1];
-                fields[key + 1] = temp;
-
-                generateFields();
+            let EDIT = document.createElement('button');
+            EDIT.innerText = 'EDIT';
+            EDIT.addEventListener('click', e => {
+                editSelectedField(key);
             })
-            TD.appendChild(DOWN);
+            TD.appendChild(EDIT);
 
-            let UP = document.createElement('button');
-            UP.innerHTML = '&uarr;';
-            UP.addEventListener('click', e => {
-                if (key === 0)
-                    return;
-
-                let temp = fields[key];
-                fields[key] = fields[key - 1];
-                fields[key - 1] = temp;
-
-                generateFields();
-            })
-            TD.appendChild(UP);
+            //
+            // let DOWN = document.createElement('button');
+            // DOWN.innerHTML = '&darr;';
+            // DOWN.addEventListener('click', e => {
+            //     if (key === (fields.length - 1))
+            //         return;
+            //
+            //     let temp = fields[key];
+            //     fields[key] = fields[key + 1];
+            //     fields[key + 1] = temp;
+            //
+            //     generateFields();
+            // })
+            // TD.appendChild(DOWN);
+            //
+            // let UP = document.createElement('button');
+            // UP.innerHTML = '&uarr;';
+            // UP.addEventListener('click', e => {
+            //     if (key === 0)
+            //         return;
+            //
+            //     let temp = fields[key];
+            //     fields[key] = fields[key - 1];
+            //     fields[key - 1] = temp;
+            //
+            //     generateFields();
+            // })
+            // TD.appendChild(UP);
 
             TR.appendChild(TD);
 
@@ -651,6 +676,114 @@ if ($resource !== null) {
     let $service_override = document.querySelector('#service_override');
     let $controller_override = document.querySelector('#controller_override');
     let $seed_override = document.querySelector('#seed_override');
+
+    let $update = document.querySelector('#update');
+    let $cancel = document.querySelector('#cancel');
+    let $up = document.querySelector('#up');
+    let $down = document.querySelector('#down');
+
+    let selectedFieldKey = null;
+
+    function editSelectedField(key) {
+        if (selectedFieldKey !== null)
+            document.querySelector('#field_' + selectedFieldKey).classList.remove('selected');
+
+        selectedFieldKey = key;
+
+        $add.classList.add('hidden');
+        $up.classList.remove('hidden');
+        $down.classList.remove('hidden');
+        $cancel.classList.remove('hidden');
+        $update.classList.remove('hidden');
+
+        let field = fields[selectedFieldKey];
+
+        $name.value = field.name;
+        $name.dispatchEvent(new Event('input'));
+        $type.value = field.type;
+        $type.dispatchEvent(new Event('input'));
+        $length.value = field.length;
+        $default.value = field.default;
+        $attributes.value = field.attr;
+        $null.checked = (field.null === true);
+        $index.value = field.index;
+        $auto_increment.checked = (field.auto_increment === true);
+
+        document.querySelector('#field_' + selectedFieldKey).classList.add('selected');
+    }
+
+    function updateSelectedField() {
+        fields[selectedFieldKey].name = $name.value;
+        fields[selectedFieldKey].type = $type.value;
+        fields[selectedFieldKey].length = ($length.value === '') ? false : $length.value;
+        fields[selectedFieldKey].default = ($default.value === DEFAULT_USER_DEFINED) ? $default_value.value : $default.value;
+        fields[selectedFieldKey].attr = ($attributes.value === '') ? false : $attributes.value;
+        fields[selectedFieldKey].null = ($null.checked === true);
+        fields[selectedFieldKey].index = ($index.value === '') ? false : $index.value;
+        fields[selectedFieldKey].auto_increment = ($auto_increment.checked === true);
+
+        generateFields();
+    }
+
+    function moveDownSelectedField() {
+        let key = selectedFieldKey;
+
+        if (key === (fields.length - 1))
+            return;
+
+        let temp = fields[key];
+        fields[key] = fields[key + 1];
+        fields[key + 1] = temp;
+
+        selectedFieldKey = selectedFieldKey + 1;
+
+        generateFields();
+
+    }
+
+    function moveUpSelectedField() {
+        let key = selectedFieldKey;
+
+        if (key === 0)
+            return;
+
+        let temp = fields[key];
+        fields[key] = fields[key - 1];
+        fields[key - 1] = temp;
+
+        selectedFieldKey = selectedFieldKey - 1;
+
+        generateFields();
+    }
+
+    function cancelFieldEdit() {
+        document.querySelector('#field_' + selectedFieldKey).classList.remove('selected');
+
+        selectedFieldKey = null;
+
+        $add.classList.remove('hidden');
+        $up.classList.add('hidden');
+        $down.classList.add('hidden');
+        $cancel.classList.add('hidden');
+        $update.classList.add('hidden');
+    }
+
+    $use_state_fields.addEventListener('change', e => {
+        if ($use_state_fields.checked === true)
+            return false;
+
+        let confirmAgree = confirm('Do you want to remove [created_at, updated_at, removed_at, enabled] fields?');
+
+        if (confirmAgree === false)
+            return false;
+
+        fields.forEach((v, k) => {
+            if (['created_at', 'updated_at', 'removed_at', 'enabled'].includes(v.name))
+                delete fields[k];
+        });
+
+        generateFields();
+    })
 
     $add.addEventListener('click', e => {
         let field = new Field();
@@ -1068,13 +1201,14 @@ function fillModelFields(DBModel $model)
             'length' => $field->getLength(),
             'default' => $field->getDefault(),
             'attr' => $field->getAttr(),
-            'null' =>  $field->getNull(),
+            'null' => $field->getNull(),
             'index' => $field->getIndex(),
             'auto_increment' => $field->getAutoIncrement()
         ];
     }
 
     echo '<script> let modelFields = ' . json_encode($modelFields) . '</script>';
+    echo '<script> let modelHasStateFields = ' . json_encode($model->hasStateFields()) . '</script>';
 }
 
 fillModelFields($model);
@@ -1085,6 +1219,9 @@ fillModelFields($model);
         fields = modelFields;
         generateFields();
     }
+
+    if (modelHasStateFields === false)
+        $use_state_fields.checked = false;
 </script>
 
 <h6>Developed on MySQL version() === 10.4.14-MariaDB</h6>
