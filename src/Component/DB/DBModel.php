@@ -6,6 +6,7 @@ namespace Copper\Component\DB;
 
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
+use DateTime;
 
 abstract class DBModel
 {
@@ -123,6 +124,31 @@ abstract class DBModel
     }
 
     /**
+     * @param string $bool
+     *
+     * @return integer
+     */
+    public static function formatBoolean($bool)
+    {
+        $bool = trim($bool);
+
+        $true = ($bool === '1' || $bool === 1 || $bool === 'on');
+
+        return ($true === true) ? 1 : 0;
+    }
+
+    /**
+     * @param $date
+     * @param $fromFormat
+     *
+     * @return string
+     */
+    public static function formatDate($date, $fromFormat)
+    {
+        return DateTime::createFromFormat($fromFormat, $date)->format('Y-m-d H:i:s');
+    }
+
+    /**
      * @param $name
      *
      * @return string
@@ -139,7 +165,7 @@ abstract class DBModel
      */
     public static function formatNumber($number)
     {
-        return floatval(preg_replace('/[^.0-9]/', '', $number));
+        return floatval(preg_replace('/[^.0-9\-]/', '', $number));
     }
 
     /**
@@ -175,7 +201,7 @@ abstract class DBModel
             if (is_bool($value) && $field->getType() === $field::BOOLEAN)
                 $value = intval($value);
 
-            $formattedValues['`'.$field->getName().'`'] = $value;
+            $formattedValues['`' . $field->getName() . '`'] = $value;
         }
 
         return $formattedValues;
