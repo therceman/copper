@@ -466,6 +466,13 @@ class DBModelField
             ]) !== false);
     }
 
+    public function typeIsString() {
+        $isText = $this->typeIsText();
+        $isVarchar = ($this->type === DBModelField::VARCHAR);
+
+        return ($isText || $isVarchar);
+    }
+
     public function typeIsText()
     {
         return (in_array($this->type, [

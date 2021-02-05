@@ -289,6 +289,7 @@ abstract class DBCollectionService
         $response = new FunctionResponse();
 
         // prepareDataForInsert($entity)
+        // TODO put the whole create/update/etc. function to the Model
         $insertData = self::getModel()->getFieldValuesFromEntity($entity);
         $formattedInsertData = self::getModel()->formatFieldValues($insertData);
 

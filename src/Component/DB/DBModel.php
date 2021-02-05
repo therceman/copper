@@ -6,7 +6,9 @@ namespace Copper\Component\DB;
 
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
+use Copper\Kernel;
 use DateTime;
+use Envms\FluentPDO\Exception;
 
 abstract class DBModel
 {
@@ -128,7 +130,7 @@ abstract class DBModel
      *
      * @return integer
      */
-    public static function formatBoolean($bool)
+    public static function formatBoolean(string $bool)
     {
         $bool = trim($bool);
 
@@ -186,6 +188,9 @@ abstract class DBModel
 
             $value = $fieldValues[$field->getName()];
 
+            if (trim($value) === '' && $field->typeIsString() && $field->getNull() === true)
+                $value = null;
+
             if ($value === null && in_array($field->getType(), [$field::DATETIME, $field::DATE]) && $field->getNull() !== true)
                 $value = DBHandler::datetime();
 
@@ -231,4 +236,117 @@ abstract class DBModel
 
         return $fieldValues;
     }
+
+    /**
+     * Migrate Model Table
+     *
+     * @param boolean $force
+     *
+     * @return FunctionResponse
+     */
+    public function doMigrate($force = false)
+    {
+        return DBService::migrateClassName(self::class, Kernel::getDb(), $force);
+    }
+
+    /**
+     * Truncate Model Table
+     *
+     * @return FunctionResponse
+     */
+    public function doTruncate()
+    {
+        return DBService::tableTruncate($this->getTableName(), Kernel::getDb());
+    }
+
+    /**
+     * @param integer|DBCondition $keyOrCondition
+     */
+    public function doSelect($keyOrCondition)
+    {
+
+    }
+
+    /**
+     * @param AbstractEntity[] $entityList
+     *
+     * @return FunctionResponse
+     */
+    public function doBulkInsert($entityList)
+    {
+        $response = new FunctionResponse();
+
+        $db = Kernel::getDb();
+
+        $formattedInsertDataList = [];
+
+        foreach ($entityList as $entity) {
+            $insertData = $this->getFieldValuesFromEntity($entity);
+            $formattedInsertDataList[] = $this->formatFieldValues($insertData, false);
+        }
+
+        try {
+            $stm = $db->query->insertInto($this->getTableName(), $formattedInsertDataList);
+            $result = $stm->execute();
+
+            if ($result === false)
+                throw new Exception($stm->getMessage());
+
+            $response->result($stm->getTotalTime());
+        } catch (Exception $e) {
+            $response->fail($e->getMessage());
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param AbstractEntity $entity
+     *
+     * @return FunctionResponse
+     */
+    public function doInsert(AbstractEntity $entity)
+    {
+        $response = new FunctionResponse();
+
+        $db = Kernel::getDb();
+
+        $insertData = $this->getFieldValuesFromEntity($entity);
+        $formattedInsertData = $this->formatFieldValues($insertData);
+
+        $entity = $entity::fromArray($formattedInsertData);
+
+        try {
+            $stm = $db->query->insertInto($this->getTableName(), $formattedInsertData);
+            $resultId = $stm->execute();
+
+            if ($resultId === false)
+                throw new Exception($stm->getMessage());
+
+            $entity->id = $resultId;
+            $response->result($entity->toArray());
+        } catch (Exception $e) {
+            $response->fail($e->getMessage(), $formattedInsertData);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param integer|DBCondition $keyOrCondition
+     * @param array $fields
+     */
+    public function doUpdate($keyOrCondition, array $fields)
+    {
+
+    }
+
+    /**
+     * @param integer|DBCondition $keyOrCondition
+     */
+    public function doDelete($keyOrCondition)
+    {
+
+    }
+
 }

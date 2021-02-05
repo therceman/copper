@@ -1,13 +1,9 @@
 <?php
 
 
-namespace Copper\Component\CP\DB;
+namespace Copper\Component\DB;
 
 
-use Copper\Component\DB\DBHandler;
-use Copper\Component\DB\DBModel;
-use Copper\Component\DB\DBModelField;
-use Copper\Component\DB\DBSeed;
 use Copper\FileReader;
 use Copper\FunctionResponse;
 use Copper\Kernel;
@@ -24,6 +20,18 @@ class DBService
         }
 
         return ($result !== false);
+    }
+
+    public static function tableTruncate($tableName, DBHandler $db)
+    {
+        $response = new FunctionResponse();
+
+        try {
+            $result = $db->pdo->query('TRUNCATE TABLE ' . $tableName . ';')->execute();
+            return $response->success("Truncated `$tableName` Table", $result);
+        } catch (\Exception $e) {
+            return $response->error($e->getMessage());
+        }
     }
 
     public static function tableEmpty($tableName, DBHandler $db)

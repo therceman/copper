@@ -4,7 +4,7 @@
 namespace Copper\Test\DB;
 
 
-use Copper\Component\CP\DB\DBService;
+use Copper\Component\DB\DBService;
 use Copper\Component\DB\DBCondition;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;

@@ -4,7 +4,9 @@
 namespace Copper\Component\DB;
 
 
+use Envms\FluentPDO\Queries\Delete;
 use Envms\FluentPDO\Queries\Select;
+use Envms\FluentPDO\Queries\Update;
 
 class DBCondition
 {
@@ -20,6 +22,7 @@ class DBCondition
     const NOT_BETWEEN_INCLUDE = 10;
     const LIKE = 11;
     const NOT_LIKE = 12;
+    // TODO IN & NOT IN
 
     const CHAIN_NULL = 20;
     const CHAIN_OR = 21;
@@ -487,10 +490,10 @@ class DBCondition
     }
 
     /**
-     * @param Select $stm
+     * @param Select|Delete|Update $stm
      * @return Select
      */
-    public function buildForSelectStatement(Select $stm)
+    public function buildForSelectStatement($stm)
     {
         foreach ($this->conditions as $cond) {
             $value = $cond->formatValue();
