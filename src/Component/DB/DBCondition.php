@@ -22,7 +22,8 @@ class DBCondition
     const NOT_BETWEEN_INCLUDE = 10;
     const LIKE = 11;
     const NOT_LIKE = 12;
-    // TODO IN & NOT IN
+    const IN = 13;
+    const NOT_IN = 14;
 
     const CHAIN_NULL = 20;
     const CHAIN_OR = 21;
@@ -246,6 +247,28 @@ class DBCondition
         return new self($field, $value, self::NOT_LIKE, self::CHAIN_NULL);
     }
 
+    /**
+     * @param string $field
+     * @param integer[]|string[] $value
+     *
+     * @return DBCondition
+     */
+    public static function in(string $field, array $value)
+    {
+        return new self($field, $value, self::IN, self::CHAIN_NULL);
+    }
+
+    /**
+     * @param string $field
+     * @param integer[]|string[] $value
+     *
+     * @return DBCondition
+     */
+    public static function notIn(string $field, array $value)
+    {
+        return new self($field, $value, self::NOT_IN, self::CHAIN_NULL);
+    }
+
     // ------------ Shortcuts ---------------
 
     public static function notNull($field)
@@ -438,6 +461,34 @@ class DBCondition
         return $this;
     }
 
+    public function andIn($field, $value)
+    {
+        $this->addCondition($field, $value, self::IN, self::CHAIN_AND);
+
+        return $this;
+    }
+
+    public function andNotIn($field, $value)
+    {
+        $this->addCondition($field, $value, self::NOT_IN, self::CHAIN_AND);
+
+        return $this;
+    }
+
+    public function orIn($field, $value)
+    {
+        $this->addCondition($field, $value, self::IN, self::CHAIN_OR);
+
+        return $this;
+    }
+
+    public function orNotIn($field, $value)
+    {
+        $this->addCondition($field, $value, self::NOT_IN, self::CHAIN_OR);
+
+        return $this;
+    }
+
     // ------------- Generate -------------
 
     private function getConditionString($field, $cond, $value)
@@ -446,6 +497,7 @@ class DBCondition
 
         switch ($cond) {
             case self::IS:
+            case self::IN:
                 $str = $field;
                 break;
             case self::NOT:
@@ -483,6 +535,9 @@ class DBCondition
                 break;
             case self::NOT_LIKE:
                 $str = $field . ' NOT LIKE ?';
+                break;
+            case self::NOT_IN:
+                $str = $field . ' NOT';
                 break;
         }
 

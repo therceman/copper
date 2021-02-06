@@ -358,9 +358,9 @@ class $name extends DBSeed
 
     public function setSeeds()
     {
-        // $$var = new $entity();
-        // $${var}->enabled = true;
-        // \$this->seed(\$$var);
+        // \$entity = new $entity();
+        // \$entity->enabled = true;
+        // \$this->seed(\$entity);
     }
 }
 XML;

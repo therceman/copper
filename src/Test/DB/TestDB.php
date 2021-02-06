@@ -511,6 +511,30 @@ class TestDB
         if ($entityList[2]->id !== 3)
             return $response->fail('User List 3 entry should be with ID 3', $entityList[2]);
 
+        // in
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::in(TestDBModel::LOGIN, ['admin','user']),
+            20, 0, false, true);
+
+        if (count($entityList) !== 2)
+            return $response->fail('User List should contain exactly 2 rows', $entityList);
+
+        if ($entityList[1]->id !== 3)
+            return $response->fail('User List 2 entry should be with ID 3', $entityList[1]);
+
+        // not in
+
+        $entityList = TestDBService::find($this->db,
+            DBCondition::notIn(TestDBModel::LOGIN, ['admin','user']),
+            20, 0, false, true);
+
+        if (count($entityList) !== 4)
+            return $response->fail('User List should contain exactly 4 rows', $entityList);
+
+        if ($entityList[3]->id !== 6)
+            return $response->fail('User List 4 entry should be with ID 6', $entityList[1]);
+
         // ----------- Chains -----------
 
         // or chain

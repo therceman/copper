@@ -5,6 +5,9 @@ use Copper\Component\DB\DBModel;
 use Copper\Component\HTML\HTML;
 use Copper\Resource\AbstractResource;
 
+// TODO only entity fields
+// TODO validation type for field
+
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
 /** @var AbstractResource[] $resource_list */
@@ -1229,7 +1232,8 @@ function fillModelFields(DBModel $model)
     echo '<script> let modelHasStateFields = ' . json_encode($model->hasStateFields()) . '</script>';
 }
 
-fillModelFields($model);
+if ($model !== null)
+    fillModelFields($model);
 ?>
 
 <script>

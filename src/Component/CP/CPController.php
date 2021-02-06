@@ -2,7 +2,7 @@
 
 namespace Copper\Component\CP;
 
-use Copper\Component\DB\DBGenerator;
+use Copper\Component\CP\DB\DBGenerator;
 use Copper\Component\DB\DBService;
 use Copper\Controller\AbstractController;
 use Copper\Entity\AbstractEntity;
