@@ -9,6 +9,7 @@ use Copper\Entity\AbstractEntity;
 use Copper\FileReader;
 use Copper\FunctionResponse;
 use Copper\Kernel;
+use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;
 
 class CPController extends AbstractController
@@ -151,7 +152,26 @@ class CPController extends AbstractController
     private function db_generator()
     {
         $resourceList = FileReader::getClassNamesInFolder(Kernel::getProjectPath() . '/src/Resource')->result;
-        $resource = $this->request->query->get('resource', null);
+        /** @var AbstractResource $resource */
+        $resource = $this->request->get('resource', null);
+
+        $seed = $this->request->request->getBoolean('seed', false);
+        $seed_force = $this->request->request->getBoolean('seed_force', false);
+
+        $migrate = $this->request->request->getBoolean('migrate', false);
+        $migrate_force = $this->request->request->getBoolean('migrate_force', false);
+
+        if ($resource && $seed) {
+            $seed_result = DBService::seedClassName($resource::getSeedClassName(), $this->db, ($seed_force !== false));
+            $this->flashMessage->set('seed_result', $seed_result->msg);
+            return $this->redirectToRoute(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR, 'resource' => $resource]);
+        }
+
+        if ($resource && $migrate) {
+            $migrate_result = DBService::migrateClassName($resource::getModelClassName(), $this->db, ($migrate_force !== false));
+            $this->flashMessage->set('migrate_result', $migrate_result->msg);
+            return $this->redirectToRoute(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR, 'resource' => $resource]);
+        }
 
         return $this->viewResponse('cp/generator', [
             'default_varchar_length' => $this->db->config->default_varchar_length,

@@ -88,7 +88,7 @@ class HTMLElement
                 $valueStr = $this->createClassString($value);
 
             if ($value === false || $value === true)
-                $valueStr = '';
+                $valueStr = '="' . (($value === false) ? '0' : '1') . '"';
             else
                 $valueStr = '="' . $this->sanitizer->double_quote_escape($valueStr) . '"';
 
@@ -298,13 +298,15 @@ class HTMLElement
         return $this;
     }
 
-    public function addInnerElementBefore(HTMLElement $el) {
+    public function addInnerElementBefore(HTMLElement $el)
+    {
         $this->innerBeforeHTML = $el;
 
         return $this;
     }
 
-    public function addInnerElementAfter(HTMLElement $el) {
+    public function addInnerElementAfter(HTMLElement $el)
+    {
         $this->innerAfterHTML = $el;
 
         return $this;

@@ -62,6 +62,13 @@ class DBService
         return $array;
     }
 
+    /**
+     * @param string $className - DBSeed Class Name
+     * @param DBHandler $db
+     * @param boolean $force
+     *
+     * @return FunctionResponse
+     */
     public static function seedClassName(string $className, DBHandler $db, $force = false)
     {
         $response = new FunctionResponse();
@@ -114,7 +121,7 @@ class DBService
     }
 
     /**
-     * @param string $className
+     * @param string $className - DBModel Class Name
      * @param DBHandler $db
      * @param bool $force
      *

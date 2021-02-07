@@ -22,6 +22,11 @@ class TestDBModel extends DBModel
         return 'db_test';
     }
 
+    public function getEntityClassName()
+    {
+        return TestDBEntity::class;
+    }
+
     public function setFields()
     {
         $this->addField(self::ID, DBModelField::SMALLINT)->primary()->unsigned();

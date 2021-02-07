@@ -114,7 +114,7 @@ class DBGenerator
     static function getSeedClassName()
     {
         return $seed::class;
-    }" : '';
+    }\r\n" : '';
 
         $content = "<?php
 

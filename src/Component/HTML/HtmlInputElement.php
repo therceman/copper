@@ -59,4 +59,11 @@ class HtmlInputElement extends HTMLElement
 
         return $this;
     }
+
+    function idAsName()
+    {
+        $this->id($this->getName());
+
+        return $this;
+    }
 }

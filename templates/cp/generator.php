@@ -3,10 +3,12 @@
 use Copper\Component\CP\CPController;
 use Copper\Component\DB\DBModel;
 use Copper\Component\HTML\HTML;
+use Copper\Component\HTML\HTMLGroup;
 use Copper\Resource\AbstractResource;
 
 // TODO only entity fields
 // TODO validation type for field
+// TODO show/hide state fields in table if (Use State Fields enabled)
 
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
@@ -89,6 +91,20 @@ if ($resource !== null) {
 <body class="markdown-body">
 <h4>DataBase Resource Generator</h4>
 
+<?php if ($view->flashMessage->has('seed_result')): ?>
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom:15px; border-radius: 5px;">
+        <span>Seed Result:</span>
+        <code><?= $view->out($view->flashMessage->get('seed_result')) ?></code>
+    </div>
+<?php endif;?>
+
+<?php if ($view->flashMessage->has('migrate_result')): ?>
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom:15px; border-radius: 5px;">
+        <span>Migrate Result:</span>
+        <code><?= $view->out($view->flashMessage->get('migrate_result')) ?></code>
+    </div>
+<?php endif;?>
+
 <div style="margin-bottom:10px;">
     <div style="margin-bottom: 5px;">
         <span>Resource</span>
@@ -102,14 +118,31 @@ if ($resource !== null) {
                 ->addElement(HTML::button('Read'));
             ?>
             <?php
+            echo HTML::form($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
+                ->id('migrate_form')->addStyle('display', 'inline-block')
+                ->addElement(HTML::inputHidden('migrate', 1))
+                ->addElement(HTML::inputHidden('migrate_force', false)->idAsName())
+                ->addElement(HTML::inputHidden('resource', $resource))
+                ->addElement(HTML::button('Migrate')->setAttr('type', 'submit')->id('migrate_btn'));
+            ?>
+            <?php
+            echo HTML::form($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
+                ->id('seed_form')->addStyle('display', 'inline-block')
+                ->addElement(HTML::inputHidden('seed', 1))
+                ->addElement(HTML::inputHidden('seed_force', false)->idAsName())
+                ->addElement(HTML::inputHidden('resource', $resource))
+                ->addElement(HTML::button('Seed')->setAttr('type', 'submit')->id('seed_btn'));
+            ?>
+            <?php
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
-                ->addStyle('display', 'inline-block')
+                ->addStyle('display', 'inline-block')->addStyle('margin-left', '20px')
                 ->addElement(HTML::button('Clear'));
             ?>
             <?php
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->addStyle('display', 'inline-block')
                 ->addElement(HTML::inputHidden('demo', 1))
+                ->addElement(HTML::inputHidden('resource', $resource))
                 ->addElement(HTML::button('Demo'));
             ?>
         </div>
@@ -129,12 +162,12 @@ if ($resource !== null) {
     <div style="clear: both"></div>
     <div style="margin-top: 10px;">
         <span>Files To Create: </span>
-        <?= HTML::checkbox('Resource', ($resourceName !== ''), null, 'create_resource', false) ?>
-        <?= HTML::checkbox('Entity', ($entityName !== ''), null, 'create_entity', false) ?>
-        <?= HTML::checkbox('Model', ($modelName !== ''), null, 'create_model', false) ?>
-        <?= HTML::checkbox('Service', ($serviceName !== ''), null, 'create_service', false) ?>
-        <?= HTML::checkbox('Controller', ($controllerName !== ''), null, 'create_controller', false) ?>
-        <?= HTML::checkbox('Seed', ($seedName !== ''), null, 'create_seed', false) ?>
+        <?= HTMLGroup::checkbox('Resource', ($resourceName !== ''), null, 'create_resource', false) ?>
+        <?= HTMLGroup::checkbox('Entity', ($entityName !== ''), null, 'create_entity', false) ?>
+        <?= HTMLGroup::checkbox('Model', ($modelName !== ''), null, 'create_model', false) ?>
+        <?= HTMLGroup::checkbox('Service', ($serviceName !== ''), null, 'create_service', false) ?>
+        <?= HTMLGroup::checkbox('Controller', ($controllerName !== ''), null, 'create_controller', false) ?>
+        <?= HTMLGroup::checkbox('Seed', ($seedName !== ''), null, 'create_seed', false) ?>
     </div>
     <div style="margin-top: -20px; float:right">
         <span>Files To Override: </span>
@@ -563,6 +596,8 @@ if ($resource !== null) {
 
 <script>
 
+    let resourceClassName = '<?=$view->output->js($resource)?>';
+
     /** @type {Field[]}*/
     let fields = [];
 
@@ -606,40 +641,18 @@ if ($resource !== null) {
             })
             TD.appendChild(EDIT);
 
-            //
-            // let DOWN = document.createElement('button');
-            // DOWN.innerHTML = '&darr;';
-            // DOWN.addEventListener('click', e => {
-            //     if (key === (fields.length - 1))
-            //         return;
-            //
-            //     let temp = fields[key];
-            //     fields[key] = fields[key + 1];
-            //     fields[key + 1] = temp;
-            //
-            //     generateFields();
-            // })
-            // TD.appendChild(DOWN);
-            //
-            // let UP = document.createElement('button');
-            // UP.innerHTML = '&uarr;';
-            // UP.addEventListener('click', e => {
-            //     if (key === 0)
-            //         return;
-            //
-            //     let temp = fields[key];
-            //     fields[key] = fields[key - 1];
-            //     fields[key - 1] = temp;
-            //
-            //     generateFields();
-            // })
-            // TD.appendChild(UP);
-
             TR.appendChild(TD);
 
             $tbody.appendChild(TR);
         })
     }
+
+    let $migrate_btn = document.querySelector('#migrate_btn');
+    let $migrate_form = document.querySelector('#migrate_form');
+    let $migrate_force = document.querySelector('#migrate_force');
+    let $seed_btn = document.querySelector('#seed_btn');
+    let $seed_form = document.querySelector('#seed_form');
+    let $seed_force = document.querySelector('#seed_force');
 
     let $add = document.querySelector('#add');
     let $name = document.querySelector('#name');
@@ -686,6 +699,19 @@ if ($resource !== null) {
     let $down = document.querySelector('#down');
 
     let selectedFieldKey = null;
+
+    if (resourceClassName === '') {
+        $migrate_btn.disabled = true;
+        $seed_btn.disabled = true;
+    }
+
+    $seed_form.addEventListener('submit', e => {
+        $seed_force.value = confirm('Force Seed ?');
+    })
+
+    $migrate_form.addEventListener('submit', e => {
+        $migrate_force.value = confirm('Force Migrate ?');
+    })
 
     function editSelectedField(key) {
         if (selectedFieldKey !== null)
@@ -986,26 +1012,31 @@ if ($resource !== null) {
     $create_entity.addEventListener('input', e => {
         $entity.disabled = ($create_entity.checked === false);
         $entity_override.disabled = ($create_entity.checked === false);
+        $resource.dispatchEvent(new Event('change'));
     })
 
     $create_model.addEventListener('input', e => {
         $model.disabled = ($create_model.checked === false);
         $model_override.disabled = ($create_model.checked === false);
+        $resource.dispatchEvent(new Event('change'));
     })
 
     $create_service.addEventListener('input', e => {
         $service.disabled = ($create_service.checked === false);
         $service_override.disabled = ($create_service.checked === false);
+        $resource.dispatchEvent(new Event('change'));
     })
 
     $create_controller.addEventListener('input', e => {
         $controller.disabled = ($create_controller.checked === false);
         $controller_override.disabled = ($create_controller.checked === false);
+        $resource.dispatchEvent(new Event('change'));
     })
 
     $create_seed.addEventListener('input', e => {
         $seed.disabled = ($create_seed.checked === false);
         $seed_override.disabled = ($create_seed.checked === false);
+        $resource.dispatchEvent(new Event('change'));
     })
 
     $create_seed.dispatchEvent(new Event('input'));
@@ -1237,12 +1268,12 @@ if ($model !== null)
 ?>
 
 <script>
-    if (modelFields !== void 0) {
+    if (typeof modelFields !== 'undefined') {
         fields = modelFields;
         generateFields();
     }
 
-    if (modelHasStateFields === false)
+    if (typeof modelHasStateFields !== 'undefined' && modelHasStateFields === false)
         $use_state_fields.checked = false;
 </script>
 
