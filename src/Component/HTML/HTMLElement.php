@@ -31,6 +31,11 @@ class HTMLElement
     /** @var HTMLElement|false */
     private $beforeHTML;
 
+    /** @var HTMLElement|false */
+    private $innerAfterHTML;
+    /** @var HTMLElement|false */
+    private $innerBeforeHTML;
+
     public function __construct(string $tag, $selfClosing = false, $attrValueDefaultDelimiter = ' ')
     {
         $this->tag = $tag;
@@ -293,6 +298,18 @@ class HTMLElement
         return $this;
     }
 
+    public function addInnerElementBefore(HTMLElement $el) {
+        $this->innerBeforeHTML = $el;
+
+        return $this;
+    }
+
+    public function addInnerElementAfter(HTMLElement $el) {
+        $this->innerAfterHTML = $el;
+
+        return $this;
+    }
+
     public function addElementAfter(HTMLElement $el)
     {
         $this->afterHTML = $el;
@@ -337,7 +354,11 @@ class HTMLElement
         if ($this->selfClosing) {
             $tagStr = $this->getStartTag(false);
         } else {
-            $tagStr = $this->getStartTag(false) . $this->getHTML() . $this->getEndTag(false);
+            $tagStr = $this->getStartTag(false)
+                . $this->innerBeforeHTML
+                . $this->getHTML()
+                . $this->innerAfterHTML
+                . $this->getEndTag(false);
         }
 
         if ($this->beforeHTML !== false)

@@ -56,7 +56,7 @@ class DBGenerator
         $responses = [];
 
         $responses['entity'] = self::createEntity($create_entity, $entity, $fields, $use_state_fields, $entity_override);
-        $responses['model'] = self::createModel($table, $create_model, $model, $fields, $use_state_fields, $model_override);
+        $responses['model'] = self::createModel($table, $entity, $create_model, $model, $fields, $use_state_fields, $model_override);
         $responses['service'] = self::createService($create_service, $model, $entity, $service, $service_override);
         $responses['seed'] = self::createSeed($create_seed, $model, $entity, $seed, $seed_override);
         $responses['controller'] = self::createController($create_controller, $resource, $model, $entity, $service, $controller, $controller_override, $use_state_fields);
@@ -241,6 +241,7 @@ class $name extends AbstractController
 
         \$dbOrder = new DBOrder(\$this->model, \$order_by, (strtoupper(\$order) === DBOrder::ASC));
 
+        /** @var {$entity}[] \$list */
         \$list = \$this->service::getList(\$this->db, \$limit, \$offset, \$dbOrder, \$show_removed);
 
         return \$this->viewResponse(self::TEMPLATE_LIST, ['list' => \$list, 'resource' => \$this->resource]);
@@ -248,6 +249,7 @@ class $name extends AbstractController
 
     public function getEdit(\$id)
     {
+        /** @var {$entity} \$entity */
         \$entity = \$this->service::get(\$this->db, \$id);
 
         return \$this->viewResponse(self::TEMPLATE_EDIT, ['entity' => \$entity, 'resource' => \$this->resource]);
@@ -414,7 +416,7 @@ XML;
         return $response->ok();
     }
 
-    private static function createModel($table, $create, $name, $fields, $use_state_fields, $override)
+    private static function createModel($table, $entity, $create, $name, $fields, $use_state_fields, $override)
     {
         $response = new FunctionResponse();
 
@@ -507,6 +509,7 @@ XML;
 
 namespace App\Model;
 
+use App\Entity\\$entity;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
 
@@ -516,6 +519,11 @@ $constFields
     public function getTableName()
     {
         return '$table';
+    }
+    
+    public function getEntityClassName()
+    {
+        return $entity::class;
     }
 
     public function setFields()

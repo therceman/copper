@@ -30,7 +30,15 @@ abstract class DBModel
     /** @var DBModelField[] */
     public $fields = [];
 
+    /**
+     * @return string
+     */
     abstract function getTableName();
+
+    /**
+     * @return string
+     */
+    abstract function getEntityClassName();
 
     abstract function setFields();
 
@@ -38,6 +46,14 @@ abstract class DBModel
     {
         $this->tableName = $this->getTableName();
         $this->setFields();
+    }
+
+    /**
+     * @return AbstractEntity|false
+     */
+    public function getEntity()
+    {
+        return $this->getEntityClassName();
     }
 
     /**
@@ -260,11 +276,49 @@ abstract class DBModel
     }
 
     /**
-     * @param integer|DBCondition $keyOrCondition
+     * @param DBCondition $condition
+     * @param string[] $columns
+     * @param DBOrder|null $order
+     * @param int $limit
+     * @param int $offset
+     * @param bool $returnRemoved
+     *
+     * @return array
      */
-    public function doSelect($keyOrCondition)
+    public function doSelect(DBCondition $condition = null, array $columns = [], DBOrder $order = null, $limit = 255, $offset = 0, $returnRemoved = false)
     {
+        $db = Kernel::getDb();
 
+        try {
+            $stm = $db->query->from($this->getTableName())->limit($limit)->offset($offset);
+
+            if (count($columns) > 0)
+                $stm = $stm->select($columns, true);
+
+            if ($condition !== null)
+                $stm = $condition->buildForSelectStatement($stm);
+
+            if ($returnRemoved === false && $this->hasFields([DBModel::REMOVED_AT])->isOK())
+                $stm = $stm->where(DBModel::REMOVED_AT, null);
+
+            if ($order !== false && $order instanceof DBOrder)
+                $stm->order($order);
+
+            $result = $stm->fetchAll();
+
+            $list = [];
+
+            if ($result === false)
+                return $list;
+
+            foreach ($result as $entry) {
+                $list[] = $this->getEntity()::fromArray($entry);
+            }
+        } catch (Exception $e) {
+            $list = [];
+        }
+
+        return $list;
     }
 
     /**

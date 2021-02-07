@@ -24,6 +24,24 @@ class HTML
         return $el;
     }
 
+    /**
+     * @param string $text
+     * @param string|integer|false $value
+     *
+     * @return HTMLElement
+     */
+    public static function option(string $text, $value = false)
+    {
+        $el = new HTMLElement('option');
+
+        $el->innerText($text);
+
+        if ($value !== false)
+            $el->setAttr('value', $value);
+
+        return $el;
+    }
+
     public static function button($text)
     {
         $el = new HTMLElement('button');

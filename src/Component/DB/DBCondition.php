@@ -276,6 +276,11 @@ class DBCondition
         return self::not($field, null);
     }
 
+    public static function isNull($field)
+    {
+        return self::is($field, null);
+    }
+
     /**
      * Is Like
      *
