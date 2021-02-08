@@ -8,7 +8,6 @@ use Copper\Resource\AbstractResource;
 
 // TODO only entity fields
 // TODO validation type for field
-// TODO show/hide state fields in table if (Use State Fields enabled)
 
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
@@ -96,14 +95,14 @@ if ($resource !== null) {
         <span>Seed Result:</span>
         <code><?= $view->out($view->flashMessage->get('seed_result')) ?></code>
     </div>
-<?php endif;?>
+<?php endif; ?>
 
 <?php if ($view->flashMessage->has('migrate_result')): ?>
     <div style="border: 1px solid #ccc; padding: 10px; margin-bottom:15px; border-radius: 5px;">
         <span>Migrate Result:</span>
         <code><?= $view->out($view->flashMessage->get('migrate_result')) ?></code>
     </div>
-<?php endif;?>
+<?php endif; ?>
 
 <div style="margin-bottom:10px;">
     <div style="margin-bottom: 5px;">
@@ -625,21 +624,22 @@ if ($resource !== null) {
 
             let TD = document.createElement('td');
 
-            let DEL = document.createElement('button');
-            DEL.innerText = 'DEL';
-            DEL.addEventListener('click', e => {
-                delete fields[key];
-
-                generateFields();
-            })
-            TD.appendChild(DEL);
-
             let EDIT = document.createElement('button');
             EDIT.innerText = 'EDIT';
             EDIT.addEventListener('click', e => {
                 editSelectedField(key);
             })
             TD.appendChild(EDIT);
+
+            let DEL = document.createElement('button');
+            DEL.innerText = 'DEL';
+            DEL.setAttribute('style', 'margin-left: 10px;');
+            DEL.addEventListener('click', e => {
+                delete fields[key];
+
+                generateFields();
+            })
+            TD.appendChild(DEL);
 
             TR.appendChild(TD);
 
@@ -732,7 +732,15 @@ if ($resource !== null) {
         $type.value = field.type;
         $type.dispatchEvent(new Event('input'));
         $length.value = field.length;
-        $default.value = field.default;
+
+        if ([DEFAULT_CURRENT_TIMESTAMP, DEFAULT_NONE, DEFAULT_NULL].includes(field.default) === false) {
+            $default_value.value = field.default;
+            $default.value = DEFAULT_USER_DEFINED;
+        } else {
+            $default.value = field.default;
+        }
+        $default.dispatchEvent(new Event('input'));
+
         $attributes.value = field.attr;
         $null.checked = (field.null === true);
         $index.value = field.index;
@@ -797,10 +805,7 @@ if ($resource !== null) {
         $update.classList.add('hidden');
     }
 
-    $use_state_fields.addEventListener('change', e => {
-        if ($use_state_fields.checked === true)
-            return false;
-
+    function removeStateFields(ask = false) {
         let createdAtFound = false;
         let updatedAtFound = false;
         let removedAtFound = false;
@@ -817,8 +822,8 @@ if ($resource !== null) {
                 enabledAtFound = k;
         });
 
-        let confirmAgree = false;
-        if (createdAtFound !== false && updatedAtFound !== false && removedAtFound !== false && enabledAtFound !== false)
+        let confirmAgree = true;
+        if (ask && createdAtFound !== false && updatedAtFound !== false && removedAtFound !== false && enabledAtFound !== false)
             confirmAgree = confirm('Do you want to remove [created_at, updated_at, removed_at, enabled] fields?');
 
         if (confirmAgree === false)
@@ -830,6 +835,13 @@ if ($resource !== null) {
         delete fields[enabledAtFound];
 
         generateFields();
+    }
+
+    $use_state_fields.addEventListener('change', e => {
+        if ($use_state_fields.checked === true)
+            return false;
+
+        removeStateFields(true);
     })
 
     $add.addEventListener('click', e => {
@@ -1275,6 +1287,8 @@ if ($model !== null)
 
     if (typeof modelHasStateFields !== 'undefined' && modelHasStateFields === false)
         $use_state_fields.checked = false;
+    else if (typeof modelHasStateFields !== 'undefined' && modelHasStateFields)
+        removeStateFields(false);
 </script>
 
 <h6>Developed on MySQL version() === 10.4.14-MariaDB</h6>
