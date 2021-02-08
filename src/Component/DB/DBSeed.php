@@ -27,6 +27,8 @@ abstract class DBSeed
     /**
      * Add Seed
      * @param AbstractEntity $entity
+     *
+     * @return int - Inserted ID
      */
     public function seed(AbstractEntity $entity)
     {
@@ -37,5 +39,7 @@ abstract class DBSeed
         $formattedSeedData = $model->formatFieldValues($seedData, false);
 
         $this->seeds[] = $formattedSeedData;
+
+        return count($this->seeds);
     }
 }

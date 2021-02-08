@@ -371,4 +371,12 @@ class HTMLElement
 
         return $tagStr;
     }
+
+    function idAsName()
+    {
+        $this->id($this->getName());
+
+        return $this;
+    }
+
 }

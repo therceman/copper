@@ -52,6 +52,38 @@ class HTML
     }
 
     /**
+     * @param string $text
+     * @param integer|null $colspan
+     *
+     * @return HTMLElement
+     */
+    public static function td(string $text, $colspan = null)
+    {
+        $el = new HTMLElement('td');
+
+        $el->innerText($text);
+        $el->setAttr('colspan', $colspan);
+
+        return $el;
+    }
+
+    /**
+     * @param string $text
+     * @param integer|null $colspan
+     *
+     * @return HTMLElement
+     */
+    public static function th(string $text, $colspan = null)
+    {
+        $el = new HTMLElement('th');
+
+        $el->innerText($text);
+        $el->setAttr('colspan', $colspan);
+
+        return $el;
+    }
+
+    /**
      * @param string $name
      * @param string $value
      *
@@ -75,7 +107,7 @@ class HTML
      */
     public static function inputHidden(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->type( 'hidden');
+        return HTML::input($name, $value)->type('hidden');
     }
 
     /**
@@ -85,7 +117,7 @@ class HTML
      */
     public static function inputPassword(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->type( 'password');
+        return HTML::input($name, $value)->type('password');
     }
 
     /**
@@ -95,7 +127,7 @@ class HTML
      */
     public static function inputNumber(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->type( 'number');
+        return HTML::input($name, $value)->type('number');
     }
 
     /**
@@ -105,7 +137,7 @@ class HTML
      */
     public static function inputFile(string $name = null, $value = null)
     {
-        return HTML::input($name, $value)->type( 'file');
+        return HTML::input($name, $value)->type('file');
     }
 
     /**
@@ -115,7 +147,7 @@ class HTML
      */
     public static function inputCheckbox(string $name = null, $checked = false)
     {
-        $checkboxEl = HTML::input($name)->type( 'checkbox');
+        $checkboxEl = HTML::input($name)->type('checkbox');
 
         if ($checked !== false)
             $checkboxEl->setAttr('checked', true);

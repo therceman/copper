@@ -50,6 +50,7 @@ if ($resource !== null) {
         border-collapse: collapse;
         margin-bottom: 20px;
         width: 1400px;
+        font-size: 15px;
     }
 
     table td {
@@ -196,7 +197,7 @@ if ($resource !== null) {
         <td>Type</td>
         <td>Length</td>
         <td>Default</td>
-        <td style="width: 260px;">Attributes</td>
+        <td style="width: 245px;">Attributes</td>
         <td>Null</td>
         <td>Index</td>
         <td>Auto Increment</td>
@@ -391,8 +392,8 @@ if ($resource !== null) {
         <td>
             <button id="add">ADD</button>
             <button class="hidden" id="update" onclick="updateSelectedField()">✓</button>
-            <button class="hidden" id="down" onclick="moveDownSelectedField()">↓</button>
             <button class="hidden" id="up" onclick="moveUpSelectedField()">↑</button>
+            <button class="hidden" id="down" onclick="moveDownSelectedField()">↓</button>
             <button class="hidden" id="cancel" onclick="cancelFieldEdit()">X</button>
         </td>
     </tr>
@@ -601,11 +602,18 @@ if ($resource !== null) {
     let fields = [];
 
     function generateFields() {
+        fields = fields.filter(function( element ) {
+            return element !== undefined;
+        });
+
         let $tbody = document.querySelector('#fields tbody');
 
         $tbody.innerHTML = '';
 
         fields.forEach((field, key) => {
+            if (field === void 0 )
+                return ;
+
             let TR = document.createElement('tr');
 
             TR.id = 'field_' + key;
@@ -863,6 +871,9 @@ if ($resource !== null) {
         let fieldExists = false;
         let autoIncrementExists = false;
         fields.forEach(f => {
+            if (f === void 0 )
+                return ;
+
             if (f.name === field.name)
                 fieldExists = true;
             if (f.index === INDEX_PRIMARY && field.index === INDEX_PRIMARY)
@@ -1008,6 +1019,9 @@ if ($resource !== null) {
             // $attributes.querySelector(`option[value=${ATTR_BINARY}]`).disabled = true;
             $attributes.querySelector(`option[value=${ATTR_UNSIGNED}]`).disabled = false;
             // $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = false;
+        } else {
+            if ($auto_increment.disabled === true)
+                $auto_increment.checked = false;
         }
     })
 
