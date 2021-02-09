@@ -68,7 +68,7 @@ class DBGenerator
         if ($create_seed === false)
             $seed = false;
 
-        $responses['resource'] = self::createResource($create_resource, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
+        $responses['resource'] = self::createResource($create_resource, $table, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
 
         return $response->ok('success', $responses);
     }
@@ -95,11 +95,11 @@ class DBGenerator
         return $folder . '/' . $name . '.php';
     }
 
-    private static function createResource($create, $model, $entity, $service, $controller, $seed, $name, $override)
+    private static function createResource($create, $table, $model, $entity, $service, $controller, $seed, $name, $override)
     {
         $response = new FunctionResponse();
 
-        $pathGroup = strtolower($name);
+        $pathGroup = $table;
 
         $filePath = self::filePath($name, 'Resource');
 

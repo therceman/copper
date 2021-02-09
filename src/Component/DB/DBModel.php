@@ -262,7 +262,7 @@ abstract class DBModel
      */
     public function doMigrate($force = false)
     {
-        return DBService::migrateClassName(self::class, Kernel::getDb(), $force);
+        return DBService::migrateClassName(static::class, Kernel::getDb(), $force);
     }
 
     /**
@@ -396,11 +396,44 @@ abstract class DBModel
     }
 
     /**
-     * @param integer|DBCondition $keyOrCondition
+     * @param DBCondition $condition
+     *
+     * @return FunctionResponse
      */
-    public function doDelete($keyOrCondition)
+    public function doDelete(DBCondition $condition)
     {
+        $response = new FunctionResponse();
 
+        $db = Kernel::getDb();
+
+        try {
+            $stm = $db->query->delete($this->getTableName());
+
+            if ($condition !== null)
+                $stm = $condition->buildForSelectStatement($stm);
+
+            $resultRowCount = $stm->execute();
+
+            if ($resultRowCount === false)
+                throw new Exception($stm->getMessage());
+
+            $response->result($resultRowCount);
+        } catch (Exception $e) {
+            $response->fail($e->getMessage());
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param int|string $id
+     * @param string $idField
+     *
+     * @return FunctionResponse
+     */
+    public function doDeleteById($id, $idField = DBModel::ID)
+    {
+        return $this->doDelete(DBCondition::is($idField, $id));
     }
 
 }
