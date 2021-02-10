@@ -61,12 +61,14 @@ class DBGenerator
         $responses['seed'] = self::createSeed($create_seed, $model, $entity, $seed, $seed_override);
         $responses['controller'] = self::createController($create_controller, $resource, $model, $entity, $service, $controller, $controller_override, $use_state_fields);
 
-        $is_relation = false;
-        if ($create_service === false && $create_controller === false && $create_entity === false)
-            $is_relation = true;
-
         if ($create_seed === false)
             $seed = false;
+
+        if ($create_controller === false)
+            $controller = false;
+
+        if ($create_service === false)
+            $service = false;
 
         $responses['resource'] = self::createResource($create_resource, $table, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
 
@@ -109,6 +111,8 @@ class DBGenerator
         if (file_exists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
+        // ---------------------
+
         $seedClass = ($seed !== false) ? "use App\Seed\\$seed;" : '';
         $seedFunc = ($seed !== false) ? "
     static function getSeedClassName()
@@ -116,41 +120,27 @@ class DBGenerator
         return $seed::class;
     }\r\n" : '';
 
-        $content = "<?php
+        // ---------------------
 
-namespace App\Resource;
-
-use App\Controller\\$controller;
-use App\Entity\\$entity;
-use App\Model\\$model;
-$seedClass
-use App\Service\\$service;
-use Copper\Resource\AbstractResource;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
-
-class $name extends AbstractResource
-{
-    static function getEntityClassName()
-    {
-        return $entity::class;
-    }
-
-    static function getControllerClassName()
-    {
-        return $controller::class;
-    }
-
-    static function getModelClassName()
-    {
-        return $model::class;
-    }
-
+        $serviceClass = ($service !== false) ? "use App\Seed\\$service;" : '';
+        $serviceFunc = ($service !== false) ? "
     static function getServiceClassName()
     {
         return $service::class;
-    }
-    $seedFunc
-    const PATH_GROUP = '$pathGroup';
+    }\r\n" : '';
+
+        // ---------------------
+
+        $controllerClass = ($controller !== false) ? "use App\Seed\\$controller;" : '';
+        $controllerFunc = ($controller !== false) ? "
+    static function getControllerClassName()
+    {
+        return $controller::class;
+    }\r\n" : '';
+
+        // ---------------------
+
+        $routes = "const PATH_GROUP = '$pathGroup';
 
     const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
     const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';
@@ -169,7 +159,41 @@ class $name extends AbstractResource
         self::addRoute(\$routes, self::POST_CREATE);
         self::addRoute(\$routes, self::POST_REMOVE);
         self::addRoute(\$routes, self::POST_UNDO_REMOVE);
+    }";
+
+        $routingConfiguratorClass = 'use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;';
+        if ($controller === false) {
+            $routes = '';
+            $routingConfiguratorClass = '';
+        }
+
+        $content = "<?php
+
+namespace App\Resource;
+
+$controllerClass
+use App\Entity\\$entity;
+use App\Model\\$model;
+$seedClass
+$serviceClass
+use Copper\Resource\AbstractResource;
+$routingConfiguratorClass
+
+class $name extends AbstractResource
+{
+    static function getEntityClassName()
+    {
+        return $entity::class;
     }
+    $controllerFunc
+
+    static function getModelClassName()
+    {
+        return $model::class;
+    }
+    $serviceFunc
+    $seedFunc
+    $routes
 }";
         file_put_contents($filePath, $content);
 

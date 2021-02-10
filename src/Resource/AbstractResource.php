@@ -13,7 +13,8 @@ use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 abstract class AbstractResource
 {
-    private static $model = null;
+    /** @var array */
+    private static $models = [];
 
     const PATH_GROUP = 'abstract_collection_resource';
 
@@ -91,14 +92,14 @@ abstract class AbstractResource
     /**
      * @return DBModel
      */
-    static function getModel()
+    public static function getModel()
     {
-        if (self::$model !== null)
-            return self::$model;
+        $modelClassName = static::getModelClassName();
 
-        $className = static::getModelClassName();
+        if (array_key_exists(static::class, self::$models) === false)
+            self::$models[static::class] = new $modelClassName();
 
-        return self::$model = new $className();
+        return self::$models[static::class];
     }
 
     static function getName()

@@ -1026,13 +1026,19 @@ if ($resource !== null) {
     })
 
     $relation.addEventListener('input', e => {
-        $entity.disabled = ($relation.checked);
+        $create_entity.checked = true;
+        $entity.disabled = false;
+
+        $create_model.checked = true;
+        $model.disabled = false;
+
         $service.disabled = ($relation.checked);
         $controller.disabled = ($relation.checked);
 
-        $create_entity.checked = ($relation.checked === false);
         $create_service.checked = ($relation.checked === false);
         $create_controller.checked = ($relation.checked === false);
+
+        $create_resource.checked = true;
     })
 
     $create_entity.addEventListener('input', e => {

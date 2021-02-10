@@ -387,12 +387,51 @@ abstract class DBModel
     }
 
     /**
-     * @param integer|DBCondition $keyOrCondition
+     * @param DBCondition $condition
      * @param array $fields
+     *
+     * @return FunctionResponse
      */
-    public function doUpdate($keyOrCondition, array $fields)
+    public function doUpdate(DBCondition $condition, array $fields)
     {
+        $response = new FunctionResponse();
 
+        $db = Kernel::getDb();
+
+        $entity = $this->getEntity()::fromArray($fields);
+
+        $updateData = $this->getFieldValuesFromEntity($entity, array_keys($fields));
+        $formattedUpdateData = $this->formatFieldValues($updateData, false);
+
+        try {
+            $stm = $db->query->update($this->getTableName(), $formattedUpdateData);
+
+            if ($condition !== null)
+                $stm = $condition->buildForSelectStatement($stm);
+
+            $resultRowCount = $stm->execute();
+
+            if ($resultRowCount === false)
+                throw new Exception($stm->getMessage());
+
+            $response->result($resultRowCount);
+        } catch (Exception $e) {
+            $response->fail($e->getMessage(), $formattedUpdateData);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param int|string $id
+     * @param array $fields
+     * @param string $idField
+     *
+     * @return FunctionResponse
+     */
+    public function doUpdateById($id, array $fields, $idField = DBModel::ID)
+    {
+        return $this->doUpdate(DBCondition::is($idField, $id), $fields);
     }
 
     /**
