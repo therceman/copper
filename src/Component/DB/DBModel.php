@@ -276,6 +276,20 @@ abstract class DBModel
     }
 
     /**
+     * @param int $limit
+     * @param int $offset
+     * @param DBCondition|null $condition
+     * @param array $columns
+     * @param DBOrder|null $order
+     * @param boolean $returnRemoved
+     *
+     * @return array
+     */
+    public function doLimitSelect(int $limit, $offset = 0, DBCondition $condition = null, array $columns = [], DBOrder $order = null, $returnRemoved = false) {
+        return $this->doSelect($condition, $columns, $order, $limit, $offset, $returnRemoved);
+    }
+
+    /**
      * @param DBCondition $condition
      * @param string[] $columns
      * @param DBOrder|null $order
@@ -285,12 +299,18 @@ abstract class DBModel
      *
      * @return array
      */
-    public function doSelect(DBCondition $condition = null, array $columns = [], DBOrder $order = null, $limit = 255, $offset = 0, $returnRemoved = false)
+    public function doSelect(DBCondition $condition = null, array $columns = [], DBOrder $order = null, $limit = null, $offset = null, $returnRemoved = false)
     {
         $db = Kernel::getDb();
 
         try {
-            $stm = $db->query->from($this->getTableName())->limit($limit)->offset($offset);
+            $stm = $db->query->from($this->getTableName());
+
+            if ($limit !== null)
+                $stm = $stm->limit($limit);
+
+            if ($offset !== null)
+                $stm = $stm->offset($offset);
 
             if (count($columns) > 0)
                 $stm = $stm->select($columns, true);

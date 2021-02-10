@@ -122,7 +122,7 @@ class DBGenerator
 
         // ---------------------
 
-        $serviceClass = ($service !== false) ? "use App\Seed\\$service;" : '';
+        $serviceClass = ($service !== false) ? "use App\Service\\$service;" : '';
         $serviceFunc = ($service !== false) ? "
     static function getServiceClassName()
     {
@@ -131,7 +131,7 @@ class DBGenerator
 
         // ---------------------
 
-        $controllerClass = ($controller !== false) ? "use App\Seed\\$controller;" : '';
+        $controllerClass = ($controller !== false) ? "use App\Controller\\$controller;" : '';
         $controllerFunc = ($controller !== false) ? "
     static function getControllerClassName()
     {
