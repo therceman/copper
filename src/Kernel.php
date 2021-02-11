@@ -99,6 +99,46 @@ final class Kernel
         return $ip;
     }
 
+    public static function getProjectControllerPath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Controller']);
+    }
+
+    public static function getProjectServicePath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Service']);
+    }
+
+    public static function getProjectResourcePath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Resource']);
+    }
+
+    public static function getProjectEntityPath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Entity']);
+    }
+
+    public static function getProjectModelPath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Model']);
+    }
+
+    public static function getProjectSeedPath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Seed']);
+    }
+
+    public static function getProjectPublicPath()
+    {
+        return FileHandler::projectPathFromArray(['public']);
+    }
+
+    public static function getProjectTemplatesPath()
+    {
+        return FileHandler::projectPathFromArray(['templates']);
+    }
+
     /**
      * Returns path to project root directory
      *
@@ -106,7 +146,7 @@ final class Kernel
      */
     public static function getProjectPath()
     {
-        return dirname($_SERVER['SCRIPT_FILENAME']) . '/..';
+        return FileHandler::getAbsolutePath(dirname($_SERVER['SCRIPT_FILENAME']) . '/..');
     }
 
     /**
@@ -284,13 +324,13 @@ final class Kernel
 
         // Load application resource routes
         $path = $this::getProjectPath() . '/' . $this::SRC_RESOURCE_FOLDER;
-        $resourceFiles = FileReader::getFilesInFolder($path);
+        $resourceFiles = FileHandler::getFilesInFolder($path);
 
         foreach ($resourceFiles->result as $key => $resourceFile) {
             $filePath = $path . '/' . $resourceFile;
 
             /** @var AbstractResource $resourceClass */
-            $resourceClass = FileReader::getFilePathClassName($filePath);
+            $resourceClass = FileHandler::getFilePathClassName($filePath);
 
             if (in_array('registerRoutes', get_class_methods($resourceClass)) === false)
                 continue;

@@ -41,16 +41,17 @@ class FunctionResponse
     }
 
     /**
-     * Sets the result. Status: true
+     * Sets the result. Status: true when $result is not false (else throws error)
      *
-     * @param $result
+     * @param mixed $result
+     * @param string $falseResultMsg
      *
      * @return $this
      */
-    public function result($result)
+    public function result($result, string $falseResultMsg = 'Failed Result.')
     {
         if ($result === false)
-            return $this->error('Failed Result.');
+            return $this->error($falseResultMsg);
 
         return $this->success("Success Result!", $result);
     }

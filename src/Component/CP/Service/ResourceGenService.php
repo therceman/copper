@@ -1,18 +1,145 @@
 <?php
 
 
-namespace Copper\Component\CP\DB;
+namespace Copper\Component\CP\Service;
 
 
 use Copper\ArrayReader;
 use Copper\Component\DB\DBModelField;
+use Copper\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Kernel;
+use Copper\Resource\AbstractResource;
 
-class DBGenerator
+class ResourceGenService
 {
     const T = '    ';
     const T2 = self::T . self::T;
+
+
+    private static function prepare_controller(string $resourceClassName, string $tpl_folder_name)
+    {
+        $response = new FunctionResponse();
+
+        /** @var AbstractResource $resource */
+        $resource = $resourceClassName;
+
+        $controllerPath = $resource::getControllerPath();
+
+        $contentRes = FileHandler::getContent($controllerPath);
+
+        if ($contentRes->hasError())
+            return $contentRes;
+
+        $content = $contentRes->result;
+
+        $content = str_replace('const TEMPLATE_LIST = \'collection/list\';',
+            'const TEMPLATE_LIST = \'' . $tpl_folder_name . '/list\';', $content);
+
+        $content = str_replace('const TEMPLATE_FORM = \'collection/form\';',
+            'const TEMPLATE_FORM = \'' . $tpl_folder_name . '/form\';', $content);
+
+        $contentSaveRes = FileHandler::saveContent($controllerPath, $content);
+
+        if ($contentSaveRes->hasError())
+            return $contentSaveRes;
+
+        return $response->ok();
+    }
+
+    private static function prepare_list_template(string $resourceClassName, string $filepath)
+    {
+        return self::prepare_form_template($resourceClassName, $filepath);
+    }
+
+    private static function prepare_form_template(string $resourceClassName, string $filepath)
+    {
+        $response = new FunctionResponse();
+
+        /** @var AbstractResource $resource */
+        $resource = $resourceClassName;
+
+        $contentRes = FileHandler::getContent($filepath);
+
+        if ($contentRes->hasError())
+            return $contentRes;
+
+        $content = $contentRes->result;
+
+        $content = str_replace('Copper\Entity\AbstractEntity', $resource::getEntityClassName(), $content);
+        $content = str_replace('Copper\Resource\AbstractResource', $resource::getClassName(), $content);
+        $content = str_replace('AbstractEntity', $resource::getEntityName(), $content);
+
+        $contentSaveRes = FileHandler::saveContent($filepath, $content);
+
+        if ($contentSaveRes->hasError())
+            return $contentSaveRes;
+
+        return $response->ok();
+    }
+
+    /**
+     * @param string $resourceClassName
+     * @param bool $force
+     * @return FunctionResponse
+     */
+    public static function prepare_templates(string $resourceClassName, $force = false)
+    {
+        $response = new FunctionResponse();
+
+        /** @var AbstractResource $resource */
+        $resource = $resourceClassName;
+
+        $result = [];
+
+        $formFilename = 'form.php';
+        $listFilename = 'list.php';
+
+        $tpl_folder_path = FileHandler::packagePathFromArray(['templates', 'collection']);
+        $form_tpl_path = FileHandler::pathFromArray([$tpl_folder_path, $formFilename]);
+        $list_tpl_path = FileHandler::pathFromArray([$tpl_folder_path, $listFilename]);
+
+        $folder_name = $resource::getModel()->getTableName();
+
+        $dest_tpl_folder_path = FileHandler::projectPathFromArray(['templates', $folder_name]);
+        $dest_form_tpl_path = FileHandler::pathFromArray([$dest_tpl_folder_path, $formFilename]);
+        $dest_list_tpl_path = FileHandler::pathFromArray([$dest_tpl_folder_path, $listFilename]);
+
+        if (FileHandler::fileExists($dest_tpl_folder_path) === false)
+            FileHandler::createFolder($dest_tpl_folder_path);
+
+        $form_copy_response = new FunctionResponse();
+        if ($force === false && FileHandler::fileExists($dest_form_tpl_path))
+            $form_copy_response->fail('Form file exists and $force === false');
+        else
+            $form_copy_response = FileHandler::copyFileToFolder($form_tpl_path, $dest_tpl_folder_path);
+
+        $result['form_copy'] = $form_copy_response;
+
+        if ($form_copy_response->isOK())
+            $result['form_prepare'] = self::prepare_form_template($resource, $dest_form_tpl_path);
+
+        $list_copy_response = new FunctionResponse();
+        if ($force === false && FileHandler::fileExists($dest_list_tpl_path))
+            $list_copy_response->fail('List file exists and $force === false');
+        else
+            $list_copy_response = FileHandler::copyFileToFolder($list_tpl_path, $dest_tpl_folder_path);
+
+        $result['list_copy'] = $list_copy_response;
+
+        if ($list_copy_response->isOK())
+            $result['list_prepare'] = self::prepare_list_template($resource, $dest_list_tpl_path);
+
+        $result['controller_prepare'] = self::prepare_controller($resource, $folder_name);
+
+        return $response->okOrFail((
+            $form_copy_response->isOK()
+            && $list_copy_response->isOK()
+            && $result['form_prepare']->isOK()
+            && $result['list_prepare']->isOK()
+            && $result['controller_prepare']->isOK()
+        ), $result);
+    }
 
     /**
      * @param $jsonContent
@@ -72,7 +199,7 @@ class DBGenerator
 
         $responses['resource'] = self::createResource($create_resource, $table, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
 
-        return $response->ok('success', $responses);
+        return $response->result($responses);
     }
 
     private static function formatFields($fields)
@@ -149,7 +276,9 @@ class DBGenerator
     const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
     const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
     const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
-
+    
+    // custom route constants
+    
     public static function registerRoutes(RoutingConfigurator \$routes)
     {
         self::addRoute(\$routes, self::GET_LIST);
@@ -159,6 +288,8 @@ class DBGenerator
         self::addRoute(\$routes, self::POST_CREATE);
         self::addRoute(\$routes, self::POST_REMOVE);
         self::addRoute(\$routes, self::POST_UNDO_REMOVE);
+        
+        // custom route registration
     }";
 
         $routingConfiguratorClass = 'use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;';
@@ -235,8 +366,7 @@ class $name extends AbstractController
     const EXCLUDED_CREATE_PARAMS = $excluded_param;
 
     const TEMPLATE_LIST = 'collection/list';
-    const TEMPLATE_EDIT = 'collection/edit';
-    const TEMPLATE_NEW = 'collection/new';
+    const TEMPLATE_FORM = 'collection/form';
 
     /** @var $resource */
     public \$resource = $resource::class;
@@ -257,7 +387,7 @@ class $name extends AbstractController
 
     public function getList()
     {
-        \$limit = \$this->request->query->get('limit', 20);
+        \$limit = \$this->request->query->get('limit', 255);
         \$offset = \$this->request->query->get('offset', 0);
         \$order = \$this->request->query->get('order', DBOrder::ASC);
         \$order_by = \$this->request->query->get('order_by', DBModel::ID);
@@ -276,7 +406,7 @@ class $name extends AbstractController
         /** @var {$entity} \$entity */
         \$entity = \$this->service::get(\$this->db, \$id);
 
-        return \$this->viewResponse(self::TEMPLATE_EDIT, ['entity' => \$entity, 'resource' => \$this->resource]);
+        return \$this->viewResponse(self::TEMPLATE_FORM, ['entity' => \$entity, 'resource' => \$this->resource]);
     }
 
     public function postUpdate(\$id)
@@ -299,7 +429,9 @@ class $name extends AbstractController
 
     public function getNew()
     {
-        return \$this->viewResponse(self::TEMPLATE_NEW, ['resource' => \$this->resource]);
+        \$entity = new {$entity}();
+        
+        return \$this->viewResponse(self::TEMPLATE_FORM, ['entity' => \$entity, 'resource' => \$this->resource]);
     }
 
     public function postCreate()

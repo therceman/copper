@@ -2,12 +2,10 @@
 
 namespace Copper\Component\CP;
 
-use Copper\Component\CP\DB\DBGenerator;
+use Copper\Component\CP\Service\ResourceGenService;
 use Copper\Component\DB\DBService;
 use Copper\Controller\AbstractController;
-use Copper\Entity\AbstractEntity;
-use Copper\FileReader;
-use Copper\FunctionResponse;
+use Copper\FileHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;
@@ -52,9 +50,6 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_SEED:
                 return $this->db_seed();
-                break;
-            case self::ACTION_DB_GEN_MODEL_FIELDS:
-                return $this->db_gen_model_fields();
                 break;
             case self::ACTION_DB_TEST:
                 return $this->db_test();
@@ -116,30 +111,6 @@ class CPController extends AbstractController
         return $this->response(PHP_EOL . '<br>ok');
     }
 
-    private function db_gen_model_fields()
-    {
-        $response = new FunctionResponse();
-
-        $className = $this->request->get('class_name');
-
-        /** @var AbstractEntity $entity */
-        $entity = new $className();
-
-        $fields = $entity->toArray();
-
-        $out = "\r\n\r\n";
-
-        foreach ($fields as $fieldKey => $fieldValue) {
-            $out .= 'const ' . strtoupper($fieldKey) . " = '$fieldKey';\r\n";
-        }
-
-        $response->success("ok", $out);
-
-        echo '<pre>' . print_r($response, true) . '</pre>';
-
-        return $this->response(PHP_EOL . '<br>ok');
-    }
-
     private function db_test()
     {
         $test = new TestDB($this->db);
@@ -151,7 +122,7 @@ class CPController extends AbstractController
 
     private function db_generator()
     {
-        $resourceList = FileReader::getClassNamesInFolder(Kernel::getProjectPath() . '/src/Resource')->result;
+        $resourceList = FileHandler::getClassNamesInFolder(Kernel::getProjectPath() . '/src/Resource')->result;
         /** @var AbstractResource $resource */
         $resource = $this->request->get('resource', null);
 
@@ -160,6 +131,11 @@ class CPController extends AbstractController
 
         $migrate = $this->request->request->getBoolean('migrate', false);
         $migrate_force = $this->request->request->getBoolean('migrate_force', false);
+
+        if ($this->request->request->get('action') === 'prepare_templates') {
+            $tpl_prepare_response = ResourceGenService::prepare_templates($resource, $this->request->request->get('force', false));
+            return $this->json($tpl_prepare_response);
+        }
 
         if ($resource && $seed) {
             $seed_result = DBService::seedClassName($resource::getSeedClassName(), $this->db, ($seed_force !== false));
@@ -184,7 +160,7 @@ class CPController extends AbstractController
     {
         $content = $this->request->getContent();
 
-        $response = DBGenerator::run($content);
+        $response = ResourceGenService::run($content);
 
         return $this->json($response);
     }

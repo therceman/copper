@@ -8,6 +8,8 @@ use Copper\ArrayReader;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSeed;
 use Copper\Entity\AbstractEntity;
+use Copper\FileHandler;
+use Copper\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
@@ -27,14 +29,58 @@ abstract class AbstractResource
     const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
 
     /**
+     * @param string|boolean $className
+     *
+     * @return string
+     */
+    private static function extractNameFromClassName($className)
+    {
+        return ($className === false) ? '' : ArrayReader::lastValue(explode('\\', $className));
+    }
+
+    private static function getPhpFilePath(string $folderPath, string $name)
+    {
+        if (trim($name) === '')
+            return '';
+
+        return FileHandler::pathFromArray([$folderPath, $name . '.php']);
+    }
+
+    // --------------------------
+
+    /**
      * @return string
      */
     abstract static function getModelClassName();
+
+    static function getModelPath()
+    {
+        return self::getPhpFilePath(Kernel::getProjectModelPath(), self::getModelName());
+    }
+
+    static function getModelName()
+    {
+        return self::extractNameFromClassName(static::getModelClassName());
+    }
+
+    // --------------------------
 
     /**
      * @return string
      */
     abstract static function getEntityClassName();
+
+    static function getEntityPath()
+    {
+        return self::getPhpFilePath(Kernel::getProjectEntityPath(), self::getEntityName());
+    }
+
+    static function getEntityName()
+    {
+        return self::extractNameFromClassName(static::getEntityClassName());
+    }
+
+    // --------------------------
 
     /**
      * @return string|false
@@ -44,6 +90,18 @@ abstract class AbstractResource
         return false;
     }
 
+    static function getControllerPath()
+    {
+        return self::getPhpFilePath(Kernel::getProjectControllerPath(), self::getControllerName());
+    }
+
+    static function getControllerName()
+    {
+        return self::extractNameFromClassName(static::getControllerClassName());
+    }
+
+    // --------------------------
+
     /**
      * @return string|false
      */
@@ -51,6 +109,18 @@ abstract class AbstractResource
     {
         return false;
     }
+
+    static function getServicePath()
+    {
+        return self::getPhpFilePath(Kernel::getProjectServicePath(), self::getServiceName());
+    }
+
+    static function getServiceName()
+    {
+        return self::extractNameFromClassName(static::getServiceClassName());
+    }
+
+    // --------------------------
 
     /**
      * @return string|false
@@ -60,10 +130,34 @@ abstract class AbstractResource
         return false;
     }
 
-    static function registerRoutes(RoutingConfigurator $routes)
+    static function getSeedPath()
     {
-        return $routes;
+        return self::getPhpFilePath(Kernel::getProjectSeedPath(), self::getSeedName());
     }
+
+    static function getSeedName()
+    {
+        return self::extractNameFromClassName(static::getSeedClassName());
+    }
+
+    // --------------------------
+
+    static function getClassName()
+    {
+        return static::class;
+    }
+
+    static function getPath()
+    {
+        return self::getPhpFilePath(Kernel::getProjectResourcePath(), self::getName());
+    }
+
+    static function getName()
+    {
+        return self::extractNameFromClassName(static::getClassName());
+    }
+
+    // --------------------------
 
     /**
      * @return mixed|false
@@ -102,9 +196,11 @@ abstract class AbstractResource
         return self::$models[static::class];
     }
 
-    static function getName()
+    // --------------------------
+
+    static function registerRoutes(RoutingConfigurator $routes)
     {
-        return ArrayReader::lastValue(explode('\\', static::class));
+        return $routes;
     }
 
     /**

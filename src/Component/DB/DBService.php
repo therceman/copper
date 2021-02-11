@@ -4,7 +4,7 @@
 namespace Copper\Component\DB;
 
 
-use Copper\FileReader;
+use Copper\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Kernel;
 use PDOException;
@@ -214,7 +214,7 @@ class DBService
     {
         $folderPath = Kernel::getProjectPath() . '/src/' . $folder;
 
-        return FileReader::getClassNamesInFolder($folderPath);
+        return FileHandler::getClassNamesInFolder($folderPath);
     }
 
     /**
