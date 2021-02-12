@@ -59,6 +59,20 @@ abstract class DBModel
     /**
      * @param $name
      *
+     * @return array
+     */
+    public function getFieldEnumValues($name)
+    {
+        $field = $this->getFieldByName($name);
+
+        $length = $field->getLength();
+
+        return (is_array($length)) ? $length : [];
+    }
+
+    /**
+     * @param $name
+     *
      * @return DBModelField|null
      */
     public function getFieldByName($name)
@@ -285,7 +299,8 @@ abstract class DBModel
      *
      * @return array
      */
-    public function doLimitSelect(int $limit, $offset = 0, DBCondition $condition = null, array $columns = [], DBOrder $order = null, $returnRemoved = false) {
+    public function doLimitSelect(int $limit, $offset = 0, DBCondition $condition = null, array $columns = [], DBOrder $order = null, $returnRemoved = false)
+    {
         return $this->doSelect($condition, $columns, $order, $limit, $offset, $returnRemoved);
     }
 

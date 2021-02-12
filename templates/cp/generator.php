@@ -8,6 +8,10 @@ use Copper\Resource\AbstractResource;
 
 // TODO only entity fields
 // TODO validation type for field
+// TODO remove resource
+// TODO rename resource
+// TODO add new route
+// TODO remove route
 
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
@@ -213,6 +217,10 @@ if ($resource !== null) {
         border: 1px solid black;
         text-align: center;
         padding: 3px 5px;
+    }
+
+    table td select {
+        max-width: 175px;
     }
 
     table tr:hover {
@@ -628,6 +636,17 @@ if ($resource !== null) {
                 let TD = document.createElement('td');
 
                 TD.innerText = val;
+
+                if (field.type === ENUM && key === 'length') {
+                    let SELECT = document.createElement('select');
+                    TD.innerText.split(',').forEach(entry => {
+                        let OPTION = document.createElement('option');
+                        OPTION.setAttribute('value', entry);
+                        OPTION.innerText = entry;
+                        SELECT.add(OPTION);
+                    })
+                    TD.innerHTML = SELECT.outerHTML;
+                }
 
                 TR.appendChild(TD);
             });

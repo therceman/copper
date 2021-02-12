@@ -10,6 +10,7 @@ use Copper\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
+use Copper\StringReader;
 
 class ResourceGenService
 {
@@ -612,11 +613,16 @@ XML;
 
             if ($fType === DBModelField::ENUM) {
                 foreach (explode(',', $fieldData['length']) as $enumKey) {
-                    $enumKeyUp = strtoupper($enumKey);
-                    $constFields .= self::T . "const {$fNameUp}__$enumKeyUp = '$enumKey';\r\n";
+                    $enumKeyClean = trim($enumKey);
+                    $enumKeyUp = strtoupper(StringReader::transliterate($enumKeyClean, '_'));
+                    $constFields .= self::T . "const {$fNameUp}__$enumKeyUp = '$enumKeyClean';\r\n";
                     $fLength = str_replace("'" . $enumKey . "'", "self::{$fNameUp}__$enumKeyUp", $fLength);
                 }
-                $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper($fDefault), $fDefault);
+
+                $fLength = str_replace('[', '[' . PHP_EOL . ' ' . self::T2 . self::T, $fLength);
+                $fLength = str_replace(']', PHP_EOL . self::T2 . ']', $fLength);
+                $fLength = str_replace(',', ',' . PHP_EOL . self::T2 . self::T, $fLength);
+                $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper(StringReader::transliterate($fDefault, '_')), $fDefault);
             }
 
             $fieldSetStr = self::T2 . '$this->' . "addField(self::$fNameUp, DBModelField::$fType";
