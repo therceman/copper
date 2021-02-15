@@ -219,8 +219,8 @@ if ($resource !== null) {
         padding: 3px 5px;
     }
 
-    table td select {
-        max-width: 175px;
+    table td select.enum {
+        width: 175px;
     }
 
     table tr:hover {
@@ -639,6 +639,7 @@ if ($resource !== null) {
 
                 if (field.type === ENUM && key === 'length') {
                     let SELECT = document.createElement('select');
+                    SELECT.classList.add('enum');
                     TD.innerText.split(',').forEach(entry => {
                         let OPTION = document.createElement('option');
                         OPTION.setAttribute('value', entry);
@@ -921,7 +922,7 @@ if ($resource !== null) {
         if ($name.value === 'id') {
             $auto_increment.checked = true;
             $index.value = INDEX_PRIMARY;
-            $type.value = MEDIUMINT;
+            $type.value = SMALLINT;
             $attributes.value = ATTR_UNSIGNED;
         }
     })

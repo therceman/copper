@@ -293,36 +293,62 @@ abstract class DBModel
      * @param int $limit
      * @param int $offset
      * @param DBCondition|null $condition
-     * @param array $columns
+     * @param string|string[] $columns
      * @param DBOrder|null $order
+     * @param string $groupBy
      * @param boolean $returnRemoved
      *
-     * @return array
+     * @return AbstractEntity[]
      */
-    public function doLimitSelect(int $limit, $offset = 0, DBCondition $condition = null, array $columns = [], DBOrder $order = null, $returnRemoved = false)
+    public function doSelectLimit(int $limit, $offset = 0, DBCondition $condition = null, $columns = [], DBOrder $order = null, $groupBy = null, $returnRemoved = false)
     {
-        return $this->doSelect($condition, $columns, $order, $limit, $offset, $returnRemoved);
+        return $this->doSelect($condition, $columns, $order, $limit, $offset, $groupBy, $returnRemoved);
+    }
+
+    /**
+     * @param string $column
+     * @param DBCondition|null $condition
+     * @param string|string[] $columns
+     * @param DBOrder|null $order
+     * @param int $limit
+     * @param int $offset
+     * @param boolean $returnRemoved
+     *
+     * @return AbstractEntity[]
+     */
+    public function doSelectUnique(string $column, DBCondition $condition = null, $columns = [], DBOrder $order = null, $limit = null, $offset = null, $returnRemoved = false) {
+        if ($order === null)
+            $order = DBOrder::ASC($this, self::ID);
+
+        return $this->doSelect($condition, $columns, $order, $limit, $offset, $column, $returnRemoved);
     }
 
     /**
      * @param DBCondition $condition
-     * @param string[] $columns
+     * @param string|string[] $columns
      * @param DBOrder|null $order
      * @param int $limit
      * @param int $offset
+     * @param string $groupBy
      * @param bool $returnRemoved
      *
-     * @return array
+     * @return AbstractEntity[]
      */
-    public function doSelect(DBCondition $condition = null, array $columns = [], DBOrder $order = null, $limit = null, $offset = null, $returnRemoved = false)
+    public function doSelect(DBCondition $condition = null, $columns = [], DBOrder $order = null, $limit = null, $offset = null, $groupBy = null, $returnRemoved = false)
     {
         $db = Kernel::getDb();
+
+        if (is_array($columns) === false)
+            $columns = [$columns];
 
         try {
             $stm = $db->query->from($this->getTableName());
 
             if ($limit !== null)
                 $stm = $stm->limit($limit);
+
+            if ($groupBy !== null)
+                $stm = $stm->groupBy($groupBy);
 
             if ($offset !== null)
                 $stm = $stm->offset($offset);

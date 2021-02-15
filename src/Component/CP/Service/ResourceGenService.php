@@ -299,6 +299,9 @@ class ResourceGenService
             $routingConfiguratorClass = '';
         }
 
+        $seedMethodAnnotation = ($seed !== false) ? '@method static ' . $seed . ' getSeed()' : '';
+        $serviceMethodAnnotation = ($service !== false) ? '@method static ' . $service . ' getService()' : '';
+
         $content = "<?php
 
 namespace App\Resource;
@@ -311,6 +314,16 @@ $serviceClass
 use Copper\Resource\AbstractResource;
 $routingConfiguratorClass
 
+/**
+ * Class LeProduct
+ *
+ * @method static $model getModel()
+ * @method static $entity getEntity()
+ * $serviceMethodAnnotation
+ * $seedMethodAnnotation
+ *
+ * @package App\Resource
+ */
 class $name extends AbstractResource
 {
     static function getEntityClassName()
