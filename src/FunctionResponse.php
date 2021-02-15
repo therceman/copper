@@ -66,7 +66,7 @@ class FunctionResponse
      */
     public function okOrFail(bool $status, $result = false)
     {
-        if ($status === false)
+        if ($status !== true)
             return $this->error('Failed Result.', $result);
 
         return $this->success("Success Result!", $result);

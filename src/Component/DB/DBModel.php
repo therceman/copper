@@ -324,6 +324,8 @@ abstract class DBModel
     }
 
     /**
+     * // TODO replace params with DBSelectParams class
+     *
      * @param DBCondition $condition
      * @param string|string[] $columns
      * @param DBOrder|null $order
