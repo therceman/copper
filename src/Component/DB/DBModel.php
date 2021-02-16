@@ -440,8 +440,7 @@ abstract class DBModel
             if ($resultId === false)
                 throw new Exception($stm->getMessage());
 
-            $entity->id = $resultId;
-            $response->result($entity->toArray());
+            $response->result($resultId);
         } catch (Exception $e) {
             $response->fail($e->getMessage(), $formattedInsertData);
         }
