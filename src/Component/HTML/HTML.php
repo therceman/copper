@@ -53,7 +53,7 @@ class HTML
 
     /**
      * @param string $text
-     * @param integer|null $colspan
+     * @param int|null $colspan
      *
      * @return HTMLElement
      */
@@ -69,7 +69,7 @@ class HTML
 
     /**
      * @param string $text
-     * @param integer|null $colspan
+     * @param int|null $colspan
      *
      * @return HTMLElement
      */

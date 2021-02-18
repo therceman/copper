@@ -249,7 +249,7 @@ class DBCondition
 
     /**
      * @param string $field
-     * @param integer[]|string[] $value
+     * @param int[]|string[] $value
      *
      * @return DBCondition
      */
@@ -260,7 +260,7 @@ class DBCondition
 
     /**
      * @param string $field
-     * @param integer[]|string[] $value
+     * @param int[]|string[] $value
      *
      * @return DBCondition
      */

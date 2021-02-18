@@ -1,5 +1,7 @@
 Copper is a **PHP Framework** based on [Symfony][1] with routing and simplified Controller -> View (Templating) system
 
+---
+
 See [The Copper Skeleton][0] for a minimal and empty Copper project which you can base your new projects on
 
 Installation
