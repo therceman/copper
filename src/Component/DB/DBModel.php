@@ -292,56 +292,95 @@ abstract class DBModel
     /**
      * @param int $limit
      * @param int $offset
-     * @param DBCondition|null $condition
-     * @param string|string[] $columns
-     * @param DBOrder|null $order
-     * @param string $groupBy
-     * @param boolean $returnRemoved
+     * @param DBSelectArgs $args
      *
      * @return AbstractEntity[]
      */
-    public function doSelectLimit(int $limit, $offset = 0, DBCondition $condition = null, $columns = [], DBOrder $order = null, $groupBy = null, $returnRemoved = false)
+    public function doSelectLimit(int $limit, $offset = 0, DBSelectArgs $args = null)
     {
-        return $this->doSelect($condition, $columns, $order, $limit, $offset, $groupBy, $returnRemoved);
+        if ($args === null)
+            $args = new DBSelectArgs();
+
+        if ($args->getLimit() === null)
+            $args->setLimit($limit);
+
+        if ($args->getOffset() === null)
+            $args->setOffset($offset);
+
+        return $this->doSelect($args);
     }
 
     /**
      * @param string $column
-     * @param DBCondition|null $condition
-     * @param string|string[] $columns
-     * @param DBOrder|null $order
-     * @param int $limit
-     * @param int $offset
-     * @param boolean $returnRemoved
+     * @param DBSelectArgs $args
      *
      * @return AbstractEntity[]
      */
-    public function doSelectUnique(string $column, DBCondition $condition = null, $columns = [], DBOrder $order = null, $limit = null, $offset = null, $returnRemoved = false) {
-        if ($order === null)
-            $order = DBOrder::ASC($this, self::ID);
+    public function doSelectUnique(string $column, DBSelectArgs $args = null)
+    {
+        if ($args === null)
+            $args = new DBSelectArgs();
 
-        return $this->doSelect($condition, $columns, $order, $limit, $offset, $column, $returnRemoved);
+        if ($args->getOrder() === null)
+            $args->setOrder(DBOrder::ASC($this, self::ID));
+
+        if ($args->getGroup() === null)
+            $args->setGroup($column);
+
+        return $this->doSelect($args);
     }
 
     /**
-     * // TODO replace params with DBSelectParams class
+     * @param DBSelectArgs $args
      *
-     * @param DBCondition $condition
-     * @param string|string[] $columns
-     * @param DBOrder|null $order
-     * @param int $limit
-     * @param int $offset
-     * @param string $groupBy
-     * @param bool $returnRemoved
+     * @return AbstractEntity|null
+     */
+    public function doSelectFirst(DBSelectArgs $args)
+    {
+        $entities = $this->doSelect($args);
+
+        return (count($entities) > 0) ? $entities[0] : null;
+    }
+
+    public function doSelectFirstWhere(DBWhere $where, DBSelectArgs $args = null)
+    {
+        $entities = $this->doSelectWhere($where, $args);
+
+        return (count($entities) > 0) ? $entities[0] : null;
+    }
+
+    /**
+     * @param DBWhere $where
+     * @param DBSelectArgs|null $args
      *
      * @return AbstractEntity[]
      */
-    public function doSelect(DBCondition $condition = null, $columns = [], DBOrder $order = null, $limit = null, $offset = null, $groupBy = null, $returnRemoved = false)
+    public function doSelectWhere(DBWhere $where, DBSelectArgs $args = null)
+    {
+        if ($args === null)
+            $args = new DBSelectArgs();
+
+        if ($args->getWhere() === null)
+            $args->setWhere($where);
+
+        return $this->doSelect($args);
+    }
+
+    /**
+     * @param DBSelectArgs $args
+     *
+     * @return AbstractEntity[]
+     */
+    public function doSelect(DBSelectArgs $args)
     {
         $db = Kernel::getDb();
 
-        if (is_array($columns) === false)
-            $columns = [$columns];
+        $columns = $args->getColumns();
+        $limit = $args->getLimit();
+        $group = $args->getGroup();
+        $offset = $args->getOffset();
+        $where = $args->getWhere();
+        $order = $args->getOrder();
 
         try {
             $stm = $db->query->from($this->getTableName());
@@ -349,20 +388,17 @@ abstract class DBModel
             if ($limit !== null)
                 $stm = $stm->limit($limit);
 
-            if ($groupBy !== null)
-                $stm = $stm->groupBy($groupBy);
+            if ($group !== null)
+                $stm = $stm->groupBy($group);
 
             if ($offset !== null)
                 $stm = $stm->offset($offset);
 
-            if (count($columns) > 0)
+            if ($columns !== null && count($columns) > 0)
                 $stm = $stm->select($columns, true);
 
-            if ($condition !== null)
-                $stm = $condition->buildForSelectStatement($stm);
-
-            if ($returnRemoved === false && $this->hasFields([DBModel::REMOVED_AT])->isOK())
-                $stm = $stm->where(DBModel::REMOVED_AT, null);
+            if ($where !== null)
+                $stm = $where->buildForStatement($stm);
 
             if ($order !== false && $order instanceof DBOrder)
                 $stm->order($order);
@@ -449,12 +485,12 @@ abstract class DBModel
     }
 
     /**
-     * @param DBCondition $condition
+     * @param DBWhere $where
      * @param array $fields
      *
      * @return FunctionResponse
      */
-    public function doUpdate(DBCondition $condition, array $fields)
+    public function doUpdate(DBWhere $where, array $fields)
     {
         $response = new FunctionResponse();
 
@@ -468,8 +504,8 @@ abstract class DBModel
         try {
             $stm = $db->query->update($this->getTableName(), $formattedUpdateData);
 
-            if ($condition !== null)
-                $stm = $condition->buildForSelectStatement($stm);
+            if ($where !== null)
+                $stm = $where->buildForStatement($stm);
 
             $resultRowCount = $stm->execute();
 
@@ -493,15 +529,15 @@ abstract class DBModel
      */
     public function doUpdateById($id, array $fields, $idField = DBModel::ID)
     {
-        return $this->doUpdate(DBCondition::is($idField, $id), $fields);
+        return $this->doUpdate(DBWhere::is($idField, $id), $fields);
     }
 
     /**
-     * @param DBCondition $condition
+     * @param DBWhere $where
      *
      * @return FunctionResponse
      */
-    public function doDelete(DBCondition $condition)
+    public function doDelete(DBWhere $where)
     {
         $response = new FunctionResponse();
 
@@ -510,8 +546,8 @@ abstract class DBModel
         try {
             $stm = $db->query->delete($this->getTableName());
 
-            if ($condition !== null)
-                $stm = $condition->buildForSelectStatement($stm);
+            if ($where !== null)
+                $stm = $where->buildForStatement($stm);
 
             $resultRowCount = $stm->execute();
 
@@ -534,7 +570,7 @@ abstract class DBModel
      */
     public function doDeleteById($id, $idField = DBModel::ID)
     {
-        return $this->doDelete(DBCondition::is($idField, $id));
+        return $this->doDelete(DBWhere::is($idField, $id));
     }
 
 }

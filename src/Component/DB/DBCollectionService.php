@@ -117,7 +117,7 @@ abstract class DBCollectionService
      * Usage: find($db, ['enabled' => true], 20, 20) - Find all enabled users and show second page of results.
      *
      * @param DBHandler $db Database
-     * @param array|DBCondition $filter Filter: Key => Value (array) OR DBCondition::action
+     * @param array|DBWhere $filter Filter: Key => Value (array) OR DBWhere::action
      * @param int $limit Limit
      * @param int $offset Offset
      * @param bool|DBOrder $order Order
@@ -130,8 +130,8 @@ abstract class DBCollectionService
         try {
             $stm = $db->query->from(self::getTable())->limit($limit)->offset($offset);
 
-            if ($filter instanceof DBCondition)
-                $stm = $filter->buildForSelectStatement($stm);
+            if ($filter instanceof DBWhere)
+                $stm = $filter->buildForStatement($stm);
             else
                 $stm = $stm->where($filter);
 

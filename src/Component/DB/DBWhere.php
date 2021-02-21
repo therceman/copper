@@ -8,7 +8,7 @@ use Envms\FluentPDO\Queries\Delete;
 use Envms\FluentPDO\Queries\Select;
 use Envms\FluentPDO\Queries\Update;
 
-class DBCondition
+class DBWhere
 {
     const IS = 1;
     const NOT = 2;
@@ -29,11 +29,11 @@ class DBCondition
     const CHAIN_OR = 21;
     const CHAIN_AND = 22;
 
-    /** @var DBConditionEntry[] */
+    /** @var DBWhereEntry[] */
     private $conditions;
 
     /**
-     * DBCondition constructor.
+     * DBWhere constructor.
      *
      * @param string $field
      * @param string|int|float|array|null $value
@@ -56,11 +56,11 @@ class DBCondition
      */
     private function addCondition(string $field, $value, int $cond, int $chain)
     {
-        $this->conditions[] = new DBConditionEntry($field, $value, $cond, $chain);
+        $this->conditions[] = new DBWhereEntry($field, $value, $cond, $chain);
     }
 
     /**
-     * @return DBConditionEntry
+     * @return DBWhereEntry
      */
     private function lastCondition()
     {
@@ -73,7 +73,7 @@ class DBCondition
      * @param string $field
      * @param int|float $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function lt(string $field, $value)
     {
@@ -86,7 +86,7 @@ class DBCondition
      * @param string $field
      * @param int|float $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function ltOrEq(string $field, $value)
     {
@@ -99,7 +99,7 @@ class DBCondition
      * @param string $field
      * @param int|float $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function gt(string $field, $value)
     {
@@ -112,7 +112,7 @@ class DBCondition
      * @param string $field
      * @param int|float $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function gtOrEq(string $field, $value)
     {
@@ -125,7 +125,7 @@ class DBCondition
      * @param string $field
      * @param mixed $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function is(string $field, $value)
     {
@@ -138,7 +138,7 @@ class DBCondition
      * @param string $field
      * @param mixed $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function not(string $field, $value)
     {
@@ -153,7 +153,7 @@ class DBCondition
      * @param int|float $start
      * @param int|float $end
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function between(string $field, $start, $end)
     {
@@ -168,7 +168,7 @@ class DBCondition
      * @param int|float $start
      * @param int|float $end
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function betweenInclude(string $field, $start, $end)
     {
@@ -183,7 +183,7 @@ class DBCondition
      * @param int|float $start
      * @param int|float $end
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function notBetween(string $field, $start, $end)
     {
@@ -198,7 +198,7 @@ class DBCondition
      * @param int|float $start
      * @param int|float $end
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function notBetweenInclude(string $field, $start, $end)
     {
@@ -225,7 +225,7 @@ class DBCondition
      * @param string $field
      * @param mixed $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function like(string $field, $value)
     {
@@ -240,7 +240,7 @@ class DBCondition
      * @param string $field
      * @param mixed $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function notLike(string $field, $value)
     {
@@ -251,7 +251,7 @@ class DBCondition
      * @param string $field
      * @param int[]|string[] $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function in(string $field, array $value)
     {
@@ -262,7 +262,7 @@ class DBCondition
      * @param string $field
      * @param int[]|string[] $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function notIn(string $field, array $value)
     {
@@ -289,7 +289,7 @@ class DBCondition
      * @param string $field
      * @param mixed $value
      *
-     * @return DBCondition
+     * @return DBWhere
      */
     public static function isLike(string $field, $value)
     {
@@ -553,7 +553,7 @@ class DBCondition
      * @param Select|Delete|Update $stm
      * @return Select
      */
-    public function buildForSelectStatement($stm)
+    public function buildForStatement($stm)
     {
         foreach ($this->conditions as $cond) {
             $value = $cond->formatValue();

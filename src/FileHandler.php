@@ -16,6 +16,9 @@ class FileHandler
 
     private static function extractNamespaceFromFile($file)
     {
+        if (is_dir($file))
+           return null;
+
         $src = file_get_contents($file);
 
         if (preg_match('#^namespace\s+(.+?);$#sm', $src, $m)) {
@@ -168,7 +171,12 @@ class FileHandler
         $classNames = [];
 
         foreach ($response->result as $file) {
-            $classNames[] = self::getFilePathClassName($folderPath . '/' . $file);
+            $filePath = $folderPath . '/' . $file;
+
+            if (is_dir($filePath))
+                continue;
+
+            $classNames[] = self::getFilePathClassName($filePath);
         }
 
         return $response->result($classNames);

@@ -15,7 +15,7 @@ class DBOrder
     private $model;
 
     /**
-     * DBCondition constructor.
+     * DBOrder constructor.
      *
      * @param string $field
      * @param DBModel $model

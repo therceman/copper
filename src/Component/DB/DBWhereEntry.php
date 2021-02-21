@@ -4,7 +4,7 @@
 namespace Copper\Component\DB;
 
 
-class DBConditionEntry
+class DBWhereEntry
 {
     /** @var string */
     public $field;
@@ -36,10 +36,10 @@ class DBConditionEntry
             $value = intval($value);
 
         if (in_array($this->cond, [
-            DBCondition::BETWEEN,
-            DBCondition::BETWEEN_INCLUDE,
-            DBCondition::NOT_BETWEEN,
-            DBCondition::NOT_BETWEEN_INCLUDE
+            DBWhere::BETWEEN,
+            DBWhere::BETWEEN_INCLUDE,
+            DBWhere::NOT_BETWEEN,
+            DBWhere::NOT_BETWEEN_INCLUDE
         ])) {
             $value[0] = DBModel::formatNumber($value[0]);
             $value[1] = DBModel::formatNumber($value[1]);

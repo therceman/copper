@@ -5,11 +5,12 @@ namespace Copper\Test\DB;
 
 
 use Copper\Component\DB\DBService;
-use Copper\Component\DB\DBCondition;
+use Copper\Component\DB\DBWhere;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBOrder;
 use Copper\FunctionResponse;
+use Copper\Kernel;
 
 class TestDB
 {
@@ -80,7 +81,7 @@ class TestDB
 
         $query = $migrateResponse->result;
 
-        if ($query !== "CREATE TABLE IF NOT EXISTS `arkadia.trade`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT UNSIGNED  NOT NULL DEFAULT '2' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
+        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT UNSIGNED  NOT NULL DEFAULT '2' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
             return $response->fail('Wrong Query', $query);
 
         if ($migrateResponse->hasError())
@@ -378,14 +379,14 @@ class TestDB
         return $response->ok();
     }
 
-    private function db_condition()
+    private function db_where()
     {
         $response = new FunctionResponse();
 
         // is
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::is(TestDBModel::NAME, "Admin Сделанный lietotāj's")
+            DBWhere::is(TestDBModel::NAME, "Admin Сделанный lietotāj's")
         );
 
         if ($entityList[0]->id !== 2)
@@ -394,7 +395,7 @@ class TestDB
         // not
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::not(TestDBModel::NAME, null)
+            DBWhere::not(TestDBModel::NAME, null)
         );
 
         if ($entityList[0]->id !== 2)
@@ -403,7 +404,7 @@ class TestDB
         // lt
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::lt(TestDBModel::SALARY, 57)
+            DBWhere::lt(TestDBModel::SALARY, 57)
         );
 
         if ($entityList[0]->id !== 6)
@@ -412,7 +413,7 @@ class TestDB
         // ltOrEq
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::ltOrEq(TestDBModel::SALARY, 57)
+            DBWhere::ltOrEq(TestDBModel::SALARY, 57)
         );
 
         if ($entityList[1]->id !== 6) // by default sorted by ID ASC
@@ -421,7 +422,7 @@ class TestDB
         // gt
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::gt(TestDBModel::SALARY, 56)
+            DBWhere::gt(TestDBModel::SALARY, 56)
         );
 
         if ($entityList[0]->id !== 1)
@@ -430,7 +431,7 @@ class TestDB
         // gt or eq
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::gtOrEq(TestDBModel::SALARY, 56)
+            DBWhere::gtOrEq(TestDBModel::SALARY, 56)
         );
 
         if ($entityList[4]->id !== 6) // by default sorted by ID ASC
@@ -439,7 +440,7 @@ class TestDB
         // between
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::between(TestDBModel::SALARY, 57, 150)
+            DBWhere::between(TestDBModel::SALARY, 57, 150)
         );
 
         if (count($entityList) !== 2)
@@ -451,7 +452,7 @@ class TestDB
         // between include
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::betweenInclude(TestDBModel::SALARY, 57, 150)
+            DBWhere::betweenInclude(TestDBModel::SALARY, 57, 150)
         );
 
         if (count($entityList) !== 4)
@@ -463,7 +464,7 @@ class TestDB
         // not between
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::notBetween(TestDBModel::SALARY, 57, 150)
+            DBWhere::notBetween(TestDBModel::SALARY, 57, 150)
         );
 
         if (count($entityList) !== 1)
@@ -475,7 +476,7 @@ class TestDB
         // not between include
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::notBetweenInclude(TestDBModel::SALARY, 57, 150)
+            DBWhere::notBetweenInclude(TestDBModel::SALARY, 57, 150)
         );
 
         if (count($entityList) !== 3)
@@ -490,7 +491,7 @@ class TestDB
         // like
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::like(TestDBModel::LOGIN, "__m%"),
+            DBWhere::like(TestDBModel::LOGIN, "__m%"),
             20, 0, false, true);
 
         if (count($entityList) !== 2)
@@ -502,7 +503,7 @@ class TestDB
         // not like
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::notLike(TestDBModel::LOGIN, "%_user"),
+            DBWhere::notLike(TestDBModel::LOGIN, "%_user"),
             20, 0, false, true);
 
         if (count($entityList) !== 3)
@@ -514,7 +515,7 @@ class TestDB
         // in
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::in(TestDBModel::LOGIN, ['admin','user']),
+            DBWhere::in(TestDBModel::LOGIN, ['admin', 'user']),
             20, 0, false, true);
 
         if (count($entityList) !== 2)
@@ -526,7 +527,7 @@ class TestDB
         // not in
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::notIn(TestDBModel::LOGIN, ['admin','user']),
+            DBWhere::notIn(TestDBModel::LOGIN, ['admin', 'user']),
             20, 0, false, true);
 
         if (count($entityList) !== 4)
@@ -540,7 +541,7 @@ class TestDB
         // or chain
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::is(TestDBModel::NAME, "Admin Сделанный lietotāj's")
+            DBWhere::is(TestDBModel::NAME, "Admin Сделанный lietotāj's")
                 ->or(TestDBModel::EMAIL, "user_disabled@arkadia_trade.com")
                 ->or(TestDBModel::SALARY, 57)
         );
@@ -554,7 +555,7 @@ class TestDB
         // and chain
 
         $entityList = TestDBService::find($this->db,
-            DBCondition::isLike(TestDBModel::LOGIN, "_e%")
+            DBWhere::isLike(TestDBModel::LOGIN, "_e%")
                 ->and(TestDBModel::ROLE, 3)
                 ->andBetweenInclude(TestDBModel::SALARY, 56, 200),
             20, 0, false, true);
@@ -585,7 +586,7 @@ class TestDB
         $results[] = ['findFirst', $this->findFirst()];
         $results[] = ['find', $this->find()];
         $results[] = ['DBOrder', $this->db_order()];
-        $results[] = ['DBCondition', $this->db_condition()];
+        $results[] = ['DBWhere', $this->db_where()];
 
         $failedTests = [];
 
