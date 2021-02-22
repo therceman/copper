@@ -5,7 +5,9 @@ namespace Copper\Component\CP\Service;
 
 
 use Copper\ArrayReader;
+use Copper\Component\CP\CPController;
 use Copper\Component\DB\DBModelField;
+use Copper\Component\DB\DBService;
 use Copper\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Kernel;
@@ -200,7 +202,89 @@ class ResourceGenService
 
         $responses['resource'] = self::createResource($create_resource, $table, $model, $entity, $service, $controller, $seed, $resource, $resource_override);
 
+        // add new fields to DB
+        if ($content['new_fields_db_update'] === true)
+            $responses['new_fields_db_update'] = self::addNewFieldsToDB($table, $content['new_fields'], $fields);
+
+
+        // delete removed fields from DB
+
+        // update changed fields in DB
+        if ($content['updated_fields_db_update'] === true)
+            $responses['updated_fields_db_update'] = self::updateFieldsInDB($table, $content['updated_fields'], $fields);
+
+        $responses['return_url'] = Kernel::getRouteUrl(ROUTE_copper_cp_action,
+            ['action' => CPController::ACTION_DB_GENERATOR, 'resource' => 'App\\Resource\\'.$resource],true);
+
         return $response->result($responses);
+    }
+
+    private static function getAfterFieldName($fieldName, $fields) {
+        $afterField = null;
+
+        $prevFieldData = null;
+        foreach ($fields as $fieldData) {
+            if ($fieldData['name'] === $fieldName)
+                $afterField = $prevFieldData['name'];
+
+            $prevFieldData = $fieldData;
+        }
+
+        return $afterField;
+    }
+
+    private static function updateFieldsInDB($table, $updateFields, $fields) {
+        $res = new FunctionResponse();
+
+        $results = [];
+        $isOK = true;
+
+        foreach ($updateFields as $updateFieldData) {
+            $origName = $updateFieldData['orig_name'];
+            $newField = DBModelField::fromArray($updateFieldData);
+            $newFieldStatement = DBService::prepareFieldStatementForDB($newField);
+            $newFieldAfterFieldName = self::getAfterFieldName($newField->getName(), $fields);
+
+            if ($newFieldAfterFieldName !== null)
+                $newFieldStatement = $newFieldStatement . " AFTER `$newFieldAfterFieldName`";
+
+            $queryStatement = "ALTER TABLE `$table` CHANGE `$origName` " . $newFieldStatement;
+
+            $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
+            $results[$newField->getName()] = ($pdoResult !== false);
+
+            if ($pdoResult === false)
+                $isOK = false;
+        }
+
+        return $res->okOrFail($isOK, $results);
+    }
+
+    private static function addNewFieldsToDB($table, $newFields, $fields)
+    {
+        $res = new FunctionResponse();
+
+        $results = [];
+        $isOK = true;
+
+        foreach ($newFields as $newFieldData) {
+            $newField = DBModelField::fromArray($newFieldData);
+            $newFieldStatement = DBService::prepareFieldStatementForDB($newField);
+            $newFieldAfterFieldName = self::getAfterFieldName($newField->getName(), $fields);
+
+            if ($newFieldAfterFieldName !== null)
+                $newFieldStatement = $newFieldStatement . " AFTER `$newFieldAfterFieldName`";
+
+            $queryStatement = "ALTER TABLE `$table` ADD " . $newFieldStatement;
+
+            $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
+            $results[$newField->getName()] = ($pdoResult !== false);
+
+            if ($pdoResult === false)
+                $isOK = false;
+        }
+
+        return $res->okOrFail($isOK, $results);
     }
 
     private static function formatFields($fields)

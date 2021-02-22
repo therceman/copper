@@ -16,6 +16,7 @@ use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
@@ -50,6 +51,8 @@ final class Kernel
     private static $cp;
     /** @var ValidatorHandler */
     private static $validator;
+    /** @var RequestContext */
+    private static $requestContext;
 
     public function __construct()
     {
@@ -208,6 +211,73 @@ final class Kernel
     }
 
     /**
+     * @return RequestContext
+     */
+    public static function getRequestContext(): RequestContext
+    {
+        return self::$requestContext;
+    }
+    
+    // --------------------------
+
+    /**
+     * Generates a URL from the given parameters.
+     *
+     * @param string $name The name of the route
+     * @param array $parameters An array of parameters
+     * @param int $type The type of reference (one of the constants in UrlGeneratorInterface)
+     *
+     * @return string The generated URL
+     */
+    private static function generateRouteUrl(string $name, $parameters = [], $type = UrlGenerator::ABSOLUTE_PATH)
+    {
+        $generator = new UrlGenerator(self::getRoutes(), self::getRequestContext());
+
+        return $generator->generate($name, $parameters, $type);
+    }
+
+    /**
+     * Returns a path relative to the current path, e.g. "../parent-file".
+     *
+     * @param string $name
+     * @param array $parameters
+     * @return string
+     */
+    public static function getRouteRelativePath(string $name, $parameters = [])
+    {
+        return self::generateRouteUrl($name, $parameters, UrlGenerator::RELATIVE_PATH);
+    }
+
+    /**
+     * Returns a scheme-relative URL for the given route, e.g. "//example.com/dir/file".
+     *
+     * @param string $name
+     * @param array $parameters
+     * @return string
+     */
+    public static function getRouteNetworkPath(string $name, $parameters = [])
+    {
+        return self::generateRouteUrl($name, $parameters, UrlGenerator::NETWORK_PATH);
+    }
+
+    /**
+     * Returns the URL (without the scheme and host) for the given route.
+     * If withScheme is enabled, it'll create the URL (with scheme and host) for the given route.
+     *
+     * @param $name
+     * @param array $parameters
+     * @param bool $withScheme
+     *
+     * @return string
+     */
+    public static function getRouteUrl($name, $parameters = [], $withScheme = false)
+    {
+        $type = ($withScheme) ? UrlGenerator::ABSOLUTE_URL : UrlGenerator::ABSOLUTE_PATH;
+
+        return self::generateRouteUrl($name, $parameters, $type);
+    }
+
+    /**
      * Handles Request
      *
      * @param Request $request
@@ -218,6 +288,8 @@ final class Kernel
     {
         $requestContext = new RequestContext();
         $requestContext->fromRequest($request);
+
+        self::$requestContext = $requestContext;
 
         $matcher = new UrlMatcher(self::$routes, $requestContext);
 

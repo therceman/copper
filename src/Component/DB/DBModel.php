@@ -22,7 +22,7 @@ abstract class DBModel
     const ENABLED = 'enabled';
 
     /** @var bool */
-    public $stateFieldsEnabled = false;
+    private $stateFieldsEnabled = false;
 
     /** @var string */
     public $tableName = '';

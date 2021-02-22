@@ -12,6 +12,11 @@ use Copper\Resource\AbstractResource;
 // TODO rename resource
 // TODO add new route
 // TODO remove route
+// TODO add new field to DB table (without loosing all data)
+// :: ALTER TABLE `category` ADD `product_count` SMALLINT UNSIGNED NOT NULL DEFAULT '0' AFTER `enabled`;
+// :: ALTER TABLE `category` ADD `qweqwe` INT NOT NULL
+// TODO remove field from DB table (without loosing all data)
+// ALTER TABLE `category` DROP `product_count`;"
 
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
@@ -591,6 +596,8 @@ if ($resource !== null) {
         index;
         auto_increment;
 
+        orig_name;
+
         constructor(name, type, length, def, attr, isNull, index, auto_increment) {
             this.name = name;
             this.type = type;
@@ -610,6 +617,36 @@ if ($resource !== null) {
 
     /** @type {Field[]}*/
     let fields = [];
+
+    /** @type {Field[]}*/
+    let new_db_fields = [];
+
+    /** @type {Field[]}*/
+    let removed_db_fields = [];
+
+    /** @type {Field[]}*/
+    let updated_db_fields = [];
+
+    function updateDBField(new_field) {
+        updated_db_fields[new_field.orig_name] = new_field;
+    }
+
+    function newDBField(field) {
+        new_db_fields.push(field);
+    }
+
+    function removeDBField(field) {
+        let found_new_field_key = null;
+        new_db_fields.forEach((f, k) => {
+            if (f.name === field.name)
+                found_new_field_key = k;
+        });
+
+        if (found_new_field_key !== null)
+            new_db_fields.splice(found_new_field_key, 1);
+        else
+            removed_db_fields.push(field);
+    }
 
     function generateFields() {
         fields = fields.filter(function (element) {
@@ -632,6 +669,9 @@ if ($resource !== null) {
                 TR.classList.add('selected');
 
             Object.keys(field).forEach(key => {
+                if (key === 'orig_name')
+                    return;
+
                 let val = field[key]
                 let TD = document.createElement('td');
 
@@ -665,8 +705,8 @@ if ($resource !== null) {
             DEL.innerText = 'DEL';
             DEL.setAttribute('style', 'margin-left: 10px;');
             DEL.addEventListener('click', e => {
-                delete fields[key];
-
+                removeDBField(fields[key]);
+                fields.splice(key, 1);
                 generateFields();
             })
             TD.appendChild(DEL);
@@ -789,11 +829,15 @@ if ($resource !== null) {
         fields[selectedFieldKey].index = ($index.value === '') ? false : $index.value;
         fields[selectedFieldKey].auto_increment = ($auto_increment.checked === true);
 
+        updateDBField(fields[selectedFieldKey])
+
         generateFields();
     }
 
     function moveDownSelectedField() {
         let key = selectedFieldKey;
+
+        updateDBField(fields[selectedFieldKey]);
 
         if (key === (fields.length - 1))
             return;
@@ -805,11 +849,12 @@ if ($resource !== null) {
         selectedFieldKey = selectedFieldKey + 1;
 
         generateFields();
-
     }
 
     function moveUpSelectedField() {
         let key = selectedFieldKey;
+
+        updateDBField(fields[selectedFieldKey]);
 
         if (key === 0)
             return;
@@ -914,6 +959,8 @@ if ($resource !== null) {
             return alert(`Failed to add [${field.name}]. Field with index = PRIMARY already exists: [${primaryExists}]`);
 
         fields.push(field);
+
+        newDBField(field);
 
         generateFields();
     })
@@ -1147,6 +1194,8 @@ if ($resource !== null) {
 
     $type.dispatchEvent(new Event('input'));
 
+    new_db_fields = [];
+
     // --------- PREPARE TEMPLATES ---------
 
     if (resourceClassName === '')
@@ -1157,7 +1206,7 @@ if ($resource !== null) {
         let url = 'db_generator';
         let action = 'prepare_templates';
 
-        let params = 'action=' + action + '&resource=' + resourceClassName+ '&force=' + force;
+        let params = 'action=' + action + '&resource=' + resourceClassName + '&force=' + force;
 
         http.open('POST', url, true);
 
@@ -1181,6 +1230,12 @@ if ($resource !== null) {
     document.getElementById('generate').addEventListener('click', e => {
         let http = new XMLHttpRequest();
         let url = 'db_generator_run';
+
+        let updatedDBFieldsArray = [];
+
+        Object.keys(updated_db_fields).forEach(key => {
+            updatedDBFieldsArray.push(updated_db_fields[key]);
+        })
 
         let JSONParams = {
             "table": $table.value,
@@ -1208,7 +1263,24 @@ if ($resource !== null) {
 
             "use_state_fields": ($use_state_fields.checked === true),
 
-            "fields": fields
+            "fields": fields,
+            "new_fields": new_db_fields,
+            "new_fields_db_update": false,
+            "removed_fields": removed_db_fields,
+            "removed_fields_db_update": false,
+            "updated_fields": updatedDBFieldsArray,
+            "updated_fields_db_update": false
+        }
+
+        if ($model_override.checked === true) {
+            if (new_db_fields.length > 0)
+                JSONParams.new_fields_db_update = confirm('Do you want to add new fields to DB ?');
+
+            if (removed_db_fields.length > 0)
+                JSONParams.removed_fields_db_update = confirm('Do you want to delete removed fields from DB ?');
+
+            if (updatedDBFieldsArray.length > 0)
+                JSONParams.updated_fields_db_update = confirm('Do you want to update changed fields in DB ?');
         }
 
         if (JSONParams.create_resource && $resource.value.trim() === '')
@@ -1331,6 +1403,7 @@ function fillModelFields(DBModel $model)
 
     foreach ($model->fields as $field) {
         $modelFields[] = [
+            'orig_name' => $field->getName(),
             'name' => $field->getName(),
             'type' => $field->getType(),
             'length' => $field->getLength(),

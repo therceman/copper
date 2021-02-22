@@ -2,6 +2,7 @@
 
 namespace Copper;
 
+use Copper\Resource\AbstractResource;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
@@ -19,26 +20,6 @@ trait RequestTrait
     }
 
     /**
-     * Generates a URL from the given parameters.
-     *
-     * @param string $name The name of the route
-     * @param array $parameters An array of parameters
-     * @param int $type The type of reference (one of the constants in UrlGeneratorInterface)
-     *
-     * @return string The generated URL
-     */
-    public function generateRouteUrl($name, $parameters = [], $type = UrlGenerator::ABSOLUTE_PATH)
-    {
-        if (isset($this->routes) && isset($this->requestContext)) {
-            $generator = new UrlGenerator($this->routes, $this->requestContext);
-
-            return $generator->generate($name, $parameters, $type);
-        } else {
-            return $this->error('Parent class is missing RouteCollection, RequestContext instances');
-        }
-    }
-
-    /**
      * Returns a path relative to the current path, e.g. "../parent-file".
      *
      * @param $name
@@ -47,7 +28,7 @@ trait RequestTrait
      */
     public function relativePath($name, $parameters = [])
     {
-        return $this->generateRouteUrl($name, $parameters, UrlGenerator::RELATIVE_PATH);
+        return Kernel::getRouteRelativePath($name, $parameters);
     }
 
     /**
@@ -59,7 +40,7 @@ trait RequestTrait
      */
     public function networkPath($name, $parameters = [])
     {
-        return $this->generateRouteUrl($name, $parameters, UrlGenerator::NETWORK_PATH);
+        return Kernel::getRouteNetworkPath($name, $parameters);
     }
 
     /**
@@ -74,8 +55,6 @@ trait RequestTrait
      */
     public function url($name, $parameters = [], $withScheme = false)
     {
-        $type = ($withScheme) ? UrlGenerator::ABSOLUTE_URL : UrlGenerator::ABSOLUTE_PATH;
-
-        return $this->generateRouteUrl($name, $parameters, $type);
+        return Kernel::getRouteUrl($name, $parameters, $withScheme);
     }
 }

@@ -87,7 +87,7 @@ class DBService
         if (self::tableEmpty($model->tableName, $db) === false && $force === false)
             return $response->error("Table `$model->tableName` already seeded and " . '$force' . " flag is not true");
 
-        $fieldNames = '`'.join('`, `', $model->getFieldNames()).'`';
+        $fieldNames = '`' . join('`, `', $model->getFieldNames()) . '`';
 
         $query = 'INSERT INTO ' . $model->tableName . '(' . $fieldNames . ') VALUES ';
 
@@ -118,6 +118,37 @@ class DBService
         } catch (PDOException $e) {
             return $response->error($e->getMessage(), $query);
         }
+    }
+
+    public static function prepareFieldStatementForDB(DBModelField $field)
+    {
+        $str = '`' . $field->getName() . '` ' . $field->getType();
+
+        if ($field->getLength() !== false) {
+            if ($field->getType() === DBModelField::DECIMAL)
+                $str .= '(' . join(",", self::escapeStrArray($field->getLength())) . ')';
+            else
+                $str .= '(' . (is_array($field->getLength())
+                        ? "'" . join("','", self::escapeStrArray($field->getLength())) . "'"
+                        : self::escapeStr($field->getLength())) . ')';
+        }
+
+        if ($field->getAttr() !== false)
+            $str .= ' ' . $field->getAttr() . ' ';
+
+        $str .= ($field->getNull() === false) ? " NOT NULL" : " NULL";
+
+        if (is_bool($field->getDefault()) === true)
+            $field->default(intval($field->getDefault()));
+
+        if ($field->getDefault() !== DBModelField::DEFAULT_NONE)
+            $str .= " DEFAULT " . (in_array($field->getDefault(), [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
+                    ? $field->getDefault() : "'" . self::escapeStr($field->getDefault()) . "'");
+
+        if ($field->getAutoIncrement())
+            $str .= ' AUTO_INCREMENT';
+
+        return $str;
     }
 
     /**
@@ -157,33 +188,7 @@ class DBService
         $uniqueIndexList = [];
 
         foreach ($model->fields as $field) {
-            $str = '`' . $field->getName() . '` ' . $field->getType();
-
-            if ($field->getLength() !== false) {
-                if ($field->getType() === DBModelField::DECIMAL)
-                    $str .= '(' . join(",", self::escapeStrArray($field->getLength())) . ')';
-                else
-                    $str .= '(' . (is_array($field->getLength())
-                            ? "'" . join("','", self::escapeStrArray($field->getLength())) . "'"
-                            : self::escapeStr($field->getLength())) . ')';
-            }
-
-            if ($field->getAttr() !== false)
-                $str .= ' ' . $field->getAttr() . ' ';
-
-            $str .= ($field->getNull() === false) ? " NOT NULL" : " NULL";
-
-            if (is_bool($field->getDefault()) === true)
-                $field->default(intval($field->getDefault()));
-
-            if ($field->getDefault() !== DBModelField::DEFAULT_NONE)
-                $str .= " DEFAULT " . (in_array($field->getDefault(), [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP])
-                        ? $field->getDefault() : "'" . self::escapeStr($field->getDefault()) . "'");
-
-            if ($field->getAutoIncrement())
-                $str .= ' AUTO_INCREMENT';
-
-            $fields[] = $str;
+            $fields[] = self::prepareFieldStatementForDB($field);
 
             if ($field->getIndex() === DBModelField::INDEX_PRIMARY)
                 $primaryIndexList[] = $field->getName();

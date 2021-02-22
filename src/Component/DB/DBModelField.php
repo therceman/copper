@@ -208,6 +208,20 @@ class DBModelField
             $this->length = $length;
     }
 
+    public static function fromArray($array)
+    {
+        $field = new DBModelField($array['name']);
+
+        $field->attr($array['attr']);
+        $field->autoIncrement($array['auto_increment']);
+        $field->default($array['default']);
+        $field->index($array['index']);
+        $field->length($array['length']);
+        $field->null($array['null']);
+        $field->type($array['type']);
+
+        return $field;
+    }
 
     public function getName()
     {
@@ -322,7 +336,7 @@ class DBModelField
     {
         $this->null = $null;
 
-        if ($this->default === self::DEFAULT_NONE)
+        if ($this->null && $this->default === self::DEFAULT_NONE)
             $this->default = self::DEFAULT_NULL;
 
         return $this;
@@ -466,7 +480,8 @@ class DBModelField
             ]) !== false);
     }
 
-    public function typeIsString() {
+    public function typeIsString()
+    {
         $isText = $this->typeIsText();
         $isVarchar = ($this->type === DBModelField::VARCHAR);
 
