@@ -1225,6 +1225,16 @@ if ($resource !== null) {
         prepareTemplates(true);
     });
 
+    function listFieldsByName(fields) {
+        let names = [];
+
+        fields.forEach(field => {
+            names.push(field.name)
+        })
+
+        return names.join(', ');
+    }
+
     // --------- GENERATE ------------
 
     document.getElementById('generate').addEventListener('click', e => {
@@ -1272,15 +1282,15 @@ if ($resource !== null) {
             "updated_fields_db_update": false
         }
 
-        if ($model_override.checked === true) {
+        if ($model_override.checked === true && resourceClassName !== '') {
             if (new_db_fields.length > 0)
-                JSONParams.new_fields_db_update = confirm('Do you want to add new fields to DB ?');
+                JSONParams.new_fields_db_update = confirm('Do you want to add new fields to DB ?\r\n' + listFieldsByName(new_db_fields));
 
             if (removed_db_fields.length > 0)
-                JSONParams.removed_fields_db_update = confirm('Do you want to delete removed fields from DB ?');
+                JSONParams.removed_fields_db_update = confirm('Do you want to delete removed fields from DB ?\r\n' + listFieldsByName(removed_db_fields));
 
             if (updatedDBFieldsArray.length > 0)
-                JSONParams.updated_fields_db_update = confirm('Do you want to update changed fields in DB ?');
+                JSONParams.updated_fields_db_update = confirm('Do you want to update changed fields in DB ?\r\n' + listFieldsByName(updatedDBFieldsArray));
         }
 
         if (JSONParams.create_resource && $resource.value.trim() === '')
@@ -1309,12 +1319,22 @@ if ($resource !== null) {
 
         http.onreadystatechange = function () {
             if (http.readyState === 4 && http.status === 200) {
+                processGenerateResponse(JSON.parse(http.responseText));
                 alert(http.responseText);
             }
         }
 
         http.send(params);
     })
+
+    function processGenerateResponse(response) {
+        if (response.status !== true)
+            return false;
+
+        let result = response.result;
+
+        window.location.href = result.return_url;
+    }
 
 </script>
 

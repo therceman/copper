@@ -206,20 +206,22 @@ class ResourceGenService
         if ($content['new_fields_db_update'] === true)
             $responses['new_fields_db_update'] = self::addNewFieldsToDB($table, $content['new_fields'], $fields);
 
-
         // delete removed fields from DB
+        if ($content['removed_fields_db_update'] === true)
+            $responses['removed_fields_db_update'] = self::removeFieldsFromDB($table, $content['removed_fields']);
 
         // update changed fields in DB
         if ($content['updated_fields_db_update'] === true)
             $responses['updated_fields_db_update'] = self::updateFieldsInDB($table, $content['updated_fields'], $fields);
 
         $responses['return_url'] = Kernel::getRouteUrl(ROUTE_copper_cp_action,
-            ['action' => CPController::ACTION_DB_GENERATOR, 'resource' => 'App\\Resource\\'.$resource],true);
+            ['action' => CPController::ACTION_DB_GENERATOR, 'resource' => 'App\\Resource\\' . $resource], true);
 
         return $response->result($responses);
     }
 
-    private static function getAfterFieldName($fieldName, $fields) {
+    private static function getAfterFieldName($fieldName, $fields)
+    {
         $afterField = null;
 
         $prevFieldData = null;
@@ -233,7 +235,29 @@ class ResourceGenService
         return $afterField;
     }
 
-    private static function updateFieldsInDB($table, $updateFields, $fields) {
+    private static function removeFieldsFromDB($table, $removeFields)
+    {
+        $res = new FunctionResponse();
+
+        $results = [];
+        $isOK = true;
+
+        foreach ($removeFields as $removeFieldData) {
+            $origName = $removeFieldData['orig_name'];
+            $queryStatement = "ALTER TABLE `$table` DROP `$origName`";
+
+            $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
+            $results[$origName] = ($pdoResult !== false);
+
+            if ($pdoResult === false)
+                $isOK = false;
+        }
+
+        return $res->okOrFail($isOK, $results);
+    }
+
+    private static function updateFieldsInDB($table, $updateFields, $fields)
+    {
         $res = new FunctionResponse();
 
         $results = [];
@@ -251,7 +275,7 @@ class ResourceGenService
             $queryStatement = "ALTER TABLE `$table` CHANGE `$origName` " . $newFieldStatement;
 
             $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
-            $results[$newField->getName()] = ($pdoResult !== false);
+            $results[$origName] = ($pdoResult !== false);
 
             if ($pdoResult === false)
                 $isOK = false;
