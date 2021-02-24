@@ -7,6 +7,15 @@ namespace Copper;
 class StringReader
 {
 
+    public static function urlQueryParamList(string $str)
+    {
+        $list = [];
+
+        parse_str(ArrayReader::lastValue(explode('?', $str)), $list);
+
+        return $list;
+    }
+
     /**
      * Find text match in string using regex
      * - (?:.*) Non matching group

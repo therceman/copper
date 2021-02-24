@@ -59,22 +59,27 @@ class ArrayReader
 
     /**
      * @param array $collection
-     * @param string $key
-     * @param string|int|float|boolean $value
+     * @param array $filter - Key->Value pairs
      * @param bool $collectionIsObject
      * @return array
      */
-    public static function findInCollection(array $collection, string $key, $value, $collectionIsObject = true)
+    public static function findInCollection(array $collection, array $filter, $collectionIsObject = true)
     {
         $list = [];
 
         foreach ($collection as $k => $item) {
-            if ($collectionIsObject === false && $item[$key] !== $value)
-                continue;
-            else if ($collectionIsObject && $item->$key !== $value)
-                continue;
 
-            $list[] = $item;
+            $matched = true;
+
+            foreach ($filter as $pairKey => $pairValue) {
+                if ($collectionIsObject === false && $item[$pairKey] != $pairValue)
+                    $matched = false;
+                elseif ($collectionIsObject && $item->$pairKey != $pairValue)
+                    $matched = false;
+            }
+
+            if ($matched)
+                $list[] = $item;
         }
 
         return $list;

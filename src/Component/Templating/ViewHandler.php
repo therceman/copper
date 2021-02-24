@@ -83,6 +83,13 @@ class ViewHandler
     public $request_uri;
 
     /**
+     * Request REFERER
+     *
+     * @var string
+     */
+    public $request_referer;
+
+    /**
      * Client's IP address
      *
      * @var null|string
@@ -129,6 +136,7 @@ class ViewHandler
 
         $this->request_method = $request->getRealMethod();
         $this->request_uri = $request->getUri();
+        $this->request_referer = $request->headers->get('referer');
 
         $this->client_ip = $request->getClientIp();
         $this->controller_name = $request->attributes->get('_controller');
