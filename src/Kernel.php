@@ -2,6 +2,7 @@
 
 namespace Copper;
 
+use Copper\Handler\FileHandler;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\Auth\AuthPhpFileLoader;
 use Copper\Component\CP\CPHandler;

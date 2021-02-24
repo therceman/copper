@@ -4,7 +4,7 @@
 namespace Copper\Component\DB;
 
 
-use Copper\FileHandler;
+use Copper\Handler\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Kernel;
 use PDOException;

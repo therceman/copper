@@ -5,7 +5,7 @@ namespace Copper\Component\CP;
 use Copper\Component\CP\Service\ResourceGenService;
 use Copper\Component\DB\DBService;
 use Copper\Controller\AbstractController;
-use Copper\FileHandler;
+use Copper\Handler\FileHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;

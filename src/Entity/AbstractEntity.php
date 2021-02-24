@@ -2,7 +2,7 @@
 
 namespace Copper\Entity;
 
-use Copper\AnnotationReader;
+use Copper\Handler\AnnotationHandler;
 use Copper\Traits\EntityStateFields;
 
 class AbstractEntity
@@ -25,7 +25,7 @@ class AbstractEntity
         foreach ($array as $key => $value) {
             if (property_exists($self, $key)) {
                 // TODO Class Property Types should be cached somehow for better performance
-                $type = AnnotationReader::getTypeName(static::class, $key);
+                $type = AnnotationHandler::getTypeName(static::class, $key);
 
                 if ($value !== null)
                     settype($value, $type);

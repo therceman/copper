@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Copper;
+namespace Copper\Handler;
 
 
-class AnnotationReader
+class AnnotationHandler
 {
     /**
      * Get Class Property Type Name

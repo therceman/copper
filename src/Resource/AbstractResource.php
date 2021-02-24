@@ -4,11 +4,11 @@
 namespace Copper\Resource;
 
 
-use Copper\ArrayReader;
+use Copper\Handler\ArrayHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSeed;
 use Copper\Entity\AbstractEntity;
-use Copper\FileHandler;
+use Copper\Handler\FileHandler;
 use Copper\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -35,7 +35,7 @@ abstract class AbstractResource
      */
     private static function extractNameFromClassName($className)
     {
-        return ($className === false) ? '' : ArrayReader::lastValue(explode('\\', $className));
+        return ($className === false) ? '' : ArrayHandler::lastValue(explode('\\', $className));
     }
 
     private static function getPhpFilePath(string $folderPath, string $name)

@@ -1,10 +1,10 @@
 <?php
 
 
-namespace Copper;
+namespace Copper\Handler;
 
 
-class ArrayReader
+class ArrayHandler
 {
     /**
      * @param array $array

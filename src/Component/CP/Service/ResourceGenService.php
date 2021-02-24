@@ -4,15 +4,15 @@
 namespace Copper\Component\CP\Service;
 
 
-use Copper\ArrayReader;
+use Copper\Handler\ArrayHandler;
 use Copper\Component\CP\CPController;
 use Copper\Component\DB\DBModelField;
 use Copper\Component\DB\DBService;
-use Copper\FileHandler;
+use Copper\Handler\FileHandler;
 use Copper\FunctionResponse;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
-use Copper\StringReader;
 
 class ResourceGenService
 {
@@ -162,7 +162,7 @@ class ResourceGenService
         $seed = $content['seed'] ?? false;
         $controller = $content['controller'] ?? false;
 
-        $fields = self::formatFields(ArrayReader::clean($content['fields'])) ?? false;
+        $fields = self::formatFields(ArrayHandler::clean($content['fields'])) ?? false;
 
         $use_state_fields = $content['use_state_fields'] ?? false;
 
@@ -735,7 +735,7 @@ XML;
             if ($fType === DBModelField::ENUM) {
                 foreach (explode(',', $fieldData['length']) as $enumKey) {
                     $enumKeyClean = trim($enumKey);
-                    $enumKeyUp = strtoupper(StringReader::transliterate($enumKeyClean, '_'));
+                    $enumKeyUp = strtoupper(StringHandler::transliterate($enumKeyClean, '_'));
                     $constFields .= self::T . "const {$fNameUp}__$enumKeyUp = '$enumKeyClean';\r\n";
                     $fLength = str_replace("'" . $enumKey . "'", "self::{$fNameUp}__$enumKeyUp", $fLength);
                 }
@@ -743,7 +743,7 @@ XML;
                 $fLength = str_replace('[', '[' . PHP_EOL . ' ' . self::T2 . self::T, $fLength);
                 $fLength = str_replace(']', PHP_EOL . self::T2 . ']', $fLength);
                 $fLength = str_replace(',', ',' . PHP_EOL . self::T2 . self::T, $fLength);
-                $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper(StringReader::transliterate($fDefault, '_')), $fDefault);
+                $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper(StringHandler::transliterate($fDefault, '_')), $fDefault);
             }
 
             $fieldSetStr = self::T2 . '$this->' . "addField(self::$fNameUp, DBModelField::$fType";

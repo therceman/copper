@@ -1,9 +1,11 @@
 <?php
 
 
-namespace Copper;
+namespace Copper\Handler;
 
 
+use Copper\FunctionResponse;
+use Copper\Kernel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileHandler

@@ -1,17 +1,19 @@
 <?php
 
 
-namespace Copper;
+namespace Copper\Handler;
 
 
-class StringReader
+use Copper\Transliterator;
+
+class StringHandler
 {
 
     public static function urlQueryParamList(string $str)
     {
         $list = [];
 
-        parse_str(ArrayReader::lastValue(explode('?', $str)), $list);
+        parse_str(ArrayHandler::lastValue(explode('?', $str)), $list);
 
         return $list;
     }
