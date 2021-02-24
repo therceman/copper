@@ -37,6 +37,50 @@ class ArrayReader
     }
 
     /**
+     * @param array|object[] $collection
+     * @param string $key
+     * @param bool $collectionIsObject
+     *
+     * @return array
+     */
+    public static function collectionValueList(array $collection, string $key, $collectionIsObject = true)
+    {
+        $list = [];
+
+        foreach ($collection as $k => $item) {
+            if ($collectionIsObject === false)
+                $list[] = $item[$key];
+            else
+                $list[] = $item->$key;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param array $collection
+     * @param string $key
+     * @param string|int|float|boolean $value
+     * @param bool $collectionIsObject
+     * @return array
+     */
+    public static function findInCollection(array $collection, string $key, $value, $collectionIsObject = true)
+    {
+        $list = [];
+
+        foreach ($collection as $k => $item) {
+            if ($collectionIsObject === false && $item[$key] !== $value)
+                continue;
+            else if ($collectionIsObject && $item->$key !== $value)
+                continue;
+
+            $list[] = $item;
+        }
+
+        return $list;
+    }
+
+    /**
      * Clean array of empty & null values
      *
      * @param array $array
