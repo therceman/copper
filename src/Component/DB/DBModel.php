@@ -9,6 +9,7 @@ use Copper\FunctionResponse;
 use Copper\Kernel;
 use DateTime;
 use Envms\FluentPDO\Exception;
+use Envms\FluentPDO\Queries\Select;
 
 abstract class DBModel
 {
@@ -368,12 +369,17 @@ abstract class DBModel
 
     /**
      * @param DBSelectArgs $args
-     *
-     * @return AbstractEntity[]
+     * @return Select
+     * @throws Exception
      */
-    public function doSelect(DBSelectArgs $args)
+    private function prepareSelectStatement(DBSelectArgs $args = null)
     {
         $db = Kernel::getDb();
+
+        $stm = $db->query->from($this->getTableName());
+
+        if ($args === null)
+            return $stm;
 
         $columns = $args->getColumns();
         $limit = $args->getLimit();
@@ -382,26 +388,58 @@ abstract class DBModel
         $where = $args->getWhere();
         $order = $args->getOrder();
 
+        if ($limit !== null)
+            $stm = $stm->limit($limit);
+
+        if ($group !== null)
+            $stm = $stm->groupBy($group);
+
+        if ($offset !== null)
+            $stm = $stm->offset($offset);
+
+        if ($columns !== null && count($columns) > 0)
+            $stm = $stm->select($columns, true);
+
+        if ($where !== null)
+            $stm = $where->buildForStatement($stm);
+
+        if ($order !== false && $order instanceof DBOrder)
+            $stm->order($order);
+
+        return $stm;
+    }
+
+    /**
+     * @param DBSelectArgs $args
+     *
+     * @return int
+     */
+    public function doCount(DBSelectArgs $args = null)
+    {
         try {
-            $stm = $db->query->from($this->getTableName());
+            $stm = $this->prepareSelectStatement($args);
 
-            if ($limit !== null)
-                $stm = $stm->limit($limit);
+            $result = $stm->count();
 
-            if ($group !== null)
-                $stm = $stm->groupBy($group);
+            if ($result === false)
+                $result = 0;
 
-            if ($offset !== null)
-                $stm = $stm->offset($offset);
+        } catch (Exception $e) {
+            $result = 0;
+        }
 
-            if ($columns !== null && count($columns) > 0)
-                $stm = $stm->select($columns, true);
+        return $result;
+    }
 
-            if ($where !== null)
-                $stm = $where->buildForStatement($stm);
-
-            if ($order !== false && $order instanceof DBOrder)
-                $stm->order($order);
+    /**
+     * @param DBSelectArgs $args
+     *
+     * @return AbstractEntity[]
+     */
+    public function doSelect(DBSelectArgs $args = null)
+    {
+        try {
+            $stm = $this->prepareSelectStatement($args);
 
             $result = $stm->fetchAll();
 
@@ -418,6 +456,17 @@ abstract class DBModel
         }
 
         return $list;
+    }
+
+    /**
+     * @param string|int $id
+     * @param string $idField
+     *
+     * @return AbstractEntity|null
+     */
+    public function doSelectById($id, $idField = DBModel::ID)
+    {
+        return $this->doSelectFirstWhere(DBWhere::is($idField, $id));
     }
 
     /**

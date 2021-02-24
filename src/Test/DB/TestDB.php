@@ -4,6 +4,7 @@
 namespace Copper\Test\DB;
 
 
+use Copper\Component\DB\DBSelectArgs;
 use Copper\Component\DB\DBService;
 use Copper\Component\DB\DBWhere;
 use Copper\Component\DB\DBHandler;
@@ -569,6 +570,80 @@ class TestDB
         return $response->ok();
     }
 
+    private function db_model()
+    {
+        $response = new FunctionResponse();
+
+        $model = new TestDBModel();
+
+        // doSelect
+
+        $entityList = $model->doSelect();
+
+        if (count($entityList) !== 6)
+            return $response->fail('User List should have 6 entries', $entityList);
+
+        // doSelectWhere
+
+        $entityList = $model->doSelectWhere(DBWhere::is(TestDBModel::ROLE, 3));
+
+        if (count($entityList) !== 4)
+            return $response->fail('User List should have 4 entries', $entityList);
+
+        // doSelectFirstWhere
+
+        /** @var TestDBEntity $entity */
+        $entity = $model->doSelectFirstWhere(DBWhere::is(TestDBModel::ID, 3));
+
+        if ($entity->enum !== 'banana')
+            return $response->fail('User with ID 3 should have enum = banana', $entity);
+
+        // doSelectUnique
+
+        $entityList = $model->doSelectUnique(TestDBModel::ROLE);
+
+        if (count($entityList) !== 3)
+            return $response->fail('User List should have 3 entries', $entityList);
+
+        // doSelectUnique with DBSelectArgs
+
+        $entityList = $model->doSelectUnique(TestDBModel::ROLE, DBSelectArgs::where(
+            DBWhere::lt(TestDBModel::ROLE, 3)
+        ));
+
+        if (count($entityList) !== 2 && $entityList[1]->id !== 2)
+            return $response->fail('User List should have 2 entries and last one should have ID = 2', $entityList);
+
+        // doSelectLimit
+
+        $entityList = $model->doSelectLimit(3, 2);
+
+        if (count($entityList) !== 3 && $entityList[2]->id !== 5)
+            return $response->fail('User List should have 3 entries and last one should have ID = 5', $entityList);
+
+        // doSelectById
+
+        $entity = $model->doSelectById(3);
+
+        if ($entity->login !== 'user')
+            return $response->fail('User with ID 3 should have login = user', $entity);
+
+        // TODO doUpdate...
+
+        // TODO doDelete..
+
+        // TODO doTruncate, doMigrate, do... other
+
+        // doCount
+
+        $entityCount = $model->doCount();
+
+        if ($entityCount !== 6)
+            return $response->fail('User List should have count of 6', $entityCount);
+
+        return $response->ok();
+    }
+
     public function run()
     {
         $response = new FunctionResponse();
@@ -587,6 +662,7 @@ class TestDB
         $results[] = ['find', $this->find()];
         $results[] = ['DBOrder', $this->db_order()];
         $results[] = ['DBWhere', $this->db_where()];
+        $results[] = ['DBModel', $this->db_model()];
 
         $failedTests = [];
 
