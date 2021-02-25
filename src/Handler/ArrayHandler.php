@@ -39,16 +39,16 @@ class ArrayHandler
     /**
      * @param array|object[] $collection
      * @param string $key
-     * @param bool $collectionIsObject
+     * @param bool $arrayOfObjects
      *
      * @return array
      */
-    public static function collectionValueList(array $collection, string $key, $collectionIsObject = true)
+    public static function assocValueList(array $collection, string $key, $arrayOfObjects = true)
     {
         $list = [];
 
         foreach ($collection as $k => $item) {
-            if ($collectionIsObject === false)
+            if ($arrayOfObjects === false)
                 $list[] = $item[$key];
             else
                 $list[] = $item->$key;
@@ -58,23 +58,24 @@ class ArrayHandler
     }
 
     /**
-     * @param array $collection
+     * @param array|object $array
      * @param array $filter - Key->Value pairs
-     * @param bool $collectionIsObject
+     * @param bool $arrayOfObjects
+     *
      * @return array
      */
-    public static function findInCollection(array $collection, array $filter, $collectionIsObject = true)
+    public static function assocFind(array $array, array $filter, $arrayOfObjects = false)
     {
         $list = [];
 
-        foreach ($collection as $k => $item) {
+        foreach ($array as $k => $item) {
 
             $matched = true;
 
             foreach ($filter as $pairKey => $pairValue) {
-                if ($collectionIsObject === false && $item[$pairKey] != $pairValue)
+                if ($arrayOfObjects === false && $item[$pairKey] != $pairValue)
                     $matched = false;
-                elseif ($collectionIsObject && $item->$pairKey != $pairValue)
+                elseif ($arrayOfObjects && $item->$pairKey != $pairValue)
                     $matched = false;
             }
 

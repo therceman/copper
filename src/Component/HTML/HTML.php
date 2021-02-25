@@ -151,11 +151,11 @@ class HTML
      * @param boolean $checked
      * @return HtmlInputElement
      */
-    public static function inputCheckbox(string $name = null, $checked = null)
+    public static function inputCheckbox(string $name = null, $checked = false)
     {
         $checkboxEl = HTML::input($name)->type('checkbox');
 
-        if ($checked !== null)
+        if ($checked !== false)
             $checkboxEl->setAttr('checked', true);
 
         return $checkboxEl;

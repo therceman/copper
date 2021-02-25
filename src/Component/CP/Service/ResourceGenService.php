@@ -879,15 +879,20 @@ $fields_content
 XML;
 
         if (FileHandler::fileExists($filePath)) {
-            $content = FileHandler::read($filePath)->result;
+            $old_content = FileHandler::read($filePath)->result;
 
-            $use = StringHandler::regex($content, '/(.*) \/\/ >>> Auto Generated: Use/m');
-            $content = str_replace($use, $use_state_fields_trait_class, $content);
+            $use = StringHandler::regex($old_content, '/(.*) \/\/ >>> Auto Generated: Use/m', 0, 0);
 
-            $fields = StringHandler::regex($content, '/>>> Auto Generated: Fields\r\n(.*?)\/\/ <<</ms');
-            $content = str_replace($fields, self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $content);
+            if ($use === false)
+                file_put_contents($filePath, $content);
+            else {
+                $old_content = str_replace($use, $use_state_fields_trait_class . ' // >>> Auto Generated: Use', $old_content);
 
-            FileHandler::save($filePath, $content);
+                $fields = StringHandler::regex($old_content, '/>>> Auto Generated: Fields(.*?)\/\/ <<</ms');
+                $old_content = str_replace($fields, "\r\n" . self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $old_content);
+
+                FileHandler::save($filePath, $old_content);
+            }
         } else {
             file_put_contents($filePath, $content);
         }
