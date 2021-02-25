@@ -322,9 +322,6 @@ abstract class DBModel
         if ($args === null)
             $args = new DBSelectArgs();
 
-        if ($args->getOrder() === null)
-            $args->setOrder(DBOrder::ASC($this, self::ID));
-
         if ($args->getGroup() === null)
             $args->setGroup($column);
 
@@ -438,6 +435,12 @@ abstract class DBModel
      */
     public function doSelect(DBSelectArgs $args = null)
     {
+        if ($args === null)
+            $args = new DBSelectArgs();
+
+        if ($args->getOrder() === null)
+            $args->setOrder(DBOrder::ASC($this, self::ID));
+
         try {
             $stm = $this->prepareSelectStatement($args);
 
