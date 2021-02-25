@@ -12,14 +12,13 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function label(string $text, $for = false)
+    public static function label(string $text = '', $for = null)
     {
         $el = new HTMLElement('label');
 
         $el->innerText($text);
 
-        if ($for !== false)
-            $el->setAttr('for', $for);
+        $el->setAttr('for', $for);
 
         return $el;
     }
@@ -30,21 +29,28 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function option(string $text, $value = false)
+    public static function option(string $text = '', $value = null)
     {
         $el = new HTMLElement('option');
 
         $el->innerText($text);
 
-        if ($value !== false)
-            $el->setAttr('value', $value);
+        $el->setAttr('value', ($value === null) ? '' : $value);
 
         return $el;
     }
 
-    public static function button($text)
+    public static function button(string $text = '')
     {
         $el = new HTMLElement('button');
+
+        $el->innerText($text);
+
+        return $el;
+    }
+
+    public static function span(string $text = '') {
+        $el = new HTMLElement('span');
 
         $el->innerText($text);
 
@@ -57,7 +63,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function td(string $text, $colspan = null)
+    public static function td(string $text = '', $colspan = null)
     {
         $el = new HTMLElement('td');
 
@@ -73,7 +79,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function th(string $text, $colspan = null)
+    public static function th(string $text = '', $colspan = null)
     {
         $el = new HTMLElement('th');
 
@@ -145,11 +151,11 @@ class HTML
      * @param boolean $checked
      * @return HtmlInputElement
      */
-    public static function inputCheckbox(string $name = null, $checked = false)
+    public static function inputCheckbox(string $name = null, $checked = null)
     {
         $checkboxEl = HTML::input($name)->type('checkbox');
 
-        if ($checked !== false)
+        if ($checked !== null)
             $checkboxEl->setAttr('checked', true);
 
         return $checkboxEl;

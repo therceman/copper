@@ -835,8 +835,8 @@ XML;
         if (file_exists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
-        $use_state_fields_trait = ($use_state_fields === true) ? "use EntityStateFields;\r\n" : "\r\n";
-        $use_state_fields_trait_class = ($use_state_fields === true) ? "use Copper\Traits\EntityStateFields;\r\n" : "\r\n";
+        $use_state_fields_trait = ($use_state_fields === true) ? "use EntityStateFields;" : "";
+        $use_state_fields_trait_class = ($use_state_fields === true) ? "use Copper\Traits\EntityStateFields;" : "";
 
         $fields_content = '';
 
@@ -855,7 +855,7 @@ XML;
             if ($field->typeIsBoolean())
                 $type = 'boolean';
 
-            $fields_content .= "    /** @var $type */\r\n    public $$fName;\r\n";
+            $fields_content .= "\r\n    /** @var $type */\r\n    public $$fName;";
         }
 
         $content = <<<XML
@@ -864,17 +864,33 @@ XML;
 
 namespace App\Entity;
 
-
 use Copper\Entity\AbstractEntity;
-$use_state_fields_trait_class
+
+$use_state_fields_trait_class // >>> Auto Generated: Use
+
 class $name extends AbstractEntity
 {
+    // >>> Auto Generated: Fields
     $use_state_fields_trait
 $fields_content
+    // <<< -------------------
+    
 }
 XML;
 
-        file_put_contents($filePath, $content);
+        if (FileHandler::fileExists($filePath)) {
+            $content = FileHandler::read($filePath)->result;
+
+            $use = StringHandler::regex($content, '/(.*) \/\/ >>> Auto Generated: Use/m');
+            $content = str_replace($use, $use_state_fields_trait_class, $content);
+
+            $fields = StringHandler::regex($content, '/>>> Auto Generated: Fields\r\n(.*?)\/\/ <<</ms');
+            $content = str_replace($fields, self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $content);
+
+            FileHandler::save($filePath, $content);
+        } else {
+            file_put_contents($filePath, $content);
+        }
 
         return $response->ok();
     }

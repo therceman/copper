@@ -13,7 +13,12 @@ class StringHandler
     {
         $list = [];
 
-        parse_str(ArrayHandler::lastValue(explode('?', $str)), $list);
+        $parts = explode('?', $str);
+
+        if (count($parts) === 2 && trim($parts[1]) === '')
+            return $list;
+
+        parse_str($parts[1], $list);
 
         return $list;
     }
@@ -30,7 +35,7 @@ class StringHandler
      *
      * @return false|string
      */
-    public static function regex(string $str, string $re, $group = 0, $matchIndex = 0)
+    public static function regex(string $str, string $re, $group = 0, $matchIndex = 1)
     {
         preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
 

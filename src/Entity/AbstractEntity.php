@@ -27,6 +27,9 @@ class AbstractEntity
                 // TODO Class Property Types should be cached somehow for better performance
                 $type = AnnotationHandler::getTypeName(static::class, $key);
 
+                if ($value === '')
+                    $value = null;
+
                 if ($value !== null)
                     settype($value, $type);
 

@@ -19,7 +19,7 @@ class FileHandler
     private static function extractNamespaceFromFile($file)
     {
         if (is_dir($file))
-           return null;
+            return null;
 
         $src = file_get_contents($file);
 
@@ -239,5 +239,32 @@ class FileHandler
         }
 
         return $response->result($rows);
+    }
+
+    // ------------- Aliases --------------------
+
+    /**
+     * Alias for getContent
+     *
+     * @param string $filePath
+     *
+     * @return FunctionResponse
+     */
+    public static function read(string $filePath)
+    {
+        return self::getContent($filePath);
+    }
+
+    /**
+     * Alias for saveContent
+     *
+     * @param string $filePath
+     * @param string $content
+     *
+     * @return FunctionResponse
+     */
+    public static function save(string $filePath, string $content)
+    {
+        return self::saveContent($filePath, $content);
     }
 }
