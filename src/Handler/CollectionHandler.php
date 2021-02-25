@@ -13,7 +13,7 @@ class CollectionHandler
      * @param AbstractEntity[] $collection
      * @param string $key
      *
-     * @return AbstractEntity[]
+     * @return mixed[]
      */
     public static function valueList(array $collection, string $key)
     {
@@ -24,7 +24,7 @@ class CollectionHandler
      * @param AbstractEntity[] $collection
      * @param array $filter Key->Value pairs
      *
-     * @return AbstractEntity[]
+     * @return mixed[]
      */
     public static function find(array $collection, array $filter)
     {
@@ -35,7 +35,7 @@ class CollectionHandler
      * @param AbstractEntity[] $collection
      * @param array $filter Key->Value pairs
      *
-     * @return AbstractEntity|null
+     * @return mixed|null
      */
     public static function findFirst(array $collection, array $filter)
     {

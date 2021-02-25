@@ -6,6 +6,33 @@ namespace Copper\Handler;
 
 class ArrayHandler
 {
+    public static function merge($arrayA, $arrayB, $uniqueValues = true, $reindex = true)
+    {
+        $res = array_merge($arrayA, $arrayB);
+
+        if ($uniqueValues)
+            $res = array_unique($res);
+
+        if ($reindex)
+            $res = array_values($res);
+
+        return $res;
+    }
+
+    /**
+     * @param array $array
+     * @param mixed $value
+     * @param bool $strict
+     *
+     * @return mixed|null
+     */
+    public static function hasValue(array $array, $value, $strict = true)
+    {
+        $key = array_search($value, $array, $strict);
+
+        return ($key !== false);
+    }
+
     /**
      * @param array $array
      *
@@ -73,10 +100,17 @@ class ArrayHandler
             $matched = true;
 
             foreach ($filter as $pairKey => $pairValue) {
-                if ($arrayOfObjects === false && $item[$pairKey] != $pairValue)
-                    $matched = false;
-                elseif ($arrayOfObjects && $item->$pairKey != $pairValue)
-                    $matched = false;
+                if ($arrayOfObjects === false) {
+                    if (is_array($pairValue) === false && $item[$pairKey] != $pairValue)
+                        $matched = false;
+                    elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item[$pairKey]) === false)
+                        $matched = false;
+                } elseif ($arrayOfObjects) {
+                    if (is_array($pairValue) === false && $item->$pairKey != $pairValue)
+                        $matched = false;
+                    elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item->$pairKey) === false)
+                        $matched = false;
+                }
             }
 
             if ($matched)
