@@ -23,11 +23,11 @@ class AbstractAuthController extends AbstractController
     const PASSWORD_FIELD = 'password';
 
     /**
-     * @param AbstractUser $user
+     * @param AbstractUserEntity $user
      *
      * @return RedirectResponse
      */
-    protected function generateSuccessLoginResponse(AbstractUser $user)
+    protected function generateSuccessLoginResponse(AbstractUserEntity $user)
     {
         $return_route = $this->request->query->get($this->auth->config->returnToRouteParam, null);
 

@@ -247,7 +247,7 @@ class ResourceGenService
             $queryStatement = "ALTER TABLE `$table` DROP `$origName`";
 
             $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
-            $results[$origName] = ($pdoResult !== false);
+            $results[$origName] = ($pdoResult !== false) ? true : Kernel::getDb()->pdo->errorInfo()[2];
 
             if ($pdoResult === false)
                 $isOK = false;
@@ -275,7 +275,7 @@ class ResourceGenService
             $queryStatement = "ALTER TABLE `$table` CHANGE `$origName` " . $newFieldStatement;
 
             $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
-            $results[$origName] = ($pdoResult !== false);
+            $results[$origName] = ($pdoResult !== false) ? true : Kernel::getDb()->pdo->errorInfo()[2];
 
             if ($pdoResult === false)
                 $isOK = false;
@@ -302,7 +302,7 @@ class ResourceGenService
             $queryStatement = "ALTER TABLE `$table` ADD " . $newFieldStatement;
 
             $pdoResult = Kernel::getDb()->pdo->query($queryStatement);
-            $results[$newField->getName()] = ($pdoResult !== false);
+            $results[$newField->getName()] = ($pdoResult !== false) ? true : Kernel::getDb()->pdo->errorInfo()[2];
 
             if ($pdoResult === false)
                 $isOK = false;

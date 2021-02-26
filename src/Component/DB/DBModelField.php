@@ -212,11 +212,16 @@ class DBModelField
     {
         $field = new DBModelField($array['name']);
 
+        $length = $array['length'];
+
+        if (is_string($length) && strpos($length, ',') !== false)
+            $length = explode(',', $length);
+
         $field->attr($array['attr']);
         $field->autoIncrement($array['auto_increment']);
         $field->default($array['default']);
         $field->index($array['index']);
-        $field->length($array['length']);
+        $field->length($length);
         $field->null($array['null']);
         $field->type($array['type']);
 

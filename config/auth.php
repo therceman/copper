@@ -1,6 +1,6 @@
 <?php
 
-use Copper\Component\Auth\AbstractUser;
+use Copper\Component\Auth\AbstractUserEntity;
 use Copper\Component\Auth\AuthConfigurator;
 
 return function (AuthConfigurator $auth) {
@@ -8,10 +8,10 @@ return function (AuthConfigurator $auth) {
     $adminLogin = 'root';
     $adminPassword = 'pass';
 
-    $adminUser = AbstractUser::fromArray([
+    $adminUser = AbstractUserEntity::fromArray([
         "id" => 1,
         "login" => $adminLogin,
-        "role" => AbstractUser::ROLE_ADMIN
+        "role" => AbstractUserEntity::ROLE_ADMIN
     ]);
 
     $auth->registerUserHandlerClosure(function ($id) use ($adminUser) {

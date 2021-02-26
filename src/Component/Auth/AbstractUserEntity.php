@@ -5,18 +5,19 @@ namespace Copper\Component\Auth;
 
 use Copper\Entity\AbstractEntity;
 
-class AbstractUser extends AbstractEntity
+class AbstractUserEntity extends AbstractEntity
 {
-    const ROLE_USER = 3;
-    const ROLE_ADMIN = 2;
-    const ROLE_SUPER_ADMIN = 1;
-    const ROLE_GUEST = 0;
+    const ROLE_GUEST = 'guest';
+    const ROLE_USER = 'user';
+    const ROLE_MODERATOR = 'moderator';
+    const ROLE_ADMIN = 'admin';
+    const ROLE_SUPER_ADMIN = 'super_admin';
 
     /** @var string */
     public $login;
     /** @var string */
     public $password;
-    /** @var int */
+    /** @var string */
     public $role;
 
     /**
@@ -30,5 +31,10 @@ class AbstractUser extends AbstractEntity
             return in_array($this->role, $role);
         else
             return $this->role === $role;
+    }
+
+    public function isGuest()
+    {
+        return $this->hasRole(self::ROLE_GUEST);
     }
 }

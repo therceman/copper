@@ -16,7 +16,7 @@ class AuthHandler
     public $config;
     /** @var DBHandler */
     public $db;
-    /** @var AbstractUser */
+    /** @var AbstractUserEntity */
     public $user;
 
     /**
@@ -94,11 +94,11 @@ class AuthHandler
      *
      * @param string $entityClass
      *
-     * @return AbstractUser|mixed|null
+     * @return AbstractUserEntity|mixed|null
      */
-    public function user($entityClass = '')
+    public function user($entityClass = AbstractUserEntity::class)
     {
-        $guestUser = AbstractUser::fromArray(["login" => $this->session->getId(), "role" => AbstractUser::ROLE_GUEST]);
+        $guestUser = $entityClass::fromArray(["login" => $this->session->getId(), "role" => AbstractUserEntity::ROLE_GUEST]);
 
         if ($this->check() === false)
             return $guestUser;
@@ -118,7 +118,7 @@ class AuthHandler
      *
      * @param string $login
      * @param string $password
-     * @return AbstractUser|null
+     * @return AbstractUserEntity|null
      */
     public function validate(string $login, string $password)
     {

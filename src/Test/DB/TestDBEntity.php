@@ -5,9 +5,9 @@ namespace Copper\Test\DB;
 
 
 use Copper\Traits\EntityStateFields;
-use Copper\Component\Auth\AbstractUser;
+use Copper\Component\Auth\AbstractUserEntity;
 
-class TestDBEntity extends AbstractUser
+class TestDBEntity extends AbstractUserEntity
 {
     use EntityStateFields;
 

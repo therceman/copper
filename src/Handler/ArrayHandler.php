@@ -6,6 +6,18 @@ namespace Copper\Handler;
 
 class ArrayHandler
 {
+    public static function switch($value, $valueList, $outputList)
+    {
+        $output = null;
+
+        foreach ($valueList as $k => $val) {
+            if ($value === $val)
+                $output = $outputList[$k];
+        }
+
+        return $output;
+    }
+
     public static function merge($arrayA, $arrayB, $uniqueValues = true, $reindex = true)
     {
         $res = array_merge($arrayA, $arrayB);
