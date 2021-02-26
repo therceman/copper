@@ -3,6 +3,7 @@
 namespace Copper\Component\Auth;
 
 use Copper\Component\DB\DBHandler;
+use Copper\Entity\AbstractEntity;
 use Copper\Kernel;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -17,7 +18,7 @@ class AuthHandler
     /** @var DBHandler */
     public $db;
     /** @var AbstractUserEntity */
-    public $user;
+    private $user;
 
     /**
      * AuthHandler constructor.
@@ -80,7 +81,15 @@ class AuthHandler
     }
 
     /**
-     * Check if user has active session
+     * @return string
+     */
+    public function sessionId()
+    {
+        return $this->session->getId();
+    }
+
+    /**
+     * Check if user has active logged-in session
      *
      * @return bool
      */
@@ -98,6 +107,7 @@ class AuthHandler
      */
     public function user($entityClass = AbstractUserEntity::class)
     {
+        /** @var AbstractEntity $entityClass */
         $guestUser = $entityClass::fromArray(["login" => $this->session->getId(), "role" => AbstractUserEntity::ROLE_GUEST]);
 
         if ($this->check() === false)

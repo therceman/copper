@@ -340,6 +340,12 @@ abstract class DBModel
         return (count($entities) > 0) ? $entities[0] : null;
     }
 
+    /**
+     * @param DBWhere $where
+     * @param DBSelectArgs|null $args
+     * 
+     * @return AbstractEntity|null
+     */
     public function doSelectFirstWhere(DBWhere $where, DBSelectArgs $args = null)
     {
         $entities = $this->doSelectWhere($where, $args);

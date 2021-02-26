@@ -3,7 +3,6 @@
 
 namespace Copper\Component\Auth;
 
-use Copper\Component\FlashMessage\FlashMessage;
 use Copper\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 

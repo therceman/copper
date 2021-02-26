@@ -378,8 +378,8 @@ if ($resource !== null) {
         </td>
         <td>
             <select id="type" style="width: 185px;">
-                <option title="A 4-byte integer, signed range is -2,147,483,648 to 2,147,483,647, unsigned range is 0 to 4,294,967,295">
-                    INT
+                <option title="A 2-byte integer, signed range is -32,768 to 32,767, unsigned range is 0 to 65,535">
+                    SMALLINT
                 </option>
                 <option title="A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size">
                     VARCHAR
@@ -387,12 +387,16 @@ if ($resource !== null) {
                 <option title="A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes">
                     TEXT
                 </option>
-                <option title="A date, supported range is 1000-01-01 to 9999-12-31">DATE</option>
+                <option title="A date, supported range is 1000-01-01 to 9999-12-31">
+                    DATE
+                </option>
+                <option title="An enumeration, chosen from the list of up to 65,535 values or the special '' error value">
+                    ENUM
+                </option>
                 <optgroup label="Numeric">
                     <option title="A 1-byte integer, signed range is -128 to 127, unsigned range is 0 to 255">TINYINT
                     </option>
-                    <option
-                            title="A 2-byte integer, signed range is -32,768 to 32,767, unsigned range is 0 to 65,535">
+                    <option title="A 2-byte integer, signed range is -32,768 to 32,767, unsigned range is 0 to 65,535">
                         SMALLINT
                     </option>
                     <option title="A 3-byte integer, signed range is -8,388,608 to 8,388,607, unsigned range is 0 to 16,777,215">
@@ -424,7 +428,7 @@ if ($resource !== null) {
                     <option title="A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true">
                         BOOLEAN
                     </option>
-                    <option title="An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE">SERIAL</option>
+<!--                    <option title="An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE">SERIAL</option>-->
                 </optgroup>
                 <optgroup label="Date and time">
                     <option title="A date, supported range is 1000-01-01 to 9999-12-31">DATE</option>
@@ -1019,6 +1023,7 @@ if ($resource !== null) {
         $attributes.disabled = false;
 
         $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = false;
+        $default.querySelector(`option[value="${DEFAULT_USER_DEFINED}"]`).disabled = false;
         // $attributes.querySelector(`option[value="${ATTR_BINARY}"]`).disabled = false;
         $attributes.querySelector(`option[value="${ATTR_UNSIGNED}"]`).disabled = true;
         // $attributes.querySelector(`option[value="${ATTR_UNSIGNED_ZEROFILL}"]`).disabled = true;
@@ -1038,6 +1043,13 @@ if ($resource !== null) {
         if (val === DECIMAL) {
             $length.value = '7,2';
             $length.title = '7,2 = 2 numbers for decimal and 7 for total, e.g. max number is 99999,99';
+            $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = true;
+        }
+
+        if ([TEXT, MEDIUMTEXT, LONGTEXT].indexOf(val) >= 0) {
+            $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = true;
+            $default.querySelector(`option[value="${DEFAULT_USER_DEFINED}"]`).disabled = true;
+            $cancel_default_value.dispatchEvent(new Event('click'));
         }
 
         if (val === ENUM)
