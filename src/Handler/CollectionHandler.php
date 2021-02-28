@@ -43,4 +43,9 @@ class CollectionHandler
 
         return (count($matches) > 0) ? $matches[0] : null;
     }
+
+    public static function delete(array $collection, array $filter)
+    {
+        return ArrayHandler::assocDelete($collection, $filter, true);
+    }
 }

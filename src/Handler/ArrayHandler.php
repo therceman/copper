@@ -75,18 +75,30 @@ class ArrayHandler
         return $key;
     }
 
+    public static function assocDelete(array $array, array $filter, $arrayOfObjects = false)
+    {
+        $newArray = [];
+
+        foreach ($array as $key => $item) {
+            if (self::assocMatch($item, $filter, $arrayOfObjects) === false)
+                $newArray[] = $item;
+        }
+
+        return $newArray;
+    }
+
     /**
-     * @param array|object[] $collection
+     * @param array|object[] $array
      * @param string $key
      * @param bool $arrayOfObjects
      *
      * @return array
      */
-    public static function assocValueList(array $collection, string $key, $arrayOfObjects = true)
+    public static function assocValueList(array $array, string $key, $arrayOfObjects = true)
     {
         $list = [];
 
-        foreach ($collection as $k => $item) {
+        foreach ($array as $k => $item) {
             if ($arrayOfObjects === false)
                 $list[] = $item[$key];
             else
@@ -97,7 +109,36 @@ class ArrayHandler
     }
 
     /**
-     * @param array|object $array
+     * @param array $item
+     * @param array $filter
+     * @param bool $itemIsObject
+     *
+     * @return bool
+     */
+    public static function assocMatch(array $item, array $filter, $itemIsObject = false)
+    {
+        $matched = true;
+
+        foreach ($filter as $pairKey => $pairValue) {
+            if ($itemIsObject === false) {
+                if (is_array($pairValue) === false && $item[$pairKey] != $pairValue)
+                    $matched = false;
+                elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item[$pairKey]) === false)
+                    $matched = false;
+            } elseif ($itemIsObject) {
+                if (is_array($pairValue) === false && $item->$pairKey != $pairValue)
+                    $matched = false;
+                elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item->$pairKey) === false)
+                    $matched = false;
+            }
+        }
+
+        if ($matched)
+            return true;
+    }
+
+    /**
+     * @param array|object[] $array
      * @param array $filter - Key->Value pairs
      * @param bool $arrayOfObjects
      *
@@ -108,24 +149,7 @@ class ArrayHandler
         $list = [];
 
         foreach ($array as $k => $item) {
-
-            $matched = true;
-
-            foreach ($filter as $pairKey => $pairValue) {
-                if ($arrayOfObjects === false) {
-                    if (is_array($pairValue) === false && $item[$pairKey] != $pairValue)
-                        $matched = false;
-                    elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item[$pairKey]) === false)
-                        $matched = false;
-                } elseif ($arrayOfObjects) {
-                    if (is_array($pairValue) === false && $item->$pairKey != $pairValue)
-                        $matched = false;
-                    elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item->$pairKey) === false)
-                        $matched = false;
-                }
-            }
-
-            if ($matched)
+            if (self::assocMatch($item, $filter, $arrayOfObjects))
                 $list[] = $item;
         }
 
