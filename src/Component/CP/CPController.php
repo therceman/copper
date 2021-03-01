@@ -9,14 +9,15 @@ use Copper\Handler\FileHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;
+use Copper\Test\TestCore;
 
 class CPController extends AbstractController
 {
     const ACTION_AUTHORIZE = 'authorize';
     const ACTION_DB_MIGRATE = 'db_migrate';
     const ACTION_DB_SEED = 'db_seed';
-    const ACTION_DB_GEN_MODEL_FIELDS = 'gen_model_fields';
     const ACTION_DB_TEST = 'db_test';
+    const ACTION_CORE_TEST = 'core_test';
     const ACTION_DB_GENERATOR = 'db_generator';
     const ACTION_DB_GENERATOR_RUN = 'db_generator_run';
     const ACTION_LOGOUT = 'logout';
@@ -53,6 +54,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_TEST:
                 return $this->db_test();
+                break;
+            case self::ACTION_CORE_TEST:
+                return $this->core_test();
                 break;
             case self::ACTION_DB_GENERATOR:
                 return $this->db_generator();
@@ -114,6 +118,15 @@ class CPController extends AbstractController
     private function db_test()
     {
         $test = new TestDB($this->db);
+
+        $response = $test->run();
+
+        return $this->dump_response($response);
+    }
+
+    private function core_test()
+    {
+        $test = new TestCore();
 
         $response = $test->run();
 

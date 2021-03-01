@@ -4,9 +4,18 @@
 namespace Copper\Handler;
 
 
+use Copper\Entity\AbstractEntity;
+
 class ArrayHandler
 {
-    public static function switch($value, $valueList, $outputList)
+    /**
+     * @param mixed $value
+     * @param array $valueList
+     * @param array $outputList
+     *
+     * @return mixed|null
+     */
+    public static function switch($value, array $valueList, array $outputList)
     {
         $output = null;
 
@@ -18,14 +27,46 @@ class ArrayHandler
         return $output;
     }
 
-    public static function merge($arrayA, $arrayB, $uniqueValues = true, $reindex = true)
+    /**
+     * @param array|object[]|AbstractEntity[] $arrayA
+     * @param array|object[]|AbstractEntity[] $arrayB
+     * @param bool $reindex
+     *
+     * @return array|AbstractEntity[]|object[]
+     */
+    public static function merge_uniqueValues(array $arrayA, array $arrayB, $reindex = false)
+    {
+        return self::merge($arrayA, $arrayB, true, $reindex);
+    }
+
+    /**
+     * @param array|object[]|AbstractEntity[] $arrayA
+     * @param array|object[]|AbstractEntity[] $arrayB
+     * @param bool $uniqueValues
+     *
+     * @return array|AbstractEntity[]|object[]
+     */
+    public static function merge_reindexKeys(array $arrayA, array $arrayB, $uniqueValues = false)
+    {
+        return self::merge($arrayA, $arrayB, $uniqueValues, true);
+    }
+
+    /**
+     * @param array|object[]|AbstractEntity[] $arrayA
+     * @param array|object[]|AbstractEntity[] $arrayB
+     * @param bool $uniqueValues
+     * @param bool $reindexKeys
+     *
+     * @return array|object[]|AbstractEntity[]
+     */
+    public static function merge(array $arrayA, array $arrayB, $uniqueValues = false, $reindexKeys = false)
     {
         $res = array_merge($arrayA, $arrayB);
 
         if ($uniqueValues)
             $res = array_unique($res);
 
-        if ($reindex)
+        if ($reindexKeys)
             $res = array_values($res);
 
         return $res;
@@ -75,12 +116,18 @@ class ArrayHandler
         return $key;
     }
 
-    public static function assocDelete(array $array, array $filter, $arrayOfObjects = false)
+    /**
+     * @param array|object[]|AbstractEntity[] $array
+     * @param array $filter
+     *
+     * @return array
+     */
+    public static function assocDelete(array $array, array $filter)
     {
         $newArray = [];
 
         foreach ($array as $key => $item) {
-            if (self::assocMatch($item, $filter, $arrayOfObjects) === false)
+            if (self::assocMatch($item, $filter) === false)
                 $newArray[] = $item;
         }
 
@@ -88,18 +135,17 @@ class ArrayHandler
     }
 
     /**
-     * @param array|object[] $array
+     * @param array|object[]|AbstractEntity[] $array
      * @param string $key
-     * @param bool $arrayOfObjects
      *
      * @return array
      */
-    public static function assocValueList(array $array, string $key, $arrayOfObjects = true)
+    public static function assocValueList(array $array, string $key)
     {
         $list = [];
 
         foreach ($array as $k => $item) {
-            if ($arrayOfObjects === false)
+            if (is_array($item))
                 $list[] = $item[$key];
             else
                 $list[] = $item->$key;
@@ -109,15 +155,18 @@ class ArrayHandler
     }
 
     /**
-     * @param array $item
+     * @param array|object|AbstractEntity $item
      * @param array $filter
-     * @param bool $itemIsObject
      *
      * @return bool
      */
-    public static function assocMatch(array $item, array $filter, $itemIsObject = false)
+    public static function assocMatch($item, array $filter)
     {
         $matched = true;
+
+        $itemIsObject = true;
+        if (is_array($item))
+            $itemIsObject = false;
 
         foreach ($filter as $pairKey => $pairValue) {
             if ($itemIsObject === false) {
@@ -125,7 +174,7 @@ class ArrayHandler
                     $matched = false;
                 elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item[$pairKey]) === false)
                     $matched = false;
-            } elseif ($itemIsObject) {
+            } else {
                 if (is_array($pairValue) === false && $item->$pairKey != $pairValue)
                     $matched = false;
                 elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item->$pairKey) === false)
@@ -133,23 +182,21 @@ class ArrayHandler
             }
         }
 
-        if ($matched)
-            return true;
+        return $matched;
     }
 
     /**
      * @param array|object[] $array
      * @param array $filter - Key->Value pairs
-     * @param bool $arrayOfObjects
      *
      * @return array
      */
-    public static function assocFind(array $array, array $filter, $arrayOfObjects = false)
+    public static function assocFind(array $array, array $filter)
     {
         $list = [];
 
         foreach ($array as $k => $item) {
-            if (self::assocMatch($item, $filter, $arrayOfObjects))
+            if (self::assocMatch($item, $filter))
                 $list[] = $item;
         }
 

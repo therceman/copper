@@ -10,32 +10,32 @@ class CollectionHandler
 {
 
     /**
-     * @param AbstractEntity[] $collection
+     * @param AbstractEntity[]|object[] $collection
      * @param string $key
      *
      * @return mixed[]
      */
     public static function valueList(array $collection, string $key)
     {
-        return ArrayHandler::assocValueList($collection, $key, true);
+        return ArrayHandler::assocValueList($collection, $key);
     }
 
     /**
-     * @param AbstractEntity[] $collection
+     * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
      *
      * @return mixed[]
      */
     public static function find(array $collection, array $filter)
     {
-        return ArrayHandler::assocFind($collection, $filter, true);
+        return ArrayHandler::assocFind($collection, $filter);
     }
 
     /**
-     * @param AbstractEntity[] $collection
+     * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
      *
-     * @return mixed|null
+     * @return AbstractEntity|object|null
      */
     public static function findFirst(array $collection, array $filter)
     {
@@ -44,8 +44,14 @@ class CollectionHandler
         return (count($matches) > 0) ? $matches[0] : null;
     }
 
+    /**
+     * @param AbstractEntity[]|object[] $collection
+     * @param array $filter
+     *
+     * @return AbstractEntity[]|object[]
+     */
     public static function delete(array $collection, array $filter)
     {
-        return ArrayHandler::assocDelete($collection, $filter, true);
+        return ArrayHandler::assocDelete($collection, $filter);
     }
 }
