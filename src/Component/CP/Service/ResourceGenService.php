@@ -13,6 +13,7 @@ use Copper\FunctionResponse;
 use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
+use Copper\Traits\EntityStateFields;
 
 class ResourceGenService
 {
@@ -866,7 +867,7 @@ namespace App\Entity;
 
 use Copper\Entity\AbstractEntity;
 
-$use_state_fields_trait_class // >>> Auto Generated: Use
+$use_state_fields_trait_class
 
 class $name extends AbstractEntity
 {
@@ -881,22 +882,35 @@ XML;
         if (FileHandler::fileExists($filePath)) {
             $old_content = FileHandler::read($filePath)->result;
 
-            $use = StringHandler::regex($old_content, '/(.*) \/\/ >>> Auto Generated: Use/m', 0, 0);
+            $old_content = self::updateClassUsage($old_content, EntityStateFields::class, $use_state_fields);
 
-            if ($use === false)
-                file_put_contents($filePath, $content);
-            else {
-                $old_content = str_replace($use, $use_state_fields_trait_class . ' // >>> Auto Generated: Use', $old_content);
+            $fields = StringHandler::regex($old_content, '/>>> Auto Generated: Fields(.*?)\/\/ <<</ms');
+            $old_content = str_replace($fields, "\r\n" . self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $old_content);
 
-                $fields = StringHandler::regex($old_content, '/>>> Auto Generated: Fields(.*?)\/\/ <<</ms');
-                $old_content = str_replace($fields, "\r\n" . self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $old_content);
-
-                FileHandler::save($filePath, $old_content);
-            }
+            FileHandler::save($filePath, $old_content);
         } else {
             file_put_contents($filePath, $content);
         }
 
         return $response->ok();
+    }
+
+    private static function updateClassUsage($content, $className, $enable = true)
+    {
+        $classPointer = StringHandler::regex($content, '/class (.*) extends AbstractEntity/m', 0, 0);
+        $useClassNameStr = "use $className;";
+
+        if ($enable) {
+            if (strpos($content, $useClassNameStr) === false)
+                $content = str_replace($classPointer, "$useClassNameStr\r\n\r\n$classPointer", $content);
+        } else {
+            $content = str_replace("$useClassNameStr\r\n\r\n", "", $content);
+            $content = str_replace("$useClassNameStr\r\n", "", $content);
+            $content = str_replace("$useClassNameStr\n\n", "", $content);
+            $content = str_replace("$useClassNameStr\n", "", $content);
+            $content = str_replace("$useClassNameStr", "", $content);
+        }
+
+        return $content;
     }
 }
