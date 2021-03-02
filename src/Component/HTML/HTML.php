@@ -49,7 +49,8 @@ class HTML
         return $el;
     }
 
-    public static function span(string $text = '') {
+    public static function span(string $text = '')
+    {
         $el = new HTMLElement('span');
 
         $el->innerText($text);
@@ -85,6 +86,50 @@ class HTML
 
         $el->innerText($text);
         $el->setAttr('colspan', $colspan);
+
+        return $el;
+    }
+
+    /**
+     * @param string|null $src
+     *
+     * @return HTMLElement
+     */
+    public static function img($src = null)
+    {
+        $el = new HTMLElement('img');
+
+        $el->setAttr('src', $src);
+
+        return $el;
+    }
+
+    /**
+     * @param string|null $class
+     *
+     * @return HTMLElement
+     */
+    public static function div($class = null)
+    {
+        $el = new HTMLElement('div');
+
+        $el->setAttr('class', $class);
+
+        return $el;
+    }
+
+    /**
+     * @param HTMLElement[] $tdList
+     *
+     * @return HTMLElement
+     */
+    public static function tr($tdList = [])
+    {
+        $el = new HTMLElement('tr');
+
+        foreach ($tdList as $td) {
+            $el->addElement($td);
+        }
 
         return $el;
     }
