@@ -516,7 +516,7 @@ class $name extends AbstractController
         \$order_by = \$this->request->query->get('order_by', DBModel::ID);
         \$show_removed = \$this->request->query->get('show_removed', false);
 
-        \$dbOrder = new DBOrder(\$this->model, \$order_by, (strtoupper(\$order) === DBOrder::ASC));
+        \$dbOrder = new DBOrder(\$order_by, (strtoupper(\$order) === DBOrder::ASC));
 
         /** @var {$entity}[] \$list */
         \$list = \$this->service::getList(\$this->db, \$limit, \$offset, \$dbOrder, \$show_removed);

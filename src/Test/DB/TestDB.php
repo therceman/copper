@@ -343,7 +343,7 @@ class TestDB
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::find($this->db, [
             TestDBModel::ROLE => TestDBEntity::ROLE_USER,
-        ], 20, 0, DBOrder::DESC($this->model, TestDBModel::ID));
+        ], 20, 0, DBOrder::DESC(TestDBModel::ID));
 
         if ($entityList[0]->id !== 6)
             return $response->fail('User List first entry should be with ID 6', $entity);
@@ -356,7 +356,7 @@ class TestDB
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::find($this->db, [
             TestDBModel::ROLE => TestDBEntity::ROLE_USER,
-        ], 20, 0, DBOrder::ASC($this->model, TestDBModel::SALARY)->andDESC(TestDBModel::ID));
+        ], 20, 0, DBOrder::ASC( TestDBModel::SALARY)->andDESC(TestDBModel::ID));
 
         if ($entityList[0]->id !== 6)
             return $response->fail('User List first entry should be with ID 6', $entity);
@@ -369,7 +369,7 @@ class TestDB
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::find($this->db, [
             TestDBModel::ROLE => TestDBEntity::ROLE_USER,
-        ], 20, 0, DBOrder::ASC($this->model, TestDBModel::SALARY)->andASC(TestDBModel::ID));
+        ], 20, 0, DBOrder::ASC( TestDBModel::SALARY)->andASC(TestDBModel::ID));
 
         if ($entityList[0]->id !== 6)
             return $response->fail('User List first entry should be with ID 6', $entity);

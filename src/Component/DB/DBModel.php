@@ -445,7 +445,7 @@ abstract class DBModel
             $args = new DBSelectArgs();
 
         if ($args->getOrder() === null)
-            $args->setOrder(DBOrder::ASC($this, self::ID));
+            $args->setOrder(DBOrder::ASC(self::ID));
 
         try {
             $stm = $this->prepareSelectStatement($args);

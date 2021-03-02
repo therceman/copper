@@ -18,22 +18,17 @@ class DBOrder
      * DBOrder constructor.
      *
      * @param string $field
-     * @param DBModel $model
      * @param bool $orderByASC
      */
-    public function __construct(DBModel $model, string $field, $orderByASC = true)
+    public function __construct(string $field, $orderByASC = true)
     {
         $this->fields = [];
-        $this->model = $model;
         $this->addField($field, $orderByASC);
     }
 
     private function addField($field, $orderByASC)
     {
-        $response = $this->model->hasFields([$field]);
-
-        if ($response->isOK())
-            $this->fields[] = [$field, $orderByASC];
+        $this->fields[] = [$field, $orderByASC];
     }
 
     public function toString()
@@ -67,14 +62,14 @@ class DBOrder
         return $this->toString();
     }
 
-    public static function DESC(DBModel $model, string $field)
+    public static function DESC(string $field)
     {
-        return new self($model, $field, false);
+        return new self($field, false);
     }
 
-    public static function ASC(DBModel $model, string $field)
+    public static function ASC(string $field)
     {
-        return new self($model, $field, true);
+        return new self($field, true);
     }
 
 }

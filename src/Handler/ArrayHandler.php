@@ -204,6 +204,22 @@ class ArrayHandler
     }
 
     /**
+     * @param array $array
+     * @param string $key
+     * @param bool $sortASC
+     *
+     * @return array
+     */
+    public static function assocSort(array $array, string $key, $sortASC = true)
+    {
+        $col = array_column($array, $key);
+
+        array_multisort($col, ($sortASC) ? SORT_ASC : SORT_DESC, $array);
+
+        return $array;
+    }
+
+    /**
      * Clean array of empty & null values
      *
      * @param array $array
