@@ -744,7 +744,9 @@ XML;
                 $fLength = str_replace('[', '[' . PHP_EOL . ' ' . self::T2 . self::T, $fLength);
                 $fLength = str_replace(']', PHP_EOL . self::T2 . ']', $fLength);
                 $fLength = str_replace(',', ',' . PHP_EOL . self::T2 . self::T, $fLength);
-                $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper(StringHandler::transliterate($fDefault, '_')), $fDefault);
+
+                if (in_array($fDefault, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP, DBModelField::DEFAULT_NONE]) === false)
+                    $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper(StringHandler::transliterate($fDefault, '_')), $fDefault);
             }
 
             $fieldSetStr = self::T2 . '$this->' . "addField(self::$fNameUp, DBModelField::$fType";

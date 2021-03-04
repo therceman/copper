@@ -74,6 +74,38 @@ class HTML
         return $el;
     }
 
+
+
+    /**
+     * @param HTMLElement[] $liList
+     *
+     * @return HTMLElement
+     */
+    public static function ul($liList = [])
+    {
+        $el = new HTMLElement('ul');
+
+        foreach ($liList as $li) {
+            $el->addElement($li);
+        }
+
+        return $el;
+    }
+
+    /**
+     * @param string $text
+     *
+     * @return HTMLElement
+     */
+    public static function li(string $text = '')
+    {
+        $el = new HTMLElement('li');
+
+        $el->innerText($text);
+
+        return $el;
+    }
+
     /**
      * @param string $text
      * @param int|null $colspan
@@ -204,6 +236,22 @@ class HTML
             $checkboxEl->setAttr('checked', true);
 
         return $checkboxEl;
+    }
+
+    /**
+     * @param string $name
+     * @param string|int $value
+     * @param boolean $checked
+     * @return HtmlInputElement
+     */
+    public static function inputRadio(string $name, $value, $checked = false)
+    {
+        $radioEl = HTML::input($name)->type('radio')->value($value);
+
+        if ($checked !== false)
+            $radioEl->setAttr('checked', true);
+
+        return $radioEl;
     }
 
     /**
