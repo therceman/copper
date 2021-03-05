@@ -693,6 +693,15 @@ if ($resource !== null) {
                     TD.innerHTML = SELECT.outerHTML;
                 }
 
+                if (key === 'null' && val === true)
+                    TD.innerHTML = 'NULL';
+
+                if (key === 'default' && val === DEFAULT_NONE)
+                    TD.innerHTML = '';
+
+                if (val === false)
+                    TD.innerHTML = '';
+
                 TR.appendChild(TD);
             });
 
