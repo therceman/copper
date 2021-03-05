@@ -632,7 +632,17 @@ if ($resource !== null) {
     let updated_db_fields = [];
 
     function updateDBField(new_field) {
-        updated_db_fields[new_field.orig_name] = new_field;
+        let prevUpdateKey = null;
+
+        updated_db_fields.forEach((field,key) => {
+            if (field.orig_name === new_field.orig_name)
+                prevUpdateKey = key;
+        })
+
+        if (prevUpdateKey === null)
+            updated_db_fields.push(new_field);
+        else
+            updated_db_fields[prevUpdateKey] = new_field;
     }
 
     function newDBField(field) {
@@ -999,7 +1009,10 @@ if ($resource !== null) {
         $default.querySelector(`option[value="${DEFAULT_NONE}"]`).disabled = ($null.checked);
 
         if ($default.value === DEFAULT_NONE)
-            $default.value = DEFAULT_NULL
+            $default.value = DEFAULT_NULL;
+
+        if ($null.checked === false && $default.value === DEFAULT_NULL)
+            $default.value = DEFAULT_NONE;
     });
 
     $default.addEventListener('input', e => {
