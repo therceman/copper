@@ -15,7 +15,10 @@ class StringHandler
 
         $parts = explode('?', $str);
 
-        if (count($parts) === 2 && trim($parts[1]) === '')
+        if (count($parts) < 2)
+            return $list;
+
+        if (trim($parts[1]) === '')
             return $list;
 
         parse_str($parts[1], $list);

@@ -4,6 +4,7 @@ use Copper\Component\CP\CPController;
 use Copper\Component\DB\DBModel;
 use Copper\Component\HTML\HTML;
 use Copper\Component\HTML\HTMLGroup;
+use Copper\Handler\ArrayHandler;
 use Copper\Resource\AbstractResource;
 
 // TODO only entity fields
@@ -25,6 +26,8 @@ $resource_list = $view->dataBag->get('resource_list', []);
 
 /** @var AbstractResource $resource */
 $resource = $view->dataBag->get('resource', null);
+
+$db_column_list = $view->dataBag->get('$db_column_list', []);
 
 $demo = $view->query('demo', false);
 
@@ -221,7 +224,7 @@ if ($resource !== null) {
     table td {
         border: 1px solid black;
         text-align: center;
-        padding: 3px 5px;
+        padding: 2px;
     }
 
     table td select.enum {
@@ -234,6 +237,18 @@ if ($resource !== null) {
 
     table tr.selected {
         background: lightgreen;
+    }
+
+    table tr.del {
+        background: red;
+    }
+
+    table tr.new {
+        background: lightblue;
+    }
+
+    table tr.not_in_db {
+        background: #f2f2f2;
     }
 
     body {
@@ -366,10 +381,11 @@ if ($resource !== null) {
         <td>Type</td>
         <td>Length</td>
         <td>Default</td>
-        <td style="width: 245px;">Attributes</td>
         <td>Null</td>
+        <td style="width: 245px;">Attributes</td>
         <td>Index</td>
         <td>Auto Increment</td>
+        <td style="width: 80px;">DB</td>
         <td style="width: 115px;">Action</td>
     </tr>
     <tr>
@@ -377,7 +393,7 @@ if ($resource !== null) {
             <input id="name">
         </td>
         <td>
-            <select id="type" style="width: 185px;">
+            <select id="type" style="width: 125px;">
                 <option title="A 2-byte integer, signed range is -32,768 to 32,767, unsigned range is 0 to 65,535">
                     SMALLINT
                 </option>
@@ -508,7 +524,7 @@ if ($resource !== null) {
             </select>
         </td>
         <td>
-            <input id="length" type="number">
+            <input id="length" type="number" style="width: 150px;">
         </td>
         <td>
             <input type="text" id="default_value" class="hidden" style="width: 134px;">
@@ -529,6 +545,9 @@ if ($resource !== null) {
             <button class=hidden id="cancel_default_value">X</button>
         </td>
         <td>
+            <input type="checkbox" id="null">
+        </td>
+        <td>
             <select id="attributes">
                 <option value=""></option>
                 <!--                <option value="BINARY">-->
@@ -546,9 +565,6 @@ if ($resource !== null) {
             </select>
         </td>
         <td>
-            <input type="checkbox" id="null">
-        </td>
-        <td>
             <select id="index">
                 <option></option>
                 <option value="PRIMARY">
@@ -562,6 +578,7 @@ if ($resource !== null) {
         <td>
             <input type="checkbox" id="auto_increment">
         </td>
+        <td></td>
         <td>
             <button id="add">ADD</button>
             <button class="hidden" id="update" onclick="updateSelectedField()">✓</button>
@@ -595,20 +612,21 @@ if ($resource !== null) {
         type;
         length;
         default;
-        attr;
         null;
+        attr;
         index;
         auto_increment;
 
         orig_name;
+        exists_in_db;
 
         constructor(name, type, length, def, attr, isNull, index, auto_increment) {
             this.name = name;
             this.type = type;
             this.length = length;
             this.default = def;
-            this.attr = attr;
             this.null = isNull;
+            this.attr = attr;
             this.index = index;
             this.auto_increment = auto_increment;
         }
@@ -682,8 +700,11 @@ if ($resource !== null) {
             if (selectedFieldKey === key)
                 TR.classList.add('selected');
 
+            if (field.exists_in_db === false)
+                TR.classList.add('not_in_db');
+
             Object.keys(field).forEach(key => {
-                if (key === 'orig_name')
+                if (key === 'orig_name' || key === 'exists_in_db')
                     return;
 
                 let val = field[key]
@@ -716,6 +737,31 @@ if ($resource !== null) {
             });
 
             let TD = document.createElement('td');
+
+            let DB_PLUS = document.createElement('button');
+            DB_PLUS.innerHTML = '+';
+            DB_PLUS.addEventListener('click', e => {
+                dbAddField(key);
+            })
+            TD.appendChild(DB_PLUS);
+
+            if (field.exists_in_db)
+                DB_PLUS.disabled = true;
+
+            let DB_MINUS = document.createElement('button');
+            DB_MINUS.innerHTML = '-';
+            DB_MINUS.setAttribute('style', 'margin-left: 10px;');
+            DB_MINUS.addEventListener('click', e => {
+                dbDelField(key);
+            })
+            TD.appendChild(DB_MINUS);
+
+            if (field.exists_in_db === false)
+                DB_MINUS.disabled = true;
+
+            TR.appendChild(TD);
+
+            TD = document.createElement('td');
 
             let EDIT = document.createElement('button');
             EDIT.innerText = 'EDIT';
@@ -805,6 +851,18 @@ if ($resource !== null) {
     $migrate_form.addEventListener('submit', e => {
         $migrate_force.value = confirm('Force Migrate ?');
     })
+
+    function dbAddField(key) {
+        document.querySelector('#field_' + key).classList.add('new');
+        new_db_fields.push(fields[key]);
+    }
+
+    function dbDelField(key) {
+        document.querySelector('#field_' + key).classList.remove('new');
+        document.querySelector('#field_' + key).classList.add('del');
+
+        removeDBField(fields[key])
+    }
 
     function editSelectedField(key) {
         if (selectedFieldKey !== null)
@@ -1448,7 +1506,7 @@ if ($resource !== null) {
 <?php endif; ?>
 
 <?php
-function fillModelFields(DBModel $model)
+function fillModelFields(DBModel $model, $db_column_list)
 {
     if ($model === null)
         return;
@@ -1458,12 +1516,14 @@ function fillModelFields(DBModel $model)
     foreach ($model->fields as $field) {
         $modelFields[] = [
             'orig_name' => $field->getName(),
+            'exists_in_db' => ArrayHandler::hasValue($db_column_list, $field->getName()),
+
             'name' => $field->getName(),
             'type' => $field->getType(),
             'length' => $field->getLength(),
             'default' => $field->getDefault(),
-            'attr' => $field->getAttr(),
             'null' => $field->getNull(),
+            'attr' => $field->getAttr(),
             'index' => $field->getIndex(),
             'auto_increment' => $field->getAutoIncrement()
         ];
@@ -1474,7 +1534,7 @@ function fillModelFields(DBModel $model)
 }
 
 if ($model !== null)
-    fillModelFields($model);
+    fillModelFields($model, $db_column_list);
 ?>
 
 <script>

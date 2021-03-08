@@ -162,10 +162,15 @@ class CPController extends AbstractController
             return $this->redirectToRoute(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR, 'resource' => $resource]);
         }
 
+        $db_column_list = [];
+        if ($resource !== null)
+            $db_column_list = $resource::getModel()->doGetColumns(true);
+
         return $this->viewResponse('cp/generator', [
             'default_varchar_length' => $this->db->config->default_varchar_length,
             'resource_list' => $resourceList,
-            'resource' => $resource
+            'resource' => $resource,
+            '$db_column_list' => $db_column_list
         ]);
     }
 

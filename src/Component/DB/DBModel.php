@@ -6,6 +6,7 @@ namespace Copper\Component\DB;
 
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
+use Copper\Handler\ArrayHandler;
 use Copper\Kernel;
 use DateTime;
 use Envms\FluentPDO\Exception;
@@ -343,7 +344,7 @@ abstract class DBModel
     /**
      * @param DBWhere $where
      * @param DBSelectArgs|null $args
-     * 
+     *
      * @return AbstractEntity|null
      */
     public function doSelectFirstWhere(DBWhere $where, DBSelectArgs $args = null)
@@ -410,6 +411,24 @@ abstract class DBModel
             $stm->order($order);
 
         return $stm;
+    }
+
+    public function doGetColumns($onlyNames = false)
+    {
+        $db = Kernel::getDb();
+
+        try {
+            $columns = $db->pdo->query('SHOW COLUMNS FROM ' . $this->getTableName())
+                ->fetchAll(\PDO::FETCH_ASSOC);
+
+            if ($onlyNames)
+                $columns = ArrayHandler::assocValueList($columns, 'Field');
+
+        } catch (Exception $e) {
+            $columns = [];
+        }
+
+        return $columns;
     }
 
     /**
