@@ -444,7 +444,7 @@ if ($resource !== null) {
                     <option title="A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true">
                         BOOLEAN
                     </option>
-<!--                    <option title="An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE">SERIAL</option>-->
+                    <!--                    <option title="An alias for BIGINT UNSIGNED NOT NULL AUTO_INCREMENT UNIQUE">SERIAL</option>-->
                 </optgroup>
                 <optgroup label="Date and time">
                     <option title="A date, supported range is 1000-01-01 to 9999-12-31">DATE</option>
@@ -649,10 +649,49 @@ if ($resource !== null) {
     /** @type {Field[]}*/
     let updated_db_fields = [];
 
+    function findFieldKeyInArray(array, field) {
+        let found_new_field_key = null
+
+        array.forEach((f, k) => {
+            if (f.name === field.name)
+                found_new_field_key = k;
+        });
+
+        return found_new_field_key
+    }
+
+    function arrayHasField(array, field) {
+        return (findFieldKeyInArray(array, field) !== null)
+    }
+
+    function get_field_key_in_new_db_fields(field) {
+        return findFieldKeyInArray(new_db_fields, field);
+    }
+
+    function get_field_key_in_removed_db_fields(field) {
+        return findFieldKeyInArray(removed_db_fields, field);
+    }
+
+    function get_field_key_in_updated_db_fields(field) {
+        return findFieldKeyInArray(updated_db_fields, field);
+    }
+
+    function is_in_new_db_fields(field) {
+        return arrayHasField(new_db_fields, field);
+    }
+
+    function is_in_removed_db_fields(field) {
+        return arrayHasField(removed_db_fields, field);
+    }
+
+    function is_in_updated_db_fields(field) {
+        return arrayHasField(updated_db_fields, field);
+    }
+
     function updateDBField(new_field) {
         let prevUpdateKey = null;
 
-        updated_db_fields.forEach((field,key) => {
+        updated_db_fields.forEach((field, key) => {
             if (field.orig_name === new_field.orig_name)
                 prevUpdateKey = key;
         })
@@ -678,6 +717,8 @@ if ($resource !== null) {
             new_db_fields.splice(found_new_field_key, 1);
         else
             removed_db_fields.push(field);
+
+        $model_override.checked = true;
     }
 
     function generateFields() {
@@ -702,6 +743,12 @@ if ($resource !== null) {
 
             if (field.exists_in_db === false)
                 TR.classList.add('not_in_db');
+
+            if (is_in_new_db_fields(field))
+                TR.classList.add('new');
+
+            if (is_in_removed_db_fields(field))
+                TR.classList.add('del');
 
             Object.keys(field).forEach(key => {
                 if (key === 'orig_name' || key === 'exists_in_db')
@@ -740,23 +787,34 @@ if ($resource !== null) {
 
             let DB_PLUS = document.createElement('button');
             DB_PLUS.innerHTML = '+';
+            DB_PLUS.classList.add('db_plus');
             DB_PLUS.addEventListener('click', e => {
                 dbAddField(key);
             })
             TD.appendChild(DB_PLUS);
 
-            if (field.exists_in_db)
+            if (field.exists_in_db === true || is_in_new_db_fields(field))
                 DB_PLUS.disabled = true;
 
             let DB_MINUS = document.createElement('button');
             DB_MINUS.innerHTML = '-';
+            DB_MINUS.classList.add('db_minus');
             DB_MINUS.setAttribute('style', 'margin-left: 10px;');
             DB_MINUS.addEventListener('click', e => {
                 dbDelField(key);
             })
             TD.appendChild(DB_MINUS);
 
-            if (field.exists_in_db === false)
+            let DB_CANCEL = document.createElement('button');
+            DB_CANCEL.innerHTML = 'CANCEL';
+            DB_CANCEL.classList.add('db_cancel');
+            DB_CANCEL.classList.add('hidden');
+            DB_CANCEL.addEventListener('click', e => {
+                dbCancel(key);
+            })
+            TD.appendChild(DB_CANCEL);
+
+            if (field.exists_in_db !== true || is_in_removed_db_fields(field))
                 DB_MINUS.disabled = true;
 
             TR.appendChild(TD);
@@ -853,15 +911,57 @@ if ($resource !== null) {
     })
 
     function dbAddField(key) {
-        document.querySelector('#field_' + key).classList.add('new');
-        new_db_fields.push(fields[key]);
+        let $field = document.querySelector('#field_' + key);
+
+        $field.classList.add('new');
+
+        $field.querySelector('.db_plus').classList.add('hidden');
+        $field.querySelector('.db_minus').classList.add('hidden');
+        $field.querySelector('.db_cancel').classList.remove('hidden');
+
+        let field = fields[key];
+
+        if (is_in_new_db_fields(field) === false) {
+            $model_override.checked = true;
+            new_db_fields.push(field);
+        }
+    }
+
+    function dbCancel(key) {
+        let $field = document.querySelector('#field_' + key);
+
+        let field = fields[key];
+
+        if (is_in_removed_db_fields(field))
+            removed_db_fields.splice(get_field_key_in_removed_db_fields(field), 1);
+
+        if (is_in_new_db_fields(field))
+            new_db_fields.splice(get_field_key_in_new_db_fields(field), 1);
+
+        $field.classList.remove('new');
+        $field.classList.remove('del');
+
+        $field.querySelector('.db_plus').classList.remove('hidden');
+        $field.querySelector('.db_minus').classList.remove('hidden');
+        $field.querySelector('.db_cancel').classList.add('hidden');
+
+        $model_override.checked = (new_db_fields.length > 0 || removed_db_fields.length > 0 || updated_db_fields > 0)
     }
 
     function dbDelField(key) {
-        document.querySelector('#field_' + key).classList.remove('new');
-        document.querySelector('#field_' + key).classList.add('del');
+        let $field = document.querySelector('#field_' + key);
 
-        removeDBField(fields[key])
+        $field.classList.remove('new');
+        $field.classList.add('del');
+
+        $field.querySelector('.db_plus').classList.add('hidden');
+        $field.querySelector('.db_minus').classList.add('hidden');
+        $field.querySelector('.db_cancel').classList.remove('hidden');
+
+        let field = fields[key];
+
+        if (is_in_removed_db_fields(field) === false)
+            removeDBField(field)
     }
 
     function editSelectedField(key) {
