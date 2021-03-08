@@ -244,7 +244,7 @@ if ($resource !== null) {
     }
 
     table tr.new {
-        background: lightblue;
+        background: lightblue !important;
     }
 
     table tr.not_in_db {
