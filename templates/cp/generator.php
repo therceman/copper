@@ -255,7 +255,7 @@ if ($resource !== null) {
     }
 
     #legend table {
-        width: 390px;
+        width: 335px;
     }
 
     #fields_size td {
@@ -622,31 +622,31 @@ if ($resource !== null) {
 <div id="table_container">
     <table id=fields>
         <thead>
-            <tr id=fields_size style="height: 1px">
-                <td style="width: 187px;"></td>
-                <td style="width: 133px;"></td>
-                <td style="width: 167px;"></td>
-                <td style="width: 183px;"></td>
-                <td style="width: 31px;"></td>
-                <td style="width: 240px;"></td>
-                <td style="width: 89px;"></td>
-                <td style="width: 110px;"></td>
-                <td style="width: 80px;"></td>
-                <td style="width: 113px;"></td>
-            </tr>
+        <tr id=fields_size style="height: 1px">
+            <td style="width: 187px;"></td>
+            <td style="width: 133px;"></td>
+            <td style="width: 167px;"></td>
+            <td style="width: 183px;"></td>
+            <td style="width: 31px;"></td>
+            <td style="width: 240px;"></td>
+            <td style="width: 89px;"></td>
+            <td style="width: 110px;"></td>
+            <td style="width: 80px;"></td>
+            <td style="width: 113px;"></td>
+        </tr>
         </thead>
         <tbody></tbody>
     </table>
 </div>
 <div id="legend" style="margin-top: 10px;margin-bottom:10px;">
-    <table>
+    <table style="font-size: 11px;">
         <tr>
-            <td style="background: lightblue; width: 20px;"></td>
-            <td style="width: 40px;">New</td>
-            <td style="background: red; width: 20px;"></td>
-            <td style="width: 70px;">To be deleted</td>
-            <td style="background: lightgreen; width: 20px;"></td>
-            <td style="width: 70px;">To be updated</td>
+            <td style="background: lightblue;width: 10px;"></td>
+            <td style="width: 22px;">New</td>
+            <td style="background: red;width: 10px;"></td>
+            <td style="width: 40px;">To be deleted</td>
+            <td style="background: lightgreen;width: 10px;"></td>
+            <td style="width: 40px;">To be updated</td>
         </tr>
     </table>
 </div>
