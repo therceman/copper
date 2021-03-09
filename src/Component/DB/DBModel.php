@@ -589,6 +589,9 @@ abstract class DBModel
             if ($resultRowCount === false)
                 throw new Exception($stm->getMessage());
 
+            if ($resultRowCount === 0)
+                throw new Exception('No record found for update');
+
             $response->result($resultRowCount);
         } catch (Exception $e) {
             $response->fail($e->getMessage(), $formattedUpdateData);

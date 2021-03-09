@@ -348,7 +348,9 @@ class HTMLElement
 
     public function getHTML()
     {
-        return (strpos($this->innerHTML, PHP_EOL) !== false) ? $this->innerHTML . PHP_EOL : $this->innerHTML;
+        $html = (strpos($this->innerHTML, PHP_EOL) !== false) ? $this->innerHTML . PHP_EOL : $this->innerHTML;
+
+        return $this->innerBeforeHTML . $html . $this->innerAfterHTML;
     }
 
     public function __toString()
@@ -357,9 +359,7 @@ class HTMLElement
             $tagStr = $this->getStartTag(false);
         } else {
             $tagStr = $this->getStartTag(false)
-                . $this->innerBeforeHTML
                 . $this->getHTML()
-                . $this->innerAfterHTML
                 . $this->getEndTag(false);
         }
 
