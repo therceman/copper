@@ -227,7 +227,7 @@ if ($resource !== null) {
     }
 
     table td select.enum {
-        width: 170px;
+        width: 163px;
     }
 
     table tr:hover, table tr.selected {
@@ -258,14 +258,20 @@ if ($resource !== null) {
         width: 390px;
     }
 
+    #fields_size td {
+        height: 0;
+        padding: 0;
+        margin: 0;
+    }
+
     #table_container {
-        height: 800px;
+        max-height: 800px;
         width: 1414px;
         overflow-y: scroll;
         overflow-x: hidden;
-        margin-top: 10px;
         border-bottom: 1px solid #ccc;
         border-top: 1px solid #ccc;
+        margin-top: -1px;
     }
 
     table tr.not_in_db {
@@ -616,17 +622,17 @@ if ($resource !== null) {
 <div id="table_container">
     <table id=fields>
         <thead>
-            <tr style="height: 1px">
-                <td style="width: 190px"></td>
-                <td style="width: 134px"></td>
-                <td style="width: 170px"></td>
-                <td style="width: 186px"></td>
-                <td style="width: 28px"></td>
-                <td style="width: 245px"></td>
-                <td style="width: 90px"></td>
-                <td style="width: 111px"></td>
-                <td style="width: 80px"></td>
-                <td style="width: 115px"></td>
+            <tr id=fields_size style="height: 1px">
+                <td style="width: 187px;"></td>
+                <td style="width: 133px;"></td>
+                <td style="width: 167px;"></td>
+                <td style="width: 183px;"></td>
+                <td style="width: 31px;"></td>
+                <td style="width: 240px;"></td>
+                <td style="width: 89px;"></td>
+                <td style="width: 110px;"></td>
+                <td style="width: 80px;"></td>
+                <td style="width: 113px;"></td>
             </tr>
         </thead>
         <tbody></tbody>
@@ -771,6 +777,7 @@ if ($resource !== null) {
             removed_db_fields.push(field);
 
         $model_override.checked = true;
+        $entity_override.checked = true;
     }
 
     function generateFields() {
@@ -984,6 +991,7 @@ if ($resource !== null) {
 
         if (is_in_new_db_fields(field) === false) {
             $model_override.checked = true;
+            $entity_override.checked = true;
             new_db_fields.push(field);
         }
     }
@@ -1006,7 +1014,10 @@ if ($resource !== null) {
         $field.querySelector('.db_minus').classList.remove('hidden');
         $field.querySelector('.db_cancel').classList.add('hidden');
 
-        $model_override.checked = (new_db_fields.length > 0 || removed_db_fields.length > 0 || updated_db_fields > 0)
+        let status = (new_db_fields.length > 0 || removed_db_fields.length > 0 || updated_db_fields > 0);
+
+        $model_override.checked = status;
+        $entity_override.checked = status;
     }
 
     function dbDelField(key) {
@@ -1446,6 +1457,14 @@ if ($resource !== null) {
     $name.value = '';
 
     $type.dispatchEvent(new Event('input'));
+
+    $create_resource.checked = true;
+    $create_entity.checked = true;
+    $create_model.checked = true;
+
+    $create_service.dispatchEvent(new Event('input'));
+    $create_controller.dispatchEvent(new Event('input'));
+    $create_seed.dispatchEvent(new Event('input'));
 
     new_db_fields = [];
 
