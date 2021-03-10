@@ -380,7 +380,7 @@ abstract class DBModel
     {
         $db = Kernel::getDb();
 
-        $stm = $db->query->from($this->getTableName());
+        $stm = $db->query->from('`' . $this->getTableName() . '`');
 
         if ($args === null)
             return $stm;
@@ -516,7 +516,7 @@ abstract class DBModel
         }
 
         try {
-            $stm = $db->query->insertInto($this->getTableName(), $formattedInsertDataList);
+            $stm = $db->query->insertInto('`' . $this->getTableName() . '`', $formattedInsertDataList);
             $result = $stm->execute();
 
             if ($result === false)
@@ -547,7 +547,7 @@ abstract class DBModel
         $entity = $entity::fromArray($formattedInsertData);
 
         try {
-            $stm = $db->query->insertInto($this->getTableName(), $formattedInsertData);
+            $stm = $db->query->insertInto('`' . $this->getTableName() . '`', $formattedInsertData);
             $resultId = $stm->execute();
 
             if ($resultId === false)
@@ -579,7 +579,7 @@ abstract class DBModel
         $formattedUpdateData = $this->formatFieldValues($updateData, false);
 
         try {
-            $stm = $db->query->update($this->getTableName(), $formattedUpdateData);
+            $stm = $db->query->update('`' . $this->getTableName() . '`', $formattedUpdateData);
 
             if ($where !== null)
                 $stm = $where->buildForStatement($stm);
@@ -624,7 +624,7 @@ abstract class DBModel
         $db = Kernel::getDb();
 
         try {
-            $stm = $db->query->delete($this->getTableName());
+            $stm = $db->query->delete('`' . $this->getTableName() . '`');
 
             if ($where !== null)
                 $stm = $where->buildForStatement($stm);

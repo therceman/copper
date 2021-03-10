@@ -97,7 +97,7 @@ abstract class DBCollectionService
     public static function get(DBHandler $db, int $id, $returnRemoved = false)
     {
         try {
-            $stm = $db->query->from(self::getTable(), $id);
+            $stm = $db->query->from('`'.self::getTable().'`', $id);
 
             if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
                 $stm = $stm->where(DBModel::REMOVED_AT, null);
@@ -128,7 +128,7 @@ abstract class DBCollectionService
     public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $order = false, $returnRemoved = false)
     {
         try {
-            $stm = $db->query->from(self::getTable())->limit($limit)->offset($offset);
+            $stm = $db->query->from('`'.self::getTable().'`')->limit($limit)->offset($offset);
 
             if ($filter instanceof DBWhere)
                 $stm = $filter->buildForStatement($stm);
@@ -170,7 +170,7 @@ abstract class DBCollectionService
     public static function findFirst(DBHandler $db, array $filter)
     {
         try {
-            $result = $db->query->from(self::getTable())->where($filter)->fetch();
+            $result = $db->query->from('`'.self::getTable().'`')->where($filter)->fetch();
             $entry = ($result === false) ? null : static::getEntity()::fromArray($result);
         } catch (Exception $e) {
             $entry = null;
@@ -192,7 +192,7 @@ abstract class DBCollectionService
         $response = new FunctionResponse();
 
         try {
-            $stm = $db->query->delete(self::getTable(), $id);
+            $stm = $db->query->delete('`'.self::getTable().'`', $id);
             $resultRowCount = $stm->execute();
 
             if ($resultRowCount === false)
@@ -296,7 +296,7 @@ abstract class DBCollectionService
         $entity = $entity::fromArray($formattedInsertData);
 
         try {
-            $stm = $db->query->insertInto(self::getTable(), $formattedInsertData);
+            $stm = $db->query->insertInto('`'.self::getTable().'`', $formattedInsertData);
             $resultId = $stm->execute();
 
             if ($resultId === false)
@@ -331,7 +331,7 @@ abstract class DBCollectionService
         $formattedUpdateData = self::getModel()->formatFieldValues($updateData, false);
 
         try {
-            $stm = $db->query->update(self::getTable(), $formattedUpdateData, $id);
+            $stm = $db->query->update('`'.self::getTable().'`', $formattedUpdateData, $id);
             $resultRowCount = $stm->execute();
 
             if ($resultRowCount === false)
