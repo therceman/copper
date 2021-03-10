@@ -9,6 +9,10 @@ class NumberHandler
     const SIGN_USD = '$';
     const SIGN_EUR = '€';
     const SIGN_PERCENT = '%';
+    
+    public static function leadingZeros($num, $count) {
+        return str_pad($num, $count, '0', STR_PAD_LEFT);
+    }
 
     public static function format($num, $dec = 2, $d_sep = '.', $t_sep = '')
     {
