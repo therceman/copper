@@ -418,7 +418,7 @@ abstract class DBModel
         $db = Kernel::getDb();
 
         try {
-            $columns = $db->pdo->query('SHOW COLUMNS FROM ' . $this->getTableName())
+            $columns = $db->pdo->query('SHOW COLUMNS FROM `' . $this->getTableName() . '`')
                 ->fetchAll(\PDO::FETCH_ASSOC);
 
             if ($onlyNames)

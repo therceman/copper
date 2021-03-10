@@ -137,6 +137,22 @@ class HTML
     }
 
     /**
+     * @param string $href
+     * @param string|null $text
+     *
+     * @return HTMLElement
+     */
+    public static function link(string $href, $text = null)
+    {
+        $el = new HTMLElement('a');
+
+        $el->setAttr('href', $href);
+        $el->innerText(($text !== null) ? $text : $href);
+
+        return $el;
+    }
+
+    /**
      * @param string|null $class
      *
      * @return HTMLElement

@@ -9,9 +9,16 @@ use Copper\Transliterator;
 class StringHandler
 {
 
-    public static function urlQueryParamList(string $str)
+    /**
+     * @param string|null $str
+     * @return array
+     */
+    public static function urlQueryParamList($str)
     {
         $list = [];
+
+        if ($str === null)
+            return $list;
 
         $parts = explode('?', $str);
 

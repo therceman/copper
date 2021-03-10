@@ -277,6 +277,11 @@ class HTMLElement
         return array_key_exists($key, $this->attributes) ? $this->attributes[$key] : null;
     }
 
+    public function getOuterHTML()
+    {
+        return $this->__toString();
+    }
+
     public function innerHTML($value)
     {
         $this->innerHTML = $value;
