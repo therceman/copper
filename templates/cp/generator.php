@@ -1377,49 +1377,59 @@ if ($resource !== null) {
     $create_entity.addEventListener('input', e => {
         $entity.disabled = ($create_entity.checked === false);
         $entity_override.disabled = ($create_entity.checked === false);
-        $resource.dispatchEvent(new Event('change'));
+        $entity.value = getResourceCamelCaseValue() + 'Entity';
     })
 
     $create_model.addEventListener('input', e => {
         $model.disabled = ($create_model.checked === false);
         $model_override.disabled = ($create_model.checked === false);
-        $resource.dispatchEvent(new Event('change'));
+        $model.value = getResourceCamelCaseValue() + 'Model';
     })
 
     $create_service.addEventListener('input', e => {
         $service.disabled = ($create_service.checked === false);
         $service_override.disabled = ($create_service.checked === false);
-        $resource.dispatchEvent(new Event('change'));
+        $service.value = getResourceCamelCaseValue() + 'Service';
     })
 
     $create_controller.addEventListener('input', e => {
         $controller.disabled = ($create_controller.checked === false);
         $controller_override.disabled = ($create_controller.checked === false);
-        $resource.dispatchEvent(new Event('change'));
+        $controller.value = getResourceCamelCaseValue() + 'Controller';
     })
 
     $create_seed.addEventListener('input', e => {
         $seed.disabled = ($create_seed.checked === false);
         $seed_override.disabled = ($create_seed.checked === false);
-        $resource.dispatchEvent(new Event('change'));
+        $seed.value = getResourceCamelCaseValue() + 'Seed';
     })
 
     $create_seed.dispatchEvent(new Event('input'));
 
-    $resource.addEventListener('change', e => {
+    function getResourceValueParts(){
         let val = $resource.value;
 
         val = val.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
 
-        let valParts = val.toLowerCase().trim().replace(/ /g, '_').split('_');
+        return val.toLowerCase().trim().replace(/ /g, '_').split('_');
+    }
+
+    function getResourceCamelCaseValue() {
+        let valParts = getResourceValueParts();
 
         let camelCaseVal = '';
         valParts.forEach(part => {
             camelCaseVal += part.charAt(0).toUpperCase() + part.slice(1);
         })
 
+        return camelCaseVal;
+    }
+
+    $resource.addEventListener('change', e => {
+        let camelCaseVal = getResourceCamelCaseValue();
+
         $resource.value = camelCaseVal;
-        $table.value = valParts.join('_');
+        $table.value = getResourceValueParts().join('_');
         $entity.value = camelCaseVal + 'Entity';
         $model.value = camelCaseVal + 'Model';
         $service.value = camelCaseVal + 'Service';
