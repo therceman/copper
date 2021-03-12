@@ -13,6 +13,16 @@ class MailHandler
     /** @var MailConfigurator */
     public $config;
 
+    const ENCODING_7BIT = '7bit';
+    const ENCODING_8BIT = '8bit';
+    const ENCODING_BASE64 = 'base64';
+    const ENCODING_BINARY = 'binary';
+    const ENCODING_QUOTED_PRINTABLE = 'quoted-printable';
+
+    const CHARSET_ASCII = 'us-ascii';
+    const CHARSET_ISO88591 = 'iso-8859-1';
+    const CHARSET_UTF8 = 'utf-8';
+
     /**
      * CPHandler constructor.
      *
@@ -44,6 +54,16 @@ class MailHandler
         $response = new FunctionResponse();
 
         $mailService = new PHPMailer();
+
+        // Set charset
+        $charset = $this->config->charset;
+        if (StringHandler::isNotEmpty($charset))
+            $mailService->CharSet = $charset;
+
+        // Set encoding
+        $encoding = $this->config->encoding;
+        if (StringHandler::isNotEmpty($encoding))
+            $mailService->Encoding = $encoding;
 
         //Tell PHPMailer to use SMTP
         if ($this->config->isSMTPEnabled)

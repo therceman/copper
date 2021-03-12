@@ -2,6 +2,7 @@
 
 
 use Copper\Component\Mail\MailConfigurator;
+use Copper\Component\Mail\MailHandler;
 
 return function (MailConfigurator $mail) {
 
@@ -38,5 +39,10 @@ return function (MailConfigurator $mail) {
     $mail->setSMTPDebugToClientMode = false;
     /** @var bool */
     $mail->setSMTPSecureToSTARTTLS = true;
+
+    /** @var string */
+    $mail->encoding = MailHandler::ENCODING_BASE64;
+    /** @var string */
+    $mail->charset = MailHandler::CHARSET_UTF8;
 
 };

@@ -35,4 +35,10 @@ class MailConfigurator
     /** @var bool */
     public $setSMTPSecureToSTARTTLS;
 
+    /** @var string */
+    public $charset;
+    /** @var string */
+    public $encoding;
+
+
 }
