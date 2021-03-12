@@ -126,39 +126,39 @@ class Mail
     /**
      * @return string
      */
-    public function getAddressName(): string
+    public function getAddressName()
     {
         return $this->addressName;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getSubject(): string
+    public function getSubject()
     {
         return $this->subject;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getBody(): string
+    public function getBody()
     {
         return $this->body;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getAltBody(): string
+    public function getAltBody()
     {
         return $this->altBody;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getHtmlBody(): string
+    public function getHtmlBody()
     {
         return $this->htmlBody;
     }

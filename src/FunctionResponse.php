@@ -21,6 +21,69 @@ class FunctionResponse
     }
 
     /**
+     * Sets the result. Status: true when $result is not false (else throws error)
+     *
+     * @param $result
+     * @param $falseResultMsg
+     *
+     * @return static
+     */
+    public static function createResult($result, $falseResultMsg = false)
+    {
+        $response = new FunctionResponse();
+
+        if ($falseResultMsg === false)
+            return $response->result($result);
+        else
+            return $response->result($result, $falseResultMsg);
+    }
+
+    /**
+     * Error. Status: False
+     *
+     * @param $msg
+     * @param false $result
+     *
+     * @return FunctionResponse
+     */
+    public static function createError($msg, $result = false)
+    {
+        $response = new FunctionResponse();
+
+        return $response->error($msg, $result);
+    }
+
+    /**
+     * Success. Status: True
+     *
+     * @param $msg
+     * @param false $result
+     *
+     * @return FunctionResponse
+     */
+    public static function createSuccess($msg, $result = false)
+    {
+        $response = new FunctionResponse();
+
+        return $response->success($msg, $result);
+    }
+
+    /**
+     * Sets the result based on status.
+     *
+     * @param bool $status
+     * @param $result
+     *
+     * @return FunctionResponse
+     */
+    public static function createSuccessOrError(bool $status, $result)
+    {
+        $response = new FunctionResponse();
+
+        return $response->successOrError($status, $result);
+    }
+
+    /**
      * Check if status is true
      *
      * @return bool
@@ -64,38 +127,12 @@ class FunctionResponse
      *
      * @return $this
      */
-    public function okOrFail(bool $status, $result = false)
+    public function successOrError(bool $status, $result = false)
     {
         if ($status !== true)
             return $this->error('Failed Result.', $result);
 
         return $this->success("Success Result!", $result);
-    }
-
-    /**
-     * Alias for success. Status: true
-     *
-     * @param string|false $msg
-     * @param mixed|false $result
-     *
-     * @return $this
-     */
-    public function ok($msg = false, $result = false)
-    {
-        return $this->success($msg, $result);
-    }
-
-    /**
-     * Alias for error. Status: false
-     *
-     * @param string $msg
-     * @param mixed $result
-     *
-     * @return $this
-     */
-    public function fail(string $msg, $result = false)
-    {
-        return $this->error($msg, $result);
     }
 
     /**
@@ -152,5 +189,46 @@ class FunctionResponse
             return false;
 
         return true;
+    }
+
+    // ------------------ Aliases ------------------
+
+    /**
+     * Alias for successOrError. Sets the result based on status.
+     *
+     * @param bool $status
+     * @param mixed|false $result
+     *
+     * @return $this
+     */
+    public function okOrFail(bool $status, $result = false)
+    {
+        return $this->successOrError($status, $result);
+    }
+
+    /**
+     * Alias for success. Status: true
+     *
+     * @param string|false $msg
+     * @param mixed|false $result
+     *
+     * @return $this
+     */
+    public function ok($msg = false, $result = false)
+    {
+        return $this->success($msg, $result);
+    }
+
+    /**
+     * Alias for error. Status: false
+     *
+     * @param string $msg
+     * @param mixed $result
+     *
+     * @return $this
+     */
+    public function fail(string $msg, $result = false)
+    {
+        return $this->error($msg, $result);
     }
 }

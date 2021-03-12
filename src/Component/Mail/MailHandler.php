@@ -62,16 +62,18 @@ class MailHandler
         //Use `$mailService->Host = gethostbyname('smtp.gmail.com');`
         //if your network does not support SMTP over IPv6,
         //though this may cause issues with TLS
-        if (StringHandler::isEmpty($this->config->host))
+        $host = $this->config->host;
+        if (StringHandler::isEmpty($host))
             return $response->error('Host is not defined');
         else
-            $mailService->Host = $this->config->host;
+            $mailService->Host = $host;
 
         //Set the SMTP port number - 587 for authenticated TLS, a.k.a. RFC4409 SMTP submission
-        if (StringHandler::isEmpty($this->config->port))
+        $port = $this->config->port;
+        if (StringHandler::isEmpty($port))
             return $response->error('Port is not defined');
         else
-            $mailService->Port = $this->config->port;
+            $mailService->Port = $port;
 
         //Set the encryption mechanism to use - STARTTLS or SMTPS
         if ($this->config->setSMTPSecureToSTARTTLS)
@@ -84,16 +86,18 @@ class MailHandler
             $mailService->SMTPAuth = true;
 
         //Username to use for SMTP authentication - use full email address for gmail
-        if (StringHandler::isEmpty($this->config->username))
+        $username = $this->config->username;
+        if (StringHandler::isEmpty($username))
             return $response->error('Username is not defined');
         else
-            $mailService->Username = $this->config->username;
+            $mailService->Username = $username;
 
         //Password to use for SMTP authentication
-        if (StringHandler::isEmpty($this->config->password))
+        $password = $this->config->password;
+        if (StringHandler::isEmpty($password))
             return $response->error('Password is not defined');
         else
-            $mailService->Password = $this->config->password;
+            $mailService->Password = $password;
 
         //Set who the message is to be sent from
         try {
