@@ -124,14 +124,16 @@ class HTML
 
     /**
      * @param string|null $src
+     * @param string|null $alt
      *
      * @return HTMLElement
      */
-    public static function img($src = null)
+    public static function img($src = null, $alt = null)
     {
         $el = new HTMLElement('img');
 
         $el->setAttr('src', $src);
+        $el->setAttr('alt', $alt);
 
         return $el;
     }

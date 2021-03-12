@@ -207,7 +207,9 @@ class HTMLElement
     }
 
     /**
-     * @param array $arr - [["display" => "block"], ["color":"red"]]
+     * Set style
+     *
+     * @param array $arr - [["display" => "block"], ["color":"red"]] or ["display" => "block"]
      *
      * @return $this
      */
@@ -215,10 +217,13 @@ class HTMLElement
     {
         $styles = [];
 
-        foreach ($arr as $keyValuePair) {
-            foreach ($keyValuePair as $key => $value) {
-                $styles[$key] = $value;
-            }
+        foreach ($arr as $k => $keyValuePair) {
+            if (is_array($keyValuePair))
+                foreach ($keyValuePair as $key => $value) {
+                    $styles[$key] = $value;
+                }
+            else
+                $styles[$k] = $keyValuePair;
         }
 
         $this->setAttr(self::ATTR_STYLE, $styles);

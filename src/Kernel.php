@@ -4,6 +4,7 @@ namespace Copper;
 
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Mail\MailPhpFileLoader;
+use Copper\Component\Templating\ViewHandler;
 use Copper\Handler\FileHandler;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\Auth\AuthPhpFileLoader;
@@ -59,6 +60,8 @@ final class Kernel
     private static $validator;
     /** @var RequestContext */
     private static $requestContext;
+    /** @var Request */
+    private static $request;
 
     public function __construct()
     {
@@ -232,7 +235,27 @@ final class Kernel
     {
         return self::$requestContext;
     }
-    
+
+    /**
+     * @return Request
+     */
+    public static function getRequest(): Request
+    {
+        return self::$request;
+    }
+
+    /**
+     * Creates View Handler
+     *
+     * @param $parameters
+     *
+     * @return ViewHandler
+     */
+    public static function createViewHandler($parameters)
+    {
+        return new ViewHandler(self::$request, self::$requestContext, self::$routes, self::$flashMessage, self::$auth, $parameters);
+    }
+
     // --------------------------
 
     /**
@@ -304,6 +327,7 @@ final class Kernel
         $requestContext = new RequestContext();
         $requestContext->fromRequest($request);
 
+        self::$request = $request;
         self::$requestContext = $requestContext;
 
         $matcher = new UrlMatcher(self::$routes, $requestContext);
@@ -509,6 +533,7 @@ final class Kernel
             self::$routes->remove(ROUTE_copper_cp_action);
         }
     }
+
     /**
      *  Configure default and application Mail from {APP|CORE}/config/mail.php
      */
