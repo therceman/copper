@@ -5,6 +5,9 @@ use Copper\Component\Mail\MailConfigurator;
 
 return function (MailConfigurator $mail) {
 
+    // --------------- How to test Gmail Mail service from localhost -------------------------
+    // Open "Manage your Google Account" -> Security (Tab) -> scroll down and turn on "Less secure app access"
+
     /** @var string */
     $mail->host = 'smtp.gmail.com';
     /** @var int */
