@@ -2,6 +2,8 @@
 
 namespace Copper;
 
+use Copper\Component\Mail\MailHandler;
+use Copper\Component\Mail\MailPhpFileLoader;
 use Copper\Handler\FileHandler;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\Auth\AuthPhpFileLoader;
@@ -38,6 +40,7 @@ final class Kernel
     const AUTH_CONFIG_FILE = 'auth.php';
     const DB_CONFIG_FILE = 'db.php';
     const CP_CONFIG_FILE = 'cp.php';
+    const MAIL_CONFIG_FILE = 'mail.php';
     const VALIDATOR_CONFIG_FILE = 'validator.php';
 
     /** @var RouteCollection */
@@ -50,6 +53,8 @@ final class Kernel
     private static $db;
     /** @var CPHandler */
     private static $cp;
+    /** @var MailHandler */
+    private static $mail;
     /** @var ValidatorHandler */
     private static $validator;
     /** @var RequestContext */
@@ -63,6 +68,7 @@ final class Kernel
         $this->configureFlashMessage();
         $this->configureCP();
         $this->configureValidator();
+        $this->configureMail();
     }
 
     /**
@@ -201,6 +207,14 @@ final class Kernel
     public static function getCp(): CPHandler
     {
         return self::$cp;
+    }
+
+    /**
+     * @return MailHandler
+     */
+    public static function getMail(): MailHandler
+    {
+        return self::$mail;
     }
 
     /**
@@ -361,7 +375,7 @@ final class Kernel
 
             // pass Templating and RequestContext initialized class to controller
             $instance = new $controller[0]($request, $requestContext,
-                self::$routes, self::$auth, self::$flashMessage, self::$db, self::$cp, self::$validator);
+                self::$routes, self::$auth, self::$flashMessage, self::$db, self::$cp, self::$validator, self::$mail);
 
             $controller = [$instance, $controller[1]];
         }
@@ -494,6 +508,25 @@ final class Kernel
             self::$routes->remove(ROUTE_get_copper_cp);
             self::$routes->remove(ROUTE_copper_cp_action);
         }
+    }
+    /**
+     *  Configure default and application Mail from {APP|CORE}/config/mail.php
+     */
+    protected function configureMail()
+    {
+        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
+        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
+
+        $loader = new MailPhpFileLoader(new FileLocator($packagePath));
+        $packageConfig = $loader->load($this::MAIL_CONFIG_FILE);
+
+        $projectConfig = null;
+        if (file_exists($projectPath . '/' . $this::MAIL_CONFIG_FILE)) {
+            $loader = new MailPhpFileLoader(new FileLocator($projectPath));
+            $projectConfig = $loader->load($this::MAIL_CONFIG_FILE);
+        }
+
+        self::$mail = new MailHandler($packageConfig, $projectConfig);
     }
 
     /**

@@ -6,6 +6,7 @@ use Copper\Component\Auth\AuthHandler;
 use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
+use Copper\Component\Mail\MailHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\RequestTrait;
@@ -41,6 +42,8 @@ class AbstractController
     protected $cp;
     /** @var ValidatorHandler */
     protected $validator;
+    /** @var MailHandler */
+    protected $mail;
 
     /**
      * AbstractController constructor.
@@ -52,9 +55,11 @@ class AbstractController
      * @param DBHandler $db
      * @param CPHandler $cp
      * @param ValidatorHandler $validator
+     * @param MailHandler $mail
      */
-    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, AuthHandler $auth,
-                         FlashMessageHandler $flashMessage, DBHandler $db, CPHandler $cp, ValidatorHandler $validator)
+    function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes,
+                         AuthHandler $auth, FlashMessageHandler $flashMessage, DBHandler $db,
+                         CPHandler $cp, ValidatorHandler $validator, MailHandler $mail)
     {
         $this->request = $request;
         $this->requestContext = $requestContext;
@@ -64,6 +69,7 @@ class AbstractController
         $this->db = $db;
         $this->cp = $cp;
         $this->validator = $validator;
+        $this->mail = $mail;
 
         $this->init();
     }

@@ -10,6 +10,26 @@ class StringHandler
 {
 
     /**
+     * @param string|int|null|bool $str
+     *
+     * @return bool
+     */
+    public static function isNotEmpty($str)
+    {
+        return (self::isEmpty($str) === false);
+    }
+
+    /**
+     * @param string|int|null|bool $str
+     *
+     * @return bool
+     */
+    public static function isEmpty($str)
+    {
+        return (trim($str) === '' || $str === null || $str === false);
+    }
+
+    /**
      * @param string|null $str
      * @return array
      */
