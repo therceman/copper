@@ -775,6 +775,8 @@ if ($resource !== null) {
 
         $model_override.checked = true;
         $entity_override.checked = true;
+
+        selectedFieldKey = null
     }
 
     function generateFields() {
@@ -1119,7 +1121,8 @@ if ($resource !== null) {
     }
 
     function cancelFieldEdit() {
-        document.querySelector('#field_' + selectedFieldKey).classList.remove('selected');
+        if (selectedFieldKey !== null)
+            document.querySelector('#field_' + selectedFieldKey).classList.remove('selected');
 
         selectedFieldKey = null;
 
@@ -1375,30 +1378,35 @@ if ($resource !== null) {
         $entity.disabled = ($create_entity.checked === false);
         $entity_override.disabled = ($create_entity.checked === false);
         $entity.value = getResourceCamelCaseValue() + 'Entity';
+        $resource_override.checked = true;
     })
 
     $create_model.addEventListener('input', e => {
         $model.disabled = ($create_model.checked === false);
         $model_override.disabled = ($create_model.checked === false);
         $model.value = getResourceCamelCaseValue() + 'Model';
+        $resource_override.checked = true;
     })
 
     $create_service.addEventListener('input', e => {
         $service.disabled = ($create_service.checked === false);
         $service_override.disabled = ($create_service.checked === false);
         $service.value = getResourceCamelCaseValue() + 'Service';
+        $resource_override.checked = true;
     })
 
     $create_controller.addEventListener('input', e => {
         $controller.disabled = ($create_controller.checked === false);
         $controller_override.disabled = ($create_controller.checked === false);
         $controller.value = getResourceCamelCaseValue() + 'Controller';
+        $resource_override.checked = true;
     })
 
     $create_seed.addEventListener('input', e => {
         $seed.disabled = ($create_seed.checked === false);
         $seed_override.disabled = ($create_seed.checked === false);
         $seed.value = getResourceCamelCaseValue() + 'Seed';
+        $resource_override.checked = true;
     })
 
     $create_seed.dispatchEvent(new Event('input'));
@@ -1474,6 +1482,8 @@ if ($resource !== null) {
     $create_seed.dispatchEvent(new Event('input'));
 
     new_db_fields = [];
+
+    $resource_override.checked = false;
 
     // --------- PREPARE TEMPLATES ---------
 

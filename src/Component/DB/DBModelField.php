@@ -208,6 +208,16 @@ class DBModelField
             $this->length = $length;
     }
 
+    public static function cleanLength($length_list) {
+        $list = [];
+        
+        foreach ($length_list as $val) {
+            $list[] = trim($val);
+        }
+
+        return $list;
+    }
+
     public static function fromArray($array)
     {
         $field = new DBModelField($array['name']);
@@ -216,6 +226,8 @@ class DBModelField
 
         if (is_string($length) && strpos($length, ',') !== false)
             $length = explode(',', $length);
+
+        $length = self::cleanLength($length);
 
         $field->attr($array['attr']);
         $field->autoIncrement($array['auto_increment']);
