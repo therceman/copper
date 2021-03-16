@@ -1084,6 +1084,8 @@ if ($resource !== null) {
         updateDBField(fields[selectedFieldKey])
 
         generateFields();
+
+        cancelFieldEdit();
     }
 
     function moveDownSelectedField() {
