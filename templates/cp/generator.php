@@ -13,11 +13,8 @@ use Copper\Resource\AbstractResource;
 // TODO rename resource
 // TODO add new route
 // TODO remove route
-// TODO add new field to DB table (without loosing all data)
-// :: ALTER TABLE `category` ADD `product_count` SMALLINT UNSIGNED NOT NULL DEFAULT '0' AFTER `enabled`;
-// :: ALTER TABLE `category` ADD `qweqwe` INT NOT NULL
-// TODO remove field from DB table (without loosing all data)
-// ALTER TABLE `category` DROP `product_count`;"
+
+// TODO migrate when creating new resource
 
 $default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
 
@@ -842,7 +839,7 @@ if ($resource !== null) {
                 if (val === false)
                     TD.innerHTML = '';
 
-                if (is_in_updated_db_fields(field))
+                if (is_in_updated_db_fields(field) && typeof modelFields !== "undefined")
                     modelFields.forEach(f => {
                         if (f.orig_name === field.orig_name && f[key] != field[key])
                             TD.classList.add('changed');

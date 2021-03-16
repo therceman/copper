@@ -424,7 +424,7 @@ use Copper\Resource\AbstractResource;
 $routingConfiguratorClass
 
 /**
- * Class LeProduct
+ * Class $name
  *
  * @method static $model getModel()
  * @method static $entity getEntity()

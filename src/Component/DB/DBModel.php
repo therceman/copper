@@ -417,18 +417,23 @@ abstract class DBModel
     {
         $db = Kernel::getDb();
 
+        $columns = [];
+
         try {
-            $columns = $db->pdo->query('SHOW COLUMNS FROM `' . $this->getTableName() . '`')
-                ->fetchAll(\PDO::FETCH_ASSOC);
+            $query = $db->pdo->query('SHOW COLUMNS FROM `' . $this->getTableName() . '`');
+
+            if ($query === false)
+                return $columns;
+
+            $columns = $query->fetchAll(\PDO::FETCH_ASSOC);
 
             if ($onlyNames)
                 $columns = ArrayHandler::assocValueList($columns, 'Field');
 
+            return $columns;
         } catch (Exception $e) {
-            $columns = [];
+            return $columns;
         }
-
-        return $columns;
     }
 
     /**
