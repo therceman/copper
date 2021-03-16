@@ -734,12 +734,17 @@ XML;
             $constFields .= self::T . "const $fNameUp = '$fName';\r\n";
 
             if ($fType === DBModelField::ENUM) {
-                foreach (explode(',', $fieldData['length']) as $enumKey) {
+                $fieldLengthList = explode(',', $fieldData['length']);
+
+                foreach ($fieldLengthList as $enumKey) {
                     $enumKeyClean = trim($enumKey);
                     $enumKeyUp = strtoupper(StringHandler::transliterate($enumKeyClean, '_'));
                     $constFields .= self::T . "const {$fNameUp}__$enumKeyUp = '$enumKeyClean';\r\n";
                     $fLength = str_replace("'" . $enumKey . "'", "self::{$fNameUp}__$enumKeyUp", $fLength);
                 }
+
+                if (ArrayHandler::hasValue($fieldLengthList, $fDefault) === false)
+                    $fDefault = $fieldLengthList[0];
 
                 $fLength = str_replace('[', '[' . PHP_EOL . ' ' . self::T2 . self::T, $fLength);
                 $fLength = str_replace(']', PHP_EOL . self::T2 . ']', $fLength);
