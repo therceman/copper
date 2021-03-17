@@ -759,6 +759,9 @@ if ($resource !== null) {
 
     function newDBField(field) {
         new_db_fields.push(field);
+
+        $model_override.checked = true;
+        $entity_override.checked = true;
     }
 
     function removeDBField(field) {
@@ -988,11 +991,8 @@ if ($resource !== null) {
 
         let field = fields[key];
 
-        if (is_in_new_db_fields(field) === false) {
-            $model_override.checked = true;
-            $entity_override.checked = true;
-            new_db_fields.push(field);
-        }
+        if (is_in_new_db_fields(field) === false)
+            newDBField(field)
     }
 
     function dbCancel(key) {
@@ -1486,6 +1486,8 @@ if ($resource !== null) {
     new_db_fields = [];
 
     $resource_override.checked = false;
+    $model_override.checked = false;
+    $entity_override.checked = false;
 
     // --------- PREPARE TEMPLATES ---------
 
