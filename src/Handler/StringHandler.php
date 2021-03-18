@@ -67,9 +67,24 @@ class StringHandler
      */
     public static function regex(string $str, string $re, $group = 0, $matchIndex = 1)
     {
-        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+        $matches = self::regexAll($str, $re);
 
         return count($matches) > 0 ? $matches[$group][$matchIndex] : false;
+    }
+
+    /**
+     * @param string $str
+     * @param string $re
+     *
+     * @return array
+     */
+    public static function regexAll(string $str, string $re)
+    {
+        $matches = [];
+
+        preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+
+        return $matches;
     }
 
     /**

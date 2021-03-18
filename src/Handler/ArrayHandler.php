@@ -28,6 +28,38 @@ class ArrayHandler
     }
 
     /**
+     * @param $array
+     *
+     * @return array
+     */
+    public static function keyList($array)
+    {
+        $list = [];
+
+        foreach ($array as $key => $value) {
+            $list[] = $key;
+        }
+
+        return $list;
+    }
+
+    /**
+     * @param $array
+     *
+     * @return array
+     */
+    public static function valueList($array)
+    {
+        $list = [];
+
+        foreach ($array as $key => $value) {
+            $list[] = $value;
+        }
+
+        return $list;
+    }
+
+    /**
      * @param array|object[]|AbstractEntity[] $arrayA
      * @param array|object[]|AbstractEntity[] $arrayB
      * @param bool $reindex

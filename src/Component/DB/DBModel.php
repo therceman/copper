@@ -172,17 +172,6 @@ abstract class DBModel
     }
 
     /**
-     * @param $date
-     * @param $fromFormat
-     *
-     * @return string
-     */
-    public static function formatDate($date, $fromFormat)
-    {
-        return DateTime::createFromFormat($fromFormat, $date)->format('Y-m-d H:i:s');
-    }
-
-    /**
      * @param $name
      *
      * @return string
@@ -355,6 +344,17 @@ abstract class DBModel
     }
 
     /**
+     * @param string $field
+     * @param $value
+     *
+     * @return AbstractEntity|null
+     */
+    public function doSelectFirstWhereIs(string $field, $value)
+    {
+        return $this->doSelectFirstWhere(DBWhere::is($field, $value));
+    }
+
+    /**
      * @param DBWhere $where
      * @param DBSelectArgs|null $args
      *
@@ -369,6 +369,17 @@ abstract class DBModel
             $args->setWhere($where);
 
         return $this->doSelect($args);
+    }
+
+    /**
+     * @param string $field
+     * @param $value
+     *
+     * @return AbstractEntity[]
+     */
+    public function doSelectWhereIs(string $field, $value)
+    {
+        return $this->doSelectWhere(DBWhere::is($field, $value));
     }
 
     /**

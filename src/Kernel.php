@@ -152,6 +152,11 @@ final class Kernel
         return FileHandler::projectPathFromArray(['templates']);
     }
 
+    public static function getTemplatePath($template)
+    {
+        return FileHandler::pathFromArray([self::getProjectTemplatesPath(), $template . '.php']);
+    }
+
     /**
      * Returns path to project root directory
      *
@@ -441,7 +446,7 @@ final class Kernel
             $filePath = $path . '/' . $resourceFile;
 
             /** @var AbstractResource $resourceClass */
-            $resourceClass = FileHandler::getFilePathClassName($filePath);
+            $resourceClass = FileHandler::getFileClassName($filePath);
 
             if (in_array('registerRoutes', get_class_methods($resourceClass)) === false)
                 continue;

@@ -4,6 +4,7 @@
 namespace Copper\Handler;
 
 
+use App\Model\MailTemplateFieldModel;
 use Copper\FunctionResponse;
 use Copper\Kernel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -152,7 +153,28 @@ class FileHandler
         return $response->result($files);
     }
 
-    public static function getFilePathClassName($filePath)
+    public static function getFileConstantList($filePath)
+    {
+        $contentResponse = FileHandler::getContent($filePath);
+
+        if ($contentResponse->hasError())
+            return [];
+
+        $content = $contentResponse->result;
+
+        $groups = StringHandler::regexAll($content, '/const (.*?) = (.*?);/ms');
+
+        $fields = [];
+
+        foreach ($groups as $key => $match) {
+            $evalStr = 'return ' . $match[2] . ';';
+            $fields[$match[1]] = eval($evalStr);
+        }
+
+        return $fields;
+    }
+
+    public static function getFileClassName($filePath)
     {
         $pathParts = explode(DIRECTORY_SEPARATOR, $filePath);
 
@@ -178,7 +200,7 @@ class FileHandler
             if (is_dir($filePath))
                 continue;
 
-            $classNames[] = self::getFilePathClassName($filePath);
+            $classNames[] = self::getFileClassName($filePath);
         }
 
         return $response->result($classNames);
