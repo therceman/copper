@@ -239,7 +239,7 @@ abstract class DBModel
      *
      * @return array
      */
-    public function getFieldValuesFromEntity(AbstractEntity $entity, $onlySelectedFields = false)
+    public function getFieldValuesFromEntity($entity, $onlySelectedFields = false)
     {
         $entityFields = $entity->toArray();
 
@@ -373,7 +373,7 @@ abstract class DBModel
 
     /**
      * @param string $field
-     * @param $value
+     * @param mixed $value
      *
      * @return AbstractEntity[]
      */
@@ -518,7 +518,7 @@ abstract class DBModel
      *
      * @return FunctionResponse
      */
-    public function doBulkInsert($entityList)
+    public function doBulkInsert(array $entityList)
     {
         $response = new FunctionResponse();
 
@@ -551,7 +551,7 @@ abstract class DBModel
      *
      * @return FunctionResponse
      */
-    public function doInsert(AbstractEntity $entity)
+    public function doInsert($entity)
     {
         $response = new FunctionResponse();
 

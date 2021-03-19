@@ -145,6 +145,13 @@ class ResourceGenService
         ), $result);
     }
 
+    private static function initTraitsFolder()
+    {
+        $traitsFolder = Kernel::getProjectPath() . '/src/Traits';
+        if (FileHandler::fileExists($traitsFolder) === false)
+            FileHandler::createFolder($traitsFolder);
+    }
+
     /**
      * @param $jsonContent
      * @return FunctionResponse
@@ -183,6 +190,8 @@ class ResourceGenService
 
         if ($table === false || $fields === false)
             return $response->fail('Please provide all information. Table, Fields');
+
+        self::initTraitsFolder();
 
         $responses = [];
 
@@ -795,6 +804,100 @@ XML;
             $fieldSet .= $fieldSetStr . ";\r\n";
         }
 
+        $annotationTraitName = $name . 'AnnotationTrait';
+        $annotationTraitFilePath = self::filePath($annotationTraitName, 'Traits/Annotation');
+        $annotationTraitFileContent = <<<XML
+<?php
+
+namespace App\Traits\Annotation;
+
+use App\Entity\\$entity;
+use Copper\Component\DB\DBModel;
+use Copper\Component\DB\DBSelectArgs;
+use Copper\Component\DB\DBWhere;
+use Copper\Traits\ModelAnnotationTrait;
+
+trait $annotationTraitName
+{
+    use ModelAnnotationTrait;
+
+    /** @return $entity */
+    public function doSelectFirst(DBSelectArgs \$args)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return $entity */
+    public function doSelectFirstWhere(DBWhere \$where, DBSelectArgs \$args = null)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return $entity */
+    public function doSelectFirstWhereIs(string \$field, \$value)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return $entity */
+    public function doSelectById(\$id, \$idField = DBModel::ID)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return {$entity}[] */
+    public function doSelectWhereIs(string \$field, \$value)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return {$entity}[] */
+    public function doSelectWhere(DBWhere \$where, DBSelectArgs \$args = null)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return {$entity}[] */
+    public function doSelectUnique(string \$column, DBSelectArgs \$args = null)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return {$entity}[] */
+    public function doSelectLimit(int \$limit, \$offset = 0, DBSelectArgs \$args = null)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @return {$entity}[] */
+    public function doSelect(DBSelectArgs \$args = null)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @param {$entity}[] \$entityList */
+    public function doBulkInsert(array \$entityList) {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @param $entity \$entity */
+    public function doInsert(\$entity) {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+    
+    /** @return $entity|null */
+    public function getEntity() {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+
+    /** @param $entity \$entity */
+    public function getFieldValuesFromEntity(\$entity, \$onlySelectedFields = false) {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+    
+}
+XML;
+
         $content = <<<XML
 <?php
 
@@ -803,9 +906,12 @@ namespace App\Model;
 use App\Entity\\$entity;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBModelField;
+use App\Traits\Annotation\\$annotationTraitName;
 
 class $name extends DBModel
 {
+    use $annotationTraitName;
+    
 $constFields
     public function getTableName()
     {
@@ -826,6 +932,7 @@ $stateFieldsFunc
 }
 XML;
 
+        file_put_contents($annotationTraitFilePath, $annotationTraitFileContent);
         file_put_contents($filePath, $content);
 
         return $response->ok();
