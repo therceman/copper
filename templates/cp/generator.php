@@ -16,7 +16,8 @@ use Copper\Resource\AbstractResource;
 
 // TODO migrate when creating new resource
 
-$default_varchar_length = $view->dataBag->get('default_varchar_length', 65535);
+$default_varchar_length = $view->dataBag->get('default_varchar_length', 255);
+$max_varchar_length = $view->dataBag->get('max_varchar_length', 2500);
 
 /** @var AbstractResource[] $resource_list */
 $resource_list = $view->dataBag->get('resource_list', []);
@@ -755,6 +756,9 @@ if ($resource !== null) {
             updated_db_fields.push(new_field);
         else
             updated_db_fields[prevUpdateKey] = new_field;
+
+        $model_override.checked = true;
+        $entity_override.checked = true;
     }
 
     function newDBField(field) {
@@ -1054,6 +1058,7 @@ if ($resource !== null) {
         $type.value = field.type;
         $type.dispatchEvent(new Event('input'));
         $length.value = field.length;
+        $length.dispatchEvent(new Event('input'));
 
         if ([DEFAULT_CURRENT_TIMESTAMP, DEFAULT_NONE, DEFAULT_NULL].includes(field.default) === false) {
             $default_value.value = field.default;
@@ -1287,6 +1292,8 @@ if ($resource !== null) {
         $default_value.type = 'text';
         $default_value.removeAttribute('min');
         $default_value.removeAttribute('max');
+        $length.removeAttribute('min');
+        $length.removeAttribute('max');
 
         $length.type = 'number';
         $length.title = '';
@@ -1311,6 +1318,8 @@ if ($resource !== null) {
 
         if (val === VARCHAR) {
             $length.value = <?= $default_varchar_length ?>;
+            $length.min = 0;
+            $length.max = <?= $max_varchar_length ?>;
             $length.title = '7,2 = 2 numbers for decimal and 7 for total, e.g. max number is 99999,99';
         }
 
@@ -1359,6 +1368,18 @@ if ($resource !== null) {
                 $auto_increment.checked = false;
         }
     })
+
+    $length.addEventListener('input', e => {
+        let val = parseInt($length.value);
+        let min = $length.getAttribute('min');
+        let max = $length.getAttribute('max');
+
+        if (max !== null && val >= max)
+            $length.value = max;
+
+        if (min !== null && val <= min)
+            $length.value = min;
+    });
 
     $relation.addEventListener('input', e => {
         $create_entity.checked = true;

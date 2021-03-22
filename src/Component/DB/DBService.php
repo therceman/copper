@@ -6,6 +6,7 @@ namespace Copper\Component\DB;
 
 use Copper\Handler\FileHandler;
 use Copper\FunctionResponse;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use PDOException;
 
@@ -92,20 +93,22 @@ class DBService
         $query = 'INSERT INTO ' . $model->tableName . '(' . $fieldNames . ') VALUES ';
 
         $query_values = [];
+        $query_data_values = [];
 
         foreach ($seed->seeds as $seedValueList) {
             $values = [];
 
-            foreach ($seedValueList as $value) {
+            foreach ($seedValueList as $key => $value) {
                 if (is_string($value))
                     $value = "'" . str_replace("'", "''", $value) . "'";
 
                 if ($value === null)
                     $value = 'NULL';
 
-                $values[] = $value;
+                $values[str_replace('`', '', $key)] = $value;
             }
 
+            $query_data_values[] = $values;
             $query_values[] = '(' . join(', ', $values) . ')';
         }
 
@@ -116,7 +119,15 @@ class DBService
             $db->pdo->exec($query);
             return $response->success("Seeded `$model->tableName` Table", $query);
         } catch (PDOException $e) {
-            return $response->error($e->getMessage(), $query);
+            $errorMsg = $e->getMessage();
+
+            $dataTooLong_key = StringHandler::regex($errorMsg, '/Data too long for column \'(.*)\'/m');
+            $row = ((int)StringHandler::regex($errorMsg, '/at row (\d)/m')) - 1;
+
+            if ($dataTooLong_key !== false)
+                $errorMsg .= ' | Current Length for [' . $dataTooLong_key . ']: ' . strlen($query_data_values[$row][$dataTooLong_key]);
+
+            return $response->error($errorMsg, $query);
         }
     }
 
