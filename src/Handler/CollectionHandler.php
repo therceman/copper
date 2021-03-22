@@ -22,6 +22,18 @@ class CollectionHandler
 
     /**
      * @param AbstractEntity[]|object[] $collection
+     * @param string $keyField
+     * @param string $valueField
+     *
+     * @return mixed[]
+     */
+    public static function keyValueList(array $collection, string $keyField, string $valueField)
+    {
+        return ArrayHandler::assocKeyValueList($collection, $keyField, $valueField);
+    }
+
+    /**
+     * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
      *
      * @return mixed[]

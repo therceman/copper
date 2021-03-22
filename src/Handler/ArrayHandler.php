@@ -167,6 +167,26 @@ class ArrayHandler
     }
 
     /**
+     * @param array $array
+     * @param string $keyField
+     * @param string $valueField
+     *
+     * @return array
+     */
+    public static function assocKeyValueList(array $array, string $keyField, string $valueField) {
+        $list = [];
+
+        foreach ($array as $k => $item) {
+            if (is_array($item))
+                $list[$item[$keyField]] = $item[$valueField];
+            else
+                $list[$item->$keyField] = $item->$valueField;
+        }
+
+        return $list;
+    }
+
+    /**
      * @param array|object[]|AbstractEntity[] $array
      * @param string $key
      *

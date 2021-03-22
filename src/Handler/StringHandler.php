@@ -65,11 +65,34 @@ class StringHandler
      *
      * @return false|string
      */
-    public static function regex(string $str, string $re, $group = 0, $matchIndex = 1)
+    public static function regex(string $str, string $re, $matchIndex = 0, $group = 1)
     {
         $matches = self::regexAll($str, $re);
 
-        return count($matches) > 0 ? $matches[$group][$matchIndex] : false;
+        return count($matches) > 0 ? $matches[$matchIndex][$group] : false;
+    }
+
+    /**
+     * @param string $str
+     * @param string $re
+     * @param mixed $value
+     * @param int $group
+     *
+     * @return string
+     */
+    public static function regexReplace(string $str, string $re, $value, $group = 0)
+    {
+        $matches = self::regexAll($str, $re);
+
+        foreach ($matches as $matchIndex => $groupList) {
+            $groupValue = $groupList[$group];
+
+            print_r([$groupValue, $value, $str]);
+
+            $str = str_replace($groupValue, $value, $str);
+        }
+
+        return $str;
     }
 
     /**
