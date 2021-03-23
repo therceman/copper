@@ -9,6 +9,7 @@ use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSeed;
 use Copper\Entity\AbstractEntity;
 use Copper\Handler\FileHandler;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
@@ -17,6 +18,10 @@ abstract class AbstractResource
 {
     /** @var array */
     private static $models = [];
+    /** @var string[] */
+    private static $groups = [];
+    /** @var string[] */
+    private static $defaults = [];
 
     const PATH_GROUP = 'abstract_collection_resource';
 
@@ -203,6 +208,42 @@ abstract class AbstractResource
         return $routes;
     }
 
+    private static function extractActionAndPathFromRouteName(string $name)
+    {
+        $name = str_replace('@/', '@', $name);
+
+        $nameParts = explode('@', $name);
+
+        if (count($nameParts) === 1) {
+            if ($name === '/')
+                return ['getIndex', '/'];
+
+            if ($name[0] === '/')
+                ltrim($name, '/');
+
+            $controllerActionPart = StringHandler::regexReplace($nameParts[0], '/{(.*)}/m', '');
+
+            $controllerAction = 'get_' . str_replace('/', '_', $controllerActionPart);
+            $controllerAction = StringHandler::underscoreToCamelCase($controllerAction);
+
+            $nameParts = [$controllerAction, $nameParts[0]];
+        } else {
+            $controllerAction = false;
+            $path = str_replace('/', '_', $nameParts[1]);
+
+            if (strlen($nameParts[0]) === 4 && substr($nameParts[0], 0, 4) === 'post') {
+                $controllerAction = 'post_' . $path;
+            } elseif (strlen($nameParts[0]) === 3 && substr($nameParts[0], 0, 3) === 'get') {
+                $controllerAction = 'get_' . $path;
+            }
+
+            if ($controllerAction !== false)
+                $nameParts = [StringHandler::underscoreToCamelCase($controllerAction), $nameParts[1]];
+        }
+
+        return $nameParts;
+    }
+
     /**
      * Helper for adding routes with less code.
      * $name format should be in the following format:
@@ -223,10 +264,7 @@ abstract class AbstractResource
      */
     public static function addRoute(RoutingConfigurator $routes, string $name)
     {
-        $nameParts = explode('@/', $name);
-
-        $action = $nameParts[0];
-        $path = '/' . $nameParts[1];
+        list($action, $path) = self::extractActionAndPathFromRouteName($name);
 
         $methods = ['GET', 'POST'];
 
@@ -235,9 +273,76 @@ abstract class AbstractResource
         elseif (substr($action, 0, 4) === 'post')
             $methods = ['POST'];
 
-        return $routes->add($name, $path)
+        return $routes->add(self::route($name), self::path($path))
             ->controller([static::getControllerClassName(), $action])
             ->methods($methods);
     }
 
+    /**
+     * @param string $group
+     */
+    public static function setGroup(string $group)
+    {
+        self::$groups[static::getName()] = $group;
+    }
+
+    /**
+     * @return string|false
+     */
+    public static function getGroup()
+    {
+        if (array_key_exists(static::getName(), self::$groups) === false)
+            return false;
+
+        return self::$groups[static::getName()];
+    }
+
+    /**
+     * @param array $defaults
+     */
+    public static function setDefaults(array $defaults)
+    {
+        self::$defaults[static::getName()] = $defaults;
+    }
+
+    /**
+     * @return array|false
+     */
+    public static function getDefaults()
+    {
+        if (array_key_exists(static::getName(), self::$defaults) === false)
+            return false;
+
+        return self::$defaults[static::getName()];
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    public static function route(string $name)
+    {
+        if (self::getGroup() === false)
+            return $name;
+
+        return self::getGroup() . '_' . $name;
+    }
+
+    private static function path(string $path)
+    {
+        if (self::getGroup() === false)
+            return $path;
+
+        $group = StringHandler::removeFirstChars(self::getGroup(), '/');
+        $group = StringHandler::removeLastChars($group, '/');
+
+        $path = StringHandler::removeFirstChars($path, '/');
+        $path = StringHandler::removeLastChars($path, '/');
+
+        if (trim($path) === '')
+            return '/' . $group;
+
+        return '/' . $group . '/' . $path;
+    }
 }

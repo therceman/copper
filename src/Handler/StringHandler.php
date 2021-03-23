@@ -87,8 +87,6 @@ class StringHandler
         foreach ($matches as $matchIndex => $groupList) {
             $groupValue = $groupList[$group];
 
-            print_r([$groupValue, $value, $str]);
-
             $str = str_replace($groupValue, $value, $str);
         }
 
@@ -122,5 +120,50 @@ class StringHandler
     public static function transliterate(string $str, $spaceReplace = '-', $toLowerCase = true)
     {
         return Transliterator::transform($str, $spaceReplace, $toLowerCase);
+    }
+
+    /**
+     * @param string $str
+     *
+     * @return string
+     */
+    public static function camelCaseToUnderscore(string $str)
+    {
+        return ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $str)), '_');
+    }
+
+    public static function underscoreToCamelCase(string $str)
+    {
+        $separator = '_';
+
+        return str_replace($separator, '', ucwords($str, $separator));
+    }
+
+    /**
+     * @param string $str
+     * @param string|string[] $charList
+     *
+     * @return string
+     */
+    public static function removeFirstChars(string $str, string $charList)
+    {
+        if (is_array($charList))
+            $charList = join('', $charList);
+
+        return ltrim($str, $charList);
+    }
+
+    /**
+     * @param string $str
+     * @param string|string[] $charList
+     *
+     * @return string
+     */
+    public static function removeLastChars(string $str, string $charList)
+    {
+        if (is_array($charList))
+            $charList = join('', $charList);
+
+        return rtrim($str, $charList);
     }
 }
