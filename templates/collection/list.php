@@ -2,6 +2,7 @@
 
 use Copper\Component\HTML\HTML;
 use Copper\Entity\AbstractEntity;
+use Copper\Handler\ArrayHandler;
 
 /** @var AbstractEntity[] $list */
 $list = $view->dataBag->get('list');
@@ -22,6 +23,7 @@ $show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
 $undoId = $view->flashMessage->get('undo_id', 0);
 $undoAction = $view->url($Resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
 
+$field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED_AT);
 ?>
 
 <?= $view->render('header') ?>
@@ -70,14 +72,14 @@ $undoAction = $view->url($Resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
     <div style="clear: both"></div>
     <table class="collection">
         <tr>
-            <?php foreach ($model->getFieldNames() as $fieldName): ?>
+            <?php foreach ($field_names as $fieldName): ?>
                 <th id="<?= $fieldName ?>"><?= $fieldName ?></th>
             <?php endforeach; ?>
             <th class="empty"></th>
         </tr>
         <?php foreach ($list as $entry) : ?>
             <tr class="<?= $entry->isRemoved() ? 'removed' : '' ?>">
-                <?php foreach ($model->getFieldNames() as $fieldName): ?>
+                <?php foreach ($field_names as $fieldName): ?>
                     <td><?= $entry->$fieldName ?></td>
                 <?php endforeach; ?>
                 <td style="text-align: center">

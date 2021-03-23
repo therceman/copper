@@ -8,10 +8,16 @@ use PDO;
 class DBHandler
 {
     /** @var PDO */
+    public $information_schema_pdo;
+
+    /** @var PDO */
     public $pdo;
 
     /** @var Query */
     public $query;
+
+    /** @var Query */
+    public $information_schema_query;
 
     /** @var DBConfigurator */
     public $config;
@@ -35,10 +41,13 @@ class DBHandler
             return;
 
         $dsn = 'mysql:host=' . $this->config->host . ';dbname=' . $this->config->dbname;
-
         $this->pdo = new PDO($dsn, $this->config->user, $this->config->password);
 
+        $is_dsn = 'mysql:host=' . $this->config->host . ';dbname=information_schema';
+        $this->information_schema_pdo = new PDO($is_dsn, $this->config->user, $this->config->password);
+
         $this->query = new Query($this->pdo);
+        $this->information_schema_query = new Query($this->information_schema_pdo);
     }
 
     private function mergeConfig(DBConfigurator $packageConfig, DBConfigurator $projectConfig = null)

@@ -28,6 +28,27 @@ class ArrayHandler
     }
 
     /**
+     * @param array $array
+     * @param string|string[] $keyList
+     *
+     * @return array
+     */
+    public static function removeKeys(array $array, $keyList)
+    {
+        if (is_array($keyList) === false)
+            $keyList = [$keyList];
+
+        $new_key_list = [];
+
+        foreach ($array as $key) {
+            if (self::hasValue($keyList, $key) === false)
+                $new_key_list[] = $key;
+        }
+
+        return $new_key_list;
+    }
+
+    /**
      * @param $array
      *
      * @return array
@@ -173,7 +194,8 @@ class ArrayHandler
      *
      * @return array
      */
-    public static function assocKeyValueList(array $array, string $keyField, string $valueField) {
+    public static function assocKeyValueList(array $array, string $keyField, string $valueField)
+    {
         $list = [];
 
         foreach ($array as $k => $item) {

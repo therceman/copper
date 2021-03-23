@@ -325,6 +325,9 @@ abstract class DBModel
      */
     public function doSelectFirst(DBSelectArgs $args)
     {
+        if ($args->getLimit() === null)
+            $args->setLimit(1);
+
         $entities = $this->doSelect($args);
 
         return (count($entities) > 0) ? $entities[0] : null;
@@ -448,6 +451,50 @@ abstract class DBModel
     }
 
     /**
+     * @param string[]|false $columns
+     *
+     * @return array
+     */
+    public function doGetTableSchema($columns = false)
+    {
+        $db = Kernel::getDb();
+
+        try {
+            $db_stm = $db->information_schema_query->from('TABLES')
+                ->where('TABLE_SCHEMA', $db->config->dbname)
+                ->where('TABLE_NAME', $this->getTableName());
+
+            if ($columns !== false && is_array($columns))
+                $db_stm->select($columns, true);
+
+            $db_result = $db_stm->fetch();
+
+            if ($db_result === false)
+                $db_result = [];
+
+        } catch (Exception $e) {
+            $db_result = [];
+        }
+
+        return $db_result;
+    }
+
+    public function doGetNextId()
+    {
+        $result = $this->doGetTableSchema(['AUTO_INCREMENT']);
+
+        return (int)$result['AUTO_INCREMENT'];
+    }
+
+    /**
+     * @return int
+     */
+    public function doGetLastId()
+    {
+        return $this->doGetNextId() - 1;
+    }
+
+    /**
      * @param DBSelectArgs $args
      *
      * @return int
@@ -559,8 +606,6 @@ abstract class DBModel
 
         $insertData = $this->getFieldValuesFromEntity($entity);
         $formattedInsertData = $this->formatFieldValues($insertData);
-
-        $entity = $entity::fromArray($formattedInsertData);
 
         try {
             $stm = $db->query->insertInto('`' . $this->getTableName() . '`', $formattedInsertData);
