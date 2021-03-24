@@ -341,6 +341,12 @@ abstract class DBModel
      */
     public function doSelectFirstWhere(DBWhere $where, DBSelectArgs $args = null)
     {
+        if ($args === null)
+            $args = new DBSelectArgs();
+
+        if ($args->getLimit() === null)
+            $args->setLimit(1);
+
         $entities = $this->doSelectWhere($where, $args);
 
         return (count($entities) > 0) ? $entities[0] : null;
@@ -557,7 +563,7 @@ abstract class DBModel
      */
     public function doSelectById($id, $idField = DBModel::ID)
     {
-        return $this->doSelectFirstWhere(DBWhere::is($idField, $id));
+        return $this->doSelectFirstWhereIs($idField, $id);
     }
 
     /**

@@ -57,4 +57,14 @@ trait RequestTrait
     {
         return Kernel::getRouteUrl($name, $parameters, $withScheme);
     }
+
+    /**
+     * Returns current URL (with query)
+     *
+     * @return string
+     */
+    public function currentUrl()
+    {
+        return $this->request_uri;
+    }
 }

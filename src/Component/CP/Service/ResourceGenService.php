@@ -20,6 +20,10 @@ class ResourceGenService
     const T = '    ';
     const T2 = self::T . self::T;
 
+    private static function fieldHasCustomDefaultValue($defaultValue)
+    {
+        return (in_array($defaultValue, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP, DBModelField::DEFAULT_NONE]) === false);
+    }
 
     private static function prepare_controller(string $resourceClassName, string $tpl_folder_name)
     {
@@ -752,14 +756,14 @@ XML;
                     $fLength = str_replace("'" . $enumKey . "'", "self::{$fNameUp}__$enumKeyUp", $fLength);
                 }
 
-                if (ArrayHandler::hasValue($fieldLengthList, $fDefault) === false)
+                if (ArrayHandler::hasValue($fieldLengthList, $fDefault) === false && self::fieldHasCustomDefaultValue($fDefault))
                     $fDefault = $fieldLengthList[0];
 
                 $fLength = str_replace('[', '[' . PHP_EOL . ' ' . self::T2 . self::T, $fLength);
                 $fLength = str_replace(']', PHP_EOL . self::T2 . ']', $fLength);
                 $fLength = str_replace(',', ',' . PHP_EOL . self::T2 . self::T, $fLength);
 
-                if (in_array($fDefault, [DBModelField::DEFAULT_NULL, DBModelField::DEFAULT_CURRENT_TIMESTAMP, DBModelField::DEFAULT_NONE]) === false)
+                if (self::fieldHasCustomDefaultValue($fDefault))
                     $fDefault = str_replace($fDefault, 'self::' . strtoupper($fName) . '__' . strtoupper(StringHandler::transliterate($fDefault, '_')), $fDefault);
             }
 
@@ -821,25 +825,25 @@ trait $annotationTraitName
 {
     use ModelAnnotationTrait;
 
-    /** @return $entity */
+    /** @return $entity|null */
     public function doSelectFirst(DBSelectArgs \$args)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
-    /** @return $entity */
+    /** @return $entity|null */
     public function doSelectFirstWhere(DBWhere \$where, DBSelectArgs \$args = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
-    /** @return $entity */
+    /** @return $entity|null */
     public function doSelectFirstWhereIs(string \$field, \$value)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
-    /** @return $entity */
+    /** @return $entity|null */
     public function doSelectById(\$id, \$idField = DBModel::ID)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
