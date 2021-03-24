@@ -53,7 +53,7 @@ trait RequestTrait
      *
      * @return string
      */
-    public function url($name, $parameters = [], $withScheme = false)
+    public function url($name, $parameters = [], $withScheme = true)
     {
         return Kernel::getRouteUrl($name, $parameters, $withScheme);
     }

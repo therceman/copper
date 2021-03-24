@@ -132,11 +132,22 @@ class StringHandler
         return ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '_$0', $str)), '_');
     }
 
-    public static function underscoreToCamelCase(string $str)
+    /**
+     * @param string $str
+     * @param bool $firstLetterBig
+     *
+     * @return string
+     */
+    public static function underscoreToCamelCase(string $str, bool $firstLetterBig = false)
     {
         $separator = '_';
 
-        return str_replace($separator, '', ucwords($str, $separator));
+        $str = str_replace($separator, '', ucwords($str, $separator));
+
+        if ($firstLetterBig === false)
+            $str[0] = mb_strtolower($str[0]);
+
+        return $str;
     }
 
     /**

@@ -313,7 +313,7 @@ final class Kernel
      *
      * @return string
      */
-    public static function getRouteUrl($name, $parameters = [], $withScheme = false)
+    public static function getRouteUrl($name, $parameters = [], $withScheme = true)
     {
         $type = ($withScheme) ? UrlGenerator::ABSOLUTE_URL : UrlGenerator::ABSOLUTE_PATH;
 
