@@ -65,6 +65,25 @@ class ArrayHandler
     }
 
     /**
+     * @param array $array
+     * @param string $keyField
+     *
+     * @return array
+     */
+    public static function assocIndexList(array $array, string $keyField) {
+        $list = [];
+
+        foreach ($array as $k => $item) {
+            if (is_array($item))
+                $list[$item[$keyField]] = $item;
+            else
+                $list[$item->$keyField] = $item;
+        }
+
+        return $list;
+    }
+
+    /**
      * @param $array
      *
      * @return array

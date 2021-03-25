@@ -12,7 +12,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function label(string $text = '', $for = null)
+    public static function label($text = '', $for = null)
     {
         $el = new HTMLElement('label');
 
@@ -29,7 +29,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function option(string $text = '', $value = null)
+    public static function option($text = '', $value = null)
     {
         $el = new HTMLElement('option');
 
@@ -40,7 +40,7 @@ class HTML
         return $el;
     }
 
-    public static function button(string $text = '')
+    public static function button($text = '')
     {
         $el = new HTMLElement('button');
 
@@ -49,7 +49,7 @@ class HTML
         return $el;
     }
 
-    public static function span(string $text = '')
+    public static function span($text = '')
     {
         $el = new HTMLElement('span');
 
@@ -64,7 +64,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function td(string $text = '', $colspan = null)
+    public static function td($text = '', $colspan = null)
     {
         $el = new HTMLElement('td');
 
@@ -97,7 +97,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function li(string $text = '')
+    public static function li($text = '')
     {
         $el = new HTMLElement('li');
 
@@ -112,7 +112,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function th(string $text = '', $colspan = null)
+    public static function th($text = '', $colspan = null)
     {
         $el = new HTMLElement('th');
 
@@ -190,7 +190,7 @@ class HTML
      *
      * @return HtmlInputElement
      */
-    public static function input(string $name = null, $value = null)
+    public static function input($name = null, $value = null)
     {
         $el = new HtmlInputElement();
 
@@ -206,7 +206,7 @@ class HTML
      * @param string $value
      * @return HtmlInputElement
      */
-    public static function inputHidden(string $name = null, $value = null)
+    public static function inputHidden($name = null, $value = null)
     {
         return HTML::input($name, $value)->type('hidden');
     }
@@ -216,7 +216,7 @@ class HTML
      * @param string $value
      * @return HtmlInputElement
      */
-    public static function inputPassword(string $name = null, $value = null)
+    public static function inputPassword($name = null, $value = null)
     {
         return HTML::input($name, $value)->type('password');
     }
@@ -226,7 +226,7 @@ class HTML
      * @param string $value
      * @return HtmlInputElement
      */
-    public static function inputNumber(string $name = null, $value = null)
+    public static function inputNumber($name = null, $value = null)
     {
         return HTML::input($name, $value)->type('number');
     }
@@ -236,7 +236,7 @@ class HTML
      * @param string $value
      * @return HtmlInputElement
      */
-    public static function inputFile(string $name = null, $value = null)
+    public static function inputFile($name = null, $value = null)
     {
         return HTML::input($name, $value)->type('file');
     }
@@ -246,7 +246,7 @@ class HTML
      * @param boolean $checked
      * @return HtmlInputElement
      */
-    public static function inputCheckbox(string $name = null, $checked = false)
+    public static function inputCheckbox($name = null, $checked = false)
     {
         $checkboxEl = HTML::input($name)->type('checkbox');
 
@@ -262,7 +262,7 @@ class HTML
      * @param boolean $checked
      * @return HtmlInputElement
      */
-    public static function inputRadio(string $name, $value, $checked = false)
+    public static function inputRadio($name, $value, $checked = false)
     {
         $radioEl = HTML::input($name)->type('radio')->value($value);
 
@@ -339,7 +339,7 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function textarea(string $name = null, string $text = '')
+    public static function textarea($name = null, string $text = '')
     {
         $el = new HTMLElement('textarea');
 

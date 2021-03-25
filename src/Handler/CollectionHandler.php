@@ -4,6 +4,7 @@
 namespace Copper\Handler;
 
 
+use Copper\Component\DB\DBModel;
 use Copper\Entity\AbstractEntity;
 
 class CollectionHandler
@@ -34,6 +35,16 @@ class CollectionHandler
 
     /**
      * @param AbstractEntity[]|object[] $collection
+     * @param string $keyField
+     *
+     * @return mixed[]
+     */
+    public static function indexList(array $collection, string $keyField = DBModel::ID) {
+        return ArrayHandler::assocIndexList($collection, $keyField);
+    }
+
+    /**
+     * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
      *
      * @return mixed[]
@@ -54,6 +65,20 @@ class CollectionHandler
         $matches = self::find($collection, $filter);
 
         return (count($matches) > 0) ? $matches[0] : null;
+    }
+
+    public static function findFirstBy(array $collection, string $key, $value)
+    {
+        return self::findFirst($collection, [$key => $value]);
+    }
+
+    /**
+     * @param array $collection
+     * @param int|string $id
+     */
+    public static function findFirstById(array $collection, $id)
+    {
+        return self::findFirstBy($collection, DBModel::ID, $id);
     }
 
     /**

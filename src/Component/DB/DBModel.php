@@ -355,12 +355,13 @@ abstract class DBModel
     /**
      * @param string $field
      * @param $value
+     * @param DBSelectArgs|null $args
      *
      * @return AbstractEntity|null
      */
-    public function doSelectFirstWhereIs(string $field, $value)
+    public function doSelectFirstWhereIs(string $field, $value, DBSelectArgs $args = null)
     {
-        return $this->doSelectFirstWhere(DBWhere::is($field, $value));
+        return $this->doSelectFirstWhere(DBWhere::is($field, $value), $args);
     }
 
     /**
@@ -382,13 +383,14 @@ abstract class DBModel
 
     /**
      * @param string $field
-     * @param mixed $value
+     * @param string|array|mixed $value
+     * @param DBSelectArgs|null $args
      *
      * @return AbstractEntity[]
      */
-    public function doSelectWhereIs(string $field, $value)
+    public function doSelectWhereIs(string $field, $value, DBSelectArgs $args = null)
     {
-        return $this->doSelectWhere(DBWhere::is($field, $value));
+        return $this->doSelectWhere(DBWhere::is($field, $value), $args);
     }
 
     /**
@@ -556,14 +558,22 @@ abstract class DBModel
     }
 
     /**
-     * @param string|int $id
-     * @param string $idField
+     * @param array $idList
      *
+     * @return AbstractEntity[]
+     */
+    public function doSelectByIdList(array $idList)
+    {
+        return $this->doSelectWhereIs(DBModel::ID, $idList);
+    }
+
+    /**
+     * @param string|int $id
      * @return AbstractEntity|null
      */
-    public function doSelectById($id, $idField = DBModel::ID)
+    public function doSelectById($id)
     {
-        return $this->doSelectFirstWhereIs($idField, $id);
+        return $this->doSelectFirstWhereIs(DBModel::ID, $id);
     }
 
     /**

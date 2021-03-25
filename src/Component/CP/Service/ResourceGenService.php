@@ -838,19 +838,25 @@ trait $annotationTraitName
     }
 
     /** @return $entity|null */
-    public function doSelectFirstWhereIs(string \$field, \$value)
+    public function doSelectFirstWhereIs(string \$field, \$value, DBSelectArgs \$args = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return $entity|null */
-    public function doSelectById(\$id, \$idField = DBModel::ID)
+    public function doSelectById(\$id)
+    {
+        return \$this->cpm(__FUNCTION__, func_get_args());
+    }
+    
+    /** @return {$entity}[] */
+    public function doSelectByIdList(array \$idList)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return {$entity}[] */
-    public function doSelectWhereIs(string \$field, \$value)
+    public function doSelectWhereIs(string \$field, \$value, DBSelectArgs \$args = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
