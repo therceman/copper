@@ -252,6 +252,18 @@ class ViewHandler
     }
 
     /**
+     * Output data as JSON
+     *
+     * @param array $value
+     *
+     * @return string
+     */
+    public function json(array $value)
+    {
+        return $this->output->json($value);
+    }
+
+    /**
      * Render Template
      *
      * @param $template
