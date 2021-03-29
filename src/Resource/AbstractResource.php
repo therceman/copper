@@ -229,12 +229,14 @@ abstract class AbstractResource
             $nameParts = [$controllerAction, $nameParts[0]];
         } else {
             $controllerAction = false;
-            $path = str_replace('/', '_', $nameParts[1]);
+
+            $controllerActionPart = StringHandler::regexReplace($nameParts[1], '/{(.*)}/m', '');
+            $controllerActionPart = str_replace('/', '_', $controllerActionPart);
 
             if (strlen($nameParts[0]) === 4 && substr($nameParts[0], 0, 4) === 'post') {
-                $controllerAction = 'post_' . $path;
+                $controllerAction = 'post_' . $controllerActionPart;
             } elseif (strlen($nameParts[0]) === 3 && substr($nameParts[0], 0, 3) === 'get') {
-                $controllerAction = 'get_' . $path;
+                $controllerAction = 'get_' . $controllerActionPart;
             }
 
             if ($controllerAction !== false)
@@ -317,6 +319,8 @@ abstract class AbstractResource
     }
 
     /**
+     * Returns route name with group
+     *
      * @param string $name
      *
      * @return string
@@ -344,5 +348,16 @@ abstract class AbstractResource
             return '/' . $group;
 
         return '/' . $group . '/' . $path;
+    }
+
+    /**
+     * @param string $route
+     * @param array $arguments
+     *
+     * @return ResourceUrl
+     */
+    protected static function url(string $route, array $arguments)
+    {
+        return ResourceUrl::create(self::route($route), $arguments);
     }
 }

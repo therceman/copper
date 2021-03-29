@@ -102,7 +102,7 @@ create file **`/templates/index.php`**
 <?= $view->render('header') ?>
 
 <body>
-<h4><?= $view->out($view->data('message')) ?></h4>
+<h4><?= $view->out($view->dataBag->get('message')) ?></h4>
 </body>
 ```
 
@@ -183,11 +183,11 @@ View (Templating) module :: Variables, Methods and Classes
 * `$view->controller_name` - Controller name
 * `$view->route_name`      - Route name
 ### Methods
-* `$view->route($key, $default = null)`   - Route parameter by key
-* `$view->post($key, $default = null)`    - POST parameter by key
-* `$view->query($key, $default = null)`   - GET parameter by key
-* `$view->cookies($key, $default = null)` - Cookies parameter by key
-* `$view->data($key, $default = null)`    - Template parameter by key
+* `$view->routeBag->get($key, $default = null)`   - Route parameter by key
+* `$view->postBag->get($key, $default = null)`    - POST parameter by key
+* `$view->queryBag->get($key, $default = null)`   - GET parameter by key
+* `$view->cookiesBag->get($key, $default = null)` - Cookies parameter by key
+* `$view->dataBag->get($key, $default = null)`    - Template parameter by key
 * `$view->out($value)`  - Escape HTML code and output as string
 * `$view->out($array)`  - Escape HTML code and output as formatted array
 * `$view->render($template)`  - Render template

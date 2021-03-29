@@ -4,10 +4,10 @@
     <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title><?= $view->out($view->data('head_title', 'Copper PHP Framework')) ?></title>
+    <title><?= $view->out($view->dataBag->get('head_title', 'Copper PHP Framework')) ?></title>
     <meta name="description"
-          content="<?= $view->out($view->data('head_meta_description', 'Copper is a PHP Framework based on Symfony')) ?>">
-    <meta name="author" content="<?= $view->out($view->data('head_meta_author', 'rceman')) ?>">
+          content="<?= $view->out($view->dataBag->get('head_meta_description', 'Copper is a PHP Framework based on Symfony')) ?>">
+    <meta name="author" content="<?= $view->out($view->dataBag->get('head_meta_author', 'rceman')) ?>">
     <style>
         body {
             background-color: #fff;

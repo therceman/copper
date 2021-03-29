@@ -149,7 +149,7 @@ class ArrayHandler
      * @param mixed $value
      * @param bool $strict
      *
-     * @return mixed|null
+     * @return bool
      */
     public static function hasValue(array $array, $value, $strict = true)
     {

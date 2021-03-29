@@ -12,13 +12,16 @@ $model = $Resource::getModel();
 
 $action = $entity->exists() ? 'Update' : 'Create';
 
+$head_title = $entity->exists() ? 'Edit ' . $Resource::getName() . ' #' . $entity->id
+    : 'Create New ' . $Resource::getName();
+
 $action_url = $entity->exists()
     ? $view->url($Resource::POST_UPDATE, [$model::ID => $entity->id])
     : $view->url($Resource::POST_CREATE);
 
 ?>
 
-<?= $view->render('header') ?>
+<?= $view->render('header', ['head_title' => $head_title])  ?>
 
 <style>
     input:not([type=checkbox]){
@@ -47,8 +50,7 @@ $action_url = $entity->exists()
 <?php } ?>
 
 <div class="content_wrapper" style="padding: 0 20px">
-    <h3><?= $entity->exists() ? 'Edit ' . $Resource::getName() . ' #' . $entity->id 
-            : 'Create New ' . $Resource::getName(); ?></h3>
+    <h3><?= $head_title ?></h3>
 
     <?php if ($entity->exists()) : ?>
         <div style="float:right;margin-top:-40px;">

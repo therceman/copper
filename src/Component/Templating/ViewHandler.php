@@ -175,68 +175,117 @@ class ViewHandler
     }
 
     /**
-     * Route parameter by key
-     *
+     * @param string $type
      * @param string $key
-     * @param string|null $default
+     * @param mixed| null $default
      *
-     * @return string|array
+     * @return mixed
      */
-    public function route($key, $default = null)
+    private function getByType(string $type, string $key, $default = null)
     {
-        return $this->routeBag->get($key, $default);
+        $queryParam = $this->queryBag->$type($key, $default);
+        $dataParam = $this->dataBag->$type($key, $default);
+
+        if ($this->dataBag->has($key))
+            return $dataParam;
+        else
+            return $queryParam;
     }
 
     /**
-     * POST parameter by key
+     * Return Template / Query parameter by key.
+     * Priority for Template parameter.
      *
      * @param string $key
-     * @param string|null $default
+     * @param mixed|null $default
      *
-     * @return string|array
+     * @return mixed|null
      */
-    public function post($key, $default = null)
+    public function get(string $key, $default = null)
     {
-        return $this->postBag->get($key, $default);
+        return $this->getByType('get', $key, $default);
     }
 
     /**
-     * GET parameter by key
+     * Return Template / Query parameter by key as Boolean.
+     * Priority for Template parameter.
      *
      * @param string $key
-     * @param string|null $default
+     * @param bool $default
      *
-     * @return string|array
+     * @return bool
      */
-    public function query($key, $default = null)
+    public function getBoolean(string $key, bool $default = false)
     {
-        return $this->queryBag->get($key, $default);
+        return $this->getByType('getBoolean', $key, $default);
     }
 
     /**
-     * Cookies parameter by key
+     * Return Template / Query parameter by key as Int.
+     * Priority for Template parameter.
      *
      * @param string $key
-     * @param string|null $default
+     * @param int $default
      *
-     * @return string|array
+     * @return int
      */
-    public function cookies($key, $default = null)
+    public function getInt(string $key, int $default = 0)
     {
-        return $this->cookiesBag->get($key, $default);
+        return $this->getByType('getInt', $key, $default);
     }
 
     /**
-     * Template parameter by key
+     * Return Template / Query parameter by key as alphabetic characters and digits.
+     * Priority for Template parameter.
      *
      * @param string $key
-     * @param string|null $default
+     * @param string $default
      *
-     * @return string|array
+     * @return string
      */
-    public function data($key, $default = null)
+    public function getAlnum(string $key, string $default = '')
     {
-        return $this->dataBag->get($key, $default);
+        return $this->getByType('getAlnum', $key, $default);
+    }
+
+    /**
+     * Return Template / Query parameter by key as alphabetic characters.
+     * Priority for Template parameter.
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getAlpha(string $key, string $default = '')
+    {
+        return $this->getByType('getAlpha', $key, $default);
+    }
+
+    /**
+     * Return Template / Query parameter by key as alphabetic characters.
+     * Priority for Template parameter.
+     *
+     * @param string $key
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getDigits(string $key, string $default = '')
+    {
+        return $this->getByType('getDigits', $key, $default);
+    }
+
+    /**
+     * Check if Template or Query String has parameter by key.
+     *
+     * @param string $key
+     *
+     * @return bool
+     */
+    public function has(string $key)
+    {
+        return ($this->dataBag->has($key) || $this->queryBag->has($key));
     }
 
     /**
@@ -266,12 +315,17 @@ class ViewHandler
     /**
      * Render Template
      *
-     * @param $template
+     * @param string $template
+     * @param array $parameters
      *
      * @return string
      */
-    public function render($template)
+    public function render(string $template, array $parameters = [])
     {
+        foreach ($parameters as $key => $value) {
+            $this->dataBag->set($key, $value);
+        }
+
         $templateFilePath = $this->findTemplateFile($template);
 
         ob_start();

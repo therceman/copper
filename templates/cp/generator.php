@@ -27,7 +27,7 @@ $resource = $view->dataBag->get('resource', null);
 
 $db_column_list = $view->dataBag->get('$db_column_list', []);
 
-$demo = $view->query('demo', false);
+$demo = $view->queryBag->get('demo', false);
 
 /** @var DBModel $model */
 $model = null;

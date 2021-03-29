@@ -4,29 +4,46 @@ use Copper\Component\HTML\HTML;
 use Copper\Entity\AbstractEntity;
 use Copper\Handler\ArrayHandler;
 
-/** @var AbstractEntity[] $list */
-$list = $view->dataBag->get('list');
+$list = AbstractEntity::fromViewAsList($view, 'list');
 
 /** @var Copper\Resource\AbstractResource $Resource */
 $Resource = $view->dataBag->get('resource');
 
 $model = $Resource::getModel();
 
-$order_by = $view->query('order_by', 'id');
-$order = $view->query('order', 'asc');
-$offset = $view->query('offset', 0);
-$limit = $view->query('limit', 20);
+$head_title = $Resource::getName() . ' List';
 
-$show_removed = $view->query('show_removed');
+$order_by = $view->queryBag->get('order_by', 'id');
+$order = $view->queryBag->get('order', 'asc');
+$offset = $view->queryBag->get('offset', 0);
+$limit = $view->queryBag->get('limit', 20);
+
+$show_removed = $view->queryBag->get('show_removed');
 $show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
 
 $undoId = $view->flashMessage->get('undo_id', 0);
-$undoAction = $view->url($Resource::POST_UNDO_REMOVE, [$model::ID => $undoId]);
 
 $field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED_AT);
+
+// ----------------------- Routes -----------------------
+
+$urlGetNew = $view->url($Resource::route($Resource::GET_NEW));
+
+$urlGetList = function ($params = []) use ($view, $Resource) {
+    return $view->url($Resource::route($Resource::GET_LIST), $params);
+};
+
+$urlGetEdit = function ($id) use ($view, $Resource, $model) {
+    return $view->url($Resource::route($Resource::GET_EDIT), [$model::ID => $id]);
+};
+
+$urlPostUndoRemove = function ($id) use ($view, $Resource, $model) {
+    return $view->url($Resource::route($Resource::POST_UNDO_REMOVE), [$model::ID => $id]);
+};
+
 ?>
 
-<?= $view->render('header') ?>
+<?= $view->render('header', ['head_title' => $head_title]) ?>
 
 <style>
     tr.removed {
@@ -45,7 +62,8 @@ $field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED
     <div class="bg_success" style="border: 1px solid #ccc; padding: 10px; margin:5px; border-radius: 5px;">
         <code class="bg_success"><?= $view->out($view->flashMessage->getSuccess()) ?></code>
         <?php if ($undoId !== 0) : ?>
-            <form style="display: inline-block;margin-left:10px;float:right" method="post" action="<?= $undoAction ?>">
+            <form style="display: inline-block;margin-left:10px;float:right" method="post"
+                  action="<?= $urlPostUndoRemove($undoId) ?>">
                 <button>Undo</button>
             </form>
         <?php endif; ?>
@@ -53,9 +71,9 @@ $field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED
 <?php } ?>
 
 <div class="content_wrapper" style="padding: 0 20px">
-    <h3><?= $Resource::getName() ?> List</h3>
+    <h3><?= $head_title ?></h3>
     <div>
-        <form style="float: left" action="<?= $view->url($Resource::GET_LIST) ?>" method="get">
+        <form style="float: left" action="<?= $urlGetList() ?>" method="get">
             <label for="show_removed">Show Removed: </label>
             <input type="checkbox" id="show_removed" <?= $show_removed_checked ?> name="show_removed">
             <label for="offset">Offset: </label>
@@ -64,7 +82,7 @@ $field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED
             <input type="number" id="limit" name="limit" value="<?= $limit ?>" autocomplete="off">
             <button>Filter</button>
         </form>
-        <form style="float: right;margin-left: 40px;margin-bottom: 10px" action="<?= $view->url($Resource::GET_NEW) ?>"
+        <form style="float: right;margin-left: 40px;margin-bottom: 10px" action="<?= $urlGetNew ?>"
               method="get">
             <button>Create New</button>
         </form>
@@ -85,10 +103,10 @@ $field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED
                 <td style="text-align: center">
                     <?php
                     if ($entry->isRemoved() === false)
-                        echo HTML::formGet($view->url($Resource::GET_EDIT, [$model::ID => $entry->id]))
+                        echo HTML::formGet($urlGetEdit($entry->id))
                             ->addElement(HTML::button('Edit'));
                     else
-                        echo HTML::form($view->url($Resource::POST_UNDO_REMOVE, [$model::ID => $entry->id]))
+                        echo HTML::form($urlPostUndoRemove($entry->id))
                             ->addElement(HTML::button('Restore'));
                     ?>
                 </td>
@@ -100,7 +118,7 @@ $field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED
 <script>
     let order = '<?= $order ?>';
     let order_by = '<?= $order_by ?>'.toLowerCase();
-    let order_url = '<?= $view->url($Resource::GET_LIST, [
+    let order_url = '<?= $urlGetList([
         'order_by' => '__field__',
         'order' => '__order__',
         'offset' => $offset,
