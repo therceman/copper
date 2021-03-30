@@ -183,18 +183,21 @@ class ViewHandler
      */
     private function getByType(string $type, string $key, $default = null)
     {
-        $queryParam = $this->queryBag->$type($key, $default);
+        $routeParam = $this->routeBag->$type($key, $default);
         $dataParam = $this->dataBag->$type($key, $default);
+        $queryParam = $this->queryBag->$type($key, $default);
 
-        if ($this->dataBag->has($key))
+        if ($this->routeBag->has($key))
+            return $routeParam;
+        elseif ($this->dataBag->has($key))
             return $dataParam;
         else
             return $queryParam;
     }
 
     /**
-     * Return Template / Query parameter by key.
-     * Priority for Template parameter.
+     * Return Route / Template / Query parameter by key.
+     * Check Priority: 1) Route -> 2) Template -> 3) Query.
      *
      * @param string $key
      * @param mixed|null $default
@@ -207,8 +210,8 @@ class ViewHandler
     }
 
     /**
-     * Return Template / Query parameter by key as Boolean.
-     * Priority for Template parameter.
+     * Return Route / Template / Query parameter by key as Boolean.
+     * Check Priority: 1) Route -> 2) Template -> 3) Query.
      *
      * @param string $key
      * @param bool $default
@@ -221,8 +224,8 @@ class ViewHandler
     }
 
     /**
-     * Return Template / Query parameter by key as Int.
-     * Priority for Template parameter.
+     * Return Route / Template / Query parameter by key as Int.
+     * Check Priority: 1) Route -> 2) Template -> 3) Query.
      *
      * @param string $key
      * @param int $default
@@ -235,8 +238,8 @@ class ViewHandler
     }
 
     /**
-     * Return Template / Query parameter by key as alphabetic characters and digits.
-     * Priority for Template parameter.
+     * Return Route / Template / Query parameter by key as alphabetic characters and digits.
+     * Check Priority: 1) Route -> 2) Template -> 3) Query.
      *
      * @param string $key
      * @param string $default
@@ -249,8 +252,8 @@ class ViewHandler
     }
 
     /**
-     * Return Template / Query parameter by key as alphabetic characters.
-     * Priority for Template parameter.
+     * Return Route / Template / Query parameter by key as alphabetic characters.
+     * Check Priority: 1) Route -> 2) Template -> 3) Query.
      *
      * @param string $key
      * @param string $default
@@ -263,8 +266,8 @@ class ViewHandler
     }
 
     /**
-     * Return Template / Query parameter by key as alphabetic characters.
-     * Priority for Template parameter.
+     * Return Route / Template / Query parameter by key as alphabetic characters.
+     * Check Priority: 1) Route -> 2) Template -> 3) Query.
      *
      * @param string $key
      * @param string $default
@@ -310,6 +313,21 @@ class ViewHandler
     public function json(array $value)
     {
         return $this->output->json($value);
+    }
+
+    /**
+     * Output data as JavaScript
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    public function js($value)
+    {
+        if (is_array($value))
+            return $this->json($value);
+
+        return $this->output->js($value);
     }
 
     /**

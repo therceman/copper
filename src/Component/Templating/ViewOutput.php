@@ -23,6 +23,15 @@ class ViewOutput
      */
     public function js($value)
     {
+        if ($value === null)
+            return 'null';
+
+        if ($value === false)
+            return 'false';
+
+        if ($value === true)
+            return 'true';
+
         return $this->sanitizer->js_escape($value);
     }
 

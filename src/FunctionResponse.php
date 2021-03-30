@@ -13,7 +13,7 @@ class FunctionResponse
     /** @var mixed */
     public $result;
 
-    public function __construct($status = false, $msg = '', $result = null)
+    public function __construct($status = true, $msg = '', $result = null)
     {
         $this->status = $status;
         $this->msg = $msg;
@@ -115,6 +115,9 @@ class FunctionResponse
     {
         if ($result === false)
             return $this->error($falseResultMsg);
+
+        if ($this->hasError())
+            return $this->error($this->msg, $result);
 
         return $this->success("Success Result!", $result);
     }

@@ -196,10 +196,11 @@ abstract class DBModel
      *
      * @param array $fieldValues
      * @param bool $removeNullFields
+     * @param bool $escapeFieldNames
      *
      * @return array
      */
-    public function formatFieldValues(array $fieldValues, $removeNullFields = true)
+    public function formatFieldValues(array $fieldValues, $removeNullFields = false, $escapeFieldNames = false)
     {
         $formattedValues = [];
 
@@ -227,7 +228,9 @@ abstract class DBModel
             if (is_bool($value) && $field->getType() === $field::BOOLEAN)
                 $value = intval($value);
 
-            $formattedValues['`' . $field->getName() . '`'] = $value;
+            $formattedFieldName = ($escapeFieldNames) ? '`' . $field->getName() . '`' : $field->getName();
+
+            $formattedValues[$formattedFieldName] = $value;
         }
 
         return $formattedValues;
@@ -591,7 +594,7 @@ abstract class DBModel
 
         foreach ($entityList as $entity) {
             $insertData = $this->getFieldValuesFromEntity($entity);
-            $formattedInsertDataList[] = $this->formatFieldValues($insertData, false);
+            $formattedInsertDataList[] = $this->formatFieldValues($insertData, false, true);
         }
 
         try {
@@ -621,7 +624,7 @@ abstract class DBModel
         $db = Kernel::getDb();
 
         $insertData = $this->getFieldValuesFromEntity($entity);
-        $formattedInsertData = $this->formatFieldValues($insertData);
+        $formattedInsertData = $this->formatFieldValues($insertData, true, true);
 
         try {
             $stm = $db->query->insertInto('`' . $this->getTableName() . '`', $formattedInsertData);
@@ -653,7 +656,7 @@ abstract class DBModel
         $entity = $this->getEntity()::fromArray($fields);
 
         $updateData = $this->getFieldValuesFromEntity($entity, array_keys($fields));
-        $formattedUpdateData = $this->formatFieldValues($updateData, false);
+        $formattedUpdateData = $this->formatFieldValues($updateData, false, true);
 
         try {
             $stm = $db->query->update('`' . $this->getTableName() . '`', $formattedUpdateData);
@@ -667,7 +670,7 @@ abstract class DBModel
                 throw new Exception($stm->getMessage());
 
             if ($resultRowCount === 0)
-                throw new Exception('No record found for update');
+                throw new Exception('No record found for update or new data not provided');
 
             $response->result($resultRowCount);
         } catch (Exception $e) {

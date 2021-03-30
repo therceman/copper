@@ -216,6 +216,16 @@ class AbstractController
         return $this->redirectToRoute($authConfig->loginRoute, $parameters);
     }
 
+    protected function requestJson()
+    {
+        if ($this->request->getContentType() !== 'json')
+            return [];
+
+        $data = json_decode($this->request->getContent(), true);
+
+        return ($data === null) ? [] : $data;
+    }
+
     /**
      * Extract all provided params from request
      *

@@ -291,9 +291,7 @@ abstract class DBCollectionService
         // prepareDataForInsert($entity)
         // TODO put the whole create/update/etc. function to the Model
         $insertData = self::getModel()->getFieldValuesFromEntity($entity);
-        $formattedInsertData = self::getModel()->formatFieldValues($insertData);
-
-        $entity = $entity::fromArray($formattedInsertData);
+        $formattedInsertData = self::getModel()->formatFieldValues($insertData,true,true);
 
         try {
             $stm = $db->query->insertInto('`'.self::getTable().'`', $formattedInsertData);
@@ -302,8 +300,7 @@ abstract class DBCollectionService
             if ($resultId === false)
                 throw new Exception($stm->getMessage());
 
-            $entity->id = $resultId;
-            $response->result($entity->toArray());
+            $response->result($resultId);
         } catch (Exception $e) {
             $response->fail($e->getMessage(), $formattedInsertData);
         }
@@ -328,7 +325,7 @@ abstract class DBCollectionService
 
         // prepareDataForUpdate($fields, $entity?);
         $updateData = self::getModel()->getFieldValuesFromEntity($entity, array_keys($fields));
-        $formattedUpdateData = self::getModel()->formatFieldValues($updateData, false);
+        $formattedUpdateData = self::getModel()->formatFieldValues($updateData, false, true);
 
         try {
             $stm = $db->query->update('`'.self::getTable().'`', $formattedUpdateData, $id);

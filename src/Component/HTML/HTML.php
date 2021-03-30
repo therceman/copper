@@ -301,7 +301,7 @@ class HTML
             $optionEl->setAttr('value', ($useTextAsValue) ? $text : $value);
             $optionEl->innerHTML($text);
 
-            if ($useTextAsValue && $selVal === $text || $useTextAsValue === false && $selVal === $value)
+            if ($useTextAsValue && $selVal == $text || $useTextAsValue === false && $selVal == $value)
                 $optionEl->setAttr('selected', true);
 
             $el->addElement($optionEl);
