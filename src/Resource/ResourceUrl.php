@@ -41,6 +41,11 @@ class ResourceUrl
         return $this;
     }
 
+    public function toString()
+    {
+        return $this->__toString();
+    }
+
     public function __toString()
     {
         if ($this->params !== null)
@@ -50,4 +55,5 @@ class ResourceUrl
 
         return Kernel::getRouteUrl($this->route, $parameters);
     }
+
 }

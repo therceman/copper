@@ -70,7 +70,8 @@ class ArrayHandler
      *
      * @return array
      */
-    public static function assocIndexList(array $array, string $keyField) {
+    public static function assocIndexList(array $array, string $keyField)
+    {
         $list = [];
 
         foreach ($array as $k => $item) {
@@ -340,5 +341,22 @@ class ArrayHandler
         }
 
         return $cleanArray;
+    }
+
+    /**
+     * Decodes Objects in array to string, if object has __toString() method
+     *
+     * @param array $array
+     */
+    public static function objectsToString(array &$array)
+    {
+        foreach ($array as $key => $value) {
+            if (is_object($value) && method_exists($value, '__toString'))
+                $array[$key] = $value->__toString();
+            elseif (is_array($value)) {
+                self::objectsToString($value);
+                $array[$key] = $value;
+            }
+        }
     }
 }

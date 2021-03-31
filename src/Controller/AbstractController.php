@@ -10,6 +10,7 @@ use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Component\Validator\ValidatorHandler;
+use Copper\Handler\ArrayHandler;
 use Copper\RequestTrait;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -133,6 +134,8 @@ class AbstractController
      */
     protected function json($data, $status = 200, $headers = [])
     {
+        ArrayHandler::objectsToString($data);
+
         return new JsonResponse($data, $status, $headers);
     }
 
