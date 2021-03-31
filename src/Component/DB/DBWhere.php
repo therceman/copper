@@ -233,6 +233,22 @@ class DBWhere
     }
 
     /**
+     * Shortcut for Like: %value%
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return DBWhere
+     */
+    public static function likeAny(string $field, string $value)
+    {
+        $value = str_replace('%', '', $value);
+        $value = '%' . $value . '%';
+
+        return new self($field, $value, self::LIKE, self::CHAIN_NULL);
+    }
+
+    /**
      * Not Like
      *
      * (see like documentation for all cases)
@@ -445,6 +461,24 @@ class DBWhere
         return $this;
     }
 
+    /**
+     * Shortcut for andLike: %value%
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function andLikeAny(string $field, string $value)
+    {
+        $value = str_replace('%', '', $value);
+        $value = '%' . $value . '%';
+
+        $this->addCondition($field, $value, self::LIKE, self::CHAIN_AND);
+
+        return $this;
+    }
+
     public function andNotLike($field, $value)
     {
         $this->addCondition($field, $value, self::NOT_LIKE, self::CHAIN_AND);
@@ -454,6 +488,24 @@ class DBWhere
 
     public function orLike($field, $value)
     {
+        $this->addCondition($field, $value, self::LIKE, self::CHAIN_OR);
+
+        return $this;
+    }
+
+    /**
+     * Shortcut for orLike: %value%
+     *
+     * @param string $field
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function orLikeAny(string $field, string $value)
+    {
+        $value = str_replace('%', '', $value);
+        $value = '%' . $value . '%';
+
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_OR);
 
         return $this;
