@@ -354,10 +354,10 @@ abstract class AbstractResource
      * @param string $route
      * @param array $arguments
      *
-     * @return ResourceUrl
+     * @return string
      */
     protected static function url(string $route, array $arguments)
     {
-        return ResourceUrl::create(self::route($route), $arguments);
+        return ResourceUrl::create(self::route($route), $arguments) . '';
     }
 }
