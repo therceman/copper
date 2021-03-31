@@ -18,11 +18,11 @@ class HTMLGroup
      */
     public static function radio(string $label, string $name, $value, $checked = false, $id = null)
     {
-        $id = ($id === false) ? 'radio_' . $name : $id;
+        $id = ($id === null) ? 'radio_' . $name . '_' . $value : $id;
 
         $htmlElList = new HTMLElementGroup();
 
-        $htmlElList->add(HTML::inputCheckbox($name, $checked)->value($value)->id($id));
+        $htmlElList->add(HTML::inputRadio($name, $value, $checked)->id($id));
         $htmlElList->add(HTML::label($label, $id));
 
         return $htmlElList;
@@ -39,7 +39,7 @@ class HTMLGroup
      */
     public static function checkbox(string $label, $checked = false, string $name = null, $id = null, $hiddenInput = true)
     {
-        $id = ($id === false) ? 'checkbox_' . $name : $id;
+        $id = ($id === null) ? 'checkbox_' . $name : $id;
 
         $htmlElList = new HTMLElementGroup();
 

@@ -192,6 +192,16 @@ abstract class DBModel
     }
 
     /**
+     * @param string $email
+     *
+     * @return string
+     */
+    public static function formatEmail(string $email)
+    {
+        return str_replace(['"', "'", '<', '>'], '', trim($email));
+    }
+
+    /**
      * Format Field Values for Update/Insert
      *
      * @param array $fieldValues
@@ -572,11 +582,18 @@ abstract class DBModel
 
     /**
      * @param string|int $id
+     * @param array $columns
+     *
      * @return AbstractEntity|null
      */
-    public function doSelectById($id)
+    public function doSelectById($id, $columns = [])
     {
-        return $this->doSelectFirstWhereIs(DBModel::ID, $id);
+        $args = null;
+
+        if (count($columns) > 0)
+            $args = DBSelectArgs::columns($columns);
+
+        return $this->doSelectFirstWhereIs(DBModel::ID, $id, $args);
     }
 
     /**
@@ -733,4 +750,13 @@ abstract class DBModel
         return $this->doDelete(DBWhere::is($idField, $id));
     }
 
+    /**
+     * @param string $str
+     *
+     * @return string
+     */
+    public static function hash(string $str)
+    {
+        return Kernel::getDb()->hash($str);
+    }
 }

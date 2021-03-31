@@ -820,6 +820,7 @@ use App\Entity\\$entity;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSelectArgs;
 use Copper\Component\DB\DBWhere;
+use Copper\FunctionResponse;
 use Copper\Traits\ModelAnnotationTrait;
 
 trait $annotationTraitName
@@ -845,7 +846,7 @@ trait $annotationTraitName
     }
 
     /** @return $entity|null */
-    public function doSelectById(\$id)
+    public function doSelectById(\$id, \$columns = [])
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
@@ -892,6 +893,7 @@ trait $annotationTraitName
     }
 
     /** @param $entity \$entity */
+    /** @return FunctionResponse */
     public function doInsert(\$entity) {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }

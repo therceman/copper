@@ -2,7 +2,6 @@
 
 namespace Copper;
 
-use Copper\Resource\AbstractResource;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 

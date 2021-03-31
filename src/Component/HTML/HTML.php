@@ -8,6 +8,20 @@ class HTML
 {
     /**
      * @param string $text
+     *
+     * @return HTMLElement
+     */
+    public static function p($text = '')
+    {
+        $el = new HTMLElement('p');
+
+        $el->innerText($text);
+
+        return $el;
+    }
+
+    /**
+     * @param string $text
      * @param boolean $for
      *
      * @return HTMLElement
@@ -73,7 +87,6 @@ class HTML
 
         return $el;
     }
-
 
 
     /**
@@ -209,6 +222,16 @@ class HTML
     public static function inputHidden($name = null, $value = null)
     {
         return HTML::input($name, $value)->type('hidden');
+    }
+
+    /**
+     * @param string $name
+     * @param string $value
+     * @return HtmlInputElement
+     */
+    public static function inputEmail($name = null, $value = null)
+    {
+        return HTML::input($name, $value)->type('email');
     }
 
     /**

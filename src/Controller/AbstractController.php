@@ -5,6 +5,7 @@ namespace Copper\Controller;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
+use Copper\Component\DB\DBModel;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Templating\ViewHandler;
@@ -264,5 +265,17 @@ class AbstractController
         }
 
         return $params;
+    }
+
+
+    /**
+     * Create hash from string
+     *
+     * @param string $str
+     * @return string
+     */
+    public function hash(string $str)
+    {
+        return DBModel::hash($str);
     }
 }
