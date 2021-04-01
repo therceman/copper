@@ -141,6 +141,19 @@ class FileHandler
         return file_exists($filePath);
     }
 
+    /**
+     * @param string $filePath
+     *
+     * @return FunctionResponse
+     */
+    public static function delete(string $filePath)
+    {
+        if (self::fileExists($filePath) === false)
+            return FunctionResponse::createError('File does not exist');
+
+        return FunctionResponse::createSuccessOrError(unlink($filePath));
+    }
+
     public static function getFilesInFolder($folderPath)
     {
         $response = new FunctionResponse();

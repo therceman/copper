@@ -72,11 +72,11 @@ class FunctionResponse
      * Sets the result based on status.
      *
      * @param bool $status
-     * @param $result
+     * @param mixed $result
      *
      * @return FunctionResponse
      */
-    public static function createSuccessOrError(bool $status, $result)
+    public static function createSuccessOrError(bool $status, $result = false)
     {
         $response = new FunctionResponse();
 

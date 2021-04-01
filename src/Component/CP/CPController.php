@@ -20,6 +20,7 @@ class CPController extends AbstractController
     const ACTION_CORE_TEST = 'core_test';
     const ACTION_DB_GENERATOR = 'db_generator';
     const ACTION_DB_GENERATOR_RUN = 'db_generator_run';
+    const ACTION_DB_GENERATOR_DEL = 'db_generator_del';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -63,6 +64,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_GENERATOR_RUN:
                 return $this->db_generator_run();
+                break;
+            case self::ACTION_DB_GENERATOR_DEL:
+                return $this->db_generator_del();
                 break;
         }
 
@@ -172,6 +176,15 @@ class CPController extends AbstractController
             'resource' => $resource,
             '$db_column_list' => $db_column_list
         ]);
+    }
+
+    private function db_generator_del()
+    {
+        $content = $this->request->getContent();
+
+        $response = ResourceGenService::delete($content);
+
+        return $this->json($response);
     }
 
     private function db_generator_run()

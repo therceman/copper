@@ -7,9 +7,7 @@ use Copper\Component\HTML\HTMLGroup;
 use Copper\Handler\ArrayHandler;
 use Copper\Resource\AbstractResource;
 
-// TODO only entity fields
 // TODO validation type for field
-// TODO remove resource
 // TODO rename resource
 // TODO add new route
 // TODO remove route
@@ -295,6 +293,21 @@ if ($resource !== null) {
     span.help {
         font-size: 10px;
     }
+
+    #delete_res {
+        background: #ffd9d9;
+        border: 1px solid #767676;
+        border-radius: 2px;
+        color: #000;
+        height: 21px;
+    }
+
+    #delete_popup {
+        position: absolute;
+        background: #fff;
+        padding: 14px 28px;
+        border: 1px solid #ccc;
+    }
 </style>
 
 <body class="markdown-body">
@@ -320,6 +333,21 @@ if ($resource !== null) {
         <?= HTML::input()->id('resource')->value($resourceName)->placeholder('Resource Name')->autofocus() ?>
         <span class="help">Hit [Enter] after input</span>
         <div style="float:right">
+            <button id="delete_res">Delete</button>
+            <div id="delete_popup" class="hidden">
+                <p>Files To Delete: </p>
+                <?= HTMLGroup::checkbox('Resource', false, null, 'delete_resource', false) ?>
+                <?= HTMLGroup::checkbox('Entity', false, null, 'delete_entity', false) ?>
+                <?= HTMLGroup::checkbox('Model', false, null, 'delete_model', false) ?>
+                <?= HTMLGroup::checkbox('Service', false, null, 'delete_service', false) ?>
+                <?= HTMLGroup::checkbox('Controller', false, null, 'delete_controller', false) ?>
+                <?= HTMLGroup::checkbox('Seed', false, null, 'delete_seed', false) ?>
+                <?= HTMLGroup::checkbox('DB Table', false, null, 'delete_table', false) ?>
+                <div style="text-align: right;margin-top: 15px">
+                    <button id="delete_confirm">Confirm</button>
+                    <button id="delete_cancel" style="float: left">Cancel</button>
+                </div>
+            </div>
             <?php
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->addStyle('display', 'inline-block')
@@ -1434,7 +1462,7 @@ if ($resource !== null) {
 
     $create_seed.dispatchEvent(new Event('input'));
 
-    function getResourceValueParts(){
+    function getResourceValueParts() {
         let val = $resource.value;
 
         val = val.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
@@ -1548,6 +1576,66 @@ if ($resource !== null) {
 
         return names.join(', ');
     }
+
+    // --------- DELETE -------------
+    document.getElementById('delete_res').addEventListener('click', function (e) {
+        document.getElementById('delete_popup').classList.toggle('hidden');
+    });
+
+    document.getElementById('delete_cancel').addEventListener('click', function (e) {
+        document.getElementById('delete_popup').classList.add('hidden');
+    })
+
+    document.getElementById('delete_resource').addEventListener('click', function (e) {
+        let inputs_enabled = true;
+
+        if (this.checked)
+            inputs_enabled = false;
+
+        let fields = ['delete_entity', 'delete_model', 'delete_service', 'delete_controller', 'delete_seed', 'delete_table'];
+
+        fields.forEach(function (field) {
+            document.getElementById(field).checked = (inputs_enabled === false);
+            document.getElementById(field).disabled = (inputs_enabled === false);
+        })
+    });
+
+    document.getElementById('delete_confirm').addEventListener('click', e => {
+        let http = new XMLHttpRequest();
+
+        let url = '<?=CPController::ACTION_DB_GENERATOR_DEL?>';
+
+        let JSONParams = {
+            "resource": document.getElementsByName('resource')[0].value,
+            "delete_resource": document.getElementById('delete_resource').checked,
+            "delete_entity": document.getElementById('delete_entity').checked,
+            "delete_model": document.getElementById('delete_model').checked,
+            "delete_service": document.getElementById('delete_service').checked,
+            "delete_controller": document.getElementById('delete_controller').checked,
+            "delete_seed": document.getElementById('delete_seed').checked,
+            "delete_table": document.getElementById('delete_table').checked,
+        }
+
+        let params = JSON.stringify(JSONParams);
+
+        if (confirm('Are you sure you want to delete resource objects?') === false)
+            return;
+
+        http.open('POST', url, true);
+
+        http.setRequestHeader('Content-type', 'application/json');
+
+        http.onreadystatechange = function () {
+            if (http.readyState === 4 && http.status === 200) {
+                alert(http.responseText);
+                let resp = JSON.parse(http.responseText);
+                if (resp.result.delete_resource && resp.result.delete_resource.status === true)
+                    window.location.reload();
+            }
+        }
+
+        http.send(params);
+    })
 
     // --------- GENERATE ------------
 

@@ -161,6 +161,45 @@ class ResourceGenService
      * @param $jsonContent
      * @return FunctionResponse
      */
+    public static function delete($jsonContent)
+    {
+        $response = new FunctionResponse();
+
+        $result_list = [];
+
+        $content = json_decode($jsonContent, true);
+
+        /** @var AbstractResource $resource */
+        $resource = $content['resource'];
+
+        if ($content['delete_controller'])
+            $result_list['delete_controller'] = FileHandler::delete($resource::getControllerPath());
+
+        if ($content['delete_service'])
+            $result_list['delete_service'] = FileHandler::delete($resource::getServicePath());
+
+        if ($content['delete_entity'])
+            $result_list['delete_entity'] = FileHandler::delete($resource::getEntityPath());
+
+        if ($content['delete_seed'])
+            $result_list['delete_seed'] = FileHandler::delete($resource::getEntityPath());
+
+        if ($content['delete_table'])
+            $result_list['delete_table'] = $resource::getModel()->doDeleteTable();
+
+        if ($content['delete_model'])
+            $result_list['delete_model'] = FileHandler::delete($resource::getModelPath());
+
+        if ($content['delete_resource'])
+            $result_list['delete_resource'] = FileHandler::delete($resource::getPath());
+
+        return $response->result($result_list);
+    }
+
+    /**
+     * @param $jsonContent
+     * @return FunctionResponse
+     */
     public static function run($jsonContent)
     {
         $response = new FunctionResponse();

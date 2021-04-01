@@ -35,6 +35,21 @@ class DBService
         }
     }
 
+    public static function tableDelete($tableName, DBHandler $db)
+    {
+        $response = new FunctionResponse();
+
+        if (self::tableExists($tableName, $db) === false)
+            return $response->error('Table does not exists');
+
+        try {
+            $result = $db->pdo->query('DROP TABLE ' . $tableName . ';')->execute();
+            return $response->success("Deleted `$tableName` Table", $result);
+        } catch (\Exception $e) {
+            return $response->error($e->getMessage());
+        }
+    }
+
     public static function tableEmpty($tableName, DBHandler $db)
     {
         try {

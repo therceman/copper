@@ -284,13 +284,23 @@ abstract class DBModel
     }
 
     /**
-     * Truncate Model Table
+     * Clear/Truncate Model Table
      *
      * @return FunctionResponse
      */
-    public function doTruncate()
+    public function doClearTable()
     {
         return DBService::tableTruncate($this->getTableName(), Kernel::getDb());
+    }
+
+    /**
+     * Delete/Drop Model Table
+     *
+     * @return FunctionResponse
+     */
+    public function doDeleteTable()
+    {
+        return DBService::tableDelete($this->getTableName(), Kernel::getDb());
     }
 
     /**

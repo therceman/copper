@@ -134,6 +134,8 @@ class AbstractController
      */
     protected function json($data, $status = 200, $headers = [])
     {
+        $data = (array) $data;
+
         ArrayHandler::objectsToString($data);
 
         return new JsonResponse($data, $status, $headers);
