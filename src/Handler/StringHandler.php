@@ -9,6 +9,15 @@ use Copper\Transliterator;
 class StringHandler
 {
 
+    public static function trim($str) {
+        $str = trim($str);
+
+        //handle unicode spaces
+        $str = preg_replace('/^\p{Z}+|\p{Z}+$/u', '', $str);
+
+        return $str;
+    }
+
     /**
      * @param string|int|null|bool $str
      *

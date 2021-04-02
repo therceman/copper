@@ -291,6 +291,17 @@ class FileHandler
     }
 
     /**
+     * @param string $oldName
+     * @param string $newName
+     *
+     * @return bool
+     */
+    public static function rename(string $oldName, string $newName)
+    {
+        return rename($oldName, $newName);
+    }
+
+    /**
      * Alias for saveContent
      *
      * @param string $filePath
