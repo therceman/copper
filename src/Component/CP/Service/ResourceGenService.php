@@ -370,7 +370,7 @@ class ResourceGenService
         foreach ($fields as $key => $field) {
             foreach ($field as $fKey => $fVal) {
                 if (is_array($fVal))
-                    $fields[$key][$fKey] = join($fVal, ',');
+                    $fields[$key][$fKey] = join(',', $fVal);
             }
         }
 
