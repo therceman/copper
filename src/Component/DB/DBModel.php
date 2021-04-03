@@ -526,6 +526,35 @@ abstract class DBModel
     }
 
     /**
+     * @param string $field
+     * @param string|array|mixed $value
+     * @param DBSelectArgs|null $args
+     *
+     * @return int
+     */
+    public function doCountWhereIs(string $field, $value, DBSelectArgs $args = null)
+    {
+        return $this->doCountWhere(DBWhere::is($field, $value), $args);
+    }
+
+    /**
+     * @param DBWhere $where
+     * @param DBSelectArgs|null $args
+     *
+     * @return int
+     */
+    public function doCountWhere(DBWhere $where, DBSelectArgs $args = null)
+    {
+        if ($args === null)
+            $args = new DBSelectArgs();
+
+        if ($args->getWhere() === null)
+            $args->setWhere($where);
+
+        return $this->doCount($args);
+    }
+
+    /**
      * @param DBSelectArgs $args
      *
      * @return int
