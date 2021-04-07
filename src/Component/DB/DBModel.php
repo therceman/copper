@@ -739,13 +739,12 @@ abstract class DBModel
     /**
      * @param int|string $id
      * @param array $fields
-     * @param string $idField
      *
      * @return FunctionResponse
      */
-    public function doUpdateById($id, array $fields, $idField = DBModel::ID)
+    public function doUpdateById($id, array $fields)
     {
-        return $this->doUpdate(DBWhere::is($idField, $id), $fields);
+        return $this->doUpdate(DBWhere::is(DBModel::ID, $id), $fields);
     }
 
     /**
