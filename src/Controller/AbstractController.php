@@ -13,6 +13,7 @@ use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\ArrayHandler;
 use Copper\RequestTrait;
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -134,7 +135,7 @@ class AbstractController
      */
     protected function json($data, $status = 200, $headers = [])
     {
-        $data = (array) $data;
+        $data = (array)$data;
 
         ArrayHandler::objectsToString($data);
 
@@ -222,6 +223,23 @@ class AbstractController
         return $this->redirectToRoute($authConfig->loginRoute, $parameters);
     }
 
+    /**
+     * Get uploaded file
+     *
+     * @param $key
+     *
+     * @return UploadedFile|null
+     */
+    protected function requestFile($key)
+    {
+        return $this->request->files->get($key, null);
+    }
+
+    /**
+     * Get JSON body
+     *
+     * @return array|mixed
+     */
     protected function requestJson()
     {
         if ($this->request->getContentType() !== 'json')
