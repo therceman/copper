@@ -5,6 +5,8 @@ namespace Copper\Component\CP;
 use Copper\Component\CP\Service\ResourceGenService;
 use Copper\Component\DB\DBService;
 use Copper\Controller\AbstractController;
+use Copper\Handler\ArrayHandler;
+use Copper\Handler\CollectionHandler;
 use Copper\Handler\FileHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
@@ -170,10 +172,50 @@ class CPController extends AbstractController
         if ($resource !== null)
             $db_column_list = $resource::getModel()->doGetColumns(true);
 
+        // route info
+        // ------------------------------------------
+
+        $route_list = [];
+        $route_group = false;
+        $route_action_list = [];
+
+        if ($resource !== null) {
+            $action_list = get_class_methods($resource::getControllerClassName());
+
+            foreach ($action_list as $action) {
+                $getAction = substr($action, 0, 3) === 'get';
+                $postAction = substr($action, 0, 4) === 'post';
+
+                if ($getAction || $postAction)
+                    $route_action_list[] = ["name" => $action, "used" => false, "action" => ($getAction) ? 'GET' : 'POST'];
+            }
+        }
+
+        foreach (Kernel::getRoutes()->all() as $name => $route) {
+            $controller = $route->getDefaults()['_controller'][0];
+            $controller_action = $route->getDefaults()['_controller'][1];
+
+            if ($controller === $resource::getControllerClassName()) {
+                $route_group = $route->getDefault('_group');
+
+                $method = $route->getMethods()[0];
+                $path = str_replace($route_group . '/', '', $route->getPath());
+                $name_without_group = (strtolower($method) === 'get') ? $route->getPath() : 'post@' . $route->getPath();
+
+                $route_list[] = ['action' => $controller_action, 'method' => $method, 'path' => $path, 'name_without_group' => $name_without_group, 'name' => $name];
+
+                $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
+                $route_action_list[$route_action_list_key]['used'] = true;
+            }
+        }
+
         return $this->viewResponse('cp/generator', [
             'default_varchar_length' => $this->db->config->default_varchar_length,
             'resource_list' => $resourceList,
             'resource' => $resource,
+            '$route_list' => $route_list,
+            '$route_group' => $route_group,
+            '$route_action_list' => $route_action_list,
             '$db_column_list' => $db_column_list
         ]);
     }

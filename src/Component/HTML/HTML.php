@@ -54,11 +54,13 @@ class HTML
         return $el;
     }
 
-    public static function button($text = '')
+    public static function button($text = '', $value = null)
     {
         $el = new HTMLElement('button');
 
         $el->innerText($text);
+
+        $el->setAttr('value', ($value === null) ? '' : $value);
 
         return $el;
     }
@@ -296,7 +298,7 @@ class HTML
     }
 
     /**
-     *  HTML::select('banana', ['apple', 'pie'], false, true)
+     *  HTML::select('banana', ['apple', 'pie'], false)
      *
      * - option value="apple">apple | option value="pie">pie
      *
@@ -308,11 +310,11 @@ class HTML
      * @param string $name
      * @param array $options
      * @param string $selVal
-     * @param false $useTextAsValue
+     * @param false $useKeyAsValue
      *
      * @return HTMLElement
      */
-    public static function select(array $options, string $name = null, $selVal = "", $useTextAsValue = false)
+    public static function select(array $options, string $name = null, $selVal = "", $useKeyAsValue = false)
     {
         $el = new HTMLElement('select');
 
@@ -321,10 +323,10 @@ class HTML
         foreach ($options as $value => $text) {
             $optionEl = new HTMLElement('option');
 
-            $optionEl->setAttr('value', ($useTextAsValue) ? $text : $value);
+            $optionEl->setAttr('value', ($useKeyAsValue) ? $value : $text);
             $optionEl->innerHTML($text);
 
-            if ($useTextAsValue && $selVal == $text || $useTextAsValue === false && $selVal == $value)
+            if ($useKeyAsValue === false && $selVal == $text || $useKeyAsValue && $selVal == $value)
                 $optionEl->setAttr('selected', true);
 
             $el->addElement($optionEl);
@@ -353,7 +355,7 @@ class HTML
             $customOptions[$val[$valField]] = $val[$textField];
         }
 
-        return static::select($customOptions, $name, $selVal);
+        return static::select($customOptions, $name, $selVal, true);
     }
 
     /**

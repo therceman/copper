@@ -6,6 +6,7 @@ use Copper\Component\HTML\HTML;
 use Copper\Component\HTML\HTMLGroup;
 use Copper\Handler\ArrayHandler;
 use Copper\Resource\AbstractResource;
+use Symfony\Component\Routing\Route;
 
 // TODO validation type for field
 // TODO rename resource
@@ -19,6 +20,15 @@ $max_varchar_length = $view->dataBag->get('max_varchar_length', 2500);
 
 /** @var AbstractResource[] $resource_list */
 $resource_list = $view->dataBag->get('resource_list', []);
+
+/** @var array $route_list */
+$route_list = $view->dataBag->get('$route_list', []);
+
+/** @var array $route_action_list */
+$route_action_list = $view->dataBag->get('$route_action_list', []);
+
+/** @var string $route_group */
+$route_group = $view->dataBag->get('$route_group', false);
 
 /** @var AbstractResource $resource */
 $resource = $view->dataBag->get('resource', null);
@@ -327,6 +337,195 @@ if ($resource !== null) {
     </div>
 <?php endif; ?>
 
+<style>
+    #edit_routes_popup {
+        background: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 1px 2px 5px -2px black;
+        width: 720px;
+        position: absolute;
+        left: calc(50% - 360px);
+        padding: 10px;
+        min-height: 300px;
+    }
+
+    #edit_routes_popup h4 {
+        margin: 5px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+    }
+
+    #edit_routes_popup .close {
+        font-size: 20px;
+        color: #333;
+        position: absolute;
+        right: 14px;
+        top: 7px;
+        cursor: pointer;
+    }
+
+    #edit_routes_popup .path, #edit_routes_popup .action {
+        width: 274px;
+    }
+
+    #edit_routes_popup .routes_collection {
+        padding: 10px;
+        padding-bottom: 0px;
+    }
+
+    #edit_routes_popup .routes_collection ul {
+        padding: 0 15px;
+    }
+
+    #edit_routes_popup .delete {
+        height: 23px;
+        margin-top: 3px;
+        margin-bottom: 0px;
+        display: inline-block;
+    }
+
+    #edit_routes_popup h5 {
+        margin-top: 0;
+        padding: 0px 5px;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: 1px dashed #ccc;
+    }
+
+    #edit_routes_popup .controls {
+        text-align: center;
+    }
+
+    #edit_routes_popup .routes_collection .info div {
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    #edit_routes_popup .routes_collection .info .group input {
+        width: 200px;
+    }
+
+    #edit_routes_popup .routes_collection .info .controller input {
+        width: 345px;
+    }
+
+    #edit_routes_popup .action_select {
+        width: 274px;
+        margin-top: 10px;
+    }
+
+    #edit_routes_popup .update_controls {
+        text-align: right;
+        padding-right: 20px;
+        padding-top: 5px;
+    }
+</style>
+
+<?php if ($resource !== null): ?>
+    <script>
+        let route_action_list = <?=$view->json($route_action_list)?>;
+        let route_group = '<?=$view->js($route_group)?>';
+        let route_list = <?=$view->json($route_list)?>;
+
+        function route_action_save() {
+            console.log('route action save');
+        }
+
+        function route_action_add() {
+            console.log('route action add');
+        }
+
+        function route_action_input__path(self) {
+            let path = self.value;
+
+            console.log(path);
+        }
+
+        function route_action_input__action(self) {
+            let action = self.value;
+
+            console.log(action);
+        }
+
+        function route_action_select(self) {
+            let action = self.value;
+
+            let parts = action.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
+            let method = parts[0].toUpperCase();
+
+            parts.shift();
+
+            let clean_parts = [];
+            parts.forEach((part, key) => {
+                clean_parts.push(part.toLowerCase());
+            })
+
+            let path = '/' + clean_parts.join('/');
+
+            document.querySelector('#path').value = path;
+            document.querySelector('#action').value = action;
+
+            document.querySelector('#method').value = (action === '') ? 'GET' : method;
+        }
+    </script>
+    <div id="edit_routes_popup">
+        <h4><?= $resource ?></h4>
+        <div class="close">✖</div>
+        <div class="routes_collection">
+            <div class="info">
+                <div class="group">Group: <?= HTML::input('group', $route_group) ?></div>
+                <div class="controller">
+                    Controller: <?= HTML::input('group', $resource::getControllerClassName())->disabled() ?></div>
+            </div>
+            <ul>
+                <?php
+                foreach ($route_list as $route) {
+                    $action = $route['action'];
+                    $action = $route['action'];
+                    $method = $route['method'];
+                    $path = $route['path'];
+                    $name = $route['name'];
+
+                    $li = HTML::li();
+
+                    $elPath = HTML::input("path[$name]", $path)->class('path');
+                    $elAction = HTML::input("action[$name]", $action)->class('action');
+                    $elMethod = HTML::select(['GET', 'POST'], "method[$name]", $method)->class('method');
+                    $elDelete = HTML::button("Del", "del[$name]")->class('delete');
+
+                    $li->addElement($elPath)->addElement($elAction)->addElement($elMethod)->addElement($elDelete);
+
+                    echo $li;
+                }
+                ?>
+            </ul>
+            <div class="update_controls">
+                <button onclick="route_action_save()">Save Changes</button>
+            </div>
+        </div>
+        <h5>Add new Route</h5>
+        <div class="controls">
+            <div>
+                <input type="text" id="path" class="path" oninput="route_action_input__path(this)"
+                       placeholder="Enter path (e.g. /create ) ..." value="/">
+                <input type="text" id="action" class="action" oninput="route_action_input__action(this)"
+                       placeholder="Enter controller action (e.g. postProduct) ... ">
+                <?= HTML::select(['GET', 'POST'], "method")->idAsName() ?>
+                <?= HTML::button("Add", "add")->onClick('route_action_add()') ?>
+            </div>
+            <div>
+                <?php
+                $action_list = ArrayHandler::assocFind($route_action_list, ['used' => false]);
+                echo HTML::selectCollection($action_list, "name", "name", "action_select")
+                    ->class('action_select')
+                    ->addInnerElementBefore(HTML::option('Select unused action from controller ...'))
+                    ->onChange('route_action_select(this)')
+                ?>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>
+
 <div style="margin-bottom:10px;">
     <div style="margin-bottom: 5px;">
         <span>Resource</span>
@@ -351,9 +550,10 @@ if ($resource !== null) {
             <?php
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->addStyle('display', 'inline-block')
-                ->addElement(HTML::select($resource_list, 'resource', $resource, true))
+                ->addElement(HTML::select($resource_list, 'resource', $resource))
                 ->addElement(HTML::button('Read'));
             ?>
+            <?= HTML::button('Edit Routes')->onClick('edit_routes()')->disabled($resource === null); ?>
             <?php
             echo HTML::form($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->id('migrate_form')->addStyle('display', 'inline-block')
@@ -948,6 +1148,7 @@ if ($resource !== null) {
     }
 
     let $migrate_btn = document.querySelector('#migrate_btn');
+    let $edit_routes_btn = document.querySelector('#edit_routes_btn');
     let $migrate_form = document.querySelector('#migrate_form');
     let $migrate_force = document.querySelector('#migrate_force');
     let $seed_btn = document.querySelector('#seed_btn');
@@ -1013,6 +1214,10 @@ if ($resource !== null) {
     $migrate_form.addEventListener('submit', e => {
         $migrate_force.value = confirm('Force Migrate ?');
     })
+
+    function edit_routes() {
+        console.log('editing');
+    }
 
     function dbAddField(key) {
         let $field = document.querySelector('#field_' + key);

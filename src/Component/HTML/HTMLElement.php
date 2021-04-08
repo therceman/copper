@@ -155,9 +155,9 @@ class HTMLElement
         return $this;
     }
 
-    public function disabled()
+    public function disabled($state = true)
     {
-        $this->setAttr(self::ATTR_DISABLED, false);
+        $this->setAttr(self::ATTR_DISABLED, ($state === true) ? false : null);
 
         return $this;
     }
@@ -389,4 +389,24 @@ class HTMLElement
         return $this;
     }
 
+    function onClick($js)
+    {
+        $this->setAttr('onclick', $js);
+
+        return $this;
+    }
+
+    function onChange($js)
+    {
+        $this->setAttr('onchange', $js);
+
+        return $this;
+    }
+
+    function onInput($js)
+    {
+        $this->setAttr('oninput', $js);
+
+        return $this;
+    }
 }

@@ -280,6 +280,24 @@ class ArrayHandler
     }
 
     /**
+     * @param array $array
+     * @param array $filter
+     *
+     * @return int|string|null
+     */
+    public static function assocFindKey(array $array, array $filter)
+    {
+        $key = null;
+
+        foreach ($array as $k => $item) {
+            if (self::assocMatch($item, $filter))
+                $key = $k;
+        }
+
+        return $key;
+    }
+
+    /**
      * @param array|object[] $array
      * @param array $filter - Key->Value pairs
      *
