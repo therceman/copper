@@ -342,11 +342,12 @@ if ($resource !== null) {
         background: #fff;
         border: 1px solid #ccc;
         box-shadow: 1px 2px 5px -2px black;
-        width: 720px;
+        width: 800px;
         position: absolute;
-        left: calc(50% - 360px);
+        left: 347px;
         padding: 10px;
         min-height: 300px;
+        top: 110px;
     }
 
     #edit_routes_popup h4 {
@@ -365,7 +366,7 @@ if ($resource !== null) {
     }
 
     #edit_routes_popup .path, #edit_routes_popup .action {
-        width: 274px;
+        width: 314px;
     }
 
     #edit_routes_popup .routes_collection {
@@ -402,16 +403,17 @@ if ($resource !== null) {
     }
 
     #edit_routes_popup .routes_collection .info .group input {
-        width: 200px;
+        width: 240px;
     }
 
     #edit_routes_popup .routes_collection .info .controller input {
-        width: 345px;
+        width: 383px;
     }
 
     #edit_routes_popup .action_select {
-        width: 274px;
+        width: 330px;
         margin-top: 10px;
+        height: 21px;
     }
 
     #edit_routes_popup .update_controls {
@@ -419,6 +421,7 @@ if ($resource !== null) {
         padding-right: 20px;
         padding-top: 5px;
     }
+
 </style>
 
 <?php if ($resource !== null): ?>
@@ -427,18 +430,88 @@ if ($resource !== null) {
         let route_group = '<?=$view->js($route_group)?>';
         let route_list = <?=$view->json($route_list)?>;
 
+        function edit_routes() {
+            document.getElementById('edit_routes_popup').classList.toggle('hidden');
+            document.getElementById('path').focus();
+            document.getElementById('path').setSelectionRange(1, 1);
+        }
+
         function route_action_save() {
             console.log('route action save');
+        }
+
+        function route_action_cancel() {
+            document.getElementById('edit_routes_popup').classList.add('hidden');
         }
 
         function route_action_add() {
             console.log('route action add');
         }
 
-        function route_action_input__path(self) {
-            let path = self.value;
+        function route_action_input__method() {
+            route_action_input__path(document.getElementById('path'));
+        }
 
-            console.log(path);
+        function getPathList(path) {
+            let path_list = [];
+
+            path.split('/').forEach(part => {
+                if (part[0] === void 0 || part[0] === '{')
+                    return;
+                let text = part[0].toUpperCase() + part.substr(1);
+                path_list.push(text)
+            });
+
+            return path_list;
+        }
+
+        function craftRouteActionFunction(path, action, path_list) {
+            let params = [];
+
+            path_list = path_list || getPathList(path);
+
+            Array.from(path.matchAll(/{(.*?)}/gm)).forEach(match => {
+                params.push('$' + match[1]);
+            })
+
+            return action + path_list.join('') + '(' + params.join(', ') + ')';
+        }
+
+        function route_action_input__path(self, method_el, action_el) {
+            self.value = self.value.toLowerCase().replace(/[^A-Za-z0-9_/{}]/g, '');
+
+            let path = self.value.replace(/_/g, '/');
+
+            method_el = method_el || document.getElementById('method');
+            action_el = action_el || document.getElementById('action');
+
+            if (path[0] === '/')
+                path = path.substr(1);
+
+            let method = method_el.value.toLowerCase();
+            let path_list = getPathList(path);
+
+            action_el.value = craftRouteActionFunction(path, method, path_list);
+        }
+
+        function route_action_edit__method(self) {
+            let name = self.name.split('[')[1].slice(0, -1);
+
+            route_action_edit__path(document.querySelector('[name="path[' + name + ']"]'));
+        }
+
+        function route_action_edit__path(self) {
+            console.log('editing existing path');
+
+            let name = self.name.split('[')[1].slice(0, -1);
+            let method = document.querySelector('[name="method[' + name + ']"]');
+            let action = document.querySelector('[name="action[' + name + ']"]');
+
+            route_action_input__path(self, method, action);
+        }
+
+        function route_action_edit__delete(self) {
+            console.log('deleting existing action');
         }
 
         function route_action_input__action(self) {
@@ -450,6 +523,8 @@ if ($resource !== null) {
         function route_action_select(self) {
             let action = self.value;
 
+            let route = route_action_list.filter(x => x.name === action)[0];
+
             let parts = action.replace(/([a-z])([A-Z])/g, '$1 $2').split(' ');
             let method = parts[0].toUpperCase();
 
@@ -460,17 +535,23 @@ if ($resource !== null) {
                 clean_parts.push(part.toLowerCase());
             })
 
+            if (route !== void 0)
+                route.params.forEach(param => {
+                    clean_parts.push(`{${param.replace('$', '')}}`);
+                })
+
             let path = '/' + clean_parts.join('/');
 
             document.querySelector('#path').value = path;
             document.querySelector('#action').value = action;
 
             document.querySelector('#method').value = (action === '') ? 'GET' : method;
+            document.getElementById('path').dispatchEvent(new Event('input'));
         }
     </script>
-    <div id="edit_routes_popup">
+    <div id="edit_routes_popup" class="hidden">
         <h4><?= $resource ?></h4>
-        <div class="close">✖</div>
+        <div class="close" onclick="route_action_cancel()">✖</div>
         <div class="routes_collection">
             <div class="info">
                 <div class="group">Group: <?= HTML::input('group', $route_group) ?></div>
@@ -480,20 +561,25 @@ if ($resource !== null) {
             <ul>
                 <?php
                 foreach ($route_list as $route) {
-                    $action = $route['action'];
-                    $action = $route['action'];
+                    $action = $route['action_with_params'];
                     $method = $route['method'];
                     $path = $route['path'];
                     $name = $route['name'];
 
                     $li = HTML::li();
 
-                    $elPath = HTML::input("path[$name]", $path)->class('path');
-                    $elAction = HTML::input("action[$name]", $action)->class('action');
-                    $elMethod = HTML::select(['GET', 'POST'], "method[$name]", $method)->class('method');
-                    $elDelete = HTML::button("Del", "del[$name]")->class('delete');
+                    $elMethod = HTML::select(['GET', 'POST'], "method[$name]", $method)->class('method')
+                        ->onInput('route_action_edit__method(this)');
 
-                    $li->addElement($elPath)->addElement($elAction)->addElement($elMethod)->addElement($elDelete);
+                    $elPath = HTML::input("path[$name]", $path)->class('path')
+                        ->onInput('route_action_edit__path(this)');
+
+                    $elAction = HTML::input("action[$name]", $action)->class('action')->disabled();
+
+                    $elDelete = HTML::button("Del", "del[$name]")->class('delete')
+                        ->onInput('route_action_edit__delete(this)');;
+
+                    $li->addElement($elMethod)->addElement($elPath)->addElement($elAction)->addElement($elDelete);
 
                     echo $li;
                 }
@@ -503,20 +589,20 @@ if ($resource !== null) {
                 <button onclick="route_action_save()">Save Changes</button>
             </div>
         </div>
-        <h5>Add new Route</h5>
+        <h5>Add New Route</h5>
         <div class="controls">
             <div>
+                <?= HTML::select(['GET', 'POST'], "method")->idAsName()->onInput('route_action_input__method()') ?>
                 <input type="text" id="path" class="path" oninput="route_action_input__path(this)"
-                       placeholder="Enter path (e.g. /create ) ..." value="/">
+                       placeholder="Enter path (e.g. /edit/product/{id} ) ..." value="/">
                 <input type="text" id="action" class="action" oninput="route_action_input__action(this)"
-                       placeholder="Enter controller action (e.g. postProduct) ... ">
-                <?= HTML::select(['GET', 'POST'], "method")->idAsName() ?>
+                       placeholder="Controller action (e.g. postProduct) ... " disabled>
                 <?= HTML::button("Add", "add")->onClick('route_action_add()') ?>
             </div>
             <div>
                 <?php
                 $action_list = ArrayHandler::assocFind($route_action_list, ['used' => false]);
-                echo HTML::selectCollection($action_list, "name", "name", "action_select")
+                echo HTML::selectCollection($action_list, "name", "name_with_params", "action_select")
                     ->class('action_select')
                     ->addInnerElementBefore(HTML::option('Select unused action from controller ...'))
                     ->onChange('route_action_select(this)')
@@ -1148,7 +1234,6 @@ if ($resource !== null) {
     }
 
     let $migrate_btn = document.querySelector('#migrate_btn');
-    let $edit_routes_btn = document.querySelector('#edit_routes_btn');
     let $migrate_form = document.querySelector('#migrate_form');
     let $migrate_force = document.querySelector('#migrate_force');
     let $seed_btn = document.querySelector('#seed_btn');
@@ -1214,10 +1299,6 @@ if ($resource !== null) {
     $migrate_form.addEventListener('submit', e => {
         $migrate_force.value = confirm('Force Migrate ?');
     })
-
-    function edit_routes() {
-        console.log('editing');
-    }
 
     function dbAddField(key) {
         let $field = document.querySelector('#field_' + key);

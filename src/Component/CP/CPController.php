@@ -182,12 +182,31 @@ class CPController extends AbstractController
         if ($resource !== null) {
             $action_list = get_class_methods($resource::getControllerClassName());
 
-            foreach ($action_list as $action) {
-                $getAction = substr($action, 0, 3) === 'get';
-                $postAction = substr($action, 0, 4) === 'post';
+            try {
+                $reflection_class = new \ReflectionClass($resource::getControllerClassName());
+            } catch (\ReflectionException $e) {
+                $reflection_class = null;
+            }
 
-                if ($getAction || $postAction)
-                    $route_action_list[] = ["name" => $action, "used" => false, "action" => ($getAction) ? 'GET' : 'POST'];
+            foreach ($action_list as $action) {
+                $getMethod = substr($action, 0, 3) === 'get';
+                $postMethod = substr($action, 0, 4) === 'post';
+
+                try {
+                    $params = [];
+                    foreach ($reflection_class->getMethod($action)->getParameters() as $param) {
+                        $params[] = '$' . $param->name;
+                    };
+                } catch (\ReflectionException $e) {
+                    $params = [];
+                }
+
+                $name_with_params = $action . '(' . join(', ', $params) . ')';
+
+                if ($getMethod || $postMethod)
+                    $route_action_list[] = ["name" => $action, "params" => $params,
+                        "name_with_params" => $name_with_params,
+                        "used" => false, "method" => ($getMethod) ? 'GET' : 'POST'];
             }
         }
 
@@ -198,14 +217,16 @@ class CPController extends AbstractController
             if ($controller === $resource::getControllerClassName()) {
                 $route_group = $route->getDefault('_group');
 
+                $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
+                $route_action_list[$route_action_list_key]['used'] = true;
+
                 $method = $route->getMethods()[0];
                 $path = str_replace($route_group . '/', '', $route->getPath());
                 $name_without_group = (strtolower($method) === 'get') ? $route->getPath() : 'post@' . $route->getPath();
 
-                $route_list[] = ['action' => $controller_action, 'method' => $method, 'path' => $path, 'name_without_group' => $name_without_group, 'name' => $name];
-
-                $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
-                $route_action_list[$route_action_list_key]['used'] = true;
+                $route_list[] = ['action' => $controller_action, 'method' => $method, 'path' => $path,
+                    'action_with_params' => $route_action_list[$route_action_list_key]['name_with_params'],
+                    'name_without_group' => $name_without_group, 'name' => $name];
             }
         }
 
