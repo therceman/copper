@@ -395,6 +395,7 @@ if ($resource !== null) {
     </div>
     <div style="float:right; margin-top: 5px;">
         <input type="checkbox" id="int_auto_unsigned" checked="checked"><span>INT type fields are auto UNSIGNED</span>
+        <input type="checkbox" id="new_fields_null" checked="checked"><span>New fields are Null by default</span>
     </div>
     <div style="clear: both"></div>
     <div style="margin-top: 10px;">
@@ -975,6 +976,7 @@ if ($resource !== null) {
     let $length = document.querySelector('#length');
     let $auto_increment = document.querySelector('#auto_increment');
     let $int_auto_unsigned = document.querySelector('#int_auto_unsigned');
+    let $new_fields_null = document.querySelector('#new_fields_null');
     let $cancel_default_value = document.querySelector('#cancel_default_value');
     let $use_state_fields = document.querySelector('#use_state_fields');
 
@@ -1267,14 +1269,19 @@ if ($resource !== null) {
         $cancel_default_value.classList.toggle('hidden', true);
         $default.classList.toggle('hidden', false);
 
-        $default.value = DEFAULT_NONE;
+        if ($null.checked === false && $default.querySelector(`option[value="${DEFAULT_NONE}"]`).disabled === false)
+            $default.value = DEFAULT_NONE;
+    })
+
+    $new_fields_null.addEventListener('input', e => {
+        $null.checked = $new_fields_null.checked;
+        $null.dispatchEvent(new Event('input'));
     })
 
     $null.addEventListener('input', e => {
         $default.querySelector(`option[value="${DEFAULT_NONE}"]`).disabled = ($null.checked);
 
-        if ($default.value === DEFAULT_NONE)
-            $default.value = DEFAULT_NULL;
+        $default.value = DEFAULT_NULL;
 
         if ($null.checked === false && $default.value === DEFAULT_NULL)
             $default.value = DEFAULT_NONE;
@@ -1309,6 +1316,7 @@ if ($resource !== null) {
         $length.disabled = false;
         $attributes.disabled = false;
 
+        $default.querySelector(`option[value="${DEFAULT_NONE}"]`).disabled = false;
         $default.querySelector(`option[value="${DEFAULT_CURRENT_TIMESTAMP}"]`).disabled = false;
         $default.querySelector(`option[value="${DEFAULT_USER_DEFINED}"]`).disabled = false;
         // $attributes.querySelector(`option[value="${ATTR_BINARY}"]`).disabled = false;
@@ -1325,6 +1333,12 @@ if ($resource !== null) {
 
         $length.type = 'number';
         $length.title = '';
+
+        $null.checked = false;
+        if ($new_fields_null.checked) {
+            $null.checked = true
+            $null.dispatchEvent(new Event('input'));
+        }
 
         if ([DECIMAL, ENUM].indexOf(val) >= 0)
             $length.type = 'text';
