@@ -157,6 +157,26 @@ class ResourceGenService
             FileHandler::createFolder($traitsFolder);
     }
 
+    public static function addRoute($content) {
+        $response = new FunctionResponse();
+
+
+
+        return $response->result($content);
+    }
+
+    public static function delRoute($content) {
+        $response = new FunctionResponse();
+
+        return $response->result($content);
+    }
+
+    public static function updateRouteList($content) {
+        $response = new FunctionResponse();
+
+        return $response->result($content);
+    }
+
     /**
      * @param $jsonContent
      * @return FunctionResponse

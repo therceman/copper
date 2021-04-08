@@ -444,8 +444,41 @@ if ($resource !== null) {
             document.getElementById('edit_routes_popup').classList.add('hidden');
         }
 
+        function route_action_add_request(method, path, action, callback) {
+            let http = new XMLHttpRequest();
+
+            let url = '<?=CPController::ACTION_ROUTE_ADD?>';
+
+            let JSONParams = {
+                "method": method,
+                "path": path,
+                "action": action,
+                "path_list": getPathList(path),
+                "create_controller_action": confirm('Do you want to create controller action?')
+            }
+
+            let params = JSON.stringify(JSONParams);
+
+            http.open('POST', url, true);
+
+            http.setRequestHeader('Content-type', 'application/json');
+
+            http.onreadystatechange = function () {
+                if (http.readyState === 4 && http.status === 200)
+                    callback(JSON.parse(http.responseText));
+            }
+
+            http.send(params);
+        }
+
         function route_action_add() {
-            console.log('route action add');
+            let method = document.getElementById('method').value;
+            let action = document.getElementById('action').value;
+            let path = document.getElementById('path').value;
+
+            route_action_add_request(method, path, action, function (response) {
+                console.log(response);
+            })
         }
 
         function route_action_input__method() {
@@ -478,12 +511,24 @@ if ($resource !== null) {
         }
 
         function route_action_input__path(self, method_el, action_el) {
-            self.value = self.value.toLowerCase().replace(/[^A-Za-z0-9_/{}]/g, '');
-
-            let path = self.value.replace(/_/g, '/');
-
             method_el = method_el || document.getElementById('method');
             action_el = action_el || document.getElementById('action');
+
+            self.value = self.value.toLowerCase();
+
+            if (self.value.indexOf('get@') >= 0) {
+                self.value = self.value.replace(/\/get@|get@/g, '/');
+                method_el.value = 'GET';
+            }
+
+            if (self.value.indexOf('post@') >= 0) {
+                self.value = self.value.replace(/\/post@|post@/g, '/');
+                method_el.value = 'POST';
+            }
+
+            self.value = self.value.replace(/[^A-Za-z0-9_/{}]/g, '');
+
+            let path = self.value.replace(/_/g, '/');
 
             if (path[0] === '/')
                 path = path.substr(1);

@@ -23,6 +23,9 @@ class CPController extends AbstractController
     const ACTION_DB_GENERATOR = 'db_generator';
     const ACTION_DB_GENERATOR_RUN = 'db_generator_run';
     const ACTION_DB_GENERATOR_DEL = 'db_generator_del';
+    const ACTION_ROUTE_ADD = 'route_add';
+    const ACTION_ROUTE_DEL = 'route_del';
+    const ACTION_ROUTE_LIST_UPDATE = 'route_list_update';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -69,6 +72,15 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_DB_GENERATOR_DEL:
                 return $this->db_generator_del();
+                break;
+            case self::ACTION_ROUTE_ADD:
+                return $this->route_add();
+                break;
+            case self::ACTION_ROUTE_DEL:
+                return $this->route_del();
+                break;
+            case self::ACTION_ROUTE_LIST_UPDATE:
+                return $this->route_list_update();
                 break;
         }
 
@@ -258,4 +270,32 @@ class CPController extends AbstractController
 
         return $this->json($response);
     }
+
+    private function route_add()
+    {
+        $content = $this->requestJson();
+
+        $response = ResourceGenService::addRoute($content);
+
+        return $this->json($response);
+    }
+
+    private function route_del()
+    {
+        $content = $this->requestJson();
+
+        $response = ResourceGenService::delRoute($content);
+
+        return $this->json($response);
+    }
+
+    private function route_list_update()
+    {
+        $content = $this->requestJson();
+
+        $response = ResourceGenService::updateRouteList($content);
+
+        return $this->json($response);
+    }
+
 }
