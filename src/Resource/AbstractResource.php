@@ -289,12 +289,12 @@ abstract class AbstractResource
     }
 
     /**
-     * @return string|false
+     * @return string|null
      */
     public static function getGroup()
     {
         if (array_key_exists(static::getName(), self::$groups) === false)
-            return false;
+            return null;
 
         return self::$groups[static::getName()];
     }
@@ -335,7 +335,7 @@ abstract class AbstractResource
 
     private static function path(string $path)
     {
-        if (self::getGroup() === false)
+        if (self::getGroup() === null)
             return $path;
 
         $group = StringHandler::removeFirstChars(self::getGroup(), '/');

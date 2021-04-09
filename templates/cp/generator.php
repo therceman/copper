@@ -28,7 +28,7 @@ $route_list = $view->dataBag->get('$route_list', []);
 $route_action_list = $view->dataBag->get('$route_action_list', []);
 
 /** @var string $route_group */
-$route_group = $view->dataBag->get('$route_group', false);
+$route_group = $view->dataBag->get('$route_group', null);
 
 /** @var AbstractResource $resource */
 $resource = $view->dataBag->get('resource', null);
@@ -427,7 +427,7 @@ if ($resource !== null) {
 <?php if ($resource !== null): ?>
     <script>
         let route_action_list = <?=$view->json($route_action_list)?>;
-        let route_group = '<?=$view->js($route_group)?>';
+        let route_group = '<?=$route_group?>';
         let route_list = <?=$view->json($route_list)?>;
 
         function edit_routes() {
@@ -1111,7 +1111,7 @@ if ($resource !== null) {
         let prevUpdateKey = null;
 
         if (new_field.orig_name === void 0)
-            return ;
+            return;
 
         updated_db_fields.forEach((field, key) => {
             if (field.orig_name === new_field.orig_name)

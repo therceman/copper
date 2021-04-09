@@ -233,7 +233,7 @@ class CPController extends AbstractController
                 $route_action_list[$route_action_list_key]['used'] = true;
 
                 $method = $route->getMethods()[0];
-                $path = str_replace($route_group . '/', '', $route->getPath());
+                $path = ($route_group !== null) ? str_replace($route_group . '/', '', $route->getPath()) : $route->getPath();
                 $name_without_group = (strtolower($method) === 'get') ? $route->getPath() : 'post@' . $route->getPath();
 
                 $route_list[] = ['action' => $controller_action, 'method' => $method, 'path' => $path,
