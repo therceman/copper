@@ -1802,6 +1802,12 @@ if ($resource !== null) {
         $controller.disabled = ($create_controller.checked === false);
         $controller_override.disabled = ($create_controller.checked === false);
         $controller.value = getResourceCamelCaseValue() + 'Controller';
+
+        if ($create_controller.checked) {
+            $create_service.checked = true;
+            $create_service.dispatchEvent(new Event('input'));
+        }
+
         $resource_override.checked = true;
     })
 
@@ -1982,7 +1988,7 @@ if ($resource !== null) {
                 alert(http.responseText);
                 let resp = JSON.parse(http.responseText);
                 if (resp.result.delete_resource && resp.result.delete_resource.status === true)
-                    window.location.reload();
+                    window.location = 'db_generator';
             }
         }
 

@@ -220,25 +220,25 @@ class CPController extends AbstractController
                         "name_with_params" => $name_with_params,
                         "used" => false, "method" => ($getMethod) ? 'GET' : 'POST'];
             }
-        }
 
-        foreach (Kernel::getRoutes()->all() as $name => $route) {
-            $controller = $route->getDefaults()['_controller'][0];
-            $controller_action = $route->getDefaults()['_controller'][1];
+            foreach (Kernel::getRoutes()->all() as $name => $route) {
+                $controller = $route->getDefaults()['_controller'][0];
+                $controller_action = $route->getDefaults()['_controller'][1];
 
-            if ($controller === $resource::getControllerClassName()) {
-                $route_group = $route->getDefault('_route_group');
+                if ($controller === $resource::getControllerClassName()) {
+                    $route_group = $route->getDefault('_route_group');
 
-                $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
-                $route_action_list[$route_action_list_key]['used'] = true;
+                    $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
+                    $route_action_list[$route_action_list_key]['used'] = true;
 
-                $method = $route->getMethods()[0];
-                $path = ($route_group !== null) ? str_replace($route_group . '/', '', $route->getPath()) : $route->getPath();
-                $name_without_group = (strtolower($method) === 'get') ? $route->getPath() : 'post@' . $route->getPath();
+                    $method = $route->getMethods()[0];
+                    $path = ($route_group !== null) ? str_replace($route_group . '/', '', $route->getPath()) : $route->getPath();
+                    $name_without_group = (strtolower($method) === 'get') ? $route->getPath() : 'post@' . $route->getPath();
 
-                $route_list[] = ['action' => $controller_action, 'method' => $method, 'path' => $path,
-                    'action_with_params' => $route_action_list[$route_action_list_key]['name_with_params'],
-                    'name_without_group' => $name_without_group, 'name' => $name];
+                    $route_list[] = ['action' => $controller_action, 'method' => $method, 'path' => $path,
+                        'action_with_params' => $route_action_list[$route_action_list_key]['name_with_params'],
+                        'name_without_group' => $name_without_group, 'name' => $name];
+                }
             }
         }
 
