@@ -372,7 +372,7 @@ final class Kernel
      */
     protected function configureMatchedRequestAttributes(UrlMatcher $matcher, Request $request)
     {
-        $routeDefinitionKeys = ['_controller', '_route'];
+        $routeDefinitionKeys = ['_controller', '_route', '_route_group'];
 
         $matchCollection = $matcher->match($request->getPathInfo());
 

@@ -277,7 +277,7 @@ abstract class AbstractResource
 
         return $routes->add(self::route($name), self::path($path))
             ->controller([static::getControllerClassName(), $action])
-            ->methods($methods)->defaults(['_group' => self::getGroup()]);
+            ->methods($methods)->defaults(['_route_group' => self::getGroup()]);
     }
 
     /**

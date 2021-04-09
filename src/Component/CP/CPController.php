@@ -227,7 +227,7 @@ class CPController extends AbstractController
             $controller_action = $route->getDefaults()['_controller'][1];
 
             if ($controller === $resource::getControllerClassName()) {
-                $route_group = $route->getDefault('_group');
+                $route_group = $route->getDefault('_route_group');
 
                 $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
                 $route_action_list[$route_action_list_key]['used'] = true;
