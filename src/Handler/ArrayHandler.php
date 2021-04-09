@@ -316,6 +316,19 @@ class ArrayHandler
     }
 
     /**
+     * @param array|object[] $array
+     * @param array $filter - Key->Value pairs
+     *
+     * @return array|null
+     */
+    public static function assocFindFirst(array $array, array $filter)
+    {
+        $matches = self::assocFind($array, $filter);
+
+        return (count($matches) > 0) ? $matches[0] : null;
+    }
+
+    /**
      * @param array $array
      * @param string $key
      * @param bool $sortASC

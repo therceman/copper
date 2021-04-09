@@ -157,21 +157,23 @@ class ResourceGenService
             FileHandler::createFolder($traitsFolder);
     }
 
-    public static function addRoute($content) {
+    public static function addRoute($content)
+    {
         $response = new FunctionResponse();
-
 
 
         return $response->result($content);
     }
 
-    public static function delRoute($content) {
+    public static function delRoute($content)
+    {
         $response = new FunctionResponse();
 
         return $response->result($content);
     }
 
-    public static function updateRouteList($content) {
+    public static function updateRouteList($content)
+    {
         $response = new FunctionResponse();
 
         return $response->result($content);
@@ -358,12 +360,28 @@ class ResourceGenService
         return $res->okOrFail($isOK, $results);
     }
 
+    private static function reorderNewFields($newFields, $fields)
+    {
+        $reorderedFields = [];
+
+        foreach ($fields as $field) {
+            $foundNewField = ArrayHandler::assocFindFirst($newFields, ['name' => $field['name']]);
+
+            if ($foundNewField !== null)
+                $reorderedFields[] = $foundNewField;
+        }
+
+        return $reorderedFields;
+    }
+
     private static function addNewFieldsToDB($table, $newFields, $fields)
     {
         $res = new FunctionResponse();
 
         $results = [];
         $isOK = true;
+
+        $newFields = self::reorderNewFields($newFields, $fields);
 
         foreach ($newFields as $newFieldData) {
             $newField = DBModelField::fromArray($newFieldData);

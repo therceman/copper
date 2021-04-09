@@ -786,6 +786,9 @@ if ($resource !== null) {
                     <option title="A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size">
                         VARCHAR
                     </option>
+                    <option title="A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true">
+                        BOOLEAN
+                    </option>
                     <option title="A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes">
                         TEXT
                     </option>
@@ -1106,6 +1109,9 @@ if ($resource !== null) {
 
     function updateDBField(new_field) {
         let prevUpdateKey = null;
+
+        if (new_field.orig_name === void 0)
+            return ;
 
         updated_db_fields.forEach((field, key) => {
             if (field.orig_name === new_field.orig_name)
@@ -1612,7 +1618,8 @@ if ($resource !== null) {
     $null.addEventListener('input', e => {
         $default.querySelector(`option[value="${DEFAULT_NONE}"]`).disabled = ($null.checked);
 
-        $default.value = DEFAULT_NULL;
+        if ($null.checked === true)
+            $default.value = DEFAULT_NULL;
 
         if ($null.checked === false && $default.value === DEFAULT_NULL)
             $default.value = DEFAULT_NONE;
