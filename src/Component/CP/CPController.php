@@ -190,9 +190,11 @@ class CPController extends AbstractController
         $route_list = [];
         $route_group = false;
         $route_action_list = [];
+        $action_list = ($resource !== null) ? get_class_methods($resource::getControllerClassName()) : null;
 
         if ($resource !== null) {
-            $action_list = get_class_methods($resource::getControllerClassName());
+
+            $action_list = ($action_list !== null) ? $action_list : [];
 
             try {
                 $reflection_class = new \ReflectionClass($resource::getControllerClassName());

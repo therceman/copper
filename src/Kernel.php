@@ -142,6 +142,11 @@ final class Kernel
         return FileHandler::projectPathFromArray(['src', 'Seed']);
     }
 
+    public static function getProjectTraitsPath()
+    {
+        return FileHandler::projectPathFromArray(['src', 'Traits']);
+    }
+
     public static function getProjectPublicPath()
     {
         return FileHandler::projectPathFromArray(['public']);

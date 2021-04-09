@@ -209,8 +209,16 @@ class ResourceGenService
         if ($content['delete_table'])
             $result_list['delete_table'] = $resource::getModel()->doDeleteTable();
 
-        if ($content['delete_model'])
+        if ($content['delete_model']) {
             $result_list['delete_model'] = FileHandler::delete($resource::getModelPath());
+            $result_list['delete_model_trait'] = FileHandler::delete(
+                FileHandler::pathFromArray([
+                    Kernel::getProjectTraitsPath(),
+                    'Annotation',
+                    $resource::getModelName() . 'AnnotationTrait.php'
+                ])
+            );
+        }
 
         if ($content['delete_resource'])
             $result_list['delete_resource'] = FileHandler::delete($resource::getPath());
