@@ -327,7 +327,7 @@ abstract class AbstractResource
      */
     public static function route(string $name)
     {
-        if (self::getGroup() === false)
+        if (self::getGroup() === null)
             return $name;
 
         return self::getGroup() . '_' . $name;
