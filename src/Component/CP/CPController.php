@@ -168,6 +168,11 @@ class CPController extends AbstractController
             return $this->json($tpl_prepare_response);
         }
 
+        if ($this->request->request->get('action') === 'create_js_source_files') {
+            $create_js_source_files_response = ResourceGenService::create_js_source_files($resource, $this->request->request->get('force', false));
+            return $this->json($create_js_source_files_response);
+        }
+
         if ($resource && $seed) {
             $seed_result = DBService::seedClassName($resource::getSeedClassName(), $this->db, ($seed_force !== false));
             $this->flashMessage->set('seed_result', $seed_result->msg);

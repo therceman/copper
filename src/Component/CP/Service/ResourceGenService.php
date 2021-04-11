@@ -14,6 +14,7 @@ use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Traits\EntityStateFields;
+use ReflectionClass;
 
 class ResourceGenService
 {
@@ -85,6 +86,65 @@ class ResourceGenService
             return $contentSaveRes;
 
         return $response->ok();
+    }
+
+    public static function create_js_source_files(string $resourceClassName, $force = false)
+    {
+        $response = new FunctionResponse();
+
+        /** @var AbstractResource $resource */
+        $resource = $resourceClassName;
+
+        $entityClassName = $resource::getEntityClassName();
+        $entityName = $resource::getEntityName();
+
+        $reflection = new ReflectionClass($entityClassName);
+
+        $property_list = $reflection->getProperties();
+
+        $func_property_list = [];
+        $annotation_property_list = [];
+        foreach ($property_list as $property) {
+            $type = null;
+            if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches))
+                $type = $matches[1];
+
+            if ($type === 'integer' || $type === 'float')
+                $type = 'number';
+
+            $annotation_property_list[] = " * @property {{$type}|null} $property->name";
+            $func_property_list[] = "   this.$property->name = null;";
+        }
+        $annotation_property_list = join("\r\n", $annotation_property_list);
+        $func_property_list = join("\r\n", $func_property_list);
+
+        $js_source = <<<XML
+'use strict';
+
+/**
+ * $entityName
+ *
+ * @constructor
+$annotation_property_list
+ */
+
+function ProductEntity() {
+$func_property_list
+}
+XML;
+        $src_js_folder = Kernel::getProjectPath() . '/src_js';
+        if (FileHandler::fileExists($src_js_folder) === false)
+            FileHandler::createFolder($src_js_folder);
+
+        $src_js_entity_folder = $src_js_folder . '/Entity';
+        if (FileHandler::fileExists($src_js_entity_folder) === false)
+            FileHandler::createFolder($src_js_entity_folder);
+
+        $js_file = $src_js_entity_folder . '/' . $entityName . '.js';
+
+        $js_file_save_res = FileHandler::create($js_file, $js_source);
+
+        return $response->result($js_file_save_res);
     }
 
     /**
@@ -1007,7 +1067,7 @@ XML;
             $fields = StringHandler::regex($old_content, '/>>> Auto Generated: Fields(.*?)\/\/ <<</ms');
             $old_content = str_replace($fields, "\r\n" . self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $old_content);
 
-            FileHandler::save($filePath, $old_content);
+            FileHandler::saveContent($filePath, $old_content);
         } else {
             file_put_contents($filePath, $content);
         }

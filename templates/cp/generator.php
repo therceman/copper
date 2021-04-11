@@ -1013,6 +1013,7 @@ if ($resource !== null) {
 </div>
 
 <div style="float:right;margin-top: -35px;">
+    <button id="create_js_source_files">Create Javascript Source Files</button>
     <button id="prepare_templates">Prepare Templates</button>
     <button id="generate">Generate</button>
 </div>
@@ -1923,6 +1924,32 @@ if ($resource !== null) {
 
     document.getElementById('prepare_templates').addEventListener('click', e => {
         prepareTemplates(true);
+    });
+
+    // --------- Create Javascript Source Files ---------
+
+    function createJsSourceFiles(force = false) {
+        let http = new XMLHttpRequest();
+        let url = 'db_generator';
+        let action = 'create_js_source_files';
+
+        let params = 'action=' + action + '&resource=' + resourceClassName + '&force=' + force;
+
+        http.open('POST', url, true);
+
+        http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+        http.onreadystatechange = function () {
+            if (http.readyState === 4 && http.status === 200) {
+                alert(http.responseText);
+            }
+        }
+
+        http.send(params);
+    }
+
+    document.getElementById('create_js_source_files').addEventListener('click', e => {
+        createJsSourceFiles(true);
     });
 
     function listFieldsByName(fields) {

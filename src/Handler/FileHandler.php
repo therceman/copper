@@ -103,17 +103,29 @@ class FileHandler
     /**
      * @param string $filePath
      * @param string $content
+     * @param bool $create_new
      *
      * @return FunctionResponse
      */
-    public static function saveContent(string $filePath, string $content)
+    public static function saveContent(string $filePath, string $content, bool $create_new = false)
     {
         $response = new FunctionResponse();
 
-        if (self::fileExists($filePath) === false)
+        if (self::fileExists($filePath) === false && $create_new === false)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
         return $response->result(file_put_contents($filePath, $content), self::ERROR_PUT_CONTENT);
+    }
+
+    /**
+     * @param string $filePath
+     * @param string $content
+     *
+     * @return FunctionResponse
+     */
+    public static function create(string $filePath, string $content)
+    {
+        return self::saveContent($filePath, $content, true);
     }
 
     public static function copyFileToFolder($filePath, $destFolderPath)
@@ -276,6 +288,17 @@ class FileHandler
         return $response->result($rows);
     }
 
+    /**
+     * @param string $oldName
+     * @param string $newName
+     *
+     * @return bool
+     */
+    public static function rename(string $oldName, string $newName)
+    {
+        return rename($oldName, $newName);
+    }
+
     // ------------- Aliases --------------------
 
     /**
@@ -290,27 +313,4 @@ class FileHandler
         return self::getContent($filePath);
     }
 
-    /**
-     * @param string $oldName
-     * @param string $newName
-     *
-     * @return bool
-     */
-    public static function rename(string $oldName, string $newName)
-    {
-        return rename($oldName, $newName);
-    }
-
-    /**
-     * Alias for saveContent
-     *
-     * @param string $filePath
-     * @param string $content
-     *
-     * @return FunctionResponse
-     */
-    public static function save(string $filePath, string $content)
-    {
-        return self::saveContent($filePath, $content);
-    }
 }
