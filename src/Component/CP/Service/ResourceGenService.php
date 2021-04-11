@@ -128,7 +128,7 @@ class ResourceGenService
 $annotation_property_list
  */
 
-function ProductEntity() {
+function $entityName() {
 $func_property_list
 }
 XML;
