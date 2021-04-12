@@ -170,12 +170,15 @@ class HTMLElement
     }
 
     /**
-     * @param array|string $value
+     * @param string|array $value
      *
      * @return $this
      */
     public function class($value)
     {
+        if (is_array($value) === false)
+            $value = explode(' ', $value);
+
         $this->setAttr(self::ATTR_CLASS, $value);
 
         return $this;

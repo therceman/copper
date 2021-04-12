@@ -306,12 +306,15 @@ class ViewHandler
     /**
      * Output data as JSON
      *
-     * @param array $value
+     * @param array|null|bool $value
      *
      * @return string
      */
-    public function json(array $value)
+    public function json($value)
     {
+        if ($value === null || is_bool($value))
+            return '{}';
+
         return $this->output->json($value);
     }
 
