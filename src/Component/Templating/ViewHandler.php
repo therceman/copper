@@ -4,6 +4,7 @@ namespace Copper\Component\Templating;
 
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
+use Copper\Handler\ArrayHandler;
 use Copper\RequestTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -306,7 +307,7 @@ class ViewHandler
     /**
      * Output data as JSON
      *
-     * @param array|null|bool $value
+     * @param array|null|object|bool $value
      *
      * @return string
      */
@@ -314,6 +315,9 @@ class ViewHandler
     {
         if ($value === null || is_bool($value))
             return '{}';
+
+        if (is_object($value))
+            $value = (array) $value;
 
         return $this->output->json($value);
     }
