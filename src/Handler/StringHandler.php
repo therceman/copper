@@ -9,6 +9,10 @@ use Copper\Transliterator;
 class StringHandler
 {
 
+    public static function search($str, $where) {
+        return (strpos($where, $str) !== false);
+    }
+
     public static function trim($str) {
         $str = trim($str);
 

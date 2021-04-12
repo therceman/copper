@@ -4,10 +4,54 @@
 namespace Copper\Handler;
 
 
+use Closure;
 use Copper\Entity\AbstractEntity;
 
 class ArrayHandler
 {
+    /**
+     * Find in array
+     *
+     * self::find(['apple' => 1, 'banana' => 2, 'dog' => 1], function($v, $k) {
+     *  return $v === 1 && $k === 'apple';
+     * })
+     *
+     * @param array $array
+     * @param Closure $closure
+     *
+     * @return array
+     */
+    public static function find(array $array, Closure $closure)
+    {
+        return array_filter($array, $closure, ARRAY_FILTER_USE_BOTH);
+    }
+
+    /**
+     * @param array $array
+     * @param Closure $closure
+     *
+     * @return mixed|null
+     */
+    public static function findFirst(array $array, Closure $closure)
+    {
+        $match_list = self::find($array, $closure);
+
+        return (count($match_list) > 0) ? $match_list[0] : null;
+    }
+
+    /**
+     * @param array $array
+     * @param Closure $closure
+     *
+     * @return mixed|null
+     */
+    public static function findLast(array $array, Closure $closure)
+    {
+        $match_list = self::find($array, $closure);
+
+        return (count($match_list) > 0) ? self::lastValue($match_list) : null;
+    }
+
     /**
      * @param mixed $value
      * @param array $valueList
