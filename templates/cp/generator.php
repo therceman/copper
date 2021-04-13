@@ -783,6 +783,9 @@ if ($resource !== null) {
                     <option title="A 2-byte integer, signed range is -32,768 to 32,767, unsigned range is 0 to 65,535">
                         SMALLINT
                     </option>
+                    <option title="A fixed-point number (M, D) - the maximum number of digits (M) is 65 (default 10), the maximum number of decimals (D) is 30 (default 0)">
+                        DECIMAL
+                    </option>
                     <option title="A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size">
                         VARCHAR
                     </option>

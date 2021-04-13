@@ -249,11 +249,20 @@ class HTML
     /**
      * @param string $name
      * @param string $value
+     * @param string|null $step
+     * @param int|null $min
+     * @param int|null $max
      * @return HtmlInputElement
      */
-    public static function inputNumber($name = null, $value = null)
+    public static function inputNumber($name = null, $value = null, $step = null, $min = null, $max = null)
     {
-        return HTML::input($name, $value)->type('number');
+        $input = HTML::input($name, $value)->type('number');
+
+        $input->setAttr('step', $step);
+        $input->setAttr('min', $min);
+        $input->setAttr('max', $max);
+
+        return $input;
     }
 
     /**

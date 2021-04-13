@@ -9,11 +9,18 @@ use Copper\Transliterator;
 class StringHandler
 {
 
-    public static function search($str, $where) {
+    public static function repeat($str, $num_of_times)
+    {
+        return str_repeat($str, $num_of_times);
+    }
+
+    public static function search($str, $where)
+    {
         return (strpos($where, $str) !== false);
     }
 
-    public static function trim($str) {
+    public static function trim($str)
+    {
         $str = trim($str);
 
         //handle unicode spaces
