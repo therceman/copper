@@ -137,7 +137,7 @@ class DBSelectArgs
      * @param int|null $limit
      * @return DBSelectArgs
      */
-    public function setLimit(int $limit): DBSelectArgs
+    public function setLimit($limit): DBSelectArgs
     {
         $this->limit = $limit;
         return $this;
@@ -147,7 +147,7 @@ class DBSelectArgs
      * @param int|null $offset
      * @return DBSelectArgs
      */
-    public function setOffset(int $offset): DBSelectArgs
+    public function setOffset($offset): DBSelectArgs
     {
         $this->offset = $offset;
         return $this;
@@ -157,7 +157,7 @@ class DBSelectArgs
      * @param string|null $group
      * @return DBSelectArgs
      */
-    public function setGroup(string $group): DBSelectArgs
+    public function setGroup($group): DBSelectArgs
     {
         $this->group = $group;
         return $this;

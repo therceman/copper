@@ -14,9 +14,17 @@ class StringHandler
         return str_repeat($str, $num_of_times);
     }
 
-    public static function search($str, $where)
+    /**
+     * Check if string has/contains text
+     *
+     * @param $str
+     * @param $text
+     *
+     * @return bool
+     */
+    public static function has($str, $text)
     {
-        return (strpos($where, $str) !== false);
+        return (strpos($text, $str) !== false);
     }
 
     public static function trim($str)
@@ -197,4 +205,5 @@ class StringHandler
 
         return rtrim($str, $charList);
     }
+
 }
