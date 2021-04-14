@@ -183,6 +183,23 @@ class ArrayHandler
     }
 
     /**
+     * @param array $arrayOfArrays
+     * @param bool $uniqueValues
+     * @param bool $reindexKeys
+     *
+     * @return array|AbstractEntity[]|object[]
+     */
+    public static function mergeAll(array $arrayOfArrays, $uniqueValues = false, $reindexKeys = false) {
+        $finalArray = [];
+
+        foreach ($arrayOfArrays as $array) {
+            $finalArray = self::merge($finalArray, $array, $uniqueValues, $reindexKeys);
+        }
+
+        return $finalArray;
+    }
+
+    /**
      * @param array|object[]|AbstractEntity[] $arrayA
      * @param array|object[]|AbstractEntity[] $arrayB
      * @param bool $uniqueValues
