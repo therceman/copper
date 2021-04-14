@@ -9,6 +9,20 @@ use Copper\Entity\AbstractEntity;
 
 class ArrayHandler
 {
+
+    /**
+     * Join elements in array to string
+     *
+     * @param array $array
+     * @param string $glue
+     *
+     * @return string
+     */
+    public static function join(array $array, $glue = ', ')
+    {
+        return join($glue, $array);
+    }
+
     /**
      * Find in array
      *

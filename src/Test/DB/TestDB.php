@@ -82,7 +82,7 @@ class TestDB
 
         $query = $migrateResponse->result;
 
-        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` TINYINT UNSIGNED  NOT NULL DEFAULT '2' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
+        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `is` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` ENUM('guest','user','moderator','admin','super_admin') NOT NULL DEFAULT 'guest' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
             return $response->fail('Wrong Query', $query);
 
         if ($migrateResponse->hasError())
@@ -106,8 +106,8 @@ class TestDB
         if ($entity === null)
             return $response->fail('User with ID 2 should be returned.', $entity);
 
-        if ($entity->role !== 2)
-            return $response->fail('Role != 2 (provided by default)', $entity->role);
+        if ($entity->role !== TestDBModel::ROLE__GUEST)
+            return $response->fail('Role != guest (provided by default)', $entity->role);
 
         if ($entity->enabled !== true)
             return $response->fail('Type mismatch', $entity->enabled);
@@ -391,7 +391,7 @@ class TestDB
         );
 
         if ($entityList[0]->id !== 2)
-            return $response->fail('User List first entry should be with ID 2', $entityList[0]);
+            return $response->fail('[is] User List first entry should be with ID 2', $entityList[0]);
 
         // not
 
@@ -400,7 +400,7 @@ class TestDB
         );
 
         if ($entityList[0]->id !== 2)
-            return $response->fail('User List first entry should be with ID 2', $entityList[0]);
+            return $response->fail('[not] User List first entry should be with ID 2', $entityList[0]);
 
         // lt
 
@@ -409,7 +409,7 @@ class TestDB
         );
 
         if ($entityList[0]->id !== 6)
-            return $response->fail('User List first entry should be with ID 6', $entityList[0]);
+            return $response->fail('[lt] User List first entry should be with ID 6', $entityList[0]);
 
         // ltOrEq
 
@@ -418,7 +418,7 @@ class TestDB
         );
 
         if ($entityList[1]->id !== 6) // by default sorted by ID ASC
-            return $response->fail('User List second entry should be with ID 1', $entityList[1]);
+            return $response->fail('[ltOrEq] User List second entry should be with ID 1', $entityList[1]);
 
         // gt
 
@@ -427,7 +427,7 @@ class TestDB
         );
 
         if ($entityList[0]->id !== 1)
-            return $response->fail('User List first entry should be with ID 1', $entityList[0]);
+            return $response->fail('[gt] User List first entry should be with ID 1', $entityList[0]);
 
         // gt or eq
 
@@ -436,7 +436,7 @@ class TestDB
         );
 
         if ($entityList[4]->id !== 6) // by default sorted by ID ASC
-            return $response->fail('User List 4 entry should be with ID 6', $entityList[4]);
+            return $response->fail('[gtOrEq] User List 4 entry should be with ID 6', $entityList[4]);
 
         // between
 
@@ -445,10 +445,10 @@ class TestDB
         );
 
         if (count($entityList) !== 2)
-            return $response->fail('User List should contain exactly 2 rows', $entityList);
+            return $response->fail('[between] User List should contain exactly 2 rows', $entityList);
 
         if ($entityList[1]->id !== 4)
-            return $response->fail('User List 1 entry should be with ID 4', $entityList[1]);
+            return $response->fail('[between] User List 1 entry should be with ID 4', $entityList[1]);
 
         // between include
 
@@ -457,10 +457,10 @@ class TestDB
         );
 
         if (count($entityList) !== 4)
-            return $response->fail('User List should contain exactly 4 rows', $entityList);
+            return $response->fail('[betweenInclude] User List should contain exactly 4 rows', $entityList);
 
         if ($entityList[0]->id !== 1)
-            return $response->fail('User List 1 entry should be with ID 1', $entityList[0]);
+            return $response->fail('[betweenInclude] User List 1 entry should be with ID 1', $entityList[0]);
 
         // not between
 
@@ -469,10 +469,10 @@ class TestDB
         );
 
         if (count($entityList) !== 1)
-            return $response->fail('User List should contain exactly 1 rows', $entityList);
+            return $response->fail('[notBetween] User List should contain exactly 1 rows', $entityList);
 
         if ($entityList[0]->id !== 6)
-            return $response->fail('User List 1 entry should be with ID 6', $entityList[0]);
+            return $response->fail('[notBetween] User List 1 entry should be with ID 6', $entityList[0]);
 
         // not between include
 
@@ -481,13 +481,13 @@ class TestDB
         );
 
         if (count($entityList) !== 3)
-            return $response->fail('User List should contain exactly 3 rows', $entityList);
+            return $response->fail('[notBetweenInclude] User List should contain exactly 3 rows', $entityList);
 
         if ($entityList[0]->id !== 1)
-            return $response->fail('User List 1 entry should be with ID 1', $entityList[0]);
+            return $response->fail('[notBetweenInclude] User List 1 entry should be with ID 1', $entityList[0]);
 
         if ($entityList[2]->id !== 6)
-            return $response->fail('User List last entry should be with ID 6', $entityList[2]);
+            return $response->fail('[notBetweenInclude] User List last entry should be with ID 6', $entityList[2]);
 
         // like
 
@@ -496,10 +496,19 @@ class TestDB
             20, 0, false, true);
 
         if (count($entityList) !== 2)
-            return $response->fail('User List should contain exactly 2 rows', $entityList);
+            return $response->fail('[like] User List should contain exactly 2 rows', $entityList);
 
         if ($entityList[1]->id !== 5)
-            return $response->fail('User List 2 entry should be with ID 5', $entityList[1]);
+            return $response->fail('[like] User List 2 entry should be with ID 5', $entityList[1]);
+
+        // like array
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::like([TestDBModel::NAME, TestDBModel::ROLE, TestDBModel::IS], "%min%"),
+            20, 0, false, true);
+
+        if (count($entityList) !== 3)
+            return $response->fail('[like array] User List should contain exactly 3 rows', $entityList);
 
         // not like
 
@@ -508,10 +517,22 @@ class TestDB
             20, 0, false, true);
 
         if (count($entityList) !== 3)
-            return $response->fail('User List should contain exactly 3 rows', $entityList);
+            return $response->fail('[notLike] User List should contain exactly 3 rows', $entityList);
 
         if ($entityList[2]->id !== 3)
-            return $response->fail('User List 3 entry should be with ID 3', $entityList[2]);
+            return $response->fail('[notLike] User List 3 entry should be with ID 3', $entityList[2]);
+
+        // not like array
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::notLike([TestDBModel::NAME, TestDBModel::ROLE, TestDBModel::IS], "%min%"),
+            20, 0, false, true);
+
+        if (count($entityList) !== 3)
+            return $response->fail('[not like array] User List should contain exactly 3 rows', $entityList);
+
+        if ($entityList[0]->id !== 4)
+            return $response->fail('[not like array] User List 1 entry should be with ID 4', $entityList[0]);
 
         // in
 
@@ -520,10 +541,10 @@ class TestDB
             20, 0, false, true);
 
         if (count($entityList) !== 2)
-            return $response->fail('User List should contain exactly 2 rows', $entityList);
+            return $response->fail('[in] User List should contain exactly 2 rows', $entityList);
 
         if ($entityList[1]->id !== 3)
-            return $response->fail('User List 2 entry should be with ID 3', $entityList[1]);
+            return $response->fail('[in] User List 2 entry should be with ID 3', $entityList[1]);
 
         // not in
 
@@ -532,10 +553,10 @@ class TestDB
             20, 0, false, true);
 
         if (count($entityList) !== 4)
-            return $response->fail('User List should contain exactly 4 rows', $entityList);
+            return $response->fail('[notIn] User List should contain exactly 4 rows', $entityList);
 
         if ($entityList[3]->id !== 6)
-            return $response->fail('User List 4 entry should be with ID 6', $entityList[1]);
+            return $response->fail('[notIn] User List 4 entry should be with ID 6', $entityList[1]);
 
         // ----------- Chains -----------
 
@@ -548,24 +569,24 @@ class TestDB
         );
 
         if (count($entityList) !== 3)
-            return $response->fail('User List should contain exactly 2 rows', $entityList);
+            return $response->fail('[or-chain] User List should contain exactly 2 rows', $entityList);
 
         if ($entityList[1]->id !== 2)
-            return $response->fail('User List last entry should be with ID 2', $entityList[1]);
+            return $response->fail('[or-chain] User List last entry should be with ID 2', $entityList[1]);
 
         // and chain
 
         $entityList = TestDBService::find($this->db,
             DBWhere::isLike(TestDBModel::LOGIN, "_e%")
-                ->and(TestDBModel::ROLE, 3)
+                ->and(TestDBModel::ROLE, TestDBModel::ROLE__USER)
                 ->andBetweenInclude(TestDBModel::SALARY, 56, 200),
             20, 0, false, true);
 
         if (count($entityList) !== 2)
-            return $response->fail('User List should contain exactly 2 rows', $entityList);
+            return $response->fail('[and-chain] User List should contain exactly 2 rows', $entityList);
 
         if ($entityList[0]->id !== 5)
-            return $response->fail('User List first entry should be with ID 5', $entityList[0]);
+            return $response->fail('[and-chain] User List first entry should be with ID 5', $entityList[0]);
 
         return $response->ok();
     }
@@ -581,14 +602,14 @@ class TestDB
         $entityList = $model->doSelect();
 
         if (count($entityList) !== 6)
-            return $response->fail('User List should have 6 entries', $entityList);
+            return $response->fail('[doSelect] User List should have 6 entries', $entityList);
 
         // doSelectWhere
 
-        $entityList = $model->doSelectWhere(DBWhere::is(TestDBModel::ROLE, 3));
+        $entityList = $model->doSelectWhere(DBWhere::is(TestDBModel::ROLE, TestDBModel::ROLE__USER));
 
         if (count($entityList) !== 4)
-            return $response->fail('User List should have 4 entries', $entityList);
+            return $response->fail('[doSelectWhere] User List should have 4 entries', $entityList);
 
         // doSelectFirstWhere
 
@@ -596,37 +617,37 @@ class TestDB
         $entity = $model->doSelectFirstWhere(DBWhere::is(TestDBModel::ID, 3));
 
         if ($entity->enum !== 'banana')
-            return $response->fail('User with ID 3 should have enum = banana', $entity);
+            return $response->fail('[doSelectFirstWhere] User with ID 3 should have enum = banana', $entity);
 
         // doSelectUnique
 
         $entityList = $model->doSelectUnique(TestDBModel::ROLE);
 
         if (count($entityList) !== 3)
-            return $response->fail('User List should have 3 entries', $entityList);
+            return $response->fail('[doSelectUnique] User List should have 3 entries', $entityList);
 
         // doSelectUnique with DBSelectArgs
 
         $entityList = $model->doSelectUnique(TestDBModel::ROLE, DBSelectArgs::where(
-            DBWhere::lt(TestDBModel::ROLE, 3)
+            DBWhere::lt(TestDBModel::ROLE, TestDBModel::ROLE__USER)
         ));
 
         if (count($entityList) !== 2 && $entityList[1]->id !== 2)
-            return $response->fail('User List should have 2 entries and last one should have ID = 2', $entityList);
+            return $response->fail('[doSelectUnique + args] User List should have 2 entries and last one should have ID = 2', $entityList);
 
         // doSelectLimit
 
         $entityList = $model->doSelectLimit(3, 2);
 
         if (count($entityList) !== 3 && $entityList[2]->id !== 5)
-            return $response->fail('User List should have 3 entries and last one should have ID = 5', $entityList);
+            return $response->fail('[doSelectLimit] User List should have 3 entries and last one should have ID = 5', $entityList);
 
         // doSelectById
 
         $entity = $model->doSelectById(3);
 
         if ($entity->login !== 'user')
-            return $response->fail('User with ID 3 should have login = user', $entity);
+            return $response->fail('[doSelectById] User with ID 3 should have login = user', $entity);
 
         // TODO doUpdate...
 
@@ -639,7 +660,7 @@ class TestDB
         $entityCount = $model->doCount();
 
         if ($entityCount !== 6)
-            return $response->fail('User List should have count of 6', $entityCount);
+            return $response->fail('[doCount] User List should have count of 6', $entityCount);
 
         return $response->ok();
     }

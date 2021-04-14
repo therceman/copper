@@ -15,6 +15,8 @@ class TestDBEntity extends AbstractUserEntity
     public $email;
     /** @var string */
     public $name;
+    /** @var string */
+    public $is;
     /** @var float */
     public $salary;
     /** @var string */

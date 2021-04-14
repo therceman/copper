@@ -6,7 +6,7 @@ namespace Copper\Component\DB;
 
 class DBWhereEntry
 {
-    /** @var string */
+    /** @var string|string[] */
     public $field;
     /** @var string|int|float|null */
     public $value;
@@ -15,7 +15,7 @@ class DBWhereEntry
     /** @var int */
     public $chain;
 
-    public function __construct(string $field, $value, int $cond, int $chain)
+    public function __construct($field, $value, int $cond, int $chain)
     {
         $this->field = $field;
         $this->value = $value;
@@ -25,7 +25,16 @@ class DBWhereEntry
 
     public function formatField()
     {
-        return DBModel::formatFieldName($this->field);
+        if (is_array($this->field) === false)
+            return '`' . DBModel::formatFieldName($this->field) . '`';
+
+        $formatted_field_list = [];
+
+        foreach ($this->field as $field) {
+            $formatted_field_list[] = '`' . DBModel::formatFieldName($field) . '`';
+        }
+
+        return $formatted_field_list;
     }
 
     public function formatValue()

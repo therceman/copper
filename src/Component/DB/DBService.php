@@ -64,6 +64,8 @@ class DBService
 
     public static function escapeStr($str)
     {
+        $str = str_replace("\\", "\\\\", $str);
+
         return str_replace("'", "\'", $str);
     }
 

@@ -4,6 +4,7 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Handler\ArrayHandler;
 use Envms\FluentPDO\Queries\Delete;
 use Envms\FluentPDO\Queries\Select;
 use Envms\FluentPDO\Queries\Update;
@@ -34,27 +35,37 @@ class DBWhere
 
     /**
      * DBWhere constructor.
-     *
-     * @param string $field
+     */
+    public function __construct()
+    {
+        $this->conditions = [];
+    }
+
+    /**
+     * @param string|string[] $field
      * @param string|int|float|array|null $value
      * @param int $cond
      * @param int $chain
+     *
+     * @return DBWhere
      */
-    public function __construct(string $field, $value, int $cond, int $chain)
+    public static function createCondition($field, $value, int $cond, int $chain)
     {
-        $this->conditions = [];
+        $self = new self();
 
-        $this->addCondition($field, $value, $cond, $chain);
+        $self->addCondition($field, $value, $cond, $chain);
+
+        return $self;
     }
 
     /**
      * Add Condition
-     * @param string $field
+     * @param string|string[] $field
      * @param string|int|float|null|array $value
      * @param int $cond
      * @param int $chain
      */
-    private function addCondition(string $field, $value, int $cond, int $chain)
+    private function addCondition($field, $value, int $cond, int $chain)
     {
         $this->conditions[] = new DBWhereEntry($field, $value, $cond, $chain);
     }
@@ -77,7 +88,7 @@ class DBWhere
      */
     public static function lt(string $field, $value)
     {
-        return new self($field, $value, self::LT, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::LT, self::CHAIN_NULL);
     }
 
     /**
@@ -90,7 +101,7 @@ class DBWhere
      */
     public static function ltOrEq(string $field, $value)
     {
-        return new self($field, $value, self::LT_OR_EQ, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::LT_OR_EQ, self::CHAIN_NULL);
     }
 
     /**
@@ -103,7 +114,7 @@ class DBWhere
      */
     public static function gt(string $field, $value)
     {
-        return new self($field, $value, self::GT, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::GT, self::CHAIN_NULL);
     }
 
     /**
@@ -116,7 +127,7 @@ class DBWhere
      */
     public static function gtOrEq(string $field, $value)
     {
-        return new self($field, $value, self::GT_OR_EQ, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::GT_OR_EQ, self::CHAIN_NULL);
     }
 
     /**
@@ -129,7 +140,7 @@ class DBWhere
      */
     public static function is(string $field, $value)
     {
-        return new self($field, $value, self::IS, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::IS, self::CHAIN_NULL);
     }
 
     /**
@@ -142,7 +153,7 @@ class DBWhere
      */
     public static function not(string $field, $value)
     {
-        return new self($field, $value, self::NOT, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::NOT, self::CHAIN_NULL);
     }
 
     /**
@@ -157,7 +168,7 @@ class DBWhere
      */
     public static function between(string $field, $start, $end)
     {
-        return new self($field, [$start, $end], self::BETWEEN, self::CHAIN_NULL);
+        return self::createCondition($field, [$start, $end], self::BETWEEN, self::CHAIN_NULL);
     }
 
     /**
@@ -172,7 +183,7 @@ class DBWhere
      */
     public static function betweenInclude(string $field, $start, $end)
     {
-        return new self($field, [$start, $end], self::BETWEEN_INCLUDE, self::CHAIN_NULL);
+        return self::createCondition($field, [$start, $end], self::BETWEEN_INCLUDE, self::CHAIN_NULL);
     }
 
     /**
@@ -187,7 +198,7 @@ class DBWhere
      */
     public static function notBetween(string $field, $start, $end)
     {
-        return new self($field, [$start, $end], self::NOT_BETWEEN, self::CHAIN_NULL);
+        return self::createCondition($field, [$start, $end], self::NOT_BETWEEN, self::CHAIN_NULL);
     }
 
     /**
@@ -202,7 +213,7 @@ class DBWhere
      */
     public static function notBetweenInclude(string $field, $start, $end)
     {
-        return new self($field, [$start, $end], self::NOT_BETWEEN_INCLUDE, self::CHAIN_NULL);
+        return self::createCondition($field, [$start, $end], self::NOT_BETWEEN_INCLUDE, self::CHAIN_NULL);
     }
 
     /**
@@ -222,30 +233,30 @@ class DBWhere
      *
      * a%o  - Finds any values that start with "a" and ends with "o"
      *
-     * @param string $field
-     * @param mixed $value
+     * @param string|string[] $field
+     * @param string|int|float $value
      *
      * @return DBWhere
      */
-    public static function like(string $field, $value)
+    public static function like($field, $value)
     {
-        return new self($field, $value, self::LIKE, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::LIKE, self::CHAIN_NULL);
     }
 
     /**
      * Shortcut for Like: %value%
      *
-     * @param string $field
-     * @param string $value
+     * @param string|string[] $field
+     * @param string|int|float $value
      *
      * @return DBWhere
      */
-    public static function likeAny(string $field, string $value)
+    public static function likeAny($field, $value)
     {
         $value = str_replace('%', '', $value);
         $value = '%' . $value . '%';
 
-        return new self($field, $value, self::LIKE, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::LIKE, self::CHAIN_NULL);
     }
 
     /**
@@ -253,14 +264,14 @@ class DBWhere
      *
      * (see like documentation for all cases)
      *
-     * @param string $field
-     * @param mixed $value
+     * @param string|string[] $field
+     * @param string|int|float $value
      *
      * @return DBWhere
      */
-    public static function notLike(string $field, $value)
+    public static function notLike($field, $value)
     {
-        return new self($field, $value, self::NOT_LIKE, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::NOT_LIKE, self::CHAIN_NULL);
     }
 
     /**
@@ -271,7 +282,7 @@ class DBWhere
      */
     public static function in(string $field, array $value)
     {
-        return new self($field, $value, self::IN, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::IN, self::CHAIN_NULL);
     }
 
     /**
@@ -282,7 +293,7 @@ class DBWhere
      */
     public static function notIn(string $field, array $value)
     {
-        return new self($field, $value, self::NOT_IN, self::CHAIN_NULL);
+        return self::createCondition($field, $value, self::NOT_IN, self::CHAIN_NULL);
     }
 
     // ------------ Shortcuts ---------------
@@ -302,12 +313,12 @@ class DBWhere
      *
      * (see like for documentation)
      *
-     * @param string $field
-     * @param mixed $value
+     * @param string|string[] $field
+     * @param string|int|float $value
      *
      * @return DBWhere
      */
-    public static function isLike(string $field, $value)
+    public static function isLike($field, $value)
     {
         return self::like($field, $value);
     }
@@ -454,6 +465,12 @@ class DBWhere
         return $this;
     }
 
+    /**
+     * @param string|string[] $field
+     * @param mixed $value
+     *
+     * @return $this
+     */
     public function andLike($field, $value)
     {
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_AND);
@@ -464,12 +481,12 @@ class DBWhere
     /**
      * Shortcut for andLike: %value%
      *
-     * @param string $field
+     * @param string|string[] $field
      * @param string $value
      *
      * @return $this
      */
-    public function andLikeAny(string $field, string $value)
+    public function andLikeAny($field, string $value)
     {
         $value = str_replace('%', '', $value);
         $value = '%' . $value . '%';
@@ -479,6 +496,12 @@ class DBWhere
         return $this;
     }
 
+    /**
+     * @param string|string[] $field
+     * @param mixed $value
+     *
+     * @return $this
+     */
     public function andNotLike($field, $value)
     {
         $this->addCondition($field, $value, self::NOT_LIKE, self::CHAIN_AND);
@@ -486,6 +509,12 @@ class DBWhere
         return $this;
     }
 
+    /**
+     * @param string|string[] $field
+     * @param mixed $value
+     *
+     * @return $this
+     */
     public function orLike($field, $value)
     {
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_OR);
@@ -496,12 +525,12 @@ class DBWhere
     /**
      * Shortcut for orLike: %value%
      *
-     * @param string $field
-     * @param string $value
+     * @param string|string[] $field
+     * @param mixed $value
      *
      * @return $this
      */
-    public function orLikeAny(string $field, string $value)
+    public function orLikeAny($field, string $value)
     {
         $value = str_replace('%', '', $value);
         $value = '%' . $value . '%';
@@ -511,6 +540,12 @@ class DBWhere
         return $this;
     }
 
+    /**
+     * @param string|string[] $field
+     * @param mixed $value
+     *
+     * @return $this
+     */
     public function orNotLike($field, $value)
     {
         $this->addCondition($field, $value, self::NOT_LIKE, self::CHAIN_OR);
@@ -548,7 +583,14 @@ class DBWhere
 
     // ------------- Generate -------------
 
-    private function getConditionString($field, $cond, $value)
+    /**
+     * @param string|string[] $field
+     * @param int $cond
+     * @param mixed $value
+     *
+     * @return string
+     */
+    private function getConditionString($field, int $cond, $value)
     {
         $str = "";
 
@@ -588,10 +630,15 @@ class DBWhere
                 $str = $field . ' <= ' . $value[0] . ' OR ' . $field . ' >= ' . $value[1];
                 break;
             case self::LIKE:
-                $str = $field . ' LIKE ?';
+                $value = DBService::escapeStr($value);
+                $str = (is_array($field))
+                    ? '(' . ArrayHandler::join($field, ' LIKE \'' . $value . '\' OR ') . ' LIKE ?)'
+                    : $field . ' LIKE ?';
                 break;
             case self::NOT_LIKE:
-                $str = $field . ' NOT LIKE ?';
+                $str = (is_array($field))
+                    ? 'CONCAT_WS(\'\', ' . ArrayHandler::join($field) . ') NOT LIKE ?'
+                    : $field . ' NOT LIKE ?';
                 break;
             case self::NOT_IN:
                 $str = $field . ' NOT';

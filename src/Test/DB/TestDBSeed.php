@@ -51,6 +51,7 @@ class TestDBSeed extends DBSeed
         $user->password = DBHandler::hashWithSalt('user_pass', self::HASH_SALT);
         $user->role = TestDBEntity::ROLE_USER;
         $user->email = 'user@arkadia_trade.com';
+        $user->is = "admimin";
         $user->enabled = true;
         $user->salary = 100;
 
