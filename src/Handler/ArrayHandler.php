@@ -11,6 +11,25 @@ class ArrayHandler
 {
 
     /**
+     * @param array $array
+     * @param bool $strict [optional]
+     * <p> Tell the function to consider the type of unique values </p>
+     * If strict is false the function will treat '1' and 1 as the same value
+     *
+     * @return array
+     */
+    public static function uniqueValues(array $array, $strict = true) {
+        $uniqueValues = [];
+
+        foreach ($array as $key => $value) {
+            if (ArrayHandler::hasValue($uniqueValues, $value, $strict) === false)
+                $uniqueValues[] = $value;
+        }
+
+        return $uniqueValues;
+    }
+
+    /**
      * Join elements in array to string
      *
      * @param array $array
@@ -223,7 +242,9 @@ class ArrayHandler
     /**
      * @param array $array
      * @param mixed $value
-     * @param bool $strict
+     * @param bool $strict [optional]
+     * <p> Tell the function to consider the type of provided value </p>
+     * If strict is false the function will treat '1' and 1 as the same value
      *
      * @return bool
      */
