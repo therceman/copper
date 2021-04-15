@@ -22,6 +22,11 @@ class HTMLElementGroup
         $this->list[] = $el;
     }
 
+    public function getList()
+    {
+        return $this->list;
+    }
+
     public function hasAttrValue($attrKey, $attrValue)
     {
         return ($this->findByAttrValue($attrKey, $attrValue) !== null);

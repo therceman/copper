@@ -311,6 +311,18 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @param HTMLElementGroup $elGroup
+     * @return $this
+     */
+    public function addElementGroup(HTMLElementGroup $elGroup)
+    {
+        foreach ($elGroup->getList() as $el)
+            $this->addElement($el);
+
+        return $this;
+    }
+
     public function addInnerElementBefore(HTMLElement $el)
     {
         $this->innerBeforeHTML = $el;

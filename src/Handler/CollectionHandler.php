@@ -39,7 +39,8 @@ class CollectionHandler
      *
      * @return mixed[]
      */
-    public static function indexList(array $collection, string $keyField = DBModel::ID) {
+    public static function indexList(array $collection, string $keyField = DBModel::ID)
+    {
         return ArrayHandler::assocIndexList($collection, $keyField);
     }
 
@@ -70,6 +71,17 @@ class CollectionHandler
     public static function findFirstBy(array $collection, string $key, $value)
     {
         return self::findFirst($collection, [$key => $value]);
+    }
+
+    /**
+     * @param AbstractEntity[]|object[] $collection
+     * @param \Closure $closure
+     *
+     * @return AbstractEntity[]|object[]
+     */
+    public static function map(array $collection, \Closure $closure)
+    {
+        return ArrayHandler::map($collection, $closure);
     }
 
     /**

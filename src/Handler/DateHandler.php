@@ -66,6 +66,21 @@ class DateHandler
         return self::newDate($timezone)->format($format);
     }
 
+    public static function dayList()
+    {
+        return ArrayHandler::fromRange(1, 31);
+    }
+
+    public static function monthList()
+    {
+        return ArrayHandler::fromRange(1, 12);
+    }
+
+    public static function yearList($limit = 100, $offset = 0)
+    {
+        return ArrayHandler::fromRange(DateHandler::year() - $limit, DateHandler::year() - $offset);
+    }
+
     /**
      * @param string $timezone
      *

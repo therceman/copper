@@ -4,11 +4,42 @@
 namespace Copper\Handler;
 
 
-use Closure;
 use Copper\Entity\AbstractEntity;
 
 class ArrayHandler
 {
+    /**
+     * @param array $array
+     * @param \Closure $closure
+     *
+     * @return mixed
+     */
+    public static function map(array $array, \Closure $closure)
+    {
+        return array_map($closure, $array);
+    }
+
+    /**
+     * Create an array containing a range of elements.
+     *
+     * <code>
+     * ----------------------------------------------------------------------------------------
+     * - fromRange(1, 5)       // array(1, 2, 3, 4, 5)
+     * - fromRange(0, 50, 10)  // array(0, 10, 20, 30, 40, 50)
+     * - fromRange('a', 'e')   // array('a', 'b', 'c', 'd', 'e')
+     * - fromRange('c', 'a')   // array('c', 'b', 'a')
+     * </code>
+     *
+     * @param int|string|float $start start of sequence
+     * @param int|string|float $end end of sequence
+     * @param $step [optional] <p>Defaults to 1</p>
+     *
+     * @return array
+     */
+    public static function fromRange($start, $end, $step = 1)
+    {
+        return range($start, $end, $step);
+    }
 
     /**
      * @param array $array
@@ -18,7 +49,8 @@ class ArrayHandler
      *
      * @return array
      */
-    public static function uniqueValues(array $array, $strict = true) {
+    public static function uniqueValues(array $array, $strict = true)
+    {
         $uniqueValues = [];
 
         foreach ($array as $key => $value) {
@@ -86,9 +118,16 @@ class ArrayHandler
     }
 
     /**
-     * @param mixed $value
-     * @param array $valueList
-     * @param array $outputList
+     * Output value based on value match in provided value list
+     *
+     * <code>
+     * ----------------------------------------------------------------------------------------
+     * - switch($color = 'red', ['black', 'red', 'white'], ['#000', '#f00', '#fff']) // #f00
+     * </code>
+     *
+     * @param mixed $value input value
+     * @param array $valueList source value list
+     * @param array $outputList target value list
      *
      * @return mixed|null
      */
@@ -208,7 +247,8 @@ class ArrayHandler
      *
      * @return array|AbstractEntity[]|object[]
      */
-    public static function mergeAll(array $arrayOfArrays, $uniqueValues = false, $reindexKeys = false) {
+    public static function mergeAll(array $arrayOfArrays, $uniqueValues = false, $reindexKeys = false)
+    {
         $finalArray = [];
 
         foreach ($arrayOfArrays as $array) {

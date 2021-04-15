@@ -600,7 +600,12 @@ abstract class DBModel
                 return $list;
 
             foreach ($result as $entry) {
-                $list[] = $this->getEntity()::fromArray($entry);
+                $entity = $this->getEntity()::fromArray($entry);
+
+                if ($args->getEntityMap() !== null)
+                    $list[] = $args->getEntityMap()($entity);
+                else
+                    $list[] = $entity;
             }
         } catch (Exception $e) {
             $list = [];

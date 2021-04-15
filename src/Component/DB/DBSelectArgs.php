@@ -4,6 +4,8 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Handler\ArrayHandler;
+
 class DBSelectArgs
 {
     /** @var DBWhere|null */
@@ -18,6 +20,8 @@ class DBSelectArgs
     private $offset;
     /** @var string|null */
     private $group;
+    /** @var \Closure */
+    private $entityMap;
 
     public function __construct()
     {
@@ -27,6 +31,7 @@ class DBSelectArgs
         $this->limit = null;
         $this->offset = null;
         $this->group = null;
+        $this->entityMap = null;
     }
 
     /**
@@ -39,6 +44,18 @@ class DBSelectArgs
         $params = new DBSelectArgs();
 
         return $params->setWhere($where);
+    }
+
+    /**
+     * @param DBWhere $where
+     *
+     * @return DBSelectArgs
+     */
+    public static function entityMap(\Closure $closure)
+    {
+        $params = new DBSelectArgs();
+
+        return $params->setEntityMap($closure);
     }
 
     /**
@@ -108,7 +125,14 @@ class DBSelectArgs
      */
     public function setColumns($columns): DBSelectArgs
     {
-        $this->columns = (is_array($columns) === false) ? [$columns] : $columns;
+        $columns = (is_array($columns) === false) ? [$columns] : $columns;
+
+        $columns = ArrayHandler::map($columns, function ($column) {
+            return '`' . DBModel::formatFieldName($column) . '`';
+        });
+
+        $this->columns = $columns;
+
         return $this;
     }
 
@@ -164,6 +188,16 @@ class DBSelectArgs
     }
 
     /**
+     * @param \Closure|null $entityMap
+     * @return DBSelectArgs
+     */
+    public function setEntityMap(\Closure $entityMap): DBSelectArgs
+    {
+        $this->entityMap = $entityMap;
+        return $this;
+    }
+
+    /**
      * @return DBWhere|null
      */
     public function getWhere()
@@ -210,4 +244,13 @@ class DBSelectArgs
     {
         return $this->group;
     }
+
+    /**
+     * @return \Closure|null
+     */
+    public function getEntityMap()
+    {
+        return $this->entityMap;
+    }
+
 }
