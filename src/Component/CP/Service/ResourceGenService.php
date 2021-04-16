@@ -871,12 +871,15 @@ XML;
 namespace App\Traits\Annotation;
 
 use App\Entity\\$entity;
-use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSelect;
 use Copper\Component\DB\DBWhere;
 use Copper\FunctionResponse;
 use Copper\Traits\ModelAnnotationTrait;
 
+/**
+ * Trait $annotationTraitName
+ * @package App\Traits\Annotation
+ */
 trait $annotationTraitName
 {
     use ModelAnnotationTrait;

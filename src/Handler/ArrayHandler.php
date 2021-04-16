@@ -483,14 +483,15 @@ class ArrayHandler
     /**
      * @param array|object[] $array
      * @param array $filter - Key->Value pairs
+     * @param array|object|null $default
      *
      * @return array|null
      */
-    public static function assocFindFirst(array $array, array $filter)
+    public static function assocFindFirst(array $array, array $filter, $default = null)
     {
         $matches = self::assocFind($array, $filter);
 
-        return (count($matches) > 0) ? $matches[0] : null;
+        return (count($matches) > 0) ? $matches[0] : $default;
     }
 
     /**

@@ -314,7 +314,7 @@ class ViewHandler
     public function json($value)
     {
         if ($value === null || is_bool($value))
-            return '{}';
+            return 'null';
 
         if (is_object($value))
             $value = (array) $value;

@@ -58,19 +58,20 @@ class CollectionHandler
     /**
      * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
+     * @param AbstractEntity|object|null $default
      *
      * @return AbstractEntity|object|null
      */
-    public static function findFirst(array $collection, array $filter)
+    public static function findFirst(array $collection, array $filter, $default = null)
     {
         $matches = self::find($collection, $filter);
 
-        return (count($matches) > 0) ? $matches[0] : null;
+        return (count($matches) > 0) ? $matches[0] : $default;
     }
 
-    public static function findFirstBy(array $collection, string $key, $value)
+    public static function findFirstBy(array $collection, string $key, $value, $default = null)
     {
-        return self::findFirst($collection, [$key => $value]);
+        return self::findFirst($collection, [$key => $value], $default);
     }
 
     /**
@@ -87,10 +88,13 @@ class CollectionHandler
     /**
      * @param array $collection
      * @param int|string $id
+     * @param AbstractEntity|object|null $default
+     *
+     * @return AbstractEntity|object|null
      */
-    public static function findFirstById(array $collection, $id)
+    public static function findFirstById(array $collection, $id, $default = null)
     {
-        return self::findFirstBy($collection, DBModel::ID, $id);
+        return self::findFirstBy($collection, DBModel::ID, $id, $default);
     }
 
     /**
