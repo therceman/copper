@@ -548,6 +548,7 @@ XML;
     
     // custom route constants
     
+    /** @see $controller
     public static function registerRoutes(RoutingConfigurator \$routes)
     {
         self::addRoute(\$routes, self::GET_LIST);
@@ -871,7 +872,7 @@ namespace App\Traits\Annotation;
 
 use App\Entity\\$entity;
 use Copper\Component\DB\DBModel;
-use Copper\Component\DB\DBSelectArgs;
+use Copper\Component\DB\DBSelect;
 use Copper\Component\DB\DBWhere;
 use Copper\FunctionResponse;
 use Copper\Traits\ModelAnnotationTrait;
@@ -881,82 +882,96 @@ trait $annotationTraitName
     use ModelAnnotationTrait;
 
     /** @return $entity|null */
-    public function doSelectFirst(DBSelectArgs \$args)
+    /** @see \Copper\Component\DB\DBModel::doSelectFirst() */
+    public function doSelectFirst(DBSelect \$select)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return $entity|null */
-    public function doSelectFirstWhere(DBWhere \$where, DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelectFirstWhere() */
+    public function doSelectFirstWhere(DBWhere \$where, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return $entity|null */
-    public function doSelectFirstWhereIs(string \$field, \$value, DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelectFirstWhereIs() */
+    public function doSelectFirstWhereIs(string \$field, \$value, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return $entity|null */
+    /** @see \Copper\Component\DB\DBModel::doSelectById() */
     public function doSelectById(\$id, \$columns = [])
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
     
     /** @return {$entity}[] */
+    /** @see \Copper\Component\DB\DBModel::doSelectByIdList() */
     public function doSelectByIdList(array \$idList)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return {$entity}[] */
-    public function doSelectWhereIs(string \$field, \$value, DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelectWhereIs() */
+    public function doSelectWhereIs(string \$field, \$value, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return {$entity}[] */
-    public function doSelectWhere(DBWhere \$where, DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelectWhere() */
+    public function doSelectWhere(DBWhere \$where, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return {$entity}[] */
-    public function doSelectUnique(string \$column, DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelectUnique() */
+    public function doSelectUnique(string \$column, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return {$entity}[] */
-    public function doSelectLimit(int \$limit, \$offset = 0, DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelectLimit() */
+    public function doSelectLimit(int \$limit, \$offset = 0, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @return {$entity}[] */
-    public function doSelect(DBSelectArgs \$args = null)
+    /** @see \Copper\Component\DB\DBModel::doSelect() */
+    public function doSelect(DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @param {$entity}[] \$entityList */
+    /** @see \Copper\Component\DB\DBModel::doBulkInsert() */
     public function doBulkInsert(array \$entityList) {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @param $entity \$entity */
     /** @return FunctionResponse */
+    /** @see \Copper\Component\DB\DBModel::doInsert() */
     public function doInsert(\$entity) {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
     
     /** @return $entity|null */
+    /** @see \Copper\Component\DB\DBModel::getEntity() */
     public function getEntity() {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
 
     /** @param $entity \$entity */
+    /** @see \Copper\Component\DB\DBModel::getFieldValuesFromEntity() */
     public function getFieldValuesFromEntity(\$entity, \$onlySelectedFields = false) {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }

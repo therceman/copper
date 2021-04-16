@@ -51,7 +51,7 @@ trait ResourceControllerActions
 
     public function getNew()
     {
-        return $this->viewResponse(self::TEMPLATE_FORM, ['entity' => new $this->entity, 'resource' => $this->resource]);
+        return $this->viewResponse(self::TEMPLATE_FORM, ['entity' => new $this->entity(), 'resource' => $this->resource]);
     }
 
     public function postCreate()

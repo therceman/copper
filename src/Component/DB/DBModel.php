@@ -306,71 +306,71 @@ abstract class DBModel
     /**
      * @param int $limit
      * @param int $offset
-     * @param DBSelectArgs $args
+     * @param DBSelect $select
      *
      * @return AbstractEntity[]
      */
-    public function doSelectLimit(int $limit, $offset = 0, DBSelectArgs $args = null)
+    public function doSelectLimit(int $limit, $offset = 0, DBSelect $select = null)
     {
-        if ($args === null)
-            $args = new DBSelectArgs();
+        if ($select === null)
+            $select = new DBSelect();
 
-        if ($args->getLimit() === null)
-            $args->setLimit($limit);
+        if ($select->getLimit() === null)
+            $select->setLimit($limit);
 
-        if ($args->getOffset() === null)
-            $args->setOffset($offset);
+        if ($select->getOffset() === null)
+            $select->setOffset($offset);
 
-        return $this->doSelect($args);
+        return $this->doSelect($select);
     }
 
     /**
      * @param string $column
-     * @param DBSelectArgs $args
+     * @param DBSelect $select
      *
      * @return AbstractEntity[]
      */
-    public function doSelectUnique(string $column, DBSelectArgs $args = null)
+    public function doSelectUnique(string $column, DBSelect $select = null)
     {
-        if ($args === null)
-            $args = new DBSelectArgs();
+        if ($select === null)
+            $select = new DBSelect();
 
-        if ($args->getGroup() === null)
-            $args->setGroup($column);
+        if ($select->getGroup() === null)
+            $select->setGroup($column);
 
-        return $this->doSelect($args);
+        return $this->doSelect($select);
     }
 
     /**
-     * @param DBSelectArgs $args
+     * @param DBSelect $select
      *
      * @return AbstractEntity|null
      */
-    public function doSelectFirst(DBSelectArgs $args)
+    public function doSelectFirst(DBSelect $select)
     {
-        if ($args->getLimit() === null)
-            $args->setLimit(1);
+        if ($select->getLimit() === null)
+            $select->setLimit(1);
 
-        $entities = $this->doSelect($args);
+        $entities = $this->doSelect($select);
 
         return (count($entities) > 0) ? $entities[0] : null;
     }
 
     /**
      * @param DBWhere $where
-     * @param DBSelectArgs|null $args
+     * @param DBSelect|null $select
      *
      * @return AbstractEntity|null
      */
-    public function doSelectFirstWhere(DBWhere $where, DBSelectArgs $args = null)
+    public function doSelectFirstWhere(DBWhere $where, DBSelect $select = null)
     {
-        if ($args === null)
-            $args = new DBSelectArgs();
+        if ($select === null)
+            $select = new DBSelect();
 
-        if ($args->getLimit() === null)
-            $args->setLimit(1);
+        if ($select->getLimit() === null)
+            $select->setLimit(1);
 
-        $entities = $this->doSelectWhere($where, $args);
+        $entities = $this->doSelectWhere($where, $select);
 
         return (count($entities) > 0) ? $entities[0] : null;
     }
@@ -378,64 +378,64 @@ abstract class DBModel
     /**
      * @param string $field
      * @param $value
-     * @param DBSelectArgs|null $args
+     * @param DBSelect|null $select
      *
      * @return AbstractEntity|null
      */
-    public function doSelectFirstWhereIs(string $field, $value, DBSelectArgs $args = null)
+    public function doSelectFirstWhereIs(string $field, $value, DBSelect $select = null)
     {
-        return $this->doSelectFirstWhere(DBWhere::is($field, $value), $args);
+        return $this->doSelectFirstWhere(DBWhere::is($field, $value), $select);
     }
 
     /**
      * @param DBWhere $where
-     * @param DBSelectArgs|null $args
+     * @param DBSelect|null $select
      *
      * @return AbstractEntity[]
      */
-    public function doSelectWhere(DBWhere $where, DBSelectArgs $args = null)
+    public function doSelectWhere(DBWhere $where, DBSelect $select = null)
     {
-        if ($args === null)
-            $args = new DBSelectArgs();
+        if ($select === null)
+            $select = new DBSelect();
 
-        if ($args->getWhere() === null)
-            $args->setWhere($where);
+        if ($select->getWhere() === null)
+            $select->setWhere($where);
 
-        return $this->doSelect($args);
+        return $this->doSelect($select);
     }
 
     /**
      * @param string $field
      * @param string|array|mixed $value
-     * @param DBSelectArgs|null $args
+     * @param DBSelect|null $select
      *
      * @return AbstractEntity[]
      */
-    public function doSelectWhereIs(string $field, $value, DBSelectArgs $args = null)
+    public function doSelectWhereIs(string $field, $value, DBSelect $select = null)
     {
-        return $this->doSelectWhere(DBWhere::is($field, $value), $args);
+        return $this->doSelectWhere(DBWhere::is($field, $value), $select);
     }
 
     /**
-     * @param DBSelectArgs $args
+     * @param DBSelect $select
      * @return Select
      * @throws Exception
      */
-    private function prepareSelectStatement(DBSelectArgs $args = null)
+    private function prepareSelectStatement(DBSelect $select = null)
     {
         $db = Kernel::getDb();
 
         $stm = $db->query->from('`' . $this->getTableName() . '`');
 
-        if ($args === null)
+        if ($select === null)
             return $stm;
 
-        $columns = $args->getColumns();
-        $limit = $args->getLimit();
-        $group = $args->getGroup();
-        $offset = $args->getOffset();
-        $where = $args->getWhere();
-        $order = $args->getOrder();
+        $columns = $select->getColumns();
+        $limit = $select->getLimit();
+        $group = $select->getGroup();
+        $offset = $select->getOffset();
+        $where = $select->getWhere();
+        $order = $select->getOrder();
 
         if ($limit !== null)
             $stm = $stm->limit($limit);
@@ -528,41 +528,41 @@ abstract class DBModel
     /**
      * @param string $field
      * @param string|array|mixed $value
-     * @param DBSelectArgs|null $args
+     * @param DBSelect|null $select
      *
      * @return int
      */
-    public function doCountWhereIs(string $field, $value, DBSelectArgs $args = null)
+    public function doCountWhereIs(string $field, $value, DBSelect $select = null)
     {
-        return $this->doCountWhere(DBWhere::is($field, $value), $args);
+        return $this->doCountWhere(DBWhere::is($field, $value), $select);
     }
 
     /**
      * @param DBWhere $where
-     * @param DBSelectArgs|null $args
+     * @param DBSelect|null $select
      *
      * @return int
      */
-    public function doCountWhere(DBWhere $where, DBSelectArgs $args = null)
+    public function doCountWhere(DBWhere $where, DBSelect $select = null)
     {
-        if ($args === null)
-            $args = new DBSelectArgs();
+        if ($select === null)
+            $select = new DBSelect();
 
-        if ($args->getWhere() === null)
-            $args->setWhere($where);
+        if ($select->getWhere() === null)
+            $select->setWhere($where);
 
-        return $this->doCount($args);
+        return $this->doCount($select);
     }
 
     /**
-     * @param DBSelectArgs $args
+     * @param DBSelect $select
      *
      * @return int
      */
-    public function doCount(DBSelectArgs $args = null)
+    public function doCount(DBSelect $select = null)
     {
         try {
-            $stm = $this->prepareSelectStatement($args);
+            $stm = $this->prepareSelectStatement($select);
 
             $result = $stm->count();
 
@@ -577,20 +577,22 @@ abstract class DBModel
     }
 
     /**
-     * @param DBSelectArgs $args
+     * @param DBSelect $select
      *
      * @return AbstractEntity[]
      */
-    public function doSelect(DBSelectArgs $args = null)
+    public function doSelect(DBSelect $select = null)
     {
-        if ($args === null)
-            $args = new DBSelectArgs();
+        if ($select === null)
+            $select = new DBSelect();
 
-        if ($args->getOrder() === null)
-            $args->setOrder(DBOrder::ASC(self::ID));
+        if ($select->getOrder() === null)
+            $select->setOrder(DBOrder::ASC(self::ID));
+
+        $output = $select->getOutput();
 
         try {
-            $stm = $this->prepareSelectStatement($args);
+            $stm = $this->prepareSelectStatement($select);
 
             $result = $stm->fetchAll();
 
@@ -602,8 +604,21 @@ abstract class DBModel
             foreach ($result as $entry) {
                 $entity = $this->getEntity()::fromArray($entry);
 
-                if ($args->getEntityMap() !== null)
-                    $list[] = $args->getEntityMap()($entity);
+                if ($output !== null && $output->getMap() !== null)
+                    $entity = $output->getMap()($entity);
+
+                if ($output !== null && $output->getDeletedFields() !== null)
+                    foreach ($output->getDeletedFields() as $field) {
+                        $entity->delete($field);
+                    }
+
+                if ($output !== null && $output->getFields() !== null)
+                    foreach (ArrayHandler::diff($entity->getFields(), $output->getFields()) as $field) {
+                        $entity->delete($field);
+                    }
+
+                if ($output !== null && $entity->has($output->getIndex()))
+                    $list[$entity->get($output->getIndex())] = $entity;
                 else
                     $list[] = $entity;
             }
@@ -632,12 +647,12 @@ abstract class DBModel
      */
     public function doSelectById($id, $columns = [])
     {
-        $args = null;
+        $select = null;
 
         if (count($columns) > 0)
-            $args = DBSelectArgs::columns($columns);
+            $select = DBSelect::columns($columns);
 
-        return $this->doSelectFirstWhereIs(DBModel::ID, $id, $args);
+        return $this->doSelectFirstWhereIs(DBModel::ID, $id, $select);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Copper\Entity;
 
 use Copper\Component\Templating\ViewHandler;
 use Copper\Handler\AnnotationHandler;
+use Copper\Handler\ArrayHandler;
 use Copper\Traits\EntityStateFields;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -31,7 +32,7 @@ class AbstractEntity
      */
     public static function fromViewAsList(ViewHandler $view, string $key)
     {
-        return  $view->dataBag->get($key, []);
+        return $view->dataBag->get($key, []);
     }
 
     /**
@@ -70,6 +71,77 @@ class AbstractEntity
     public function toArray()
     {
         return (array)$this;
+    }
+
+    /**
+     * @param string|null $key
+     *
+     * @return bool
+     */
+    public function has($key)
+    {
+        if ($key === null)
+            return false;
+
+        return property_exists($this, $key);
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return $this
+     */
+    public function set(string $key, $value)
+    {
+        if (property_exists($this, $key))
+            $this->$key = $value;
+
+        return $this;
+    }
+
+    /**
+     * @param string $key
+     * @param null $default
+     *
+     * @return null
+     */
+    public function get(string $key, $default = null)
+    {
+        if (property_exists($this, $key))
+            return $this->$key;
+
+        return $default;
+    }
+
+    /**
+     * Returns null for undefined/deleted values
+     *
+     * @param $name
+     *
+     * @return null
+     */
+    public function __get($name)
+    {
+        return null;
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return $this
+     */
+    public function delete(string $key)
+    {
+        if (property_exists($this, $key))
+            unset($this->$key);
+
+        return $this;
+    }
+
+    public function getFields()
+    {
+        return ArrayHandler::keyList(get_class_vars(static::class));
     }
 
     public function exists()

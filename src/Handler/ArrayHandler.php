@@ -9,6 +9,24 @@ use Copper\Entity\AbstractEntity;
 class ArrayHandler
 {
     /**
+     * Get difference between two arrays.
+     *
+     * <hr>
+     * <code>
+     * - diff(['id','key','name'],['key']) // array('id','name')
+     * </code>
+     *
+     * @param array $src Source array
+     * @param array $trg Target array
+     *
+     * @return array Entries from source array are returned that are not found in target array
+     */
+    public static function diff(array $src, array $trg)
+    {
+        return array_diff($src, $trg);
+    }
+
+    /**
      * @param array $array
      * @param \Closure $closure
      *
@@ -22,8 +40,8 @@ class ArrayHandler
     /**
      * Create an array containing a range of elements.
      *
+     * <hr>
      * <code>
-     * ----------------------------------------------------------------------------------------
      * - fromRange(1, 5)       // array(1, 2, 3, 4, 5)
      * - fromRange(0, 50, 10)  // array(0, 10, 20, 30, 40, 50)
      * - fromRange('a', 'e')   // array('a', 'b', 'c', 'd', 'e')
@@ -120,9 +138,9 @@ class ArrayHandler
     /**
      * Output value based on value match in provided value list
      *
+     * <hr>
      * <code>
-     * ----------------------------------------------------------------------------------------
-     * - switch($color = 'red', ['black', 'red', 'white'], ['#000', '#f00', '#fff']) // #f00
+     * - switch('red', ['black', 'red', 'white'], ['#000', '#f00', '#fff']) // #f00
      * </code>
      *
      * @param mixed $value input value

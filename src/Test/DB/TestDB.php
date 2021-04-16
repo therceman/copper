@@ -4,7 +4,7 @@
 namespace Copper\Test\DB;
 
 
-use Copper\Component\DB\DBSelectArgs;
+use Copper\Component\DB\DBSelect;
 use Copper\Component\DB\DBService;
 use Copper\Component\DB\DBWhere;
 use Copper\Component\DB\DBHandler;
@@ -626,9 +626,9 @@ class TestDB
         if (count($entityList) !== 3)
             return $response->fail('[doSelectUnique] User List should have 3 entries', $entityList);
 
-        // doSelectUnique with DBSelectArgs
+        // doSelectUnique with DBSelect
 
-        $entityList = $model->doSelectUnique(TestDBModel::ROLE, DBSelectArgs::where(
+        $entityList = $model->doSelectUnique(TestDBModel::ROLE, DBSelect::where(
             DBWhere::lt(TestDBModel::ROLE, TestDBModel::ROLE__USER)
         ));
 
