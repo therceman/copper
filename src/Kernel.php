@@ -334,6 +334,7 @@ final class Kernel
      */
     public function handle(Request $request)
     {
+
         $requestContext = new RequestContext();
         $requestContext->fromRequest($request);
 
@@ -432,16 +433,6 @@ final class Kernel
         $path = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
         $loader = new PhpFileLoader(new FileLocator($path));
         self::$routes = $loader->load($this::ROUTES_CONFIG_FILE);
-
-        // Load application low level routes
-        $path = $this::getProjectPath() . '/' . $this::ROUTES_FOLDER;
-        if (file_exists($path)) {
-            $files = array_diff(scandir($path), array('..', '.'));
-            foreach ($files as $file) {
-                $loader = new PhpFileLoader(new FileLocator($path));
-                self::$routes->addCollection($loader->load($file));
-            }
-        }
 
         // Load application resource routes
         $path = $this::getProjectPath() . '/' . $this::SRC_RESOURCE_FOLDER;

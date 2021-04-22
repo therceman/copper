@@ -83,7 +83,7 @@ class DBService
     /**
      * @param string $className - DBSeed Class Name
      * @param DBHandler $db
-     * @param boolean $force
+     * @var bool $force
      *
      * @return FunctionResponse
      */

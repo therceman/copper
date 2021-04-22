@@ -21,7 +21,7 @@ class AbstractUserEntity extends AbstractEntity
     public $role;
 
     /**
-     * @param array|int $role
+     * @param array|string $role
      *
      * @return bool
      */

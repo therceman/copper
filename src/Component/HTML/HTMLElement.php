@@ -4,6 +4,7 @@
 namespace Copper\Component\HTML;
 
 
+use Copper\Handler\ArrayHandler;
 use Copper\Sanitizer;
 
 class HTMLElement
@@ -14,14 +15,41 @@ class HTMLElement
     const ATTR_ID = 'id';
     const ATTR_DISABLED = 'disabled';
 
+    // start tag only / self closing
+
+    const INPUT = 'input';
+    const IMG = 'img';
+
+    // with end tag
+
+    const SVG = 'svg';
+    const DIV = 'div';
+    const A = 'a';
+    const SPAN = 'span';
+    const P = 'p';
+    const LABEL = 'label';
+    const OPTION = 'option';
+    const SELECT = 'select';
+    const BUTTON = 'button';
+    const TD = 'td';
+    const TR = 'tr';
+    const UL = 'ul';
+    const LI = 'li';
+    const TH = 'th';
+    const OBJECT = 'object';
+    const TEXTAREA = 'textarea';
+    const FORM = 'form';
+
     /** @var string */
     private $tag;
     /** @var array */
     private $attributes;
     /** @var string */
     private $innerHTML;
-    /** @var boolean */
-    private $selfClosing;
+    /** @var bool */
+    private $hasEndTag;
+    /** @var bool */
+    private $toggled;
 
     private $attrValueDefaultDelimiter;
     private $sanitizer;
@@ -36,19 +64,37 @@ class HTMLElement
     /** @var HTMLElement|false */
     private $innerBeforeHTML;
 
-    public function __construct(string $tag, $selfClosing = false, $attrValueDefaultDelimiter = ' ')
+    public function __construct(string $tag, $hasEndTag = true)
     {
         $this->tag = $tag;
-        $this->selfClosing = $selfClosing;
+        $this->hasEndTag = $hasEndTag;
         $this->innerHTML = false;
 
-        $this->attrValueDefaultDelimiter = $attrValueDefaultDelimiter;
+        $this->attrValueDefaultDelimiter = ' ';
         $this->sanitizer = new Sanitizer();
 
         $this->afterHTML = false;
         $this->beforeHTML = false;
 
         $this->initAttributes();
+    }
+
+    /**
+     * @param string $attrValueDefaultDelimiter
+     */
+    public function setAttrValueDefaultDelimiter(string $attrValueDefaultDelimiter)
+    {
+        $this->attrValueDefaultDelimiter = $attrValueDefaultDelimiter;
+    }
+
+    /**
+     * @param string $tag
+     *
+     * @return bool
+     */
+    public static function hasEndTag(string $tag)
+    {
+        return (ArrayHandler::hasValue([self::INPUT, self::IMG], $tag) === false);
     }
 
     private function initAttributes()
@@ -99,6 +145,18 @@ class HTMLElement
         }
 
         return join(' ', $strList);
+    }
+
+    /**
+     * Toggle element on/off. If off - element won't be rendered.
+     *
+     * @param bool $force
+     */
+    public function toggle($force = true)
+    {
+        $this->toggled = boolval($force);
+
+        return $this;
     }
 
     /**
@@ -176,12 +234,33 @@ class HTMLElement
      */
     public function class($value)
     {
+        if ($value === null)
+            return $this;
+
         if (is_array($value) === false)
             $value = explode(' ', $value);
 
         $this->setAttr(self::ATTR_CLASS, $value);
 
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getClassList()
+    {
+        return $this->attributes[self::ATTR_CLASS];
+    }
+
+    /**
+     * @param string $class
+     *
+     * @return bool
+     */
+    public function hasClass($class)
+    {
+        return ArrayHandler::hasValue($this->attributes[self::ATTR_CLASS], $class);
     }
 
     public function deleteClass($value)
@@ -195,11 +274,28 @@ class HTMLElement
     }
 
     /**
-     * @param array|string $value
+     * @param string $value
+     * @param bool $force
+     *
+     * @return HTMLElement
+     */
+    public function toggleClass(string $value, $force = true)
+    {
+        if (ArrayHandler::hasValue($this->attributes[self::ATTR_CLASS], $value))
+            $this->deleteClass($value);
+
+        if (boolval($force))
+            $this->addClass($value);
+
+        return $this;
+    }
+
+    /**
+     * @param string $value
      *
      * @return $this
      */
-    public function addClass($value)
+    public function addClass(string $value)
     {
         if ($value === null)
             return $this->deleteClass($value);
@@ -267,12 +363,12 @@ class HTMLElement
 
     public function getId()
     {
-        return $this->attributes[self::ATTR_ID];
+        return $this->findAttribute(self::ATTR_ID);
     }
 
     public function getName()
     {
-        return $this->attributes[self::ATTR_NAME];
+        return $this->findAttribute(self::ATTR_NAME);
     }
 
     public function getAttributes()
@@ -380,7 +476,10 @@ class HTMLElement
 
     public function __toString()
     {
-        if ($this->selfClosing) {
+        if ($this->toggled === false)
+            return '';
+
+        if ($this->hasEndTag === false) {
             $tagStr = $this->getStartTag(false);
         } else {
             $tagStr = $this->getStartTag(false)

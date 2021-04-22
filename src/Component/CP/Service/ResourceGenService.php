@@ -109,8 +109,11 @@ class ResourceGenService
             if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches))
                 $type = $matches[1];
 
-            if ($type === 'integer' || $type === 'float')
+            if ($type === 'integer' || $type === 'float' || $type === 'int')
                 $type = 'number';
+
+            if ($type === 'bool')
+                $type = 'boolean';
 
             $annotation_property_list[] = " * @property {{$type}|null} $property->name";
             $func_property_list[] = "   this.$property->name = null;";

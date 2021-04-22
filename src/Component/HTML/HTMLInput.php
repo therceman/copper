@@ -4,7 +4,7 @@
 namespace Copper\Component\HTML;
 
 
-class HtmlInputElement extends HTMLElement
+class HTMLInput extends HTMLElement
 {
     const ATTR_VALUE = 'value';
     const ATTR_PLACEHOLDER = 'placeholder';
@@ -13,9 +13,9 @@ class HtmlInputElement extends HTMLElement
     const ATTR_AUTOCOMPLETE = 'autocomplete';
     const ATTR_TYPE = 'type';
 
-    public function __construct($attrValueDefaultDelimiter = ' ')
+    public function __construct()
     {
-        parent::__construct('input', true, $attrValueDefaultDelimiter);
+        parent::__construct(HTMLElement::INPUT, false);
     }
 
     public function value($value)

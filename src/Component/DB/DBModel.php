@@ -274,7 +274,7 @@ abstract class DBModel
     /**
      * Migrate Model Table
      *
-     * @param boolean $force
+     * @var bool $force
      *
      * @return FunctionResponse
      */

@@ -31,19 +31,19 @@ class ValidatorRule
 
     /** @var string */
     public $name;
-    /** @var integer */
+    /** @var int */
     public $type;
-    /** @var integer */
+    /** @var int */
     public $length;
-    /** @var boolean */
+    /** @var bool */
     public $required;
 
-    /** @var boolean|string */
+    /** @var bool|string */
     public $regex;
 
-    /** @var boolean|array */
+    /** @var bool|array */
     public $filterValues;
-    /** @var boolean */
+    /** @var bool */
     public $blacklistFilter;
 
     public function __construct($name, $type = self::STRING, $length = false, $required = false, $regex = false, $filterValues = false, $blacklistFilter = false)

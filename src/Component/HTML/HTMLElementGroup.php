@@ -4,72 +4,139 @@
 namespace Copper\Component\HTML;
 
 
-class HTMLElementGroup
-{
-    /** @var HTMLElement[] */
-    private $list;
+use Copper\Handler\ArrayHandler;
+use Copper\Handler\StringHandler;
 
-    public function __construct()
+abstract class HTMLElementGroup
+{
+    /** @var HTMLElement */
+    private $wrapper = null;
+
+    /** @var HTMLElement[] */
+    protected $list;
+    protected $toggle = true;
+
+    abstract public function build();
+
+    /**
+     * HTMLElementGroup constructor.
+     *
+     * @param array $array
+     */
+    public function __construct($array = [])
     {
-        $this->list = [];
+        $this->list = $array;
+    }
+
+    /**
+     * @param string $class
+     * @param string|null $id
+     *
+     * @return HTMLElementGroup
+     */
+    public function divWrapper(string $class, $id = null)
+    {
+        $this->wrapper = HTML::div($class)->id($id);
+
+        return $this;
+    }
+
+    /**
+     * @return HTMLElement|null
+     */
+    public function getWrapper()
+    {
+        return $this->wrapper;
+    }
+
+    /**
+     * @param HTMLElement|null $wrapper
+     *
+     * @return HTMLElementGroup
+     */
+    public function wrapper($wrapper)
+    {
+        $this->wrapper = $wrapper;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $bool
+     *
+     * @return $this
+     */
+    public function toggle(bool $bool)
+    {
+        $this->toggle = $bool;
+
+        return $this;
     }
 
     /**
      * @param HTMLElement $el
+     *
+     * @return HTMLElementGroup
      */
-    public function add(HTMLElement $el)
+    protected function add(HTMLElement $el)
     {
         $this->list[] = $el;
+
+        return $this;
     }
 
+    /**
+     * @return HTMLElementGroup
+     */
+    protected function clearList()
+    {
+        $this->list = [];
+
+        return $this;
+    }
+
+    /**
+     * @return HTMLElement[]
+     */
     public function getList()
     {
         return $this->list;
     }
 
-    public function hasAttrValue($attrKey, $attrValue)
-    {
-        return ($this->findByAttrValue($attrKey, $attrValue) !== null);
-    }
-
-    public function hasId($id)
-    {
-        return ($this->findByAttrValue('id', $id) !== null);
-    }
-
-    public function hasName($name)
-    {
-        return ($this->findByAttrValue('name', $name) !== null);
-    }
-
     /**
-     * @param string $attrKey
-     * @param string $attrVal
+     * @param string $selector
+     * @param \Closure $closure
      *
-     * @return HTMLElement|null
+     * @return HTMLElementGroup
      */
-    public function findByAttrValue(string $attrKey, string $attrVal)
+    public function element(string $selector, \Closure $closure)
     {
-        $foundEl = null;
+        foreach ($this->list as $key => $el) {
 
-        foreach ($this->list as $el) {
-            $attr = $el->findAttribute($attrKey);
+            // ------ Class Selector ------
 
-            if ($attr !== null && $attr === $attrVal)
-                $foundEl = $el;
+            $selectorClassList = ArrayHandler::map(StringHandler::regexAll($selector, '/\.([a-zA-Z0-9_-]*)/ms'),
+                function ($match) {
+                    return $match[1];
+                });
+
+            if (count($selectorClassList) > 0 && ArrayHandler::hasValueList($el->getClassList(), $selectorClassList))
+                $this->list[$key] = $closure($el);
+
+            // ------ ID Selector ------
+
+            $selectorIdList = StringHandler::regexAll($selector, '/\#([a-zA-Z0-9_-]*)/ms');
+
+            if (count($selectorIdList) > 0 && $el->getId() === $selectorIdList[0][1])
+                $this->list[$key] = $closure($el);
+
+            // ------ Tag Selector
+
+            if ($el->getTag() === $selector)
+                $this->list[$key] = $closure($el);
         }
 
-        return $foundEl;
-    }
-
-    /**
-     * @param string $tag
-     *
-     * @return bool
-     */
-    public function hasTag(string $tag)
-    {
-        return ($this->findByTag($tag) !== null);
+        return $this;
     }
 
     /**
@@ -77,7 +144,7 @@ class HTMLElementGroup
      *
      * @return HTMLElement|null
      */
-    public function findByTag(string $tag)
+    public function getElement(string $tag)
     {
         $foundEl = null;
 
@@ -90,27 +157,18 @@ class HTMLElementGroup
     }
 
     /**
-     * @param $id
-     *
-     * @return HTMLElement|null
+     * @return string
      */
-    public function findById($id)
-    {
-        return $this->findByAttrValue('id', $id);
-    }
-
-    /**
-     * @param $name
-     *
-     * @return HTMLElement|null
-     */
-    public function findByName($name)
-    {
-        return $this->findByAttrValue('name', $name);
-    }
-
     public function __toString()
     {
+        if ($this->toggle === false)
+            return '';
+
+        $this->build();
+
+        if ($this->wrapper !== null)
+            return $this->wrapper->innerHTML(join(PHP_EOL, $this->list))->getOuterHTML();
+
         return join(PHP_EOL, $this->list);
     }
 }

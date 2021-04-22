@@ -4,10 +4,61 @@
 namespace Copper\Handler;
 
 
+use Copper\Component\DB\DBModel;
+use Copper\Kernel;
 use Copper\Transliterator;
 
 class StringHandler
 {
+
+    /**
+     * Find and replace text in string
+     * <hr>
+     * <code>
+     * - replace('A B', 'B', 123)                   // returns "A 123"
+     * - replace('A B C', ['A', 'B'], 'X')          // returns "X X C"
+     * - replace('A B C', ['A', 'B'], ['A1', 'B2']) // returns "A1 B2 C"
+     * </code>
+     *
+     * @param string $str
+     * @param int|int[]|string|string[] $search
+     * @param int|int[]|string|string[] $replaceTo
+     *
+     * @return string
+     */
+    public static function replace(string $str, $search, $replaceTo)
+    {
+        return str_replace($search, $replaceTo, $str);
+    }
+
+    public static function random($len = 5)
+    {
+        $hash = DBModel::hash(NumberHandler::random(0, 1000 * $len));
+
+        return StringHandler::substr($hash, 0, $len);
+    }
+
+    /**
+     * Cut a string / return part of a string
+     *
+     * <hr>
+     * <code>
+     * - substr("abcdef", -1);     // returns "f"
+     * - substr("abcdef", -2);     // returns "ef"
+     * - substr("abcdef", -3, 1);  // returns "d"
+     * - substr("abcdef", -10, 1); // returns ""
+     * </code>
+     *
+     * @param string $str
+     * @param int $start
+     * @param int|null $length
+     *
+     * @return false|string
+     */
+    public static function substr(string $str, int $start, $length = null)
+    {
+        return ($length === null) ? substr($str, $start) : substr($str, $start, $length);
+    }
 
     public static function repeat($str, $num_of_times)
     {

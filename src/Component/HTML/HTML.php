@@ -4,8 +4,13 @@
 namespace Copper\Component\HTML;
 
 
+use Copper\Handler\ArrayHandler;
+use Copper\Handler\FileHandler;
+use Copper\Handler\StringHandler;
+
 class HTML
 {
+
     /**
      * @param string $text
      *
@@ -13,7 +18,7 @@ class HTML
      */
     public static function p($text = '')
     {
-        $el = new HTMLElement('p');
+        $el = new HTMLElement(HTMLElement::P);
 
         $el->innerText($text);
 
@@ -22,13 +27,13 @@ class HTML
 
     /**
      * @param string $text
-     * @param boolean $for
-     *
      * @return HTMLElement
+     * @var bool $for
+     *
      */
     public static function label($text = '', $for = null)
     {
-        $el = new HTMLElement('label');
+        $el = new HTMLElement(HTMLElement::LABEL);
 
         $el->innerText($text);
 
@@ -45,7 +50,7 @@ class HTML
      */
     public static function option($text = '', $value = null)
     {
-        $el = new HTMLElement('option');
+        $el = new HTMLElement(HTMLElement::OPTION);
 
         $el->innerText($text);
 
@@ -56,7 +61,7 @@ class HTML
 
     public static function button($text = '', $value = null)
     {
-        $el = new HTMLElement('button');
+        $el = new HTMLElement(HTMLElement::BUTTON);
 
         $el->innerText($text);
 
@@ -67,7 +72,7 @@ class HTML
 
     public static function span($text = '')
     {
-        $el = new HTMLElement('span');
+        $el = new HTMLElement(HTMLElement::SPAN);
 
         $el->innerText($text);
 
@@ -82,7 +87,7 @@ class HTML
      */
     public static function td($text = '', $colspan = null)
     {
-        $el = new HTMLElement('td');
+        $el = new HTMLElement(HTMLElement::TD);
 
         $el->innerText($text);
         $el->setAttr('colspan', $colspan);
@@ -98,7 +103,7 @@ class HTML
      */
     public static function ul($liList = [])
     {
-        $el = new HTMLElement('ul');
+        $el = new HTMLElement(HTMLElement::UL);
 
         foreach ($liList as $li) {
             $el->addElement($li);
@@ -114,7 +119,7 @@ class HTML
      */
     public static function li($text = '')
     {
-        $el = new HTMLElement('li');
+        $el = new HTMLElement(HTMLElement::LI);
 
         $el->innerText($text);
 
@@ -129,7 +134,7 @@ class HTML
      */
     public static function th($text = '', $colspan = null)
     {
-        $el = new HTMLElement('th');
+        $el = new HTMLElement(HTMLElement::TH);
 
         $el->innerText($text);
         $el->setAttr('colspan', $colspan);
@@ -145,7 +150,7 @@ class HTML
      */
     public static function img($src = null, $alt = null)
     {
-        $el = new HTMLElement('img');
+        $el = new HTMLElement(HTMLElement::IMG, false);
 
         $el->setAttr('src', $src);
         $el->setAttr('alt', $alt);
@@ -154,31 +159,80 @@ class HTML
     }
 
     /**
-     * @param string $href
-     * @param string|null $text
+     * @param string $data
+     * @param string $type
      *
      * @return HTMLElement
      */
-    public static function link(string $href, $text = null)
+    public static function object(string $data, string $type)
     {
-        $el = new HTMLElement('a');
+        $el = new HTMLElement(HTMLElement::OBJECT);
+
+        $el->setAttr('data', $data);
+        $el->setAttr('type', $type);
+
+        return $el;
+    }
+
+    public static function svg($useHref = null, $useId = null)
+    {
+        $hrefHash = null;
+
+        if (StringHandler::has($useHref, '#'))
+            $hrefHash = explode('#', $useHref)[1];
+
+        if ($hrefHash !== null)
+            $useId = $hrefHash;
+
+        if ($useId !== null)
+            $useHref = $useHref . '#' . $useId;
+
+        $use = new HTMLElement('use');
+        $use->setAttr('href', $useHref);
+
+        $svg = new HTMLElement(HTMLElement::SVG);
+        $svg->class($useId);
+        $svg->addElement($use);
+
+        return $svg;
+    }
+
+    /**
+     * @param string|null $src
+     *
+     * @return HTMLElement
+     */
+    public static function objectSvg($src = null)
+    {
+        return self::object($src, 'image/svg+xml');
+    }
+
+    /**
+     * @param string $href
+     * @param string|int|null $text
+     *
+     * @return HTMLElement
+     */
+    public static function a(string $href, $text = null)
+    {
+        $el = new HTMLElement(HTMLElement::A);
 
         $el->setAttr('href', $href);
-        $el->innerText(($text !== null) ? $text : $href);
+        $el->innerText($text);
 
         return $el;
     }
 
     /**
-     * @param string|null $class
+     * @param string|array|null $class
      *
      * @return HTMLElement
      */
     public static function div($class = null)
     {
-        $el = new HTMLElement('div');
+        $el = new HTMLElement(HTMLElement::DIV);
 
-        $el->setAttr('class', $class);
+        $el->class($class);
 
         return $el;
     }
@@ -190,7 +244,7 @@ class HTML
      */
     public static function tr($tdList = [])
     {
-        $el = new HTMLElement('tr');
+        $el = new HTMLElement(HTMLElement::TR);
 
         foreach ($tdList as $td) {
             $el->addElement($td);
@@ -203,14 +257,15 @@ class HTML
      * @param string $name
      * @param string $value
      *
-     * @return HtmlInputElement
+     * @return HTMLInput
      */
     public static function input($name = null, $value = null)
     {
-        $el = new HtmlInputElement();
+        $el = new HTMLInput();
 
         $el->name($name);
         $el->value($value)->type('text');
+
         $el->autocomplete(false)->spellcheck(false);
 
         return $el;
@@ -219,7 +274,7 @@ class HTML
     /**
      * @param string $name
      * @param string $value
-     * @return HtmlInputElement
+     * @return HTMLInput
      */
     public static function inputHidden($name = null, $value = null)
     {
@@ -229,7 +284,7 @@ class HTML
     /**
      * @param string $name
      * @param string $value
-     * @return HtmlInputElement
+     * @return HTMLInput
      */
     public static function inputEmail($name = null, $value = null)
     {
@@ -239,7 +294,7 @@ class HTML
     /**
      * @param string $name
      * @param string $value
-     * @return HtmlInputElement
+     * @return HTMLInput
      */
     public static function inputPassword($name = null, $value = null)
     {
@@ -252,11 +307,11 @@ class HTML
      * @param string|null $step
      * @param int|null $min
      * @param int|null $max
-     * @return HtmlInputElement
+     * @return HTMLInput
      */
     public static function inputNumber($name = null, $value = null, $step = null, $min = null, $max = null)
     {
-        $input = HTML::input($name, $value)->type('number');
+        $input = HTML::input($name, $value)->type('number')->autocomplete()->spellcheck();
 
         $input->setAttr('step', $step);
         $input->setAttr('min', $min);
@@ -268,7 +323,7 @@ class HTML
     /**
      * @param string $name
      * @param string $value
-     * @return HtmlInputElement
+     * @return HTMLInput
      */
     public static function inputFile($name = null, $value = null)
     {
@@ -277,12 +332,12 @@ class HTML
 
     /**
      * @param string $name
-     * @param boolean $checked
-     * @return HtmlInputElement
+     * @return HTMLInput
+     * @var bool $checked
      */
     public static function inputCheckbox($name = null, $checked = false)
     {
-        $checkboxEl = HTML::input($name)->type('checkbox');
+        $checkboxEl = HTML::input($name)->type('checkbox')->autocomplete()->spellcheck();
 
         if ($checked !== false)
             $checkboxEl->setAttr('checked', true);
@@ -293,12 +348,12 @@ class HTML
     /**
      * @param string $name
      * @param string|int $value
-     * @param boolean $checked
-     * @return HtmlInputElement
+     * @param bool $checked
+     * @return HTMLInput
      */
-    public static function inputRadio($name, $value, $checked = false)
+    public static function inputRadio(string $name, $value, $checked = false)
     {
-        $radioEl = HTML::input($name)->type('radio')->value($value);
+        $radioEl = HTML::input($name)->type('radio')->value($value)->autocomplete()->spellcheck();
 
         if ($checked !== false)
             $radioEl->setAttr('checked', true);
@@ -321,25 +376,16 @@ class HTML
      * @param string $selVal
      * @param false $useKeyAsValue
      *
-     * @return HTMLElement
+     * @return HTMLSelect
      */
     public static function select(array $options, string $name = null, $selVal = "", $useKeyAsValue = false)
     {
-        $el = new HTMLElement('select');
+        $el = new HTMLSelect();
 
+        $el->options($options);
         $el->name($name);
-
-        foreach ($options as $value => $text) {
-            $optionEl = new HTMLElement('option');
-
-            $optionEl->setAttr('value', ($useKeyAsValue) ? $value : $text);
-            $optionEl->innerHTML($text);
-
-            if ($useKeyAsValue === false && $selVal == $text || $useKeyAsValue && $selVal == $value)
-                $optionEl->setAttr('selected', true);
-
-            $el->addElement($optionEl);
-        }
+        $el->value($selVal);
+        $el->useKeyAsValue($useKeyAsValue);
 
         return $el;
     }
@@ -353,7 +399,7 @@ class HTML
      * @param string $textField
      * @param string $selVal
      *
-     * @return HTMLElement
+     * @return HTMLSelect
      */
     public static function selectCollection(array $options, string $valField, string $textField, string $name = null, $selVal = '')
     {
@@ -375,7 +421,7 @@ class HTML
      */
     public static function textarea($name = null, string $text = '')
     {
-        $el = new HTMLElement('textarea');
+        $el = new HTMLElement(HTMLElement::TEXTAREA);
 
         $el->name($name)->innerText($text);
 
@@ -384,7 +430,7 @@ class HTML
 
     public static function form(string $action)
     {
-        $el = new HTMLElement('form');
+        $el = new HTMLElement(HTMLElement::FORM);
 
         $el->setAttr('action', $action);
         $el->setAttr('method', 'post');
@@ -402,4 +448,67 @@ class HTML
         return HTML::form($action)->setAttr('enctype', 'multipart/form-data');
     }
 
+    // ------------- HTML Groups ------------------
+
+    /**
+     * @param HTMLElement[] $array
+     * @param bool $useWrapper
+     * @param string $tag
+     * @param string $class
+     * @param string|null $id
+     *
+     * @return HTMLGroup
+     */
+    public static function group(string $class, array $array, $id = null, $tag = HTMLElement::DIV, bool $useWrapper = true)
+    {
+        $group = new HTMLGroup($array);
+
+        $group->useWrapper($useWrapper);
+        $group->tag($tag);
+        $group->class($class);
+        $group->id($id);
+
+        return $group->build();
+    }
+
+    /**
+     * @param string $label
+     * @param string|null $name
+     * @param string|int|null $value
+     * @param bool $checked
+     * @param string|null $id
+     *
+     * @return HTMLRadioGroup
+     */
+    public static function radioGroup(string $label, string $name, $value = null, $checked = false, $id = null)
+    {
+        $group = new HTMLRadioGroup($label, $name);
+
+        $group->value($value);
+        $group->checked($checked);
+        $group->id($id);
+
+        return $group->build();
+    }
+
+    /**
+     * @param string|false $label
+     * @param false $checked
+     * @param string $name
+     * @param false $id
+     * @param bool $falseValue
+     *
+     * @return HTMLCheckboxGroup
+     */
+    public static function checkboxGroup(string $label, $checked = false, string $name = null, $id = null, $falseValue = true)
+    {
+        $group = new HTMLCheckboxGroup($label);
+
+        $group->checked($checked);
+        $group->name($name);
+        $group->id($id);
+        $group->falseValue($falseValue);
+
+        return $group->build();
+    }
 }

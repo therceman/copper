@@ -9,6 +9,40 @@ use Copper\Entity\AbstractEntity;
 class ArrayHandler
 {
     /**
+     * Get intersection list of two arrays
+     * <hr>
+     * <code>
+     * - intersect(['A','B','C'],['A','C']) // returns ['A','C']
+     * - intersect(['A','B','C'],['A','D']) // returns ['A']
+     * </code>
+     * @param array $srcArray Source array
+     * @param array $trgArray Target array
+     *
+     * @return array
+     */
+    public static function intersect(array $srcArray, array $trgArray)
+    {
+        return array_intersect($srcArray, $trgArray);
+    }
+
+    /**
+     * Check if array has provided list of values
+     * <hr>
+     * <code>
+     * - hasValueList(['A','B','C'],['A','C']) // returns true
+     * - hasValueList(['A','B','C'],['A','D']) // returns false
+     * </code>
+     * @param array $array Source array
+     * @param array $list List of values
+     *
+     * @return bool
+     */
+    public static function hasValueList(array $array, array $list)
+    {
+        return (count(self::intersect($array, $list)) === count($list));
+    }
+
+    /**
      * Get difference between two arrays.
      *
      * <hr>

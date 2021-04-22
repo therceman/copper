@@ -14,9 +14,9 @@ class DBSelect
     private $columns;
     /** @var DBOrder|null */
     private $order;
-    /** @var integer|null */
+    /** @var int|null */
     private $limit;
-    /** @var integer|null */
+    /** @var int|null */
     private $offset;
     /** @var string|null */
     private $group;

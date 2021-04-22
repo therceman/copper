@@ -4,54 +4,99 @@
 namespace Copper\Component\HTML;
 
 
-class HTMLGroup
+/**
+ * Class HTMLGroup
+ *
+ * @package Copper\Component\HTML
+ */
+class HTMLGroup extends HTMLElementGroup
 {
+    private $class = null;
+    private $tag = HTMLElement::DIV;
+    private $id = null;
+    private $useWrapper = true;
+    private $elements = [];
 
     /**
-     * @param string $label
-     * @param string|null $name
-     * @param string|int|null $value
-     * @param bool $checked
-     * @param string|null $id
+     * HTMLGroup constructor.
      *
-     * @return HTMLElementGroup
+     * @param HTMLElement[] $elements
      */
-    public static function radio(string $label, string $name, $value, $checked = false, $id = null)
+    public function __construct(array $elements)
     {
-        $id = ($id === null) ? 'radio_' . $name . '_' . $value : $id;
+        $this->elements = $elements;
 
-        $htmlElList = new HTMLElementGroup();
-
-        $htmlElList->add(HTML::inputRadio($name, $value, $checked)->id($id));
-        $htmlElList->add(HTML::label($label, $id));
-
-        return $htmlElList;
+        parent::__construct();
     }
 
     /**
-     * @param string|false $label
-     * @param false $checked
-     * @param string $name
-     * @param false $id
-     * @param bool $hiddenInput
+     * @param bool $bool
      *
-     * @return HTMLElementGroup
+     * @return HTMLGroup
      */
-    public static function checkbox(string $label, $checked = false, string $name = null, $id = null, $hiddenInput = true)
+    public function useWrapper(bool $bool)
     {
-        $id = ($id === null) ? 'checkbox_' . $name : $id;
+        $this->useWrapper = $bool;
 
-        $htmlElList = new HTMLElementGroup();
-
-        if ($hiddenInput === true)
-            $htmlElList->add(HTML::inputHidden($name, 0));
-
-        $htmlElList->add(HTML::inputCheckbox($name, $checked)->value(1)->id($id));
-
-        if ($label !== false)
-            $htmlElList->add(HTML::label($label, $id));
-
-        return $htmlElList;
+        return $this;
     }
 
+    /**
+     * @param string $tag
+     *
+     * @return HTMLGroup
+     */
+    public function tag(string $tag)
+    {
+        $this->tag = $tag;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $class
+     *
+     * @return HTMLGroup
+     */
+    public function class($class)
+    {
+        $this->class = $class;
+
+        return $this;
+    }
+
+    /**
+     * @param string|int|null $id
+     *
+     * @return HTMLGroup
+     */
+    public function id($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
+    /**
+     * @return HTMLGroup
+     */
+    public function build()
+    {
+        $this->list = [];
+
+        foreach ($this->elements as $element) {
+            $this->add($element);
+        }
+
+        if ($this->useWrapper === false)
+            return $this->wrapper(null);
+
+        $wrapper = new HTMLElement($this->tag, HTMLElement::hasEndTag($this->tag));
+        $wrapper->class($this->class);
+        $wrapper->id($this->id);
+
+        $this->wrapper($wrapper);
+
+        return $this;
+    }
 }

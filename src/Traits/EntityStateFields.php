@@ -10,6 +10,6 @@ trait EntityStateFields
     public $updated_at;
     /** @var string */
     public $removed_at;
-    /** @var boolean */
+    /** @var bool */
     public $enabled;
 }
