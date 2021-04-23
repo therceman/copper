@@ -22,7 +22,7 @@ class HTMLGroup extends HTMLElementGroup
      *
      * @param HTMLElement[] $elements
      */
-    public function __construct(array $elements)
+    public function __construct(array $elements = [])
     {
         $this->elements = $elements;
 

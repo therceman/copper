@@ -7,6 +7,11 @@ namespace Copper\Component\HTML;
 use Copper\Handler\ArrayHandler;
 use Copper\Sanitizer;
 
+/**
+ * Class HTMLElement
+ *
+ * @package Copper\Component\HTML
+ */
 class HTMLElement
 {
     const ATTR_STYLE = 'style';
@@ -39,6 +44,12 @@ class HTMLElement
     const OBJECT = 'object';
     const TEXTAREA = 'textarea';
     const FORM = 'form';
+    const H1 = 'h1';
+    const H2 = 'h2';
+    const H3 = 'h3';
+    const H4 = 'h4';
+    const H5 = 'h5';
+    const H6 = 'h6';
 
     /** @var string */
     private $tag;
@@ -46,45 +57,50 @@ class HTMLElement
     private $attributes;
     /** @var string */
     private $innerHTML;
+    /** @var string */
+    private $innerText;
     /** @var bool */
     private $hasEndTag;
     /** @var bool */
     private $toggled;
 
+    /** @var HTMLElement[] */
+    private $innerElements;
+
     private $attrValueDefaultDelimiter;
     private $sanitizer;
 
     /** @var HTMLElement|false */
-    private $afterHTML;
+    private $elementAfter;
     /** @var HTMLElement|false */
-    private $beforeHTML;
+    private $elementBefore;
 
     /** @var HTMLElement|false */
-    private $innerAfterHTML;
+    private $innerElementAfter;
     /** @var HTMLElement|false */
-    private $innerBeforeHTML;
+    private $innerElementBefore;
 
+    /**
+     * HTMLElement constructor.
+     *
+     * @param string $tag
+     * @param bool $hasEndTag
+     */
     public function __construct(string $tag, $hasEndTag = true)
     {
         $this->tag = $tag;
         $this->hasEndTag = $hasEndTag;
-        $this->innerHTML = false;
+        $this->innerHTML = null;
+        $this->innerText = null;
+        $this->innerElements = new HTMLGroup();
 
         $this->attrValueDefaultDelimiter = ' ';
         $this->sanitizer = new Sanitizer();
 
-        $this->afterHTML = false;
-        $this->beforeHTML = false;
+        $this->elementAfter = false;
+        $this->elementBefore = false;
 
         $this->initAttributes();
-    }
-
-    /**
-     * @param string $attrValueDefaultDelimiter
-     */
-    public function setAttrValueDefaultDelimiter(string $attrValueDefaultDelimiter)
-    {
-        $this->attrValueDefaultDelimiter = $attrValueDefaultDelimiter;
     }
 
     /**
@@ -105,6 +121,9 @@ class HTMLElement
         ];
     }
 
+    /**
+     * @return bool
+     */
     private function isAttributeListEmpty()
     {
         $empty = true;
@@ -120,6 +139,11 @@ class HTMLElement
         return $empty;
     }
 
+    /**
+     * @param array $attrList
+     *
+     * @return string
+     */
     private function createAttrString(array $attrList)
     {
         $strList = [];
@@ -185,6 +209,11 @@ class HTMLElement
         return join('; ', $strList);
     }
 
+    /**
+     * @param string $attr
+     *
+     * @return $this
+     */
     public function removeAttr(string $attr)
     {
         if (array_key_exists($attr, $this->attributes))
@@ -213,6 +242,11 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @param bool $state
+     *
+     * @return $this
+     */
     public function disabled($state = true)
     {
         $this->setAttr(self::ATTR_DISABLED, ($state === true) ? false : null);
@@ -220,6 +254,11 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @param string|null $name
+     *
+     * @return $this
+     */
     public function name($name)
     {
         $this->setAttr(self::ATTR_NAME, $name);
@@ -258,11 +297,16 @@ class HTMLElement
      *
      * @return bool
      */
-    public function hasClass($class)
+    public function hasClass(string $class)
     {
         return ArrayHandler::hasValue($this->attributes[self::ATTR_CLASS], $class);
     }
 
+    /**
+     * @param $value
+     *
+     * @return $this
+     */
     public function deleteClass($value)
     {
         foreach ($this->attributes[self::ATTR_CLASS] as $key => $val) {
@@ -330,6 +374,11 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @param string $key
+     *
+     * @return $this
+     */
     public function deleteStyle(string $key)
     {
         if (array_key_exists($key, $this->attributes[self::ATTR_STYLE]))
@@ -354,6 +403,11 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @param string|null $id
+     *
+     * @return $this
+     */
     public function id($id)
     {
         $this->setAttr(self::ATTR_ID, $id);
@@ -361,54 +415,121 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getId()
     {
-        return $this->findAttribute(self::ATTR_ID);
+        return $this->getAttr(self::ATTR_ID);
     }
 
+    /**
+     * @return string|null
+     */
     public function getName()
     {
-        return $this->findAttribute(self::ATTR_NAME);
+        return $this->getAttr(self::ATTR_NAME);
     }
 
+    /**
+     * @return array
+     */
     public function getAttributes()
     {
         return $this->attributes;
     }
 
-    public function findAttribute($key)
+    /**
+     * @param string $key
+     *
+     * @return mixed|null
+     */
+    public function getAttr(string $key)
     {
         return array_key_exists($key, $this->attributes) ? $this->attributes[$key] : null;
     }
 
+    /**
+     * @return string
+     */
     public function getOuterHTML()
     {
         return $this->__toString();
     }
 
-    public function innerHTML($value)
+    /**
+     * @param string $value
+     *
+     * @return $this
+     */
+    public function innerHTML(string $value)
     {
         $this->innerHTML = $value;
 
         return $this;
     }
 
-    public function innerText($text)
+    /**
+     * @param string $text
+     *
+     * @return $this
+     */
+    public function innerText(string $text)
     {
-        $this->innerHTML = $this->sanitizer->html_escape($text);
+        $this->innerText = $this->sanitizer->html_escape($text);
 
         return $this;
     }
 
+    /**
+     * @param HTMLElement $el
+     *
+     * @return $this
+     */
     public function addElement(HTMLElement $el)
     {
-        $this->innerHTML = $this->innerHTML . PHP_EOL . $el;
+        $this->innerElements->add($el);
+
+        return $this;
+    }
+
+    /**
+     * @return HTMLElement[]
+     */
+    public function getInnerElements()
+    {
+        return $this->innerElements->getList();
+    }
+
+    /**
+     * @param $selector
+     * @param \Closure $closure
+     *
+     * @return HTMLElement
+     */
+    public function findElement($selector, \Closure $closure)
+    {
+        $this->innerElements->findElement($selector, $closure);
+
+        return $this;
+    }
+
+    /**
+     * @param string $selector CSS Selector. E.g. ".icon", "#nav", "img"
+     * @param \Closure $closure Callback with element. E.g. function($el) { ... }
+     *
+     * @return HTMLElement
+     */
+    public function findAllElements(string $selector, \Closure $closure)
+    {
+        $this->innerElements->findAllElements($selector, $closure);
 
         return $this;
     }
 
     /**
      * @param HTMLElementGroup $elGroup
+     *
      * @return $this
      */
     public function addElementGroup(HTMLElementGroup $elGroup)
@@ -419,39 +540,67 @@ class HTMLElement
         return $this;
     }
 
+    /**
+     * @param HTMLElement $el
+     *
+     * @return $this
+     */
     public function addInnerElementBefore(HTMLElement $el)
     {
-        $this->innerBeforeHTML = $el;
+        $this->innerElementBefore = $el;
 
         return $this;
     }
 
+    /**
+     * @param HTMLElement $el
+     *
+     * @return $this
+     */
     public function addInnerElementAfter(HTMLElement $el)
     {
-        $this->innerAfterHTML = $el;
+        $this->innerElementAfter = $el;
 
         return $this;
     }
 
+    /**
+     * @param HTMLElement $el
+     *
+     * @return $this
+     */
     public function addElementAfter(HTMLElement $el)
     {
-        $this->afterHTML = $el;
+        $this->elementAfter = $el;
 
         return $this;
     }
 
+    /**
+     * @param HTMLElement $el
+     *
+     * @return $this
+     */
     public function addElementBefore(HTMLElement $el)
     {
-        $this->beforeHTML = $el;
+        $this->elementBefore = $el;
 
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getTag()
     {
         return $this->tag;
     }
 
+    /**
+     * @param bool $newLineAfter
+     *
+     * @return string
+     */
     public function getStartTag($newLineAfter = true)
     {
         $attrStr = $this->isAttributeListEmpty() ? '' : ' ' . $this->createAttrString($this->attributes);
@@ -460,6 +609,11 @@ class HTMLElement
         return '<' . $tagStr . $attrStr . '>' . (($newLineAfter) ? PHP_EOL : '');
     }
 
+    /**
+     * @param bool $newLineBefore
+     *
+     * @return string
+     */
     public function getEndTag($newLineBefore = true)
     {
         $tagStr = $this->sanitizer->key_escape($this->tag);
@@ -467,13 +621,27 @@ class HTMLElement
         return (($newLineBefore) ? PHP_EOL : '') . '</' . $tagStr . '>';
     }
 
+    /**
+     * @return string
+     */
     public function getHTML()
     {
-        $html = (strpos($this->innerHTML, PHP_EOL) !== false) ? $this->innerHTML . PHP_EOL : $this->innerHTML;
+        if (count($this->innerElements->getList()) > 0) {
+            $html = ArrayHandler::join($this->innerElements->getList(), PHP_EOL);
+        } elseif ($this->innerHTML !== null) {
+            $html = (strpos($this->innerHTML, PHP_EOL) !== false) ? $this->innerHTML . PHP_EOL : $this->innerHTML;
+        } elseif ($this->innerText !== null) {
+            $html = $this->innerText;
+        } else {
+            $html = '';
+        }
 
-        return $this->innerBeforeHTML . $html . $this->innerAfterHTML;
+        return $this->innerElementBefore . $html . $this->innerElementAfter;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         if ($this->toggled === false)
@@ -487,37 +655,55 @@ class HTMLElement
                 . $this->getEndTag(false);
         }
 
-        if ($this->beforeHTML !== false)
-            $tagStr = $this->beforeHTML . $tagStr;
+        if ($this->elementBefore !== false)
+            $tagStr = $this->elementBefore . $tagStr;
 
-        if ($this->afterHTML !== false)
-            $tagStr = $tagStr . $this->afterHTML;
+        if ($this->elementAfter !== false)
+            $tagStr = $tagStr . $this->elementAfter;
 
         return $tagStr;
     }
 
-    function idAsName()
+    /**
+     * @return $this
+     */
+    public function idAsName()
     {
         $this->id($this->getName());
 
         return $this;
     }
 
-    function onClick($js)
+    /**
+     * @param string $js Javascript code
+     *
+     * @return $this
+     */
+    public function onClick(string $js)
     {
         $this->setAttr('onclick', $js);
 
         return $this;
     }
 
-    function onChange($js)
+    /**
+     * @param string $js Javascript code
+     *
+     * @return $this
+     */
+    public function onChange(string $js)
     {
         $this->setAttr('onchange', $js);
 
         return $this;
     }
 
-    function onInput($js)
+    /**
+     * @param string $js Javascript code
+     *
+     * @return $this
+     */
+    public function onInput(string $js)
     {
         $this->setAttr('oninput', $js);
 

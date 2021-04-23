@@ -78,7 +78,7 @@ abstract class HTMLElementGroup
      *
      * @return HTMLElementGroup
      */
-    protected function add(HTMLElement $el)
+    public function add(HTMLElement $el)
     {
         $this->list[] = $el;
 
@@ -106,12 +106,16 @@ abstract class HTMLElementGroup
     /**
      * @param string $selector
      * @param \Closure $closure
+     * @param bool $stopOnFirstMatch
      *
-     * @return HTMLElementGroup
+     * @return $this
      */
-    public function element(string $selector, \Closure $closure)
+    private function findElementsUsingSelector(string $selector, \Closure $closure, $stopOnFirstMatch = false)
     {
+        $firstMatchFound = false;
+
         foreach ($this->list as $key => $el) {
+            $matchedEl = null;
 
             // ------ Class Selector ------
 
@@ -121,22 +125,52 @@ abstract class HTMLElementGroup
                 });
 
             if (count($selectorClassList) > 0 && ArrayHandler::hasValueList($el->getClassList(), $selectorClassList))
-                $this->list[$key] = $closure($el);
+                $matchedEl = $el;
 
             // ------ ID Selector ------
 
             $selectorIdList = StringHandler::regexAll($selector, '/\#([a-zA-Z0-9_-]*)/ms');
 
             if (count($selectorIdList) > 0 && $el->getId() === $selectorIdList[0][1])
-                $this->list[$key] = $closure($el);
+                $matchedEl = $el;
 
             // ------ Tag Selector
 
             if ($el->getTag() === $selector)
+                $matchedEl = $el;
+
+            if ($stopOnFirstMatch && $firstMatchFound)
+                continue;
+
+            if ($matchedEl !== null) {
+                $firstMatchFound = true;
                 $this->list[$key] = $closure($el);
+            }
         }
 
         return $this;
+    }
+
+    /**
+     * @param string $selector
+     * @param \Closure $closure
+     *
+     * @return HTMLElementGroup
+     */
+    public function findElement(string $selector, \Closure $closure)
+    {
+        return $this->findElementsUsingSelector($selector, $closure, true);
+    }
+
+    /**
+     * @param string $selector
+     * @param \Closure $closure
+     *
+     * @return HTMLElementGroup
+     */
+    public function findAllElements(string $selector, \Closure $closure)
+    {
+        return $this->findElementsUsingSelector($selector, $closure, false);
     }
 
     /**
