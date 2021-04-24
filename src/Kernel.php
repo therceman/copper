@@ -5,6 +5,8 @@ namespace Copper;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Mail\MailPhpFileLoader;
 use Copper\Component\Templating\ViewHandler;
+use Copper\Handler\ArrayHandler;
+use Copper\Handler\DateHandler;
 use Copper\Handler\FileHandler;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\Auth\AuthPhpFileLoader;
@@ -15,7 +17,9 @@ use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Component\Validator\ValidatorPhpFileLoader;
+use Copper\Handler\StringHandler;
 use Copper\Resource\AbstractResource;
+use ErrorException;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,6 +41,7 @@ final class Kernel
     const ROUTES_FOLDER = 'routes';
     const SRC_RESOURCE_FOLDER = 'src/Resource';
 
+    const APP_CONFIG_FILE = 'app.php';
     const ROUTES_CONFIG_FILE = 'routes.php';
     const AUTH_CONFIG_FILE = 'auth.php';
     const DB_CONFIG_FILE = 'db.php';
@@ -44,6 +49,8 @@ final class Kernel
     const MAIL_CONFIG_FILE = 'mail.php';
     const VALIDATOR_CONFIG_FILE = 'validator.php';
 
+    /** @var App */
+    private static $app;
     /** @var RouteCollection */
     private static $routes;
     /** @var AuthHandler */
@@ -65,6 +72,9 @@ final class Kernel
 
     public function __construct()
     {
+        $this->configureApp();
+
+        $this->setErrorHandler();
         $this->configureRoutes();
         $this->configureDB();
         $this->configureAuth();
@@ -72,6 +82,90 @@ final class Kernel
         $this->configureCP();
         $this->configureValidator();
         $this->configureMail();
+    }
+
+    protected function setErrorHandler()
+    {
+        /**
+         * Uncaught exception handler.
+         */
+        $logException = function ($e) {
+            $trace = $e->getTrace();
+            // $trace_string = $e->getTraceString();
+
+            $date = DateHandler::dateTime();
+
+            $url = Kernel::getRequest()->getRequestUri();
+            $method = Kernel::getRequest()->getMethod();
+            $ips = ArrayHandler::join(Kernel::getRequest()->getClientIps());
+            $referer = Kernel::getRequest()->headers->get('referer');
+            $user_id = Kernel::getAuth()->check() ? Kernel::getAuth()->user()->id : 0;
+
+            $type = get_class($e);
+            $msg = $e->getMessage();
+            $file = $e->getFile();
+            $line = $e->getLine();
+            $func = (count($trace) > 0 && array_key_exists('function', $trace[0])) ? $e->getTrace()[0]['function'] : '';
+            $args = (count($trace) > 0 && array_key_exists('args', $trace[0])) ? $e->getTrace()[0]['args'] : '';
+
+            $args = StringHandler::dump($args, true);
+
+            $format = self::$app->config->error_log_format;
+            $log_data = sprintf($format, $date, $method, $url, $type, $msg, $file, $line, $func, $args, $ips, $user_id, $referer);
+
+            if (self::$app->config->error_view === true) {
+                print "<div style='text-align: center;'>";
+                print "<h2 style='color: rgb(190, 50, 50);'>Error Occurred</h2>";
+                print "<table style='width: 800px; display: inline-block;'>";
+                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Request</th><td>{$method} {$url}</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Type</th><td>{$type}</td></tr>";
+                print "<tr style='background-color:rgb(240,240,240);'><th>Message</th><td>{$msg}</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th>File</th><td>{$file}</td></tr>";
+                print "<tr style='background-color:rgb(240,240,240);'><th>Line</th><td>{$line}</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th>Function</th><td>{$func}</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th>Args</th><td>{$args}</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Ips</th><td>$ips</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>User ID</th><td>$user_id</td></tr>";
+                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Referer</th><td>$referer</td></tr>";
+                print "</table></div>";
+            }
+
+            if (self::$app->config->error_log === true) {
+                if (FileHandler::fileExists(self::getProjectLogPath()) === false)
+                    FileHandler::createFolder(self::getProjectLogPath());
+
+                FileHandler::appendContent(self::$app->config->error_log_filepath, $log_data . "\n", true);
+            }
+
+            exit();
+        };
+
+        /**
+         * Error handler, passes flow over the exception logger with new ErrorException.
+         */
+        $logError = function ($num, $str, $file, $line, $context = null) use ($logException) {
+            $logException(new ErrorException($str, 0, $num, $file, $line));
+        };
+
+        /**
+         * Checks for a fatal error, work around for set_error_handler not working on fatal errors.
+         */
+        $checkForFatal = function () use ($logError) {
+            $error = error_get_last();
+
+            if ($error !== NULL && $error["type"] == E_ERROR)
+                $logError($error["type"], $error["message"], $error["file"], $error["line"]);
+        };
+
+        register_shutdown_function($checkForFatal);
+
+        set_error_handler($logError);
+
+        set_exception_handler($logException);
+
+        ini_set("display_errors", "off");
+
+        error_reporting(E_ALL);
     }
 
     /**
@@ -157,6 +251,16 @@ final class Kernel
         return FileHandler::projectPathFromArray(['templates']);
     }
 
+    public static function getProjectLogPath($logFile = null)
+    {
+        $pathArray = ['log'];
+
+        if ($logFile !== null)
+            $pathArray[] = $logFile;
+
+        return FileHandler::projectPathFromArray($pathArray);
+    }
+
     public static function getTemplatePath($template)
     {
         return FileHandler::pathFromArray([self::getProjectTemplatesPath(), $template . '.php']);
@@ -180,6 +284,14 @@ final class Kernel
     public static function getPackagePath()
     {
         return dirname(__DIR__);
+    }
+
+    /**
+     * @return App
+     */
+    public static function getApp(): App
+    {
+        return self::$app;
     }
 
     /**
@@ -553,6 +665,26 @@ final class Kernel
         }
 
         self::$mail = new MailHandler($packageConfig, $projectConfig);
+    }
+
+    /**
+     *  Configure default and application Mail from {APP|CORE}/config/mail.php
+     */
+    protected function configureApp()
+    {
+        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
+        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
+
+        $loader = new AppPhpFileLoader(new FileLocator($packagePath));
+        $packageConfig = $loader->load($this::APP_CONFIG_FILE);
+
+        $projectConfig = null;
+        if (file_exists($projectPath . '/' . $this::APP_CONFIG_FILE)) {
+            $loader = new AppPhpFileLoader(new FileLocator($projectPath));
+            $projectConfig = $loader->load($this::APP_CONFIG_FILE);
+        }
+
+        self::$app = new App($packageConfig, $projectConfig);
     }
 
     /**

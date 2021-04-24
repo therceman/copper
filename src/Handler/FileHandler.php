@@ -101,13 +101,37 @@ class FileHandler
     }
 
     /**
+     * Append content to the end of a file
+     *
+     * @param string $filePath
+     * @param string $content
+     * @param bool $lock
+     * @param bool $create_new
+     *
+     * @return FunctionResponse
+     */
+    public static function appendContent(string $filePath, string $content, bool $create_new = false, bool $lock = false)
+    {
+        $response = new FunctionResponse();
+
+        if (self::fileExists($filePath) === false && $create_new === false)
+            return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
+
+        $flags = ($lock) ? FILE_APPEND | LOCK_EX : FILE_APPEND;
+
+        return $response->result(file_put_contents($filePath, $content, $flags), self::ERROR_PUT_CONTENT);
+    }
+
+    /**
+     * Set content of a file
+     *
      * @param string $filePath
      * @param string $content
      * @param bool $create_new
      *
      * @return FunctionResponse
      */
-    public static function saveContent(string $filePath, string $content, bool $create_new = false)
+    public static function setContent(string $filePath, string $content, bool $create_new = false)
     {
         $response = new FunctionResponse();
 
@@ -118,6 +142,8 @@ class FileHandler
     }
 
     /**
+     * Create new file with content
+     *
      * @param string $filePath
      * @param string $content
      *
@@ -125,10 +151,18 @@ class FileHandler
      */
     public static function create(string $filePath, string $content)
     {
-        return self::saveContent($filePath, $content, true);
+        return self::setContent($filePath, $content, true);
     }
 
-    public static function copyFileToFolder($filePath, $destFolderPath)
+    /**
+     * Copy file to folder
+     *
+     * @param string $filePath
+     * @param string $destFolderPath
+     *
+     * @return FunctionResponse
+     */
+    public static function copyFileToFolder(string $filePath, string $destFolderPath)
     {
         $response = new FunctionResponse();
 

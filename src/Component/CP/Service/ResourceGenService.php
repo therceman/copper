@@ -48,7 +48,7 @@ class ResourceGenService
         $content = str_replace('const TEMPLATE_FORM = \'collection/form\';',
             'const TEMPLATE_FORM = \'' . $tpl_folder_name . '/form\';', $content);
 
-        $contentSaveRes = FileHandler::saveContent($controllerPath, $content);
+        $contentSaveRes = FileHandler::setContent($controllerPath, $content);
 
         if ($contentSaveRes->hasError())
             return $contentSaveRes;
@@ -80,7 +80,7 @@ class ResourceGenService
         $content = str_replace('AbstractEntity', $resource::getEntityName(), $content);
         $content = str_replace('$Resource', '$' . strtolower($resource::getName()), $content);
 
-        $contentSaveRes = FileHandler::saveContent($filepath, $content);
+        $contentSaveRes = FileHandler::setContent($filepath, $content);
 
         if ($contentSaveRes->hasError())
             return $contentSaveRes;
@@ -1088,7 +1088,7 @@ XML;
             $fields = StringHandler::regex($old_content, '/>>> Auto Generated: Fields(.*?)\/\/ <<</ms');
             $old_content = str_replace($fields, "\r\n" . self::T . "$use_state_fields_trait\r\n$fields_content\r\n" . self::T, $old_content);
 
-            FileHandler::saveContent($filePath, $old_content);
+            FileHandler::setContent($filePath, $old_content);
         } else {
             file_put_contents($filePath, $content);
         }

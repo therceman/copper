@@ -12,6 +12,28 @@ class StringHandler
 {
 
     /**
+     * @param mixed $var
+     * @param bool $flatten
+     *
+     * @return false|string
+     */
+    public static function dump($var, $flatten = false)
+    {
+        ob_start();
+        var_dump($var);
+        $out = ob_get_clean();
+
+        if ($flatten) {
+            $n = '%{[\n]}%';
+            $out = StringHandler::replace($out, "\n", $n);
+            $out = self::replace($out, ['{' . $n . '  ', $n . '}', '}' . $n, '=>' . $n . ' ', $n . '  '],
+                ['{', '}', '}', '=>', ', ']);
+        }
+
+        return $out;
+    }
+
+    /**
      * Find and replace text in string
      * <hr>
      * <code>
