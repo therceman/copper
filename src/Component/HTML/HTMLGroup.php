@@ -4,6 +4,8 @@
 namespace Copper\Component\HTML;
 
 
+use Copper\Handler\ArrayHandler;
+
 /**
  * Class HTMLGroup
  *
@@ -24,9 +26,27 @@ class HTMLGroup extends HTMLElementGroup
      */
     public function __construct(array $elements = [])
     {
-        $this->elements = $elements;
+        $this->elements = $this->addElements($elements);
 
         parent::__construct();
+    }
+
+    /**
+     * @param HTMLElement[] $elements
+     * @return array
+     */
+    private function addElements(array $elements)
+    {
+        $element_list = [];
+
+        foreach ($elements as $element) {
+            if (is_array($element))
+                $element_list = ArrayHandler::merge($element_list, $this->addElements($element));
+            elseif ($element !== null)
+                $element_list[] = $element;
+        }
+
+        return $element_list;
     }
 
     /**

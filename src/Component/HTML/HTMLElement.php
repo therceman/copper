@@ -50,6 +50,7 @@ class HTMLElement
     const H4 = 'h4';
     const H5 = 'h5';
     const H6 = 'h6';
+    const STYLE = 'style';
 
     /** @var string */
     private $tag;
@@ -458,11 +459,11 @@ class HTMLElement
     }
 
     /**
-     * @param string $value
+     * @param string|null $value
      *
      * @return $this
      */
-    public function innerHTML(string $value)
+    public function innerHTML($value)
     {
         $this->innerHTML = $value;
 
@@ -470,11 +471,11 @@ class HTMLElement
     }
 
     /**
-     * @param string $text
+     * @param string|null $text
      *
      * @return $this
      */
-    public function innerText(string $text)
+    public function innerText($text)
     {
         $this->innerText = $this->sanitizer->html_escape($text);
 

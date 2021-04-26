@@ -8,8 +8,40 @@ use Copper\Handler\ArrayHandler;
 use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
 
+/**
+ * Class HTML
+ * @package Copper\Component\HTML
+ */
 class HTML
 {
+    /**
+     * @param array $selectors
+     *
+     * @return HTMLElement
+     */
+    public static function style(array $selectors)
+    {
+        $html = '';
+
+        foreach ($selectors as $selector => $value_list) {
+            $start = $selector . ' {' . PHP_EOL;
+            $middle = '';
+
+            foreach ($value_list as $key => $value) {
+                $middle .= "\t" . $key . ': ' . $value . ';' . PHP_EOL;
+            }
+
+            $end = '}';
+
+            $html .= PHP_EOL . $start . $middle . $end;
+        }
+
+        $el = new HTMLElement(HTMLElement::STYLE);
+
+        $el->innerHTML($html);
+
+        return $el;
+    }
 
     /**
      * @param string $text
@@ -252,12 +284,15 @@ class HTML
 
     /**
      * @param string|array|null $class
+     * @param string|int|null $text
      *
      * @return HTMLElement
      */
-    public static function div($class = null)
+    public static function div($class = null, $text = null)
     {
         $el = new HTMLElement(HTMLElement::DIV);
+
+        $el->innerText($text);
 
         return $el->class($class);
     }

@@ -10,6 +10,16 @@ class NumberHandler
     const SIGN_EUR = '€';
     const SIGN_PERCENT = '%';
 
+    public static function divisionRemainder($num1, $num2)
+    {
+        return $num1 % $num2;
+    }
+
+    public static function round($num, $dec = 2)
+    {
+        return round($num, $dec);
+    }
+
     public static function leadingZeros($num, $count)
     {
         return str_pad($num, $count, '0', STR_PAD_LEFT);

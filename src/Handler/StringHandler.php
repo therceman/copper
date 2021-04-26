@@ -28,6 +28,7 @@ class StringHandler
             $out = StringHandler::replace($out, "\n", $n);
             $out = self::replace($out, ['{' . $n . '  ', $n . '}', '}' . $n, '=>' . $n . ' ', $n . '  '],
                 ['{', '}', '}', '=>', ', ']);
+            $out = self::replace($out, $n, '');
         }
 
         return $out;

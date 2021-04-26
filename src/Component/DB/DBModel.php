@@ -274,9 +274,9 @@ abstract class DBModel
     /**
      * Migrate Model Table
      *
+     * @return FunctionResponse
      * @var bool $force
      *
-     * @return FunctionResponse
      */
     public function doMigrate($force = false)
     {
@@ -385,6 +385,27 @@ abstract class DBModel
     public function doSelectFirstWhereIs(string $field, $value, DBSelect $select = null)
     {
         return $this->doSelectFirstWhere(DBWhere::is($field, $value), $select);
+    }
+
+    /**
+     * @param int $page_item_count
+     * @param int $page_num
+     * @param DBSelect|null $select
+     *
+     * @return AbstractEntity[]
+     */
+    public function doSelectPaginated($page_item_count, $page_num, DBSelect $select = null)
+    {
+        if ($select === null)
+            $select = new DBSelect();
+
+        if ($select->getLimit() === null)
+            $select->setLimit($page_item_count);
+
+        if ($select->getOffset() === null)
+            $select->setOffset(($page_num > 1) ? $page_item_count * ($page_num - 1) : 0);
+
+        return $this->doSelect($select);
     }
 
     /**
