@@ -14,6 +14,8 @@ class DBOutput
     private $deletedFields;
     /** @var string|null */
     private $index;
+    /** @var string|null */
+    private $listOutputField;
 
     public function __construct()
     {
@@ -21,6 +23,19 @@ class DBOutput
         $this->fields = null;
         $this->deletedFields = null;
         $this->index = null;
+        $this->listOutputField = null;
+    }
+
+    /**
+     * @param string|null $field
+     *
+     * @return DBOutput
+     */
+    public static function listOutput($field)
+    {
+        $self = new self();
+
+        return $self->setListOutput($field);
     }
 
     /**
@@ -130,6 +145,17 @@ class DBOutput
     }
 
     /**
+     * @param string|null $field
+     * @return DBOutput
+     */
+    public function setListOutput($field): DBOutput
+    {
+        $this->listOutputField = $field;
+
+        return $this;
+    }
+
+    /**
      * @return \Closure|null
      */
     public function getMap()
@@ -159,6 +185,14 @@ class DBOutput
     public function getIndex()
     {
         return $this->index;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getListOutputField()
+    {
+        return $this->listOutputField;
     }
 
 }

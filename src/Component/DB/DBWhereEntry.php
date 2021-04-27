@@ -44,6 +44,19 @@ class DBWhereEntry
         if (is_bool($value) === true)
             $value = intval($value);
 
+        if (is_array($value)) {
+            $value_list = [];
+
+            foreach ($value as $key => $val) {
+                if (is_object($val) && property_exists($val, 'id') && $val->id > 0)
+                    $value_list[] = $val->id;
+                else
+                    $value_list[] = $val;
+            }
+
+            $value = $value_list;
+        }
+
         if (in_array($this->cond, [
             DBWhere::BETWEEN,
             DBWhere::BETWEEN_INCLUDE,

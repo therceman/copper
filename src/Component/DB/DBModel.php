@@ -625,6 +625,11 @@ abstract class DBModel
             foreach ($result as $entry) {
                 $entity = $this->getEntity()::fromArray($entry);
 
+                if ($output !== null && $output->getListOutputField() !== null && $entity->has($output->getListOutputField())) {
+                    $list[] = $entity->get($output->getListOutputField());
+                    continue;
+                }
+
                 if ($output !== null && $output->getMap() !== null)
                     $entity = $output->getMap()($entity);
 
