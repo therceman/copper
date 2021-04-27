@@ -12,6 +12,17 @@ class StringHandler
 {
 
     /**
+     * @param string $str
+     * @param array $args
+     *
+     * @return string
+     */
+    public static function sprintf(string $str, array $args)
+    {
+        return sprintf($str, ...$args);
+    }
+
+    /**
      * @param mixed $var
      * @param bool $flatten
      *

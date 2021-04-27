@@ -7,6 +7,7 @@ namespace Copper\Component\Pagination;
 use Copper\Component\HTML\HTML;
 use Copper\Component\HTML\HTMLElement;
 use Copper\Component\HTML\HTMLGroup;
+use Copper\Handler\StringHandler;
 
 /**
  * Class PaginationHTML
@@ -90,7 +91,7 @@ class PaginationHTML
     {
         return ($this->hrefMap !== null)
             ? call_user_func_array($this->hrefMap, [$page])
-            : sprintf(self::DEFAULT_HREF_FORMAT, $page);
+            : StringHandler::sprintf(self::DEFAULT_HREF_FORMAT, [$page]);
     }
 
     /**

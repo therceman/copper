@@ -111,7 +111,7 @@ final class Kernel
             $args = StringHandler::dump($args, true);
 
             $format = self::$app->config->error_log_format;
-            $log_data = sprintf($format, $date, $method, $url, $type, $msg, $file, $line, $func, $args, $ips, $user_id, $referer);
+            $log_data = StringHandler::sprintf($format, [$date, $method, $url, $type, $msg, $file, $line, $func, $args, $ips, $user_id, $referer]);
 
             if (self::$app->config->error_view === true) {
                 print "<div style='text-align: center;'>";
