@@ -8,6 +8,7 @@ use Copper\Handler\ArrayHandler;
 use Copper\Resource\AbstractResource;
 use Symfony\Component\Routing\Route;
 
+// TODO uncheck not needed files (to create). If Resource doesn't have controller don't check it on load.
 // TODO when field is renamed and type is changed (old field should be removed if has data (maybe throw warning if some rows has data in old column)
 // -- For example I have changed lang (VARCHAR 2) to language_id (TINYINT) and lang field was not renamed to language_id (because of type mismatch of old data)
 // TODO ? Update default values for all rows (when changed default value)

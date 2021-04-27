@@ -52,7 +52,7 @@ class DBOutput
      *
      * @return DBOutput
      */
-    public static function deletedFields($fields)
+    public static function deleteFields($fields)
     {
         $self = new self();
 
