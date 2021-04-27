@@ -22,7 +22,7 @@ class Pagination
         $page_count = NumberHandler::round($item_count / $page_item_count, 0);
         $page_count_remainder = NumberHandler::divisionRemainder($item_count, $page_item_count);
 
-        return ($page_count_remainder > 0) ? $page_count + 1 : $page_count;
+        return ($page_count_remainder > 0 && ($page_item_count * 2 < $item_count)) ? $page_count + 1 : $page_count;
     }
 
     /**
