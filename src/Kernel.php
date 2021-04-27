@@ -128,7 +128,7 @@ final class Kernel
 
             if (self::$app->config->error_view === true) {
 
-                self::$flashMessage->set('error_view_data', json_encode([
+                $view_parameters = [
                     '$method' => $method,
                     '$url' => $url,
                     '$type' => $type,
@@ -141,9 +141,14 @@ final class Kernel
                     '$ips' => $ips,
                     '$user_id' => $user_id,
                     '$referer' => $referer
-                ]));
+                ];
 
-                echo self::redirectToRoute(self::$app->config->error_view_route)->getContent();
+                self::$flashMessage->set('error_view_data', json_encode($view_parameters));
+
+                if (self::$app->config->error_view_route_redirect)
+                    echo self::redirectToRoute(self::$app->config->error_view_route)->getContent();
+                else
+                    echo Kernel::renderView(self::$app->config->error_view_default_template, $view_parameters);
                 exit();
 
             }
@@ -376,6 +381,19 @@ final class Kernel
     public static function getRequest(): Request
     {
         return self::$request;
+    }
+
+    /**
+     * Render view and return it as string
+     *
+     * @param string $view
+     * @param array $parameters
+     *
+     * @return string
+     */
+    public static function renderView(string $view, array $parameters = [])
+    {
+        return self::createViewHandler($parameters)->render($view);
     }
 
     /**

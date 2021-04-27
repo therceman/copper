@@ -9,6 +9,8 @@ class AppConfigurator
     public $error_view;
     /** @var bool Error view route */
     public $error_view_route;
+    /** @var bool Redirect to error route */
+    public $error_view_route_redirect;
     /** @var bool Error view template */
     public $error_view_default_template;
     /** @var bool Enable error logging to file */

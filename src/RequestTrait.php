@@ -58,12 +58,13 @@ trait RequestTrait
     }
 
     /**
-     * Returns current URL (with query)
+     * Returns current URL (with/without query)
      *
+     * @param bool $withQuery
      * @return string
      */
-    public function currentUrl()
+    public function currentUrl($withQuery = true)
     {
-        return $this->request_uri;
+        return ($withQuery) ? $this->request_uri : explode('?', $this->request_uri)[0];
     }
 }
