@@ -21,6 +21,7 @@ use Copper\Handler\StringHandler;
 use Copper\Resource\AbstractResource;
 use ErrorException;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -108,27 +109,15 @@ final class Kernel
             $func = (count($trace) > 0 && array_key_exists('function', $trace[0])) ? $e->getTrace()[0]['function'] : '';
             $args = (count($trace) > 0 && array_key_exists('args', $trace[0])) ? $e->getTrace()[0]['args'] : '';
 
+            if (StringHandler::has($func, '{closure}'))
+                $args = [];
+
+            $code = FileHandler::readLine($file, $line - 1);
+
             $args = StringHandler::dump($args, true);
 
             $format = self::$app->config->error_log_format;
             $log_data = StringHandler::sprintf($format, [$date, $method, $url, $type, $msg, $file, $line, $func, $args, $ips, $user_id, $referer]);
-
-            if (self::$app->config->error_view === true) {
-                print "<div style='text-align: center;'>";
-                print "<h2 style='color: rgb(190, 50, 50);'>Error Occurred</h2>";
-                print "<table style='width: 800px; display: inline-block;'>";
-                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Request</th><td>{$method} {$url}</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Type</th><td>{$type}</td></tr>";
-                print "<tr style='background-color:rgb(240,240,240);'><th>Message</th><td>{$msg}</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th>File</th><td>{$file}</td></tr>";
-                print "<tr style='background-color:rgb(240,240,240);'><th>Line</th><td>{$line}</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th>Function</th><td>{$func}</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th>Args</th><td>{$args}</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Ips</th><td>$ips</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>User ID</th><td>$user_id</td></tr>";
-                print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Referer</th><td>$referer</td></tr>";
-                print "</table></div>";
-            }
 
             if (self::$app->config->error_log === true) {
                 if (FileHandler::fileExists(self::getProjectLogPath()) === false)
@@ -137,6 +126,29 @@ final class Kernel
                 FileHandler::appendContent(self::$app->config->error_log_filepath, $log_data . "\n", true);
             }
 
+            if (self::$app->config->error_view === true) {
+
+                self::$flashMessage->set('error_view_data', json_encode([
+                    '$method' => $method,
+                    '$url' => $url,
+                    '$type' => $type,
+                    '$msg' => $msg,
+                    '$file' => $file,
+                    '$line' => $line,
+                    '$code' => $code,
+                    '$func' => $func,
+                    '$args' => $args,
+                    '$ips' => $ips,
+                    '$user_id' => $user_id,
+                    '$referer' => $referer
+                ]));
+
+                echo self::redirectToRoute(self::$app->config->error_view_route)->getContent();
+                exit();
+
+            }
+
+            echo self::redirectToRoute(ROUTE_index)->getContent();
             exit();
         };
 
@@ -435,6 +447,29 @@ final class Kernel
         $type = ($withScheme) ? UrlGenerator::ABSOLUTE_URL : UrlGenerator::ABSOLUTE_PATH;
 
         return self::generateRouteUrl($name, $parameters, $type);
+    }
+
+    /**
+     * @param string $url
+     * @param int $status
+     *
+     * @return RedirectResponse
+     */
+    public static function redirectToUrl(string $url, $status = Response::HTTP_FOUND)
+    {
+        return (new RedirectResponse($url, $status));
+    }
+
+    /**
+     * @param string $route
+     * @param array $parameters
+     * @param int $status
+     *
+     * @return RedirectResponse
+     */
+    public static function redirectToRoute(string $route, array $parameters = [], $status = Response::HTTP_FOUND)
+    {
+        return self::redirectToUrl(self::getRouteUrl($route, $parameters), $status);
     }
 
     /**

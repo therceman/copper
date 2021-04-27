@@ -11,6 +11,7 @@ use Copper\Component\Mail\MailHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\ArrayHandler;
+use Copper\Kernel;
 use Copper\RequestTrait;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -93,6 +94,18 @@ class AbstractController
     public function viewResponse($view, $parameters = [])
     {
         return new Response($this->renderView($view, $parameters));
+    }
+
+    public function viewError($parameters = [])
+    {
+        $error_view_data = json_decode($this->flashMessage->get('error_view_data', '[]'), true);
+
+        $parameters = ArrayHandler::merge($error_view_data, $parameters);
+
+        if (count($parameters) === 0)
+            return $this->redirectToRoute(ROUTE_index);
+
+        return new Response($this->renderView(Kernel::getApp()->config->error_view_default_template, $parameters));
     }
 
     /**

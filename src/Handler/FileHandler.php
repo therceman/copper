@@ -4,9 +4,9 @@
 namespace Copper\Handler;
 
 
-use App\Model\MailTemplateFieldModel;
 use Copper\FunctionResponse;
 use Copper\Kernel;
+use SplFileObject;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class FileHandler
@@ -98,6 +98,26 @@ class FileHandler
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
         return $response->result(file_get_contents($filePath), self::ERROR_GET_CONTENT);
+    }
+
+    /**
+     * @param string $filePath
+     * @param int $line_num
+     *
+     * @return string|null
+     */
+    public static function readLine(string $filePath, int $line_num)
+    {
+        $file = new SplFileObject($filePath);
+
+        $content = null;
+
+        if (!$file->eof()) {
+            $file->seek($line_num);
+            $content = $file->current();
+        }
+
+        return $content;
     }
 
     /**

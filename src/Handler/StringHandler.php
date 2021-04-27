@@ -109,7 +109,7 @@ class StringHandler
      */
     public static function has($str, $text)
     {
-        return (strpos($text, $str) !== false);
+        return (strpos($str, $text) !== false);
     }
 
     public static function trim($str)

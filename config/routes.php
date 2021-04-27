@@ -7,6 +7,7 @@ use Copper\Controller\AbstractController;
 use Copper\Controller\RedirectController;
 
 const ROUTE_index = 'index';
+const ROUTE_error = 'error';
 const ROUTE_get_copper_cp = 'get_copper_cp';
 const ROUTE_copper_cp_action = 'copper_cp_action';
 
@@ -30,5 +31,10 @@ return function (RoutingConfigurator $routes) {
     $routes->add(ROUTE_index, '/')
         ->controller([AbstractController::class, 'viewResponse'])
         ->defaults(['view' => 'index'])
+        ->methods(['GET']);
+
+    // Default error page
+    $routes->add(ROUTE_error, '/error')
+        ->controller([AbstractController::class, 'viewError'])
         ->methods(['GET']);
 };
