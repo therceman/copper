@@ -917,7 +917,7 @@ trait $annotationTraitName
     
     /** @return {$entity}[] 
      * @see \Copper\Component\DB\DBModel::doSelectByIdList() */
-    public function doSelectByIdList(array \$idList)
+    public function doSelectByIdList(array \$idList, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }

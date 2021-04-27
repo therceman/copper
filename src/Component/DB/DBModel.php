@@ -652,12 +652,13 @@ abstract class DBModel
 
     /**
      * @param array $idList
+     * @param DBSelect|null $select
      *
      * @return AbstractEntity[]
      */
-    public function doSelectByIdList(array $idList)
+    public function doSelectByIdList(array $idList, DBSelect $select = null)
     {
-        return $this->doSelectWhereIs(DBModel::ID, $idList);
+        return $this->doSelectWhereIs(DBModel::ID, $idList, $select);
     }
 
     /**
