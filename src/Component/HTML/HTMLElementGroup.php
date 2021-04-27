@@ -193,6 +193,14 @@ abstract class HTMLElementGroup
     /**
      * @return string
      */
+    public function toString()
+    {
+        return $this->__toString();
+    }
+
+    /**
+     * @return string
+     */
     public function __toString()
     {
         if ($this->toggle === false)
