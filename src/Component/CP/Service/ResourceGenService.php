@@ -436,7 +436,7 @@ XML;
         $reorderedFields = [];
 
         foreach ($fields as $field) {
-            $foundNewField = ArrayHandler::assocFindFirst($newFields, ['name' => $field['name']]);
+            $foundNewField = ArrayHandler::assocFindStrictFirst($newFields, ['name' => $field['name']]);
 
             if ($foundNewField !== null)
                 $reorderedFields[] = $foundNewField;

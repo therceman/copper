@@ -84,19 +84,19 @@ class TestCore
         if ($res !== false)
             return $response->fail("Item should not be matched", $res);
 
-        $res = ArrayHandler::assocFind($assocArray, ['id' => 2]);
+        $res = ArrayHandler::assocFindStrict($assocArray, ['id' => 2]);
         if ($res[0]['title'] !== 'b')
             return $response->fail("Matched entry title should be: b", $res);
 
-        $res = ArrayHandler::assocFind($assocArrayOfObjects, ['id' => 2]);
+        $res = ArrayHandler::assocFindStrict($assocArrayOfObjects, ['id' => 2]);
         if ($res[0]->title !== 'b')
             return $response->fail("Matched entry title should be: b", $res);
 
-        $res = ArrayHandler::assocFind($assocArrayOfObjects, ['tag' => 'qwe']);
+        $res = ArrayHandler::assocFindStrict($assocArrayOfObjects, ['tag' => 'qwe']);
         if (count($res) !== 2 && ($res[1]->mark !== 10))
             return $response->fail("Matched entry count should be 2 and last matched entry mark should be 10", $res);
 
-        $res = ArrayHandler::assocFind($assocArrayOfObjects, ['tag' => 'qwe', 'mark' => 10]);
+        $res = ArrayHandler::assocFindStrict($assocArrayOfObjects, ['tag' => 'qwe', 'mark' => 10]);
         if (count($res) !== 1 && ($res[0]->title !== 'c'))
             return $response->fail("Matched entry count should be 1 and last matched entry title should be c", $res);
 
@@ -136,11 +136,11 @@ class TestCore
         if ($res !== ['a', 'b', 'c', 'd'])
             return $response->fail("Result should be ['a','b','c','d']", $res);
 
-        $res = CollectionHandler::find($collection, ['tag' => 'qwe']);
+        $res = CollectionHandler::findStrict($collection, ['tag' => 'qwe']);
         if (count($res) !== 2 && ($res[1]->mark !== 10))
             return $response->fail("Matched entry count should be 2 and last matched entry mark should be 10", $res);
 
-        $res = CollectionHandler::findFirst($collection, ['tag' => 'qwe']);
+        $res = CollectionHandler::findStrictFirst($collection, ['tag' => 'qwe']);
         if ($res->title !== 'a')
             return $response->fail("Matched entry title should be: a", $res);
 

@@ -45,14 +45,25 @@ class CollectionHandler
     }
 
     /**
+     * @param array $collection
+     * @param \Closure $closure
+     *
+     * @return mixed[]
+     */
+    public static function find(array $collection, \Closure $closure)
+    {
+        return ArrayHandler::find($collection, $closure);
+    }
+
+    /**
      * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
      *
      * @return mixed[]
      */
-    public static function find(array $collection, array $filter)
+    public static function findStrict(array $collection, array $filter)
     {
-        return ArrayHandler::assocFind($collection, $filter);
+        return ArrayHandler::assocFindStrict($collection, $filter);
     }
 
     /**
@@ -62,16 +73,24 @@ class CollectionHandler
      *
      * @return AbstractEntity|object|null
      */
-    public static function findFirst(array $collection, array $filter, $default = null)
+    public static function findStrictFirst(array $collection, array $filter, $default = null)
     {
-        $matches = self::find($collection, $filter);
+        $matches = self::findStrict($collection, $filter);
 
         return (count($matches) > 0) ? $matches[0] : $default;
     }
 
+    /**
+     * @param array $collection
+     * @param string $key
+     * @param mixed $value
+     * @param AbstractEntity|object|null $default
+     *
+     * @return AbstractEntity|object|null
+     */
     public static function findFirstBy(array $collection, string $key, $value, $default = null)
     {
-        return self::findFirst($collection, [$key => $value], $default);
+        return self::findStrictFirst($collection, [$key => $value], $default);
     }
 
     /**

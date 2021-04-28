@@ -134,22 +134,22 @@ class ArrayHandler
      * })
      *
      * @param array $array
-     * @param Closure $closure
+     * @param \Closure $closure
      *
      * @return array
      */
-    public static function find(array $array, Closure $closure)
+    public static function find(array $array, \Closure $closure)
     {
         return array_filter($array, $closure, ARRAY_FILTER_USE_BOTH);
     }
 
     /**
      * @param array $array
-     * @param Closure $closure
+     * @param \Closure $closure
      *
      * @return mixed|null
      */
-    public static function findFirst(array $array, Closure $closure)
+    public static function findFirst(array $array, \Closure $closure)
     {
         $match_list = self::find($array, $closure);
 
@@ -158,11 +158,11 @@ class ArrayHandler
 
     /**
      * @param array $array
-     * @param Closure $closure
+     * @param \Closure $closure
      *
      * @return mixed|null
      */
-    public static function findLast(array $array, Closure $closure)
+    public static function findLast(array $array, \Closure $closure)
     {
         $match_list = self::find($array, $closure);
 
@@ -502,7 +502,7 @@ class ArrayHandler
      *
      * @return array
      */
-    public static function assocFind(array $array, array $filter)
+    public static function assocFindStrict(array $array, array $filter)
     {
         $list = [];
 
@@ -521,9 +521,9 @@ class ArrayHandler
      *
      * @return array|null
      */
-    public static function assocFindFirst(array $array, array $filter, $default = null)
+    public static function assocFindStrictFirst(array $array, array $filter, $default = null)
     {
-        $matches = self::assocFind($array, $filter);
+        $matches = self::assocFindStrict($array, $filter);
 
         return (count($matches) > 0) ? $matches[0] : $default;
     }

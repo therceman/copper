@@ -650,7 +650,7 @@ if ($resource !== null) {
             </div>
             <div>
                 <?php
-                $action_list = ArrayHandler::assocFind($route_action_list, ['used' => false]);
+                $action_list = ArrayHandler::assocFindStrict($route_action_list, ['used' => false]);
                 echo HTML::selectCollection($action_list, "name", "name_with_params", "action_select")
                     ->class('action_select')
                     ->addInnerElementBefore(HTML::option('Select unused action from controller ...'))

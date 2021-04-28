@@ -12,6 +12,8 @@ class DBSelect
     private $where;
     /** @var string[]|null */
     private $columns;
+    /** @var string[]|null */
+    private $ignoredColumns;
     /** @var DBOrder|null */
     private $order;
     /** @var int|null */
@@ -27,6 +29,7 @@ class DBSelect
     {
         $this->where = null;
         $this->columns = null;
+        $this->ignoredColumns = null;
         $this->order = null;
         $this->limit = null;
         $this->offset = null;
@@ -56,6 +59,18 @@ class DBSelect
         $params = new DBSelect();
 
         return $params->setColumns($columns);
+    }
+
+    /**
+     * @param string|string[]|null $columns
+     *
+     * @return DBSelect
+     */
+    public static function ignoreColumns($columns): DBSelect
+    {
+        $params = new DBSelect();
+
+        return $params->setIgnoredColumns($columns);
     }
 
     /**
@@ -119,11 +134,10 @@ class DBSelect
     }
 
     /**
-     * @param string|string[]|null $columns
-     *
-     * @return DBSelect
+     * @param $columns
+     * @return mixed
      */
-    public function setColumns($columns): DBSelect
+    private function prepareColumns($columns)
     {
         if ($columns !== null) {
             $columns = (is_array($columns) === false) ? [$columns] : $columns;
@@ -133,7 +147,29 @@ class DBSelect
             });
         }
 
-        $this->columns = $columns;
+        return $columns;
+    }
+
+    /**
+     * @param string|string[]|null $columns
+     *
+     * @return DBSelect
+     */
+    public function setColumns($columns): DBSelect
+    {
+        $this->columns = $this->prepareColumns($columns);
+
+        return $this;
+    }
+
+    /**
+     * @param string|string[]|null $columns
+     *
+     * @return DBSelect
+     */
+    public function setIgnoredColumns($columns): DBSelect
+    {
+        $this->ignoredColumns = $this->prepareColumns($columns);
 
         return $this;
     }
@@ -213,6 +249,14 @@ class DBSelect
     public function getColumns()
     {
         return $this->columns;
+    }
+
+    /**
+     * @return string[]|null
+     */
+    public function getIgnoredColumns()
+    {
+        return $this->ignoredColumns;
     }
 
     /**

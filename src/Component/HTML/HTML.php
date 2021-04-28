@@ -396,7 +396,7 @@ class HTML
     {
         $checkboxEl = HTML::input($name)->type('checkbox')->autocomplete()->spellcheck();
 
-        if ($checked !== false)
+        if ($checked === true)
             $checkboxEl->setAttr('checked', true);
 
         return $checkboxEl;

@@ -89,12 +89,12 @@ abstract class DBModel
         return $foundField;
     }
 
-    public function getFieldNames()
+    public function getFieldNames($escaped = false)
     {
         $names = [];
 
         foreach ($this->fields as $field) {
-            $names[] = $field->getName();
+            $names[] = $escaped ? '`' . DBModel::formatFieldName($field->getName()) . '`' : $field->getName();
         }
 
         return $names;
@@ -452,11 +452,18 @@ abstract class DBModel
             return $stm;
 
         $columns = $select->getColumns();
+        $ignoredColumns = $select->getIgnoredColumns();
         $limit = $select->getLimit();
         $group = $select->getGroup();
         $offset = $select->getOffset();
         $where = $select->getWhere();
         $order = $select->getOrder();
+
+        if ($columns !== null && $ignoredColumns !== null)
+            $columns = ArrayHandler::diff($columns, $ignoredColumns);
+
+        if ($ignoredColumns !== null)
+            $columns = ArrayHandler::diff($this->getFieldNames(true), $ignoredColumns);;
 
         if ($limit !== null)
             $stm = $stm->limit($limit);

@@ -158,15 +158,17 @@ class HTMLCheckboxGroup extends HTMLElementGroup
 
         $id = ($this->id === null) ? 'checkbox_' . $name : $this->id;
 
+        $checked = ($this->checked === false) ? null : true;
+
         if ($this->inputHiddenElement === null)
             $this->inputHiddenElement = HTML::inputHidden($name, 0);
         else
             $this->inputHiddenElement->name($name);
 
         if ($this->inputCheckboxElement === null)
-            $this->inputCheckboxElement = HTML::inputCheckbox($name, $this->checked)->value(1)->id($id);
+            $this->inputCheckboxElement = HTML::inputCheckbox($name, $checked)->value(1)->id($id);
         else
-            $this->inputCheckboxElement->id($id)->name($name)->setAttr('checked', $this->checked);
+            $this->inputCheckboxElement->id($id)->name($name)->setAttr('checked', $checked);
 
         if ($this->labelElement === null)
             $this->labelElement = HTML::label($this->label, $id);
