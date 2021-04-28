@@ -20,9 +20,8 @@ class Pagination
     public static function calcPageCount(int $item_count, int $page_item_count)
     {
         $page_count = NumberHandler::round($item_count / $page_item_count, 0);
-        $page_count_remainder = NumberHandler::divisionRemainder($item_count, $page_item_count);
 
-        return ($page_count_remainder > 0 && ($page_item_count * 2 < $item_count)) ? $page_count + 1 : $page_count;
+        return ($page_count * $page_item_count) > $item_count ? $page_count : $page_count + 1;
     }
 
     /**
