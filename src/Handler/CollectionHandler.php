@@ -56,6 +56,31 @@ class CollectionHandler
     }
 
     /**
+     * Return number of items in collection
+     *
+     * @param array $collection
+     *
+     * @return int
+     */
+    public static function count(array $collection)
+    {
+        return ArrayHandler::count($collection);
+    }
+
+    /**
+     * Find in collection and return number of found entities
+     *
+     * @param array $collection
+     * @param \Closure $closure
+     *
+     * @return int
+     */
+    public static function findCount(array $collection, \Closure $closure)
+    {
+        return ArrayHandler::findCount($collection, $closure);
+    }
+
+    /**
      * @param AbstractEntity[]|object[] $collection
      * @param array $filter Key->Value pairs
      *

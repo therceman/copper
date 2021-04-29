@@ -363,6 +363,9 @@ class ViewHandler
             return $this->error('Template [' . $template . $this::TEMPLATES_EXTENSION . '] not found.');
         }
 
+        // this will shorten initialization of $view in template. E.g. <?php global $view
+        $GLOBALS['view'] = $this;
+
         // eval is used to disable errors about Dynamic Require and Undefined Variables
         eval('$view = $this; require $templateFilePath;');
 

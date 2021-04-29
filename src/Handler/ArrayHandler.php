@@ -144,6 +144,30 @@ class ArrayHandler
     }
 
     /**
+     * Return number of items in array
+     *
+     * @param array $array
+     * @return mixed
+     */
+    public static function count(array $array)
+    {
+        return count($array);
+    }
+
+    /**
+     * Find in array and return number of found results
+     *
+     * @param array $array
+     * @param \Closure $closure
+     *
+     * @return int
+     */
+    public static function findCount(array $array, \Closure $closure)
+    {
+        return self::count(self::find($array, $closure));
+    }
+
+    /**
      * @param array $array
      * @param \Closure $closure
      *
