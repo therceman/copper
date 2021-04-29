@@ -393,7 +393,43 @@ class TestDB
         if ($entityList[0]->id !== 2)
             return $response->fail('[is] User List first entry should be with ID 2', $entityList[0]);
 
-        // not
+        // is (array)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::is(TestDBModel::ID, [2,3,4])
+        );
+
+        if ($entityList[0]->id !== 2)
+            return $response->fail('[is array] User List first entry should be with ID 2', $entityList[0]);
+
+        // is (empty array)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::is(TestDBModel::ID, [])
+        );
+
+        if (count($entityList) !== 0)
+            return $response->fail('[is empty array] User List count should be 0', $entityList);
+
+        // in (array)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::in(TestDBModel::ID, [2,3,4])
+        );
+
+        if ($entityList[0]->id !== 2)
+            return $response->fail('[in array] User List first entry should be with ID 2', $entityList[0]);
+
+        // in (empty array)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::in(TestDBModel::ID, [])
+        );
+
+        if (count($entityList) !== 0)
+            return $response->fail('[in empty array] User List count should be 0', $entityList);
+
+        // not (value)
 
         $entityList = TestDBService::find($this->db,
             DBWhere::not(TestDBModel::NAME, null)
@@ -401,6 +437,51 @@ class TestDB
 
         if ($entityList[0]->id !== 2)
             return $response->fail('[not] User List first entry should be with ID 2', $entityList[0]);
+
+        // not (array of values)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::not(TestDBModel::ID, [1,2,3,4,5])
+        );
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('[not array] User List first entry should be with ID 6', $entityList[0]);
+
+        // not (single value)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::not(TestDBModel::ID, 1)
+        );
+
+        if ($entityList[0]->id !== 2)
+            return $response->fail('[not array] User List first entry should be with ID 2', $entityList[0]);
+
+        // notIn (array of values)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::notIn(TestDBModel::ID, [1,2,3,4,5])
+        );
+
+        if ($entityList[0]->id !== 6)
+            return $response->fail('[notIn array] User List first entry should be with ID 6', $entityList[0]);
+
+        // not (empty array)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::not(TestDBModel::ID, []), 50, 0, false, true
+        );
+
+        if (count($entityList) !== 6)
+            return $response->fail('[not empty array] User List count should be with 6', $entityList);
+
+        // notIn (empty array)
+
+        $entityList = TestDBService::find($this->db,
+            DBWhere::notIn(TestDBModel::ID, []), 50, 0, false, true
+        );
+
+        if (count($entityList) !== 6)
+            return $response->fail('[not empty array] User List count should be with 6', $entityList);
 
         // lt
 

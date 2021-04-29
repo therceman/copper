@@ -660,7 +660,7 @@ class DBWhere
 
             $condStr = $this->getConditionString($field, $cond->cond, $value);
 
-            if ($cond->cond === self::NOT && $value !== null)
+            if ($cond->cond === self::NOT && $value !== null && is_array($value) === false)
                 $value = [$value];
 
             if (in_array($cond->cond, [
@@ -676,6 +676,12 @@ class DBWhere
 
                 continue;
             }
+
+            if (is_array($value) && count($value) === 0 && in_array($cond->cond, [self::NOT, self::NOT_IN]))
+                $condStr = '1 = 1';
+
+            if (is_array($value) && count($value) === 0 && in_array($cond->cond, [self::IS, self::IN]))
+                $condStr = '1 = 2';
 
             if ($cond->chain === self::CHAIN_OR)
                 $stm->whereOr($condStr, $value);
