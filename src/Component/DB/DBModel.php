@@ -7,8 +7,8 @@ namespace Copper\Component\DB;
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\CollectionHandler;
 use Copper\Kernel;
-use DateTime;
 use Envms\FluentPDO\Exception;
 use Envms\FluentPDO\Queries\Select;
 
@@ -660,6 +660,28 @@ abstract class DBModel
         }
 
         return $list;
+    }
+
+    /**
+     * Select by collection value list
+     * <hr>
+     * <code>
+     * $productCollection = [
+     *  (object) ["id" => 1, "name" => "Milk", "brand_id" => 5],
+     *  (object) ["id" => 2, "name" => "Cheese", "brand_id" => 7]
+     * ];
+     * // Select all records from brand table where ID equals to 5 or 7
+     * - Brand::getModel()->doSelectByValueList($productCollection, "brand_id")
+     * </code>
+     * @param array $collection
+     * @param string $field
+     * @param DBSelect|null $select
+     *
+     * @return AbstractEntity[]
+     */
+    public function doSelectByValueList(array $collection, string $field, DBSelect $select = null)
+    {
+        return $this->doSelectWhereIs(DBModel::ID, CollectionHandler::valueList($collection, $field), $select);
     }
 
     /**
