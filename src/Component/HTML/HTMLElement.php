@@ -22,11 +22,13 @@ class HTMLElement
 
     // start tag only / self closing
 
+    const META = 'meta';
     const INPUT = 'input';
     const IMG = 'img';
 
     // with end tag
 
+    const TITLE = 'title';
     const SVG = 'svg';
     const DIV = 'div';
     const A = 'a';

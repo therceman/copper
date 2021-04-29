@@ -2,6 +2,17 @@
 
 namespace PHPSTORM_META {
 
+    expectedArguments(
+        \Copper\Component\HTML\HTML::meta(),
+        0,
+        'application-name',
+        'author',
+        'description',
+        'generator',
+        'keywords',
+        'viewport',
+    );
+
     /** @var \Copper\Component\Templating\ViewHandler $view */
     $view = null;
 

@@ -5,6 +5,16 @@ namespace Copper;
 
 class AppConfigurator
 {
+    /** @var bool Enable Development Mode.
+     * <hr>
+     * On Application Start:
+     * <br>
+     * <code>
+     * - generate .phpstorm.meta.php (template name, assets autocomplete)
+     * </code>
+     */
+    public $dev_mode;
+
     /** @var bool Enable error view template with detailed description */
     public $error_view;
     /** @var bool Error view route */

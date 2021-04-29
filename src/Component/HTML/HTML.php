@@ -4,8 +4,6 @@
 namespace Copper\Component\HTML;
 
 
-use Copper\Handler\ArrayHandler;
-use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
 
 /**
@@ -14,6 +12,36 @@ use Copper\Handler\StringHandler;
  */
 class HTML
 {
+    /**
+     * @param $text
+     *
+     * @return HTMLElement
+     */
+    public static function title($text)
+    {
+        $el = new HTMLElement(HTMLElement::TITLE);
+
+        $el->innerText($text);
+
+        return $el;
+    }
+
+    /**
+     * @param $name
+     * @param null $content
+     *
+     * @return HTMLElement
+     */
+    public static function meta($name, $content = null)
+    {
+        $el = new HTMLElement(HTMLElement::META);
+
+        $el->setAttr('name', $name);
+        $el->setAttr('content', $content);
+
+        return $el;
+    }
+
     /**
      * @param array $selectors
      *

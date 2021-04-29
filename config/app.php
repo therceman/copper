@@ -6,6 +6,8 @@ use Copper\Kernel;
 
 return function (AppConfigurator $app) {
 
+    $app->dev_mode = false; // TODO
+
     $app->error_view = true;
     $app->error_view_route = 'error';
     $app->error_view_route_redirect = true;
