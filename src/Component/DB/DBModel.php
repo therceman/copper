@@ -673,7 +673,7 @@ abstract class DBModel
      * // Select all records from brand table where ID equals to 5 or 7
      * - Brand::getModel()->doSelectByValueList($productCollection, "brand_id")
      * </code>
-     * @param array $collection
+     * @param AbstractEntity[] $collection
      * @param string $field
      * @param DBSelect|null $select
      *
@@ -685,6 +685,12 @@ abstract class DBModel
     }
 
     /**
+     * Select by id list
+     * <hr>
+     * <code>
+     * // Select all records from brand table where ID equals to 1 or 2
+     * - Brand::getModel()->doSelectByIdList([1, 2])
+     * </code>
      * @param array $idList
      * @param DBSelect|null $select
      *
@@ -696,6 +702,12 @@ abstract class DBModel
     }
 
     /**
+     * Select by id
+     * <hr>
+     * <code>
+     * // Select first record from brand table where ID equals to 1
+     * - Brand::getModel()->doSelectById(1)
+     * </code>
      * @param string|int $id
      * @param array $columns
      *

@@ -101,7 +101,7 @@ class ArrayHandler
      *
      * @return array
      */
-    public static function uniqueValues(array $array, $strict = true)
+    public static function uniqueValues(array $array, $strict = false)
     {
         $uniqueValues = [];
 
@@ -364,7 +364,7 @@ class ArrayHandler
      *
      * @return bool
      */
-    public static function hasValue(array $array, $value, $strict = true)
+    public static function hasValue(array $array, $value, $strict = false)
     {
         $key = array_search($value, $array, $strict);
 
