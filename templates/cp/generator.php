@@ -669,13 +669,13 @@ if ($resource !== null) {
             <button id="delete_res">Delete</button>
             <div id="delete_popup" class="hidden">
                 <p>Files To Delete: </p>
-                <?= HTML::checkboxGroup('Resource', false, null, 'delete_resource', false) ?>
-                <?= HTML::checkboxGroup('Entity', false, null, 'delete_entity', false) ?>
-                <?= HTML::checkboxGroup('Model', false, null, 'delete_model', false) ?>
-                <?= HTML::checkboxGroup('Service', false, null, 'delete_service', false) ?>
-                <?= HTML::checkboxGroup('Controller', false, null, 'delete_controller', false) ?>
-                <?= HTML::checkboxGroup('Seed', false, null, 'delete_seed', false) ?>
-                <?= HTML::checkboxGroup('DB Table', false, null, 'delete_table', false) ?>
+                <?= HTML::checkboxGroup('Resource', false, null, 'delete_resource') ?>
+                <?= HTML::checkboxGroup('Entity', false, null, 'delete_entity') ?>
+                <?= HTML::checkboxGroup('Model', false, null, 'delete_model') ?>
+                <?= HTML::checkboxGroup('Service', false, null, 'delete_service') ?>
+                <?= HTML::checkboxGroup('Controller', false, null, 'delete_controller') ?>
+                <?= HTML::checkboxGroup('Seed', false, null, 'delete_seed') ?>
+                <?= HTML::checkboxGroup('DB Table', false, null, 'delete_table') ?>
                 <div style="text-align: right;margin-top: 15px">
                     <button id="delete_confirm">Confirm</button>
                     <button id="delete_cancel" style="float: left">Cancel</button>
@@ -734,12 +734,12 @@ if ($resource !== null) {
     <div style="clear: both"></div>
     <div style="margin-top: 10px;">
         <span>Files To Create: </span>
-        <?= HTML::checkboxGroup('Resource', ($resourceName !== ''), null, 'create_resource', false) ?>
-        <?= HTML::checkboxGroup('Entity', ($entityName !== ''), null, 'create_entity', false) ?>
-        <?= HTML::checkboxGroup('Model', ($modelName !== ''), null, 'create_model', false) ?>
-        <?= HTML::checkboxGroup('Service', ($serviceName !== ''), null, 'create_service', false) ?>
-        <?= HTML::checkboxGroup('Controller', ($controllerName !== ''), null, 'create_controller', false) ?>
-        <?= HTML::checkboxGroup('Seed', ($seedName !== ''), null, 'create_seed', false) ?>
+        <?= HTML::checkboxGroup('Resource', ($resourceName !== ''), null, 'create_resource') ?>
+        <?= HTML::checkboxGroup('Entity', ($entityName !== ''), null, 'create_entity') ?>
+        <?= HTML::checkboxGroup('Model', ($modelName !== ''), null, 'create_model') ?>
+        <?= HTML::checkboxGroup('Service', ($serviceName !== ''), null, 'create_service') ?>
+        <?= HTML::checkboxGroup('Controller', ($controllerName !== ''), null, 'create_controller') ?>
+        <?= HTML::checkboxGroup('Seed', ($seedName !== ''), null, 'create_seed') ?>
     </div>
     <div style="margin-top: -20px; float:right">
         <span>Files To Override: </span>

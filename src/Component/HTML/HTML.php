@@ -641,7 +641,7 @@ class HTML
      *
      * @return HTMLCheckboxGroup
      */
-    public static function checkboxGroup(string $label, $checked = false, string $name = null, $id = null, $falseValue = true)
+    public static function checkboxGroup(string $label, $checked = false, string $name = null, $id = null, $falseValue = false)
     {
         $group = new HTMLCheckboxGroup($label);
 

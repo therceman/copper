@@ -70,7 +70,7 @@ class HTMLCheckboxGroup extends HTMLElementGroup
      *
      * @return HTMLCheckboxGroup
      */
-    public function falseValue(bool $bool)
+    public function falseValue(bool $bool = true)
     {
         $this->falseValue = $bool;
 

@@ -23,7 +23,7 @@ $show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
 
 $undoId = $view->flashMessage->get('undo_id', 0);
 
-$field_names = ArrayHandler::removeKeys($model->getFieldNames(), $model::REMOVED_AT);
+$field_names = ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT);
 
 // ----------------------- Routes -----------------------
 

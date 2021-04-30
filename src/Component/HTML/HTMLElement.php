@@ -537,6 +537,8 @@ class HTMLElement
      */
     public function addElementGroup(HTMLElementGroup $elGroup)
     {
+        $elGroup->build();
+
         foreach ($elGroup->getList() as $el)
             $this->addElement($el);
 
