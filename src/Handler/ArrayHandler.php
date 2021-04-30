@@ -6,6 +6,10 @@ namespace Copper\Handler;
 
 use Copper\Entity\AbstractEntity;
 
+/**
+ * Class ArrayHandler
+ * @package Copper\Handler
+ */
 class ArrayHandler
 {
     /**

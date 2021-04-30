@@ -8,8 +8,30 @@ use Copper\Component\DB\DBModel;
 use Copper\Kernel;
 use Copper\Transliterator;
 
+/**
+ * Class StringHandler
+ * @package Copper\Handler
+ */
 class StringHandler
 {
+
+    /**
+     * Explode/Split string by delimiter
+     *
+     * @param string $str
+     * @param string $delimiter
+     *
+     * @return string[]
+     */
+    public static function explode(string $str, string $delimiter = ',')
+    {
+        if (strlen(self::trim($str)) === 0)
+            return [];
+
+        $res = explode(',', $str);
+
+        return ($res === false) ? [] : $res;
+    }
 
     /**
      * @param string $str
