@@ -2,9 +2,11 @@
 
 namespace Copper\Component\Templating;
 
+use Copper\AppConfigurator;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Handler\ArrayHandler;
+use Copper\Kernel;
 use Copper\RequestTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +35,13 @@ class ViewHandler
 
     /** @var AuthHandler */
     public $auth;
+
+    /**
+     * App Config
+     *
+     * @var AppConfigurator
+     */
+    public $appConfig;
 
     /**
      * Route parameters (/{page}).
@@ -126,6 +135,8 @@ class ViewHandler
      */
     function __construct(Request $request, RequestContext $requestContext, RouteCollection $routes, FlashMessageHandler $flashMessage, AuthHandler $auth, array $parameters)
     {
+        $this->appConfig = Kernel::getApp()->config;
+
         $this->requestContext = $requestContext;
         $this->routes = $routes;
 

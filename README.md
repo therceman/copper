@@ -1,4 +1,4 @@
-Copper is a **PHP Framework** based on [Symfony][1] that is mainly focused on simplicity and development speed
+Copper is a **PHP Framework** that is mainly focused on simplicity and development speed
 
 ---
 
@@ -241,7 +241,6 @@ Controller module :: Methods and Classes
     * `$this->routes` - default instance
 
 [0]: https://github.com/rceman/copper_skeleton
-[1]: https://symfony.com
 [2]: https://github.com/symfony/routing/blob/3.4/Loader/Configurator/RoutingConfigurator.php
 [3]: https://github.com/rceman/copper/blob/master/src/Component/Templating/ViewOutput.php
 [4]: https://github.com/symfony/http-foundation/blob/3.4/ParameterBag.php

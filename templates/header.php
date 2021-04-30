@@ -1,13 +1,22 @@
-<?php /** @var \Copper\Component\Templating\ViewHandler $view */ ?>
+<?php global $view;
+
+use Copper\Component\HTML\HTML;
+
+$title = $view->dataBag->get('title', $view->appConfig->title);
+$description = $view->dataBag->get('description', $view->appConfig->description);
+$author = $view->dataBag->get('author', $view->appConfig->author);
+$keywords = $view->dataBag->get('keywords', $view->appConfig->bag->get('keywords'));
+
+?>
 
     <!doctype html>
     <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title><?= $view->out($view->dataBag->get('head_title', 'Copper PHP Framework')) ?></title>
-    <meta name="description"
-          content="<?= $view->out($view->dataBag->get('head_meta_description', 'Copper is a PHP Framework based on Symfony')) ?>">
-    <meta name="author" content="<?= $view->out($view->dataBag->get('head_meta_author', 'rceman')) ?>">
+    <title><?= $view->out($title) ?></title>
+    <?= HTML::meta('description', $description) ?>
+    <?= HTML::meta('author', $author) ?>
+    <?= HTML::meta('keywords', $keywords) ?>
     <style>
         body {
             background-color: #fff;
@@ -32,7 +41,7 @@
     </style>
     <style>
         .text_success {
-            color: #007bff!important
+            color: #007bff !important
         }
 
         .text_error {
@@ -48,7 +57,7 @@
         }
 
         .bg_success {
-            background: #007bff!important;
+            background: #007bff !important;
             color: #fff;
         }
 
