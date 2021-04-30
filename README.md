@@ -14,7 +14,7 @@ Developed and Maintained by **Anton (therceman)** - Web Developer and Security R
 - Reddit - https://www.reddit.com/user/therceman
 - Medium - https://medium.com/@therceman
 - Bugcrowd - https://bugcrowd.com/therceman
-- HackerOne - https://hackerone.com/rceman
+- HackerOne - https://hackerone.com/therceman
 
 -----------
 Documentation For v1.0
