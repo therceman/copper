@@ -8,9 +8,9 @@ Versions:
 
 ---
 
-Deveoped and Maintained by **rceman** - Web Developer and Security Researcher / Bug Bounty Hunter
+Developed and Maintained by **Anton (therceman)** - Web Developer and Security Researcher / Bug Bounty Hunter
 - Twitter - https://twitter.com/therceman
-- Stack Overflow - https://stackoverflow.com/users/15412739/rceman
+- Stack Overflow - https://stackoverflow.com/users/15412739/therceman
 - Reddit - https://www.reddit.com/user/therceman
 - Medium - https://medium.com/@therceman
 - Bugcrowd - https://bugcrowd.com/rceman
@@ -130,7 +130,7 @@ class HomeController extends AbstractController
 }
 ```
 
-create file **`/config/routes.php`**
+create afile **`/config/routes.php`**
 ```
 <?php
 

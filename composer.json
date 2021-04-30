@@ -1,7 +1,7 @@
 {
   "name": "rceman/copper",
   "description": "The Copper PHP Framework",
-  "keywords": ["framework"],
+  "keywords": ["php", "framework"],
   "license": "MIT",
   "require": {
     "php": ">=7.0",
@@ -15,7 +15,7 @@
   },
   "authors": [
     {
-      "name": "rceman"
+      "name": "Anton (therceman)"
     }
   ],
   "autoload": {
