@@ -29,7 +29,8 @@ class AppConfigurator
      * - bag->set('tags', ['Blog', 'Tech', 'Web Development'])
      * - bag->get('tags')
      * </code>
-     * @var ParameterBag */
+     * @var ParameterBag
+     */
     public $bag;
 
     /** @var bool Enable error view template with detailed description */
@@ -46,4 +47,9 @@ class AppConfigurator
     public $error_log_format;
     /** @var string Error logging file path */
     public $error_log_filepath;
+
+    public function __construct()
+    {
+        $this->bag = new ParameterBag();
+    }
 }
