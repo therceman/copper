@@ -3,8 +3,8 @@ Copper is a **PHP Framework** that is mainly focused on simplicity and developme
 ---
 
 Versions:
-- v1.0 - https://github.com/rceman/copper/tree/v1.0.13
-- v2.0 - https://github.com/rceman/copper (Work In Progress, No Manual/Readme/Documentation yet)
+- v1.0 - https://github.com/therceman/copper/tree/v1.0.13
+- v2.0 - https://github.com/therceman/copper (Work In Progress, No Manual/Readme/Documentation yet)
 
 ---
 
@@ -13,7 +13,7 @@ Developed and Maintained by **Anton (therceman)** - Web Developer and Security R
 - Stack Overflow - https://stackoverflow.com/users/15412739/therceman
 - Reddit - https://www.reddit.com/user/therceman
 - Medium - https://medium.com/@therceman
-- Bugcrowd - https://bugcrowd.com/rceman
+- Bugcrowd - https://bugcrowd.com/therceman
 - HackerOne - https://hackerone.com/rceman
 
 -----------
@@ -240,9 +240,9 @@ Controller module :: Methods and Classes
   * Instances
     * `$this->routes` - default instance
 
-[0]: https://github.com/rceman/copper_skeleton
+[0]: https://github.com/therceman/copper_skeleton
 [2]: https://github.com/symfony/routing/blob/3.4/Loader/Configurator/RoutingConfigurator.php
-[3]: https://github.com/rceman/copper/blob/master/src/Component/Templating/ViewOutput.php
+[3]: https://github.com/therceman/copper/blob/master/src/Component/Templating/ViewOutput.php
 [4]: https://github.com/symfony/http-foundation/blob/3.4/ParameterBag.php
 [5]: https://github.com/symfony/http-foundation/blob/3.4/Request.php
 [6]: https://github.com/symfony/routing/blob/3.4/RequestContext.php
