@@ -9,12 +9,13 @@ Versions:
 ---
 
 Developed and Maintained by **Anton (therceman)** - Web Developer and Security Researcher / Bug Bounty Hunter
-- Twitter - https://twitter.com/therceman
-- Stack Overflow - https://stackoverflow.com/users/15412739/therceman
-- Reddit - https://www.reddit.com/user/therceman
-- Medium - https://medium.com/@therceman
-- Bugcrowd - https://bugcrowd.com/therceman
-- HackerOne - https://hackerone.com/therceman
+
+[![Twitter](https://img.shields.io/badge/Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/therceman)
+[![Bugcrowd](https://img.shields.io/badge/bugcrowd-%23F26822.svg?&style=for-the-badge&logo=bugcrowd&logoColor=white)](https://bugcrowd.com/therceman)
+[![HackerOne](https://img.shields.io/badge/hackerone-%23494649.svg?&style=for-the-badge&logo=hackerone&logoColor=white)](https://hackerone.com/therceman)
+[![StackOverflow](https://img.shields.io/badge/Stack_Overflow-FE7A16?style=for-the-badge&logo=stack-overflow&logoColor=white)](https://stackoverflow.com/users/15412739/therceman)
+[![Medium](https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@therceman)
+[![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=for-the-badge&logo=reddit&logoColor=white)](https://www.reddit.com/user/therceman)
 
 -----------
 Documentation For v1.0
