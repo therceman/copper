@@ -10,7 +10,7 @@ $seed_url = $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION
 $entity_list = $view->dataBag->get('entity_list');
 ?>
 
-<?= $view->render('header') ?>
+<?= $view->render('cp/header') ?>
 
 <body class="markdown-body">
 <h4>Welcome to Copper <b>Control Panel</b>!</h4>

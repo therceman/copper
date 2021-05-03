@@ -4,34 +4,26 @@
 namespace Copper;
 
 
+use Copper\Traits\ComponentHandlerTrait;
+
 class App
 {
+    use ComponentHandlerTrait;
+
     /** @var AppConfigurator */
     public $config;
 
     /**
      * App constructor.
      *
-     * @param AppConfigurator $projectConfig
-     * @param AppConfigurator $packageConfig
+     * @param string $configFilename
      */
-    public function __construct(AppConfigurator $packageConfig, AppConfigurator $projectConfig = null)
+    public function __construct(string $configFilename)
     {
-        $this->config = $this->mergeConfig($packageConfig, $projectConfig);
+        $this->config = $this->configure(AppConfigurator::class, $configFilename);
+
+        if ($this->config->timezone !== false)
+            date_default_timezone_set($this->config->timezone);
     }
 
-    private function mergeConfig(AppConfigurator $packageConfig, AppConfigurator $projectConfig = null)
-    {
-        if ($projectConfig === null)
-            return $packageConfig;
-
-        $vars = get_object_vars($projectConfig);
-
-        foreach ($vars as $key => $value) {
-            if ($value !== null || trim($value) !== "")
-                $packageConfig->$key = $value;
-        }
-
-        return $packageConfig;
-    }
 }

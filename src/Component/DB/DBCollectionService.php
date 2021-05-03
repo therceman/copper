@@ -6,6 +6,7 @@ namespace Copper\Component\DB;
 
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
+use Copper\Handler\DateHandler;
 use Envms\FluentPDO\Exception;
 
 abstract class DBCollectionService
@@ -225,7 +226,7 @@ abstract class DBCollectionService
             return $hasFieldsResponse;
 
         return static::update($db, $id, [
-            DBModel::REMOVED_AT => DBHandler::datetime(),
+            DBModel::REMOVED_AT => DateHandler::dateTime(),
             DBModel::ENABLED => false
         ]);
     }

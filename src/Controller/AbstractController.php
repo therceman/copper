@@ -96,18 +96,6 @@ class AbstractController
         return new Response($this->renderView($view, $parameters));
     }
 
-    public function viewError($parameters = [])
-    {
-        $error_view_data = json_decode($this->flashMessage->get('error_view_data', '[]'), true);
-
-        $parameters = ArrayHandler::merge($error_view_data, $parameters);
-
-        if (count($parameters) === 0)
-            return $this->redirectToRoute(ROUTE_index);
-
-        return new Response($this->renderView(Kernel::getApp()->config->error_view_default_template, $parameters));
-    }
-
     /**
      * Returns a rendered view.
      *

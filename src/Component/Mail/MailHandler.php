@@ -4,12 +4,15 @@ namespace Copper\Component\Mail;
 
 use Copper\FunctionResponse;
 use Copper\Handler\StringHandler;
+use Copper\Traits\ComponentHandlerTrait;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 
 class MailHandler
 {
+    use ComponentHandlerTrait;
+
     /** @var MailConfigurator */
     public $config;
 
@@ -24,29 +27,13 @@ class MailHandler
     const CHARSET_UTF8 = 'utf-8';
 
     /**
-     * CPHandler constructor.
+     * MailHandler constructor.
      *
-     * @param MailConfigurator $projectConfig
-     * @param MailConfigurator $packageConfig
+     * @param string $configFilename
      */
-    public function __construct(MailConfigurator $packageConfig, MailConfigurator $projectConfig = null)
+    public function __construct(string $configFilename)
     {
-        $this->config = $this->mergeConfig($packageConfig, $projectConfig);
-    }
-
-    private function mergeConfig(MailConfigurator $packageConfig, MailConfigurator $projectConfig = null)
-    {
-        if ($projectConfig === null)
-            return $packageConfig;
-
-        $vars = get_object_vars($projectConfig);
-
-        foreach ($vars as $key => $value) {
-            if ($value !== null || trim($value) !== "")
-                $packageConfig->$key = $value;
-        }
-
-        return $packageConfig;
+        $this->config = $this->configure(MailConfigurator::class, $configFilename);
     }
 
     public function send(Mail $mail)

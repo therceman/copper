@@ -64,7 +64,7 @@ if ($resource !== null) {
 
 ?>
 
-<?= $view->render('header') ?>
+<?= $view->render('cp/header', ['title' => 'Copper Panel :: Resource Generator']) ?>
 
 
 <script>
@@ -324,7 +324,7 @@ if ($resource !== null) {
 </style>
 
 <body class="markdown-body">
-<h4>DataBase Resource Generator</h4>
+<h4>Resource Generator</h4>
 
 <?php if ($view->flashMessage->has('seed_result')): ?>
     <div style="border: 1px solid #ccc; padding: 10px; margin-bottom:15px; border-radius: 5px;">

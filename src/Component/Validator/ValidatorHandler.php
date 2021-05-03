@@ -4,46 +4,29 @@
 namespace Copper\Component\Validator;
 
 
-use Copper\Component\DB\DBConfigurator;
 use Copper\Component\DB\DBModel;
 use Copper\FunctionResponse;
-use Copper\Kernel;
+use Copper\Traits\ComponentHandlerTrait;
 
 class ValidatorHandler
 {
+    use ComponentHandlerTrait;
+
     private $rules;
 
     /** @var ValidatorConfigurator */
     public $config;
-    /** @var DBConfigurator */
-    public $dbConfig;
 
     /**
      * ValidatorHandler constructor.
      *
-     * @param ValidatorConfigurator $packageConfig
-     * @param ValidatorConfigurator $projectConfig
+     * @param string $configFilename
      */
-    public function __construct(ValidatorConfigurator $packageConfig, ValidatorConfigurator $projectConfig = null)
+    public function __construct(string $configFilename)
     {
-        $this->dbConfig = Kernel::getDb()->config;
-        $this->config = $this->mergeConfig($packageConfig, $projectConfig);
+        $this->config = $this->configure(ValidatorConfigurator::class, $configFilename);
+
         $this->rules = [];
-    }
-
-    private function mergeConfig(ValidatorConfigurator $packageConfig, ValidatorConfigurator $projectConfig = null)
-    {
-        if ($projectConfig === null)
-            return $packageConfig;
-
-        $vars = get_object_vars($projectConfig);
-
-        foreach ($vars as $key => $value) {
-            if ($value !== null || trim($value) !== "")
-                $packageConfig->$key = $value;
-        }
-
-        return $packageConfig;
     }
 
     public function addRule(ValidatorRule $rule)
@@ -106,7 +89,7 @@ class ValidatorHandler
     {
         $response = new FunctionResponse();
 
-        // validation login for rules here
+        // validation logic for rules here
 
         return $response->ok();
     }

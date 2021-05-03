@@ -2,24 +2,17 @@
 
 namespace Copper;
 
+use Copper\Component\Error\ErrorHandler;
 use Copper\Component\Mail\MailHandler;
-use Copper\Component\Mail\MailPhpFileLoader;
 use Copper\Component\Templating\ViewHandler;
-use Copper\Handler\ArrayHandler;
-use Copper\Handler\DateHandler;
+use Copper\Controller\AbstractController;
 use Copper\Handler\FileHandler;
 use Copper\Component\Auth\AuthHandler;
-use Copper\Component\Auth\AuthPhpFileLoader;
 use Copper\Component\CP\CPHandler;
-use Copper\Component\CP\CPPhpFileLoader;
 use Copper\Component\DB\DBHandler;
-use Copper\Component\DB\DBPhpFileLoader;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
-use Copper\Component\Validator\ValidatorPhpFileLoader;
-use Copper\Handler\StringHandler;
 use Copper\Resource\AbstractResource;
-use ErrorException;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,9 +32,9 @@ use Symfony\Component\Config\FileLocator;
 final class Kernel
 {
     const CONFIG_FOLDER = 'config';
-    const ROUTES_FOLDER = 'routes';
     const SRC_RESOURCE_FOLDER = 'src/Resource';
 
+    const ERROR_CONFIG_FILE = 'error.php';
     const APP_CONFIG_FILE = 'app.php';
     const ROUTES_CONFIG_FILE = 'routes.php';
     const AUTH_CONFIG_FILE = 'auth.php';
@@ -50,6 +43,8 @@ final class Kernel
     const MAIL_CONFIG_FILE = 'mail.php';
     const VALIDATOR_CONFIG_FILE = 'validator.php';
 
+    /** @var ErrorHandler */
+    private static $errorHandler;
     /** @var App */
     private static $app;
     /** @var RouteCollection */
@@ -73,116 +68,15 @@ final class Kernel
 
     public function __construct()
     {
+        $this->configureErrorHandler();
         $this->configureApp();
-
-        $this->setErrorHandler();
-        $this->configureRoutes();
+        $this->configureCP();
         $this->configureDB();
         $this->configureAuth();
         $this->configureFlashMessage();
-        $this->configureCP();
         $this->configureValidator();
         $this->configureMail();
-    }
-
-    protected function setErrorHandler()
-    {
-        /**
-         * Uncaught exception handler.
-         */
-        $logException = function ($e) {
-            $trace = $e->getTrace();
-            // $trace_string = $e->getTraceString();
-
-            $date = DateHandler::dateTime();
-
-            $url = Kernel::getRequest()->getRequestUri();
-            $method = Kernel::getRequest()->getMethod();
-            $ips = ArrayHandler::join(Kernel::getRequest()->getClientIps());
-            $referer = Kernel::getRequest()->headers->get('referer');
-            $user_id = Kernel::getAuth()->check() ? Kernel::getAuth()->user()->id : 0;
-
-            $type = get_class($e);
-            $msg = $e->getMessage();
-            $file = $e->getFile();
-            $line = $e->getLine();
-            $func = (count($trace) > 0 && array_key_exists('function', $trace[0])) ? $e->getTrace()[0]['function'] : '';
-            $args = (count($trace) > 0 && array_key_exists('args', $trace[0])) ? $e->getTrace()[0]['args'] : '';
-
-            if (StringHandler::has($func, '{closure}'))
-                $args = [];
-
-            $code = FileHandler::readLine($file, $line - 1);
-
-            $args = StringHandler::dump($args, true);
-
-            $format = self::$app->config->error_log_format;
-            $log_data = StringHandler::sprintf($format, [$date, $method, $url, $type, $msg, $file, $line, $func, $args, $ips, $user_id, $referer]);
-
-            if (self::$app->config->error_log === true) {
-                if (FileHandler::fileExists(self::getProjectLogPath()) === false)
-                    FileHandler::createFolder(self::getProjectLogPath());
-
-                FileHandler::appendContent(self::$app->config->error_log_filepath, $log_data . "\n", true);
-            }
-
-            if (self::$app->config->error_view === true) {
-
-                $view_parameters = [
-                    '$method' => $method,
-                    '$url' => $url,
-                    '$type' => $type,
-                    '$msg' => $msg,
-                    '$file' => $file,
-                    '$line' => $line,
-                    '$code' => $code,
-                    '$func' => $func,
-                    '$args' => $args,
-                    '$ips' => $ips,
-                    '$user_id' => $user_id,
-                    '$referer' => $referer
-                ];
-
-                self::$flashMessage->set('error_view_data', json_encode($view_parameters));
-
-                if (self::$app->config->error_view_route_redirect)
-                    echo self::redirectToRoute(self::$app->config->error_view_route)->getContent();
-                else
-                    echo Kernel::renderView(self::$app->config->error_view_default_template, $view_parameters);
-                exit();
-
-            }
-
-            echo self::redirectToRoute(ROUTE_index)->getContent();
-            exit();
-        };
-
-        /**
-         * Error handler, passes flow over the exception logger with new ErrorException.
-         */
-        $logError = function ($num, $str, $file, $line, $context = null) use ($logException) {
-            $logException(new ErrorException($str, 0, $num, $file, $line));
-        };
-
-        /**
-         * Checks for a fatal error, work around for set_error_handler not working on fatal errors.
-         */
-        $checkForFatal = function () use ($logError) {
-            $error = error_get_last();
-
-            if ($error !== NULL && $error["type"] == E_ERROR)
-                $logError($error["type"], $error["message"], $error["file"], $error["line"]);
-        };
-
-        register_shutdown_function($checkForFatal);
-
-        set_error_handler($logError);
-
-        set_exception_handler($logException);
-
-        ini_set("display_errors", "off");
-
-        error_reporting(E_ALL);
+        $this->configureRoutes();
     }
 
     /**
@@ -309,6 +203,14 @@ final class Kernel
     public static function getApp(): App
     {
         return self::$app;
+    }
+
+    /**
+     * @return ErrorHandler
+     */
+    public static function getErrorHandler(): ErrorHandler
+    {
+        return self::$errorHandler;
     }
 
     /**
@@ -499,7 +401,6 @@ final class Kernel
      */
     public function handle(Request $request)
     {
-
         $requestContext = new RequestContext();
         $requestContext->fromRequest($request);
 
@@ -513,26 +414,14 @@ final class Kernel
             $response = $this->getRequestControllerResponse($request, $requestContext);
         } catch (\Exception $e) {
             if ($e instanceof MethodNotAllowedException) {
-                $response = $this->errorResponse('Templating method [' . $request->getMethod() . '] is not allowed.');
+                $msg = 'Method [' . $request->getMethod() . '] is not allowed.';
+                $response = self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_BAD_REQUEST);
             } else {
-                $response = $this->errorResponse($e->getMessage());
+                $response = self::$errorHandler->throwErrorAsResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         }
 
         return $response;
-    }
-
-    /**
-     * Default Response for error
-     *
-     * @param string $message The response message
-     * @param int $status The response status code
-     *
-     * @return Response
-     */
-    protected function errorResponse(string $message, $status = 404)
-    {
-        return new Response('<b>Error</b>: ' . $message, $status);
     }
 
     /**
@@ -573,6 +462,11 @@ final class Kernel
                 $controller = explode('::', $controller);
             }
 
+            if (class_exists($controller[0]) === false) {
+                $msg = 'Controller [' . $controller[0] . '] not found';
+                return self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_NOT_FOUND);
+            }
+
             // pass Templating and RequestContext initialized class to controller
             $instance = new $controller[0]($request, $requestContext,
                 self::$routes, self::$auth, self::$flashMessage, self::$db, self::$cp, self::$validator, self::$mail);
@@ -581,12 +475,25 @@ final class Kernel
         }
 
         if (!is_callable($controller)) {
-            $response = $this->errorResponse('Controller is not callable', Response::HTTP_BAD_REQUEST);
+            $msg = 'Controller is not callable';
+
+            if (is_array($controller) && count($controller) === 2 && $controller[0] instanceof AbstractController)
+                $msg = 'Controller [' . get_class($controller[0]) . '] doesn\'t have callable method [' . $controller[1] . ']';
+
+            $response = self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_NOT_IMPLEMENTED);
         } else {
             $response = call_user_func_array($controller, $request->attributes->get('_route_params'));
         }
 
         return $response;
+    }
+
+    /**
+     *  Configure App from {Package|Project}/config/app.php
+     */
+    protected function configureApp()
+    {
+        self::$app = new App(self::APP_CONFIG_FILE);
     }
 
     /**
@@ -628,23 +535,11 @@ final class Kernel
     }
 
     /**
-     *  Configure default and application auth from {APP|CORE}/config/auth.php
+     *  Configure Auth from {Package|Project}/config/auth.php
      */
     protected function configureAuth()
     {
-        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-
-        $loader = new AuthPhpFileLoader(new FileLocator($packagePath));
-        $packageAuthConfig = $loader->load($this::AUTH_CONFIG_FILE);
-
-        $projectAuthConfig = null;
-        if (file_exists($projectPath . '/' . $this::AUTH_CONFIG_FILE)) {
-            $loader = new AuthPhpFileLoader(new FileLocator($projectPath));
-            $projectAuthConfig = $loader->load($this::AUTH_CONFIG_FILE);
-        }
-
-        self::$auth = new AuthHandler($packageAuthConfig, $projectAuthConfig);
+        self::$auth = new AuthHandler(self::AUTH_CONFIG_FILE);
     }
 
     /**
@@ -656,43 +551,19 @@ final class Kernel
     }
 
     /**
-     *  Configure default and application database from {APP|CORE}/config/db.php
+     *  Configure Database from {Package|Project}/config/db.php
      */
     protected function configureDB()
     {
-        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-
-        $loader = new DBPhpFileLoader(new FileLocator($packagePath));
-        $packageConfig = $loader->load($this::DB_CONFIG_FILE);
-
-        $projectConfig = null;
-        if (file_exists($projectPath . '/' . $this::DB_CONFIG_FILE)) {
-            $loader = new DBPhpFileLoader(new FileLocator($projectPath));
-            $projectConfig = $loader->load($this::DB_CONFIG_FILE);
-        }
-
-        self::$db = new DBHandler($packageConfig, $projectConfig);
+        self::$db = new DBHandler(self::DB_CONFIG_FILE);
     }
 
     /**
-     *  Configure default and application Control Panel from {APP|CORE}/config/cp.php
+     *  Configure Control Panel from {Package|Project}/config/cp.php
      */
     protected function configureCP()
     {
-        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-
-        $loader = new CPPhpFileLoader(new FileLocator($packagePath));
-        $packageConfig = $loader->load($this::CP_CONFIG_FILE);
-
-        $projectConfig = null;
-        if (file_exists($projectPath . '/' . $this::CP_CONFIG_FILE)) {
-            $loader = new CPPhpFileLoader(new FileLocator($projectPath));
-            $projectConfig = $loader->load($this::CP_CONFIG_FILE);
-        }
-
-        self::$cp = new CPHandler($packageConfig, $projectConfig);
+        self::$cp = new CPHandler(self::CP_CONFIG_FILE);
 
         if (self::$cp->config->enabled === false) {
             self::$routes->remove(ROUTE_get_copper_cp);
@@ -701,62 +572,26 @@ final class Kernel
     }
 
     /**
-     *  Configure default and application Mail from {APP|CORE}/config/mail.php
+     *  Configure Mail from {Package|Project}/config/mail.php
      */
     protected function configureMail()
     {
-        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-
-        $loader = new MailPhpFileLoader(new FileLocator($packagePath));
-        $packageConfig = $loader->load($this::MAIL_CONFIG_FILE);
-
-        $projectConfig = null;
-        if (file_exists($projectPath . '/' . $this::MAIL_CONFIG_FILE)) {
-            $loader = new MailPhpFileLoader(new FileLocator($projectPath));
-            $projectConfig = $loader->load($this::MAIL_CONFIG_FILE);
-        }
-
-        self::$mail = new MailHandler($packageConfig, $projectConfig);
+        self::$mail = new MailHandler(self::MAIL_CONFIG_FILE);
     }
 
     /**
-     *  Configure default and application Mail from {APP|CORE}/config/mail.php
+     *  Configure ErrorHandler from {Package|Project}/config/mail.php
      */
-    protected function configureApp()
+    protected function configureErrorHandler()
     {
-        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-
-        $loader = new AppPhpFileLoader(new FileLocator($packagePath));
-        $packageConfig = $loader->load($this::APP_CONFIG_FILE);
-
-        $projectConfig = null;
-        if (file_exists($projectPath . '/' . $this::APP_CONFIG_FILE)) {
-            $loader = new AppPhpFileLoader(new FileLocator($projectPath));
-            $projectConfig = $loader->load($this::APP_CONFIG_FILE);
-        }
-
-        self::$app = new App($packageConfig, $projectConfig);
+        self::$errorHandler = new ErrorHandler(self::ERROR_CONFIG_FILE);
     }
 
     /**
-     *  Configure default and application Validator from {APP|CORE}/config/validator.php
+     *  Configure Validator from {Package|Project}/config/validator.php
      */
     protected function configureValidator()
     {
-        $packagePath = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $projectPath = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-
-        $loader = new ValidatorPhpFileLoader(new FileLocator($packagePath));
-        $packageConfig = $loader->load($this::VALIDATOR_CONFIG_FILE);
-
-        $projectConfig = null;
-        if (file_exists($projectPath . '/' . $this::VALIDATOR_CONFIG_FILE)) {
-            $loader = new ValidatorPhpFileLoader(new FileLocator($projectPath));
-            $projectConfig = $loader->load($this::VALIDATOR_CONFIG_FILE);
-        }
-
-        self::$validator = new ValidatorHandler($packageConfig, $projectConfig);
+        self::$validator = new ValidatorHandler(self::VALIDATOR_CONFIG_FILE);
     }
 }

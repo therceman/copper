@@ -143,7 +143,7 @@ class ViewHandler
         $this->postBag = $request->request;
         $this->queryBag = $request->query;
         $this->cookiesBag = $request->cookies;
-        $this->routeBag = new ParameterBag($request->attributes->get('_route_params'));
+        $this->routeBag = new ParameterBag($request->attributes->get('_route_params') ?? []);
         $this->dataBag = new ParameterBag($parameters);
 
         $this->request_method = $request->getRealMethod();

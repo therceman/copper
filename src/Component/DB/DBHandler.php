@@ -2,11 +2,14 @@
 
 namespace Copper\Component\DB;
 
+use Copper\Traits\ComponentHandlerTrait;
 use Envms\FluentPDO\Query;
 use PDO;
 
 class DBHandler
 {
+    use ComponentHandlerTrait;
+
     /** @var PDO */
     public $information_schema_pdo;
 
@@ -25,13 +28,11 @@ class DBHandler
     /**
      * DBHandler constructor.
      *
-     * @param DBConfigurator $projectConfig
-     * @param DBConfigurator $packageConfig
+     * @param string $configFilename
      */
-    public function __construct(DBConfigurator $packageConfig, DBConfigurator $projectConfig = null)
+    public function __construct(string $configFilename)
     {
-        $this->config = $this->mergeConfig($packageConfig, $projectConfig);
-        date_default_timezone_set($this->config->timezone);
+        $this->config = $this->configure(DBConfigurator::class, $configFilename);
         $this->init();
     }
 
@@ -48,31 +49,6 @@ class DBHandler
 
         $this->query = new Query($this->pdo);
         $this->information_schema_query = new Query($this->information_schema_pdo);
-    }
-
-    private function mergeConfig(DBConfigurator $packageConfig, DBConfigurator $projectConfig = null)
-    {
-        if ($projectConfig === null)
-            return $packageConfig;
-
-        $vars = get_object_vars($projectConfig);
-
-        foreach ($vars as $key => $value) {
-            if ($value !== null || trim($value) !== "")
-                $packageConfig->$key = $value;
-        }
-
-        return $packageConfig;
-    }
-
-    public static function datetime()
-    {
-        return date('Y-m-d H:i:s');
-    }
-
-    public static function year()
-    {
-        return date('Y');
     }
 
     public static function hashWithSalt($str, $salt)

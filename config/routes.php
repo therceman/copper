@@ -1,13 +1,15 @@
 <?php
 
 use Copper\Component\CP\CPController;
+use Copper\Component\Error\ErrorController;
+use Copper\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 use Copper\Controller\AbstractController;
 use Copper\Controller\RedirectController;
 
 const ROUTE_index = 'index';
-const ROUTE_error = 'error';
+
 const ROUTE_get_copper_cp = 'get_copper_cp';
 const ROUTE_copper_cp_action = 'copper_cp_action';
 
@@ -18,12 +20,12 @@ return function (RoutingConfigurator $routes) {
         ->requirements(['url' => '.*/$']);
 
     // Copper Control Panel
-    $routes->add(ROUTE_get_copper_cp, '/copper_cp')
+    $routes->add(Kernel::getCp()->config->route_name, Kernel::getCp()->config->route_path)
         ->controller([CPController::class, 'getIndex'])
         ->methods(['GET']);
 
     // Copper Control Panel
-    $routes->add(ROUTE_copper_cp_action, '/copper_cp/{action}')
+    $routes->add(Kernel::getCp()->config->action_route_name, Kernel::getCp()->config->route_path . '/{action}')
         ->controller([CPController::class, 'postAction'])
         ->methods(['GET', 'POST']);
 
@@ -34,7 +36,7 @@ return function (RoutingConfigurator $routes) {
         ->methods(['GET']);
 
     // Default error page
-    $routes->add(ROUTE_error, '/error')
-        ->controller([AbstractController::class, 'viewError'])
+    $routes->add(Kernel::getErrorHandler()->config->view_route_name, Kernel::getErrorHandler()->config->view_route_path)
+        ->controller([ErrorController::class, 'viewErrorTemplate'])
         ->methods(['GET']);
 };

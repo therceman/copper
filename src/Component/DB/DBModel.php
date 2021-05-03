@@ -8,6 +8,7 @@ use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\CollectionHandler;
+use Copper\Handler\DateHandler;
 use Copper\Kernel;
 use Envms\FluentPDO\Exception;
 use Envms\FluentPDO\Queries\Select;
@@ -224,10 +225,10 @@ abstract class DBModel
                 $value = null;
 
             if ($value === null && in_array($field->getType(), [$field::DATETIME, $field::DATE]) && $field->getNull() !== true)
-                $value = DBHandler::datetime();
+                $value = DateHandler::dateTime();
 
             if ($value === null && $field->getType() === $field::YEAR && $field->getNull() !== true)
-                $value = DBHandler::year();
+                $value = DateHandler::year();
 
             if ($value === null && in_array($field->getDefault(), [$field::DEFAULT_NONE, $field::DEFAULT_CURRENT_TIMESTAMP, $field::DEFAULT_NULL], true) === false && $field->getNull() !== true)
                 $value = $field->getDefault();

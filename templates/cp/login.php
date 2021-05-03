@@ -4,7 +4,7 @@ use Copper\Component\CP\CPController;
 
 ?>
 
-<?= $view->render('header') ?>
+<?= $view->render('cp/header') ?>
 
 <body class="markdown-body">
 <h4>Authorization for <b>Control Panel</b></h4>

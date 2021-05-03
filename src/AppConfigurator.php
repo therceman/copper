@@ -5,25 +5,44 @@ namespace Copper;
 
 use Symfony\Component\HttpFoundation\ParameterBag;
 
+/**
+ * Class AppConfigurator
+ * @package Copper
+ */
 class AppConfigurator
 {
-    /** @var bool Enable Development Mode.
+    /**
+     * Enable Development Mode.
      * <hr>
      * On Application Start:
      * <br>
      * <code>
      * - generate .phpstorm.meta.php (template name/assets/config->bag autocomplete)
      * </code>
+     * @var bool
      */
     public $dev_mode;
 
-    /** @var string */
+    /**
+     * Application title
+     * @var string
+     */
     public $title;
-    /** @var string */
+
+    /**
+     * Application description
+     * @var string
+     */
     public $description;
-    /** @var string */
+
+    /**
+     * Application author
+     * @var string
+     */
     public $author;
-    /** Bag for custom config keys
+
+    /**
+     * Bag for custom config keys
      * <hr>
      * <code>
      * - bag->set('tags', ['Blog', 'Tech', 'Web Development'])
@@ -33,20 +52,15 @@ class AppConfigurator
      */
     public $bag;
 
-    /** @var bool Enable error view template with detailed description */
-    public $error_view;
-    /** @var bool Error view route */
-    public $error_view_route;
-    /** @var bool Redirect to error route */
-    public $error_view_route_redirect;
-    /** @var bool Error view template */
-    public $error_view_default_template;
-    /** @var bool Enable error logging to file */
-    public $error_log;
-    /** @var string */
-    public $error_log_format;
-    /** @var string Error logging file path */
-    public $error_log_filepath;
+    /**
+     * Default Date & Time Timezone (DateHandler)
+     * <hr>
+     * Example: 'Europe/Riga'
+     * <br>
+     * Default: false
+     * @var string
+     */
+    public $timezone;
 
     public function __construct()
     {

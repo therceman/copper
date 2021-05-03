@@ -251,6 +251,32 @@ class ArrayHandler
     }
 
     /**
+     * Delete key / keys from array
+     * <hr>
+     * <code>
+     * - delete(['A' => 1, 'B' => 2], 'A')                 // ['B' => 2]
+     * - delete(['A' => 1, 'B' => 2, 'C' => 3], ['A','B']) // ['C' => 3]
+     * </code>
+     * @param array $array
+     * @param string|string[] $key
+     *
+     * @return array
+     */
+    public static function deleteKey(array $array, $key)
+    {
+        $key_list = is_array($key) ? $key : [$key];
+
+        $new_array = [];
+
+        foreach ($array as $key => $value) {
+            if (self::hasValue($key_list, $key) === false)
+                $new_array[$key] = $value;
+        }
+
+        return $new_array;
+    }
+
+    /**
      * @param $array
      *
      * @return array

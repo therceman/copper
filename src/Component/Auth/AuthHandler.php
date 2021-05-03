@@ -5,10 +5,13 @@ namespace Copper\Component\Auth;
 use Copper\Component\DB\DBHandler;
 use Copper\Entity\AbstractEntity;
 use Copper\Kernel;
+use Copper\Traits\ComponentHandlerTrait;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class AuthHandler
 {
+    use ComponentHandlerTrait;
+
     const SESSION_KEY = 'auth_id';
 
     /** @var Session */
@@ -23,10 +26,9 @@ class AuthHandler
     /**
      * AuthHandler constructor.
      *
-     * @param AuthConfigurator $packageAuthConfig
-     * @param AuthConfigurator $projectAuthConfig
+     * @param string $configFilename
      */
-    public function __construct(AuthConfigurator $packageAuthConfig, AuthConfigurator $projectAuthConfig = null)
+    public function __construct(string $configFilename)
     {
         $this->session = new Session();
         $this->session->start();
@@ -34,22 +36,7 @@ class AuthHandler
         $this->db = Kernel::getDb();
         $this->user = null;
 
-        $this->config = $this->mergeConfig($packageAuthConfig, $projectAuthConfig);
-    }
-
-    private function mergeConfig(AuthConfigurator $packageAuthConfig, AuthConfigurator $projectAuthConfig = null)
-    {
-        if ($projectAuthConfig === null)
-            return $packageAuthConfig;
-
-        $vars = get_object_vars($projectAuthConfig);
-
-        foreach ($vars as $key => $value) {
-            if ($value !== null || trim($value) !== "")
-                $packageAuthConfig->$key = $value;
-        }
-
-        return $packageAuthConfig;
+        $this->config = $this->configure(AuthConfigurator::class, $configFilename);
     }
 
     /**

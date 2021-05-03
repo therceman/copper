@@ -4,13 +4,21 @@
 namespace Copper;
 
 
+use Symfony\Component\Config\FileLocatorInterface;
 use Symfony\Component\Config\Loader\FileLoader;
 
-abstract class PhpFileLoader extends FileLoader
+class PhpFileLoader extends FileLoader
 {
-    abstract protected function getProtectedFileLoaderClassName();
+    private $configurator;
 
-    abstract protected function getConfiguratorInstance();
+    public static function create($configuratorClass, FileLocatorInterface $fileLocator)
+    {
+        $instance = new static($fileLocator);
+
+        $instance->configurator = new $configuratorClass();
+
+        return $instance;
+    }
 
     /**
      * Loads a PHP file.
@@ -18,26 +26,27 @@ abstract class PhpFileLoader extends FileLoader
      * @param string $file A PHP file path
      * @param string|null $type The resource type
      *
+     * @return mixed
      */
     public function load($file, $type = null)
     {
         $path = $this->locator->locate($file);
         $this->setCurrentDir(dirname($path));
 
-        // the closure forbids access to the private scope in the included file
-        $loader = $this;
-        $load = \Closure::bind(function ($file) use ($loader) {
+        $load = \Closure::bind(function ($file) {
             return include $file;
-        }, null, $this->getProtectedFileLoaderClassName());
+        }, null, new class {
+            // anonymous class
+        });
 
         $result = $load($path);
 
-        $config = $this->getConfiguratorInstance();
+        $configurator = $this->configurator;
 
         if ($result instanceof \Closure)
-            $result($config, $this);
+            $result($configurator, $this);
 
-        return $config;
+        return $configurator;
     }
 
     /**

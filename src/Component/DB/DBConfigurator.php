@@ -23,9 +23,6 @@ class DBConfigurator
     /** @var string */
     public $hashSalt;
 
-    /** @var string */
-    public $timezone;
-
     /** @var int */
     public $default_varchar_length;
 

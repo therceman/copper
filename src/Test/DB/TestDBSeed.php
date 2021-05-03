@@ -4,6 +4,7 @@ namespace Copper\Test\DB;
 
 use Copper\Component\DB\DBHandler;
 use Copper\Component\DB\DBSeed;
+use Copper\Handler\DateHandler;
 
 class TestDBSeed extends DBSeed
 {
@@ -79,7 +80,7 @@ class TestDBSeed extends DBSeed
         $user->password = DBHandler::hashWithSalt('user_pass', self::HASH_SALT);
         $user->role = TestDBEntity::ROLE_USER;
         $user->email = 'removed_user@arkadia_trade.com';
-        $user->removed_at = DBHandler::datetime();
+        $user->removed_at = DateHandler::dateTime();
         $user->enabled = false;
         $user->salary = 151;
 
