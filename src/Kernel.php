@@ -528,7 +528,7 @@ final class Kernel
 
         // Load application top level routes
         $path = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-        if (file_exists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
+        if (FileHandler::fileExists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
             $loader = new PhpFileLoader(new FileLocator($path));
             self::$routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
         }

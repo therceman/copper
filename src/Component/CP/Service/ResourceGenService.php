@@ -490,7 +490,7 @@ XML;
     {
         $folder = Kernel::getProjectPath() . '/src/' . $type;
 
-        if (file_exists($folder) === false)
+        if (FileHandler::fileExists($folder) === false)
             mkdir($folder);
 
         return $folder . '/' . $name . '.php';
@@ -507,7 +507,7 @@ XML;
         if ($create === false)
             return $response->ok('Skipped');
 
-        if (file_exists($filePath) && $override === false)
+        if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
         // ---------------------
@@ -612,7 +612,7 @@ class $name extends AbstractResource
     $seedFunc
     $routes
 }";
-        file_put_contents($filePath, $content);
+        FileHandler::create($filePath, $content);
 
         return $response->ok();
     }
@@ -626,7 +626,7 @@ class $name extends AbstractResource
         if ($create === false)
             return $response->ok('Skipped');
 
-        if (file_exists($filePath) && $override === false)
+        if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
         $excluded_param = "[$model::ID]";
@@ -673,7 +673,7 @@ class $name extends AbstractController
     }
 
 }";
-        file_put_contents($filePath, $content);
+        FileHandler::create($filePath, $content);
 
         return $response->ok();
     }
@@ -687,7 +687,7 @@ class $name extends AbstractController
         if ($create === false)
             return $response->ok('Skipped');
 
-        if (file_exists($filePath) && $override === false)
+        if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
         $var = strtolower($entity);
@@ -716,7 +716,7 @@ class $name extends DBSeed
     }
 }
 XML;
-        file_put_contents($filePath, $content);
+        FileHandler::create($filePath, $content);
 
         return $response->ok();
 
@@ -731,7 +731,7 @@ XML;
         if ($create === false)
             return $response->ok('Skipped');
 
-        if (file_exists($filePath) && $override === false)
+        if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
         $useEntity = 'use App\Entity\\' . $entity;
@@ -761,7 +761,7 @@ class $name extends DBCollectionService
 
 }
 XML;
-        file_put_contents($filePath, $content);
+        FileHandler::create($filePath, $content);
 
         return $response->ok();
     }
@@ -775,7 +775,7 @@ XML;
         if ($create === false)
             return $response->ok('Skipped');
 
-        if (file_exists($filePath) && $override === false)
+        if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
         $constFields = '';
@@ -1030,8 +1030,8 @@ $stateFieldsFunc
 }
 XML;
 
-        file_put_contents($annotationTraitFilePath, $annotationTraitFileContent);
-        file_put_contents($filePath, $content);
+        FileHandler::create($annotationTraitFilePath, $annotationTraitFileContent);
+        FileHandler::create($filePath, $content);
 
         return $response->ok();
     }
@@ -1045,7 +1045,7 @@ XML;
         if ($create === false)
             return $response->ok('Skipped');
 
-        if (file_exists($filePath) && $override === false)
+        if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
         $use_state_fields_trait = ($use_state_fields === true) ? "use EntityStateFields;" : "";
@@ -1092,7 +1092,7 @@ $fields_content
 XML;
 
         if (FileHandler::fileExists($filePath)) {
-            $old_content = FileHandler::read($filePath)->result;
+            $old_content = FileHandler::getContent($filePath)->result;
 
             $old_content = self::updateClassUsage($old_content, EntityStateFields::class, $use_state_fields);
 
@@ -1101,7 +1101,7 @@ XML;
 
             FileHandler::setContent($filePath, $old_content);
         } else {
-            file_put_contents($filePath, $content);
+            FileHandler::create($filePath, $content);
         }
 
         return $response->ok();

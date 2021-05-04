@@ -5,7 +5,7 @@ namespace Copper\Component\Templating;
 use Copper\AppConfigurator;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
-use Copper\Handler\ArrayHandler;
+use Copper\Handler\FileHandler;
 use Copper\Kernel;
 use Copper\RequestTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -178,7 +178,7 @@ class ViewHandler
 
         foreach ($templateFolderPathArray as $key => $path) {
             $filePath = $path . '/' . $template . $this::TEMPLATES_EXTENSION;
-            if (file_exists($filePath)) {
+            if (FileHandler::fileExists($filePath)) {
                 $templateFilePath = $filePath;
             }
         }
@@ -370,7 +370,7 @@ class ViewHandler
             return $this->error('Template name contains wrong characters.');
         }
 
-        if (!file_exists($templateFilePath)) {
+        if (FileHandler::fileExists($templateFilePath) === false) {
             return $this->error('Template [' . $template . $this::TEMPLATES_EXTENSION . '] not found.');
         }
 

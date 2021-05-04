@@ -9,6 +9,10 @@ use Copper\Kernel;
 use SplFileObject;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * Class FileHandler
+ * @package Copper\Handler
+ */
 class FileHandler
 {
     const ERROR_FILE_NOT_FOUND = 'File not found';
@@ -17,12 +21,46 @@ class FileHandler
     const ERROR_PUT_CONTENT = 'Unable to save content to file';
     const ERROR_GET_CONTENT = 'Unable to get content from file';
 
+    /**
+     * Clean File Path (allowed characters: 0-9_-./A-Za-z)
+     * <hr>
+     * <code>
+     * - cleanPath('phar://exec<x>\'"ute/../../ute.jpg') // returns phar/execxute/ute.jpg
+     * </code>
+     * @param string $path Path to file
+     * @param bool $absOnly Absolute Path Only (remove ../../)
+     *
+     * @return string
+     */
+    public static function cleanPath(string $path, $absOnly = true)
+    {
+        // strip bad chars
+        $res = StringHandler::regexReplace($path, '/[^0-9_\-.\/A-Za-z]/m', '');
+
+        // absolute path only
+        if ($absOnly)
+            $res = StringHandler::replace($res, ['../'], ['/']);
+
+        $res = StringHandler::replaceRecursively($res, '//', '/');
+
+        return $res;
+    }
+
+    /**
+     * @param $file
+     * @return mixed|null
+     */
     private static function extractNamespaceFromFile($file)
     {
-        if (is_dir($file))
+        if (is_dir(self::cleanPath($file)))
             return null;
 
-        $src = file_get_contents($file);
+        $res = self::getContent($file);
+
+        if ($res->hasError())
+            return null;
+
+        $src = $res->result;
 
         if (preg_match('#^namespace\s+(.+?);$#sm', $src, $m)) {
             return $m[1];
@@ -59,27 +97,53 @@ class FileHandler
         return (($withDirSeparator) ? DIRECTORY_SEPARATOR : '') . implode(DIRECTORY_SEPARATOR, $absolutes);
     }
 
+    /**
+     * Create new folder
+     *
+     * @param $folderPath
+     * @return FunctionResponse
+     */
     public static function createFolder($folderPath)
     {
         $response = new FunctionResponse();
 
         $folderPath = self::getAbsolutePath($folderPath);
 
+        $folderPath = self::cleanPath($folderPath);
+
         $createStatus = mkdir($folderPath);
 
         return $response->okOrFail($createStatus);
     }
 
+    /**
+     * Path from array
+     *
+     * @param array $pathArray
+     * @return string
+     */
     public static function pathFromArray(array $pathArray)
     {
         return join(DIRECTORY_SEPARATOR, $pathArray);
     }
 
+    /**
+     * Package path from array
+     *
+     * @param array $pathArray
+     * @return string
+     */
     public static function packagePathFromArray(array $pathArray)
     {
         return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getPackagePath()], $pathArray));
     }
 
+    /**
+     * Project path from array
+     *
+     * @param array $pathArray
+     * @return string
+     */
     public static function projectPathFromArray(array $pathArray)
     {
         return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getProjectPath()], $pathArray));
@@ -97,6 +161,8 @@ class FileHandler
         if (self::fileExists($filePath) === false)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
+        $filePath = self::cleanPath($filePath);
+
         return $response->result(file_get_contents($filePath), self::ERROR_GET_CONTENT);
     }
 
@@ -108,6 +174,8 @@ class FileHandler
      */
     public static function readLine(string $filePath, int $line_num)
     {
+        $filePath = self::cleanPath($filePath);
+
         $file = new SplFileObject($filePath);
 
         $content = null;
@@ -137,6 +205,8 @@ class FileHandler
         if (self::fileExists($filePath) === false && $create_new === false)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
+        $filePath = self::cleanPath($filePath);
+
         $flags = ($lock) ? FILE_APPEND | LOCK_EX : FILE_APPEND;
 
         return $response->result(file_put_contents($filePath, $content, $flags), self::ERROR_PUT_CONTENT);
@@ -157,6 +227,8 @@ class FileHandler
 
         if (self::fileExists($filePath) === false && $create_new === false)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
+
+        $filePath = self::cleanPath($filePath);
 
         return $response->result(file_put_contents($filePath, $content), self::ERROR_PUT_CONTENT);
     }
@@ -195,6 +267,9 @@ class FileHandler
         if (self::fileExists($destFolderPath) === false)
             return $response->error(self::ERROR_FOLDER_NOT_FOUND, $destFolderPath);
 
+        $filePath = self::cleanPath($filePath);
+        $destFolderPath = self::cleanPath($destFolderPath);
+
         $filename = basename($filePath);
 
         $copyStatus = copy($filePath, $destFolderPath . '/' . $filename);
@@ -202,8 +277,16 @@ class FileHandler
         return $response->okOrFail($copyStatus);
     }
 
+    /**
+     * Check if file exists
+     *
+     * @param $filePath
+     * @return bool
+     */
     public static function fileExists($filePath)
     {
+        $filePath = self::cleanPath($filePath);
+
         return file_exists($filePath);
     }
 
@@ -217,6 +300,8 @@ class FileHandler
         if (self::fileExists($filePath) === false)
             return FunctionResponse::createError('File does not exist');
 
+        $filePath = self::cleanPath($filePath);
+
         return FunctionResponse::createSuccessOrError(unlink($filePath));
     }
 
@@ -224,8 +309,10 @@ class FileHandler
     {
         $response = new FunctionResponse();
 
-        if (file_exists($folderPath) === false)
+        if (self::fileExists($folderPath) === false)
             return $response->error(self::ERROR_FOLDER_NOT_FOUND, $folderPath);
+
+        $folderPath = self::cleanPath($folderPath);
 
         $files = array_diff(scandir($folderPath), array('.', '..'));
 
@@ -276,6 +363,8 @@ class FileHandler
         foreach ($response->result as $file) {
             $filePath = $folderPath . '/' . $file;
 
+            $filePath = self::cleanPath($filePath);
+
             if (is_dir($filePath))
                 continue;
 
@@ -285,6 +374,16 @@ class FileHandler
         return $response->result($classNames);
     }
 
+    /**
+     * Read CSV
+     *
+     * @param UploadedFile $file
+     * @param array $fieldNames
+     * @param int $colCount
+     * @param string $delimiter
+     *
+     * @return FunctionResponse
+     */
     public static function readCSV(UploadedFile $file, $fieldNames = [], $colCount = 0, $delimiter = ';')
     {
         $response = new FunctionResponse();
@@ -293,7 +392,14 @@ class FileHandler
 
         $rows = [];
 
-        $handle = fopen($file->getPathname(), "r");
+        $filePath = $file->getPathname();
+
+        if (self::fileExists($filePath) === false)
+            return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
+
+        $filePath = self::cleanPath($filePath);
+
+        $handle = fopen($filePath, "r");
         if ($handle) {
             $rowForFix = [];
 
@@ -336,7 +442,7 @@ class FileHandler
 
             fclose($handle);
         } else {
-            $response->fail(self::ERROR_FILE_OPEN, $file->getPathname());
+            $response->fail(self::ERROR_FILE_OPEN, $filePath);
         }
 
         return $response->result($rows);
@@ -350,21 +456,14 @@ class FileHandler
      */
     public static function rename(string $oldName, string $newName)
     {
+        $oldName = self::cleanPath($oldName);
+
+        if (self::fileExists($oldName) === false)
+            return false;
+
+        $newName = self::cleanPath($newName);
+
         return rename($oldName, $newName);
-    }
-
-    // ------------- Aliases --------------------
-
-    /**
-     * Alias for getContent
-     *
-     * @param string $filePath
-     *
-     * @return FunctionResponse
-     */
-    public static function read(string $filePath)
-    {
-        return self::getContent($filePath);
     }
 
 }

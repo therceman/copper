@@ -87,6 +87,29 @@ class StringHandler
         return str_replace($search, $replaceTo, $str);
     }
 
+    /**
+     * Find and replace text in string recursively (until no match)
+     * <hr>
+     * <code>
+     * - replaceRecursively('AABAB','AB','B') // returns BB
+     * # compared to replace('AABAB','AB','B') that returns ABB
+     * </code>
+     * @param string $str
+     * @param string|int $search
+     * @param string|int $replaceTo
+     *
+     * @return string
+     */
+    public static function replaceRecursively(string $str, $search, $replaceTo)
+    {
+        $res = self::replace($str, $search, $replaceTo);
+
+        if (self::has($res, $search))
+            $res = self::replaceRecursively($res, $search, $replaceTo);
+
+        return $res;
+    }
+
     public static function random($len = 5)
     {
         $hash = DBModel::hash(NumberHandler::random(0, 1000 * $len));
