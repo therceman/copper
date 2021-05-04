@@ -27,13 +27,16 @@ class FileHandler
      * <code>
      * - cleanPath('phar://exec<x>\'"ute/../../ute.jpg') // returns phar/execxute/ute.jpg
      * </code>
-     * @param string $path Path to file
-     * @param bool $absOnly Absolute Path Only (remove ../../)
+     * @param string|null|bool $path Path to file
+     * @param bool $absOnly Absolute Path Only (replaces ../ to /)
      *
      * @return string
      */
-    public static function cleanPath(string $path, $absOnly = true)
+    public static function cleanPath($path, $absOnly = false)
     {
+        if ($path === null || is_bool($path))
+            return '';
+
         // strip bad chars
         $res = StringHandler::regexReplace($path, '/[^0-9_\-.\/A-Za-z]/m', '');
 
