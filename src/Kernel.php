@@ -100,21 +100,22 @@ final class Kernel
     }
 
     /**
-     * Returns client IP address
+     * Returns client IP addresses as array
      *
-     * @return string
+     * @return array
      */
-    public static function getIPAddress()
+    public static function getIPAddressList()
     {
+        $ip_list = [];
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip = $_SERVER['HTTP_CLIENT_IP'];
+            $ip_list[] = $_SERVER['HTTP_CLIENT_IP'];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            $ip_list[] = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {
-            $ip = $_SERVER['REMOTE_ADDR'];
+            $ip_list[] = $_SERVER['REMOTE_ADDR'];
         }
 
-        return $ip;
+        return $ip_list;
     }
 
     public static function getProjectControllerPath()
@@ -270,9 +271,9 @@ final class Kernel
     }
 
     /**
-     * @return RequestContext
+     * @return RequestContext|null
      */
-    public static function getRequestContext(): RequestContext
+    public static function getRequestContext()
     {
         return self::$requestContext;
     }

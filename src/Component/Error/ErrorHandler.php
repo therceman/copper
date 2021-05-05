@@ -135,6 +135,14 @@ class ErrorHandler
         if ($logOnly)
             return true;
 
+        if (Kernel::getRequestContext() === null) {
+            echo 'CORE ERROR';
+            echo '<pre>';
+            print_r($error->asParamList());
+            echo '</pre>';
+            return false;
+        }
+
         $res = Kernel::redirectToRoute(ROUTE_index);
 
         if ($this->config->view === true) {

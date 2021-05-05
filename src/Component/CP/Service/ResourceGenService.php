@@ -551,7 +551,7 @@ XML;
     
     // custom route constants
     
-    /** @see $controller
+    /** @see $controller */
     public static function registerRoutes(RoutingConfigurator \$routes)
     {
         self::addRoute(\$routes, self::GET_LIST);

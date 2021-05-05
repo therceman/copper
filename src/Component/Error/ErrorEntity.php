@@ -53,9 +53,11 @@ class ErrorEntity
     public function __construct($msg, $type, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
         $this->date = DateHandler::dateTime();
-        $this->method = Kernel::getRequest()->getMethod();
-        $this->url = Kernel::getRequest()->getRequestUri();
-        $this->protocol_ver = Kernel::getRequest()->getProtocolVersion();
+
+        $this->method =  strtoupper($_SERVER['REQUEST_METHOD']);
+        $this->url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $this->protocol_ver = $_SERVER['SERVER_PROTOCOL'];
+
         $this->status = $status;
 
         $this->type = $type;
@@ -67,9 +69,10 @@ class ErrorEntity
         // func
         // args
         // ------------------
-        $this->ips = ArrayHandler::join(Kernel::getRequest()->getClientIps());
+
+        $this->ips = ArrayHandler::join(Kernel::getIPAddressList());
         $this->user_id = Kernel::getAuth()->check() ? Kernel::getAuth()->user()->id : 0;
-        $this->referer = Kernel::getRequest()->headers->get('referer');
+        $this->referer = $_SERVER['HTTP_REFERER'] ?? '';
     }
 
     /**
