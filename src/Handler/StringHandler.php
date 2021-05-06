@@ -77,8 +77,8 @@ class StringHandler
      * </code>
      *
      * @param string $str
-     * @param int|int[]|string|string[] $search
-     * @param int|int[]|string|string[] $replaceTo
+     * @param int|int[]|float|float[]|string|string[] $search
+     * @param int|int[]|float|float[]|string|string[] $replaceTo
      *
      * @return string
      */
@@ -142,6 +142,17 @@ class StringHandler
     public static function repeat($str, $num_of_times)
     {
         return str_repeat($str, $num_of_times);
+    }
+
+    /**
+     * @param string $str
+     * @param int|int[]|float|float[]|string|string[] $search
+     *
+     * @return string
+     */
+    public static function delete(string $str, $search)
+    {
+        return self::replace($str, $search, '');
     }
 
     /**

@@ -439,6 +439,23 @@ abstract class DBModel
     }
 
     /**
+     * @param DBColumnMod[] $mods
+     * @param array $columns
+     * @return mixed
+     */
+    private function processColumnMods($mods, array $columns)
+    {
+        foreach ($mods as $mod) {
+            $column = $mod->getColumn();
+            if ($column !== null && ArrayHandler::hasValue($columns, $column)) {
+                $columns[$column] = $mod->getCraftedStatement();
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
      * @param DBSelect $select
      * @return Select
      * @throws Exception
@@ -454,6 +471,7 @@ abstract class DBModel
 
         $columns = $select->getColumns();
         $ignoredColumns = $select->getIgnoredColumns();
+        $columnMods = $select->getColumnMods();
         $limit = $select->getLimit();
         $group = $select->getGroup();
         $offset = $select->getOffset();
@@ -464,7 +482,10 @@ abstract class DBModel
             $columns = ArrayHandler::diff($columns, $ignoredColumns);
 
         if ($ignoredColumns !== null)
-            $columns = ArrayHandler::diff($this->getFieldNames(true), $ignoredColumns);;
+            $columns = ArrayHandler::diff($this->getFieldNames(true), $ignoredColumns);
+
+        if ($columnMods !== null)
+            $columns = $this->processColumnMods($columnMods, $columns);
 
         if ($limit !== null)
             $stm = $stm->limit($limit);

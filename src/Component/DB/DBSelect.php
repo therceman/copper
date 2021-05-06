@@ -6,12 +6,18 @@ namespace Copper\Component\DB;
 
 use Copper\Handler\ArrayHandler;
 
+/**
+ * Class DBSelect
+ * @package Copper\Component\DB
+ */
 class DBSelect
 {
     /** @var DBWhere|null */
     private $where;
     /** @var string[]|null */
     private $columns;
+    /** @var DBColumnMod[]|null */
+    private $columnMods;
     /** @var string[]|null */
     private $ignoredColumns;
     /** @var DBOrder|null */
@@ -29,6 +35,7 @@ class DBSelect
     {
         $this->where = null;
         $this->columns = null;
+        $this->columnMods = null;
         $this->ignoredColumns = null;
         $this->order = null;
         $this->limit = null;
@@ -59,6 +66,34 @@ class DBSelect
         $params = new DBSelect();
 
         return $params->setColumns($columns);
+    }
+
+    /**
+     * Set column modification
+     * <hr>
+     * <code>
+     * // Using statement with parameters
+     * - columnMod('price', DBColumnMod::statement('$1 - ($1 * $2) / 100', ['price', 10]);
+     * # Transforms to: SELECT `price` - (`price` * 10) / 100 as `price` FROM ...
+     *
+     * // Using subPerc (as value)
+     * - columnMod('price', DBColumnMod::subPerc(10);
+     * # Transforms to: SELECT `price` - (`price` * 10) / 100 as `price` FROM ...
+     *
+     * // Using subPerc (as column)
+     * - columnMod('price', DBColumnMod::subPerc('discount_perc');
+     * # Transforms to: SELECT `price` - (`price` * `discount_perc`) / 100 as `price` ...
+     * </code>
+     * @param string $column
+     * @param DBColumnMod|null $mod
+     *
+     * @return DBSelect
+     */
+    public static function columnMod(string $column, $mod): DBSelect
+    {
+        $params = new DBSelect();
+
+        return $params->setColumnMod($column, $mod);
     }
 
     /**
@@ -148,6 +183,24 @@ class DBSelect
         }
 
         return $columns;
+    }
+
+    /**
+     * Set column modification
+
+     * @param string $column
+     * @param DBColumnMod|null $mod
+     *
+     * @return DBSelect
+     *
+     * @see columnMod for example
+     */
+    public function setColumnMod(string $column, $mod): DBSelect
+    {
+        if ($mod !== null)
+            $this->columnMods[] = $mod->setColumn($column);
+
+        return $this;
     }
 
     /**
@@ -249,6 +302,14 @@ class DBSelect
     public function getColumns()
     {
         return $this->columns;
+    }
+
+    /**
+     * @return DBColumnMod[]|null
+     */
+    public function getColumnMods()
+    {
+        return $this->columnMods;
     }
 
     /**
