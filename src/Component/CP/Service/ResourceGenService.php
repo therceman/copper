@@ -78,7 +78,7 @@ class ResourceGenService
         $content = str_replace('Copper\Entity\AbstractEntity', $resource::getEntityClassName(), $content);
         $content = str_replace('Copper\Resource\AbstractResource', $resource::getClassName(), $content);
         $content = str_replace('AbstractEntity', $resource::getEntityName(), $content);
-        $content = str_replace('$Resource', '$' . strtolower($resource::getName()), $content);
+        $content = str_replace('$Resource', '$' . lcfirst($resource::getName()), $content);
 
         $contentSaveRes = FileHandler::setContent($filepath, $content);
 
