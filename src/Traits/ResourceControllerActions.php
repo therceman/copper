@@ -6,10 +6,14 @@ namespace Copper\Traits;
 
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBOrder;
+use Symfony\Component\HttpFoundation\Response;
 
 trait ResourceControllerActions
 {
-    public function getList()
+    /**
+     * @return Response
+     */
+    public function getListAction()
     {
         $limit = $this->request->query->get('limit', 255);
         $offset = $this->request->query->get('offset', 0);
@@ -24,14 +28,20 @@ trait ResourceControllerActions
         return $this->viewResponse(self::TEMPLATE_LIST, ['list' => $list, 'resource' => $this->resource]);
     }
 
-    public function getEdit($id)
+    /**
+     * @return Response
+     */
+    public function getEditAction($id)
     {
         $entity = $this->service::get($this->db, $id);
 
         return $this->viewResponse(self::TEMPLATE_FORM, ['entity' => $entity, 'resource' => $this->resource]);
     }
 
-    public function postUpdate($id)
+    /**
+     * @return Response
+     */
+    public function postUpdateAction($id)
     {
         $updateParams = $this->requestParamsExcluding(self::EXCLUDED_UPDATE_PARAMS);
 
@@ -49,12 +59,18 @@ trait ResourceControllerActions
         return $this->redirectToRoute($this->resource::GET_EDIT, ['id' => $id]);
     }
 
-    public function getNew()
+    /**
+     * @return Response
+     */
+    public function getNewAction()
     {
         return $this->viewResponse(self::TEMPLATE_FORM, ['entity' => new $this->entity(), 'resource' => $this->resource]);
     }
 
-    public function postCreate()
+    /**
+     * @return Response
+     */
+    public function postCreateAction()
     {
         $createParams = $this->requestParamsExcluding(self::EXCLUDED_CREATE_PARAMS);
 
@@ -72,7 +88,10 @@ trait ResourceControllerActions
         return $this->redirectToRoute($this->resource::GET_LIST);
     }
 
-    public function postRemove($id)
+    /**
+     * @return Response
+     */
+    public function postRemoveAction($id)
     {
         $removeResponse = $this->service::remove($this->db, $id);
 
@@ -86,7 +105,10 @@ trait ResourceControllerActions
         return $this->redirectToRoute($this->resource::GET_LIST);
     }
 
-    public function postUndoRemove($id)
+    /**
+     * @return Response
+     */
+    public function postUndoRemoveAction($id)
     {
         $response = $this->service::undoRemove($this->db, $id);
 

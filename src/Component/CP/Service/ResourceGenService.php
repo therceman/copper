@@ -671,6 +671,66 @@ class $name extends AbstractController
         \$this->model = \$this->resource::getModel();
         \$this->entity = \$this->resource::getEntity();
     }
+    
+    /**
+     * Return View to see entity list
+     */
+    public function getList()
+    {
+        return \$this->getListAction();
+    }
+
+    /**
+     * Return View to update existing entity
+     * @param \$id
+     */
+    public function getEdit(\$id)
+    {
+        return \$this->getEditAction(\$id);
+    }
+
+    /**
+     * Submit Form to update existing entity
+     * @param \$id
+     */
+    public function postUpdate(\$id)
+    {
+        return \$this->postUpdateAction(\$id);
+    }
+
+    /**
+     * Return View to create new entity
+     */
+    public function getNew()
+    {
+        return \$this->getNewAction();
+    }
+
+    /**
+     * Submit Form to create new entity
+     */
+    public function postCreate()
+    {
+        return \$this->postCreateAction();
+    }
+
+    /**
+     * Submit Form to remove entity
+     * @param \$id
+     */
+    public function postRemove(\$id)
+    {
+        return \$this->postRemoveAction(\$id);
+    }
+
+    /**
+     * Submit From to undo delete of entity 
+     * @param \$id
+     */
+    public function postUndoRemove(\$id)
+    {
+        return \$this->postUndoRemoveAction(\$id);
+    }
 
 }";
         FileHandler::create($filePath, $content);
