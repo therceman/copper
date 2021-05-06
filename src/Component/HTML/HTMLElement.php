@@ -467,7 +467,8 @@ class HTMLElement
      */
     public function innerHTML($value)
     {
-        $this->innerHTML = $value;
+        if ($value !== null)
+            $this->innerHTML = $value;
 
         return $this;
     }

@@ -16,7 +16,7 @@ $head_title = $Resource::getName() . ' List';
 $order_by = $view->queryBag->get('order_by', 'id');
 $order = $view->queryBag->get('order', 'asc');
 $offset = $view->queryBag->get('offset', 0);
-$limit = $view->queryBag->get('limit', 20);
+$limit = $view->queryBag->get('limit', 255);
 
 $show_removed = $view->queryBag->get('show_removed');
 $show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
@@ -95,23 +95,27 @@ $urlPostUndoRemove = function ($id) use ($view, $Resource, $model) {
             <?php endforeach; ?>
             <th class="empty"></th>
         </tr>
-        <?php foreach ($list as $entry) : ?>
-            <tr class="<?= $entry->isRemoved() ? 'removed' : '' ?>">
-                <?php foreach ($field_names as $fieldName): ?>
-                    <td><?= $entry->$fieldName ?></td>
-                <?php endforeach; ?>
-                <td style="text-align: center">
-                    <?php
-                    if ($entry->isRemoved() === false)
-                        echo HTML::formGet($urlGetEdit($entry->id))
-                            ->addElement(HTML::button('Edit'));
-                    else
-                        echo HTML::form($urlPostUndoRemove($entry->id))
-                            ->addElement(HTML::button('Restore'));
-                    ?>
-                </td>
-            </tr>
-        <?php endforeach; ?>
+        <?php foreach ($list as $entry) {
+            $tr = HTML::tr()->toggleClass('removed', $entry->isRemoved());
+
+            foreach ($field_names as $fieldName) {
+                $value = $entry->$fieldName;
+                $tr->addElement(HTML::td($value));
+            }
+
+            $td = HTML::td()->addStyle('text-align', 'center');
+
+            if ($entry->isRemoved() === false)
+                $form = HTML::formGet($urlGetEdit($entry->id))->addElement(HTML::button('Edit'));
+            else
+                $form = HTML::form($urlPostUndoRemove($entry->id))->addElement(HTML::button('Restore'));
+
+            $td->addElement($form);
+
+            $tr->addElement($td);
+
+            echo $tr;
+        } ?>
     </table>
 </div>
 
