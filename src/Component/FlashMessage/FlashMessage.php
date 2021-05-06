@@ -8,6 +8,7 @@ class FlashMessage
     const SUCCESS = 'success';
     const WARNING = 'warning';
     const INFO = 'info';
+    const INPUT_LIST = 'encoded_input_list';
 
     /** @var string */
     public $type;

@@ -4,6 +4,10 @@ namespace Copper\Component\FlashMessage;
 
 use Symfony\Component\HttpFoundation\Session\Session;
 
+/**
+ * Class FlashMessageHandler
+ * @package Copper\Component\FlashMessage
+ */
 class FlashMessageHandler
 {
     /** @var Session */
@@ -20,46 +24,95 @@ class FlashMessageHandler
     }
 
     /**
-     * Set message text by type
+     * Set message value by type
+     * <hr>
+     * <code>
+     * - set('error', 'wrong pass')
+     * - set('error', ['wrong pass', 'wrong email'])
+     * </code>
      *
      * @param string $type
-     * @param string $text
+     * @param string|string[] $value
+     * @return string
      */
-    public function set(string $type, string $text)
+    public function set(string $type, $value)
     {
-        $this->session->getFlashBag()->set($type, $text);
+        $this->session->getFlashBag()->set($type, $value);
+
+        return $type;
+    }
+
+    /**
+     * Save request input list as key value array for later usage (if error occurs)
+     * <hr>
+     * <code>
+     *  - setInputList(['login' => 'therceman', 'accept_terms' => 1]);
+     * </code>
+     * @param $array
+     *
+     * @return array
+     */
+    public function setInputList(array $array)
+    {
+        $this->set(FlashMessage::INPUT_LIST, base64_encode(json_encode($array)));
+
+        return $array;
+    }
+
+    /**
+     * Returns saved request input list as key value array
+     *
+     * @return array
+     */
+    public function getInputList()
+    {
+        $encoded_input_list = $this->get(FlashMessage::INPUT_LIST);
+
+        return json_decode(base64_decode($encoded_input_list), true) ?? [];
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function setError(string $text)
     {
         $this->session->getFlashBag()->set(FlashMessage::ERROR, $text);
+
+        return FlashMessage::ERROR;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function setSuccess(string $text)
     {
         $this->session->getFlashBag()->set(FlashMessage::SUCCESS, $text);
+
+        return FlashMessage::SUCCESS;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function setInfo(string $text)
     {
         $this->session->getFlashBag()->set(FlashMessage::INFO, $text);
+
+        return FlashMessage::INFO;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function setWarning(string $text)
     {
         $this->session->getFlashBag()->set(FlashMessage::WARNING, $text);
+
+        return FlashMessage::WARNING;
     }
 
     /**
@@ -67,42 +120,57 @@ class FlashMessageHandler
      *
      * @param string $type
      * @param string $text
+     * @return string
      */
     public function add(string $type, string $text)
     {
         $this->session->getFlashBag()->add($type, $text);
+
+        return $type;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function addError(string $text)
     {
         $this->session->getFlashBag()->add(FlashMessage::ERROR, $text);
+
+        return FlashMessage::ERROR;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function addSuccess(string $text)
     {
         $this->session->getFlashBag()->add(FlashMessage::SUCCESS, $text);
+
+        return FlashMessage::SUCCESS;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function addInfo(string $text)
     {
         $this->session->getFlashBag()->add(FlashMessage::INFO, $text);
+
+        return FlashMessage::INFO;
     }
 
     /**
      * @param string $text
+     * @return string
      */
     public function addWarning(string $text)
     {
         $this->session->getFlashBag()->add(FlashMessage::WARNING, $text);
+
+        return FlashMessage::WARNING;
     }
 
     /**
@@ -179,6 +247,14 @@ class FlashMessageHandler
     /**
      * @return bool
      */
+    public function hasInputList()
+    {
+        return $this->session->getFlashBag()->has(FlashMessage::INPUT_LIST);
+    }
+
+    /**
+     * @return bool
+     */
     public function hasError()
     {
         return $this->session->getFlashBag()->has(FlashMessage::ERROR);
@@ -226,19 +302,6 @@ class FlashMessageHandler
     }
 
     /**
-     * Returns true if message type has multiple records
-     *
-     * @param string $type
-     * @return bool
-     */
-    public function isList(string $type)
-    {
-        $entries = $this->session->getFlashBag()->get($type);
-
-        return count($entries) > 0;
-    }
-
-    /**
      *  Returns the list of error messages
      *
      * @return string[]
@@ -281,9 +344,11 @@ class FlashMessageHandler
     /**
      * Returns the list of all messages
      *
+     * @param bool $only_first_values
+     *
      * @return FlashMessage[]
      */
-    public function all()
+    public function all($only_first_values = false)
     {
         $flashMessageList = [];
 
@@ -291,7 +356,10 @@ class FlashMessageHandler
             $flashMessageList[$type] = [];
 
             foreach ($msgList as $msg) {
-                $flashMessageList[$type][] = $msg;
+                if ($only_first_values)
+                    $flashMessageList[$type] = $msg;
+                else
+                    $flashMessageList[$type][] = $msg;
             }
         }
 
