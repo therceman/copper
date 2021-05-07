@@ -24,6 +24,10 @@ class Sanitizer
         $value = str_replace('"', '\u0022', $value);
         // escape ampersand
         $value = str_replace('&', '\u0026', $value);
+        // escape carriage return
+        $value = str_replace("\r", '\r', $value);
+        // escape line feed
+        $value = str_replace("\n", '\n', $value);
 
         return $value;
     }

@@ -17,20 +17,30 @@ class ViewOutput
     /**
      * Escape Javascript and output
      *
-     * @param string $value
+     * @param mixed $value
+     * @param bool $wrapIfStr
      *
      * @return string
      */
-    public function js($value)
+    public function js($value, $wrapIfStr = false)
     {
-        if ($value === null)
+        if ($value === null || $value === 'null')
             return 'null';
 
-        if ($value === false)
+        if ($value === false || $value === 'false')
             return 'false';
 
-        if ($value === true)
+        if ($value === true || $value === 'true')
             return 'true';
+
+        if (is_numeric($value))
+            return $value;
+
+        if (is_array($value))
+            return $this->json($value);
+
+        if (is_string($value) & $wrapIfStr)
+            return "'" . $this->sanitizer->js_escape($value) . "'";
 
         return $this->sanitizer->js_escape($value);
     }
@@ -56,6 +66,12 @@ class ViewOutput
      */
     public function json($value)
     {
+        if ($value === null || is_bool($value))
+            return 'null';
+
+        if (is_object($value))
+            $value = (array)$value;
+
         return json_encode($value);
     }
 

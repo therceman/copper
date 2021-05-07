@@ -324,12 +324,6 @@ class ViewHandler
      */
     public function json($value)
     {
-        if ($value === null || is_bool($value))
-            return 'null';
-
-        if (is_object($value))
-            $value = (array) $value;
-
         return $this->output->json($value);
     }
 
@@ -337,15 +331,13 @@ class ViewHandler
      * Output data as JavaScript
      *
      * @param mixed $value
+     * @param bool $wrapIfStr
      *
      * @return string
      */
-    public function js($value)
+    public function js($value, $wrapIfStr = false)
     {
-        if (is_array($value))
-            return $this->json($value);
-
-        return $this->output->js($value);
+        return $this->output->js($value, $wrapIfStr);
     }
 
     /**
