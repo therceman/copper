@@ -182,6 +182,7 @@ class HTMLCheckboxGroup extends HTMLElementGroup
 
         $this->add($this->inputCheckboxElement);
 
+        // TODO this is wrong and should be fixed
         if ($this->label !== '')
             $this->add($this->labelElement);
 

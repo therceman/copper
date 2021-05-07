@@ -12,5 +12,5 @@ import 'Handler/ArrayHandler.js';
     // Entity
     // Model
 
-    window.Copper = new Copper();
+    window.copper = new Copper();
 }());

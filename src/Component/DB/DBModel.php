@@ -712,8 +712,11 @@ abstract class DBModel
      * <code>
      * // Select all records from brand table where ID equals to 1 or 2
      * - Brand::getModel()->doSelectByIdList([1, 2])
+     *
+     * // Select all records using collection OR assoc array with ID keys
+     * - Brand::getModel()->doSelectByIdList([["id"=>1, "name"=>"A"], ["id"=>2, "name"=>"B"]])
      * </code>
-     * @param array $idList
+     * @param array|AbstractEntity[] $idList
      * @param DBSelect|null $select
      *
      * @return AbstractEntity[]
