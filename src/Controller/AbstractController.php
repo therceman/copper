@@ -16,6 +16,7 @@ use Copper\RequestTrait;
 
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -48,6 +49,8 @@ class AbstractController
     protected $validator;
     /** @var MailHandler */
     protected $mail;
+    /** @var ParameterBag */
+    protected $viewDataBag;
 
     /**
      * AbstractController constructor.
@@ -75,6 +78,8 @@ class AbstractController
         $this->validator = $validator;
         $this->mail = $mail;
 
+        $this->viewDataBag = new ParameterBag([]);
+
         $this->init();
     }
 
@@ -93,7 +98,7 @@ class AbstractController
      */
     public function viewResponse($view, $parameters = [])
     {
-        return new Response($this->renderView($view, $parameters));
+        return new Response($this->renderView($view, ArrayHandler::merge($this->viewDataBag->all(), $parameters)));
     }
 
     /**

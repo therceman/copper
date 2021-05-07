@@ -16,12 +16,13 @@ class AbstractEntity
     /**
      * @param ViewHandler $view
      * @param string $key
+     * @param mixed|null $default
      *
      * @return static|null
      */
-    public static function fromView(ViewHandler $view, string $key)
+    public static function fromView(ViewHandler $view, string $key, $default = null)
     {
-        return $view->dataBag->get($key, null);
+        return $view->dataBag->get($key, $default);
     }
 
     /**

@@ -27,6 +27,18 @@ class HTML
     }
 
     /**
+     * @param $html
+     * @param string $tag
+     * @return HTMLElement
+     */
+    public static function html($html, $tag = HTMLElement::DIV)
+    {
+        $el = new HTMLElement($tag);
+        $el->innerHTML($html);
+        return $el;
+    }
+
+    /**
      * @param $name
      * @param null $content
      *
