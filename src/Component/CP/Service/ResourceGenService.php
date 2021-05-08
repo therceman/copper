@@ -145,7 +145,7 @@ XML;
 
         $js_file = $src_js_entity_folder . '/' . $entityName . '.js';
 
-        $js_file_save_res = FileHandler::create($js_file, $js_source);
+        $js_file_save_res = FileHandler::setContent($js_file, $js_source);
 
         return $response->result($js_file_save_res);
     }
@@ -612,7 +612,7 @@ class $name extends AbstractResource
     $seedFunc
     $routes
 }";
-        FileHandler::create($filePath, $content);
+        FileHandler::setContent($filePath, $content);
 
         return $response->ok();
     }
@@ -733,7 +733,7 @@ class $name extends AbstractController
     }
 
 }";
-        FileHandler::create($filePath, $content);
+        FileHandler::setContent($filePath, $content);
 
         return $response->ok();
     }
@@ -776,7 +776,7 @@ class $name extends DBSeed
     }
 }
 XML;
-        FileHandler::create($filePath, $content);
+        FileHandler::setContent($filePath, $content);
 
         return $response->ok();
 
@@ -821,7 +821,7 @@ class $name extends DBCollectionService
 
 }
 XML;
-        FileHandler::create($filePath, $content);
+        FileHandler::setContent($filePath, $content);
 
         return $response->ok();
     }
@@ -1090,8 +1090,8 @@ $stateFieldsFunc
 }
 XML;
 
-        FileHandler::create($annotationTraitFilePath, $annotationTraitFileContent);
-        FileHandler::create($filePath, $content);
+        FileHandler::setContent($annotationTraitFilePath, $annotationTraitFileContent);
+        FileHandler::setContent($filePath, $content);
 
         return $response->ok();
     }
@@ -1161,7 +1161,7 @@ XML;
 
             FileHandler::setContent($filePath, $old_content);
         } else {
-            FileHandler::create($filePath, $content);
+            FileHandler::setContent($filePath, $content);
         }
 
         return $response->ok();

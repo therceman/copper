@@ -4,6 +4,7 @@ namespace Copper;
 
 use Copper\Component\Error\ErrorHandler;
 use Copper\Component\Mail\MailHandler;
+use Copper\Component\Routing\RoutingConfigLoader;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Controller\AbstractController;
 use Copper\Handler\FileHandler;
@@ -504,7 +505,7 @@ final class Kernel
     {
         // Load default routes
         $path = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $loader = new PhpFileLoader(new FileLocator($path));
+        $loader = new RoutingConfigLoader(new FileLocator($path));
         self::$routes = $loader->load($this::ROUTES_CONFIG_FILE);
 
         // Load application resource routes
@@ -530,7 +531,7 @@ final class Kernel
         // Load application top level routes
         $path = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
         if (FileHandler::fileExists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
-            $loader = new PhpFileLoader(new FileLocator($path));
+            $loader = new RoutingConfigLoader(new FileLocator($path));
             self::$routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
         }
     }

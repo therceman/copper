@@ -3,7 +3,7 @@
 use Copper\Component\CP\CPController;
 use Copper\Component\Error\ErrorController;
 use Copper\Kernel;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+use Copper\Component\Routing\RoutingConfigurator;
 
 use Copper\Controller\AbstractController;
 use Copper\Controller\RedirectController;

@@ -6,7 +6,7 @@ namespace Copper\Traits;
 
 use Copper\Handler\FileHandler;
 use Copper\Kernel;
-use Copper\PhpFileLoader;
+use Copper\ConfigLoader;
 use Symfony\Component\Config\FileLocator;
 
 trait ComponentHandlerTrait
@@ -31,12 +31,12 @@ trait ComponentHandlerTrait
         $packagePath = Kernel::getPackagePath() . '/' . Kernel::CONFIG_FOLDER;
         $projectPath = Kernel::getProjectPath() . '/' . Kernel::CONFIG_FOLDER;
 
-        $loader = PhpFileLoader::create($configurator, new FileLocator($packagePath));
+        $loader = ConfigLoader::create($configurator, $packagePath);
         $packageConfig = $loader->load($configFilename);
 
         $projectConfig = null;
         if (FileHandler::fileExists($projectPath . '/' . $configFilename)) {
-            $loader = PhpFileLoader::create($configurator, new FileLocator($projectPath));
+            $loader = ConfigLoader::create($configurator, $projectPath);
             $projectConfig = $loader->load($configFilename);
         }
 

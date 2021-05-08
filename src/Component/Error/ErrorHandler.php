@@ -129,7 +129,7 @@ class ErrorHandler
             if (FileHandler::fileExists(Kernel::getProjectLogPath()) === false)
                 FileHandler::createFolder(Kernel::getProjectLogPath());
 
-            FileHandler::appendContent($this->config->log_filepath, $log_data . "\n", true);
+            FileHandler::appendContent($this->config->log_filepath, $log_data . "\n");
         }
 
         if ($logOnly)
