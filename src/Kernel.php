@@ -5,6 +5,7 @@ namespace Copper;
 use Copper\Component\Error\ErrorHandler;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Routing\RoutingConfigLoader;
+use Copper\Component\Routing\RoutingConfigLocator;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Controller\AbstractController;
 use Copper\Handler\FileHandler;
@@ -182,21 +183,39 @@ final class Kernel
     /**
      * Returns path to project root directory
      *
+     * @param string|null $path [optional] = null
+     * <p>Path to specific file or folder in Project root directory</p>
+     *
      * @return string
      */
-    public static function getProjectPath()
+    public static function getProjectPath($path = null)
     {
-        return FileHandler::getAbsolutePath(dirname($_SERVER['SCRIPT_FILENAME']) . '/..');
+        $abs_path = FileHandler::getAbsolutePath(dirname($_SERVER['SCRIPT_FILENAME']) . '/..');
+
+        $pathArray = [$abs_path];
+
+        if ($path !== null)
+            $pathArray[] = is_array($path) ? FileHandler::pathFromArray($path) : $path;
+
+        return FileHandler::pathFromArray($pathArray);
     }
 
     /**
      * Returns path to package root directory
      *
+     * @param string|null $path [optional] = null
+     * <p>Path to specific file or folder in Package root directory</p>
+     *
      * @return string
      */
-    public static function getPackagePath()
+    public static function getPackagePath($path = null)
     {
-        return dirname(__DIR__);
+        $pathArray = [dirname(__DIR__)];
+
+        if ($path !== null)
+            $pathArray[] = is_array($path) ? FileHandler::pathFromArray($path) : $path;
+
+        return FileHandler::pathFromArray($pathArray);
     }
 
     /**
@@ -504,9 +523,9 @@ final class Kernel
     protected function configureRoutes()
     {
         // Load default routes
-        $path = $this::getPackagePath() . '/' . $this::CONFIG_FOLDER;
-        $loader = new RoutingConfigLoader(new FileLocator($path));
-        self::$routes = $loader->load($this::ROUTES_CONFIG_FILE);
+        $loader = new RoutingConfigLoader(new FileLocator());
+
+        self::$routes = $loader->load($this::getPackagePath([$this::CONFIG_FOLDER, $this::ROUTES_CONFIG_FILE]));
 
         // Load application resource routes
         $path = $this::getProjectPath() . '/' . $this::SRC_RESOURCE_FOLDER;
@@ -529,10 +548,10 @@ final class Kernel
         }
 
         // Load application top level routes
-        $path = $this::getProjectPath() . '/' . $this::CONFIG_FOLDER;
-        if (FileHandler::fileExists($path . '/' . $this::ROUTES_CONFIG_FILE)) {
-            $loader = new RoutingConfigLoader(new FileLocator($path));
-            self::$routes->addCollection($loader->load($this::ROUTES_CONFIG_FILE));
+        $path = $this::getProjectPath($this::CONFIG_FOLDER);
+        if (FileHandler::fileExists($path)) {
+            $loader = new RoutingConfigLoader(new FileLocator());
+            self::$routes->addCollection($loader->load($path . '/' . $this::ROUTES_CONFIG_FILE));
         }
     }
 

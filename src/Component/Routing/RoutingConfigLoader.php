@@ -11,12 +11,8 @@
 
 namespace Copper\Component\Routing;
 
-use Copper\Handler\FileHandler;
-use Symfony\Component\Config\Loader\FileLoader;
-use Symfony\Component\Config\Resource\FileResource;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
 use Symfony\Component\Routing\Loader\PhpFileLoader;
-use Symfony\Component\Routing\RouteCollection;
 
 /**
  * PhpFileLoader loads routes from a PHP file.
@@ -27,23 +23,15 @@ use Symfony\Component\Routing\RouteCollection;
  */
 class RoutingConfigLoader extends PhpFileLoader
 {
-    public function locate($file)
-    {
-        return FileHandler::pathFromArray([FileHandler::projectPathFromArray(['config']), $file]);
-    }
 
     /**
      * Loads a PHP file.
      *
-     * @param string      $file A PHP file path
-     * @param string|null $type The resource type
      *
      * @return RouteCollection A RouteCollection instance
      */
-    public function load($file, $type = null)
+    public function load($path, $type = null)
     {
-        $path = $this->locate($file);
-
         $load = \Closure::bind(function ($file) {
             return include $file;
         }, null, new class {
@@ -54,12 +42,14 @@ class RoutingConfigLoader extends PhpFileLoader
 
         if ($result instanceof \Closure) {
             $collection = new RouteCollection();
-            $result(new \Copper\Component\Routing\RoutingConfigurator($collection));
+            $result(new RoutingConfigurator($collection));
         } else {
             $collection = $result;
         }
 
-        $collection->addResource(new FileResource($path));
+        $collection->addResource($path);
+
+        print_r($collection);
 
         return $collection;
     }

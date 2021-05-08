@@ -4,7 +4,7 @@
   "keywords": ["php", "framework"],
   "license": "MIT",
   "require": {
-    "php": ">=7.0",
+    "php": ">=7.2",
     "ext-json": "*",
     "ext-pdo": "*",
     "symfony/http-foundation": "3.4.35",
