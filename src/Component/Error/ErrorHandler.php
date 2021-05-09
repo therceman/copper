@@ -126,8 +126,8 @@ class ErrorHandler
         $log_data = $error->asLogData($log_format);
 
         if ($this->config->log === true) {
-            if (FileHandler::fileExists(Kernel::getProjectLogPath()) === false)
-                FileHandler::createFolder(Kernel::getProjectLogPath());
+            if (FileHandler::fileExists(Kernel::getAppLogPath()) === false)
+                FileHandler::createFolder(Kernel::getAppLogPath());
 
             FileHandler::appendContent($this->config->log_filepath, $log_data . "\n");
         }
@@ -173,7 +173,7 @@ class ErrorHandler
          * Uncaught exception handler.
          */
         $logException = function ($e) {
-            $error = ErrorEntity::createFromException($e, $this->config->e_hide_project_path);
+            $error = ErrorEntity::createFromException($e, $this->config->e_hide_app_path);
             $this->throwErrorFromEntity($error);
         };
 

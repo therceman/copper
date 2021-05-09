@@ -21,7 +21,7 @@ Developed and Maintained by **Anton (therceman)** - Web Developer and Security R
 Documentation For v1.0
 -----------
 
-See [The Copper Skeleton][0] for a minimal and empty Copper v1.0 project which you can base your new projects on
+See [The Copper Skeleton][0] for a minimal and empty Copper v1.0 app which you can base your new apps on
 
 Installation
 ------------

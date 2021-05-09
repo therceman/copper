@@ -9,7 +9,6 @@
     "ext-pdo": "*",
     "symfony/http-foundation": "3.4.35",
     "symfony/routing": "3.4",
-    "symfony/config": "3.4",
     "envms/fluentpdo": "2.2.0",
     "phpmailer/phpmailer": "6.4.1"
   },

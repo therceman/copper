@@ -9,6 +9,10 @@ use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 
+/**
+ * Class MailHandler
+ * @package Copper\Component\Mail
+ */
 class MailHandler
 {
     use ComponentHandlerTrait;
@@ -36,6 +40,11 @@ class MailHandler
         $this->config = $this->configure(MailConfigurator::class, $configFilename);
     }
 
+    /**
+     * @param Mail $mail
+     *
+     * @return FunctionResponse
+     */
     public function send(Mail $mail)
     {
         $response = new FunctionResponse();

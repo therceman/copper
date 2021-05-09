@@ -8,6 +8,10 @@ use Symfony\Component\Routing\Loader\Configurator\CollectionConfigurator;
 use Symfony\Component\Routing\Loader\Configurator\Traits\AddTrait;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * Class RoutingConfigurator
+ * @package Copper\Component\Routing
+ */
 class RoutingConfigurator
 {
     use AddTrait;

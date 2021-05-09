@@ -135,7 +135,7 @@ function $entityName() {
 $func_property_list
 }
 XML;
-        $src_js_folder = Kernel::getProjectPath() . '/src_js';
+        $src_js_folder = Kernel::getAppPath() . '/src_js';
         if (FileHandler::fileExists($src_js_folder) === false)
             FileHandler::createFolder($src_js_folder);
 
@@ -173,7 +173,7 @@ XML;
 
         $folder_name = $resource::getModel()->getTableName();
 
-        $dest_tpl_folder_path = FileHandler::projectPathFromArray(['templates', $folder_name]);
+        $dest_tpl_folder_path = FileHandler::appPathFromArray(['templates', $folder_name]);
         $dest_form_tpl_path = FileHandler::pathFromArray([$dest_tpl_folder_path, $formFilename]);
         $dest_list_tpl_path = FileHandler::pathFromArray([$dest_tpl_folder_path, $listFilename]);
 
@@ -215,7 +215,7 @@ XML;
 
     private static function initTraitsFolder()
     {
-        $traitsFolder = Kernel::getProjectPath() . '/src/Traits';
+        $traitsFolder = Kernel::getAppPath() . '/src/Traits';
         if (FileHandler::fileExists($traitsFolder) === false)
             FileHandler::createFolder($traitsFolder);
     }
@@ -276,7 +276,7 @@ XML;
             $result_list['delete_model'] = FileHandler::delete($resource::getModelPath());
             $result_list['delete_model_trait'] = FileHandler::delete(
                 FileHandler::pathFromArray([
-                    Kernel::getProjectTraitsPath(),
+                    Kernel::getAppTraitsPath(),
                     'Annotation',
                     $resource::getModelName() . 'AnnotationTrait.php'
                 ])
@@ -488,7 +488,7 @@ XML;
 
     private static function filePath($name, $type)
     {
-        $folder = Kernel::getProjectPath() . '/src/' . $type;
+        $folder = Kernel::getAppPath() . '/src/' . $type;
 
         if (FileHandler::fileExists($folder) === false)
             mkdir($folder);

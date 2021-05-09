@@ -142,14 +142,14 @@ class FileHandler
     }
 
     /**
-     * Project path from array
+     * App path from array
      *
      * @param array $pathArray
      * @return string
      */
-    public static function projectPathFromArray(array $pathArray)
+    public static function appPathFromArray(array $pathArray)
     {
-        return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getProjectPath()], $pathArray));
+        return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getAppPath()], $pathArray));
     }
 
     /**

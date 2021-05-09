@@ -5,7 +5,6 @@ namespace Copper;
 use Copper\Component\Error\ErrorHandler;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Routing\RoutingConfigLoader;
-use Copper\Component\Routing\RoutingConfigLocator;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Controller\AbstractController;
 use Copper\Handler\FileHandler;
@@ -14,27 +13,19 @@ use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
-use Copper\Resource\AbstractResource;
-use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\Routing\Generator\UrlGenerator;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
-use Symfony\Component\Routing\Loader\PhpFileLoader;
-
-use Symfony\Component\Config\FileLocator;
 
 final class Kernel
 {
     const CONFIG_FOLDER = 'config';
-    const SRC_RESOURCE_FOLDER = 'src/Resource';
 
     const ERROR_CONFIG_FILE = 'error.php';
     const APP_CONFIG_FILE = 'app.php';
@@ -120,75 +111,75 @@ final class Kernel
         return $ip_list;
     }
 
-    public static function getProjectControllerPath()
+    public static function getAppControllerPath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Controller']);
+        return FileHandler::appPathFromArray(['src', 'Controller']);
     }
 
-    public static function getProjectServicePath()
+    public static function getAppServicePath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Service']);
+        return FileHandler::appPathFromArray(['src', 'Service']);
     }
 
-    public static function getProjectResourcePath()
+    public static function getAppResourcePath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Resource']);
+        return FileHandler::appPathFromArray(['src', 'Resource']);
     }
 
-    public static function getProjectEntityPath()
+    public static function getAppEntityPath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Entity']);
+        return FileHandler::appPathFromArray(['src', 'Entity']);
     }
 
-    public static function getProjectModelPath()
+    public static function getAppModelPath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Model']);
+        return FileHandler::appPathFromArray(['src', 'Model']);
     }
 
-    public static function getProjectSeedPath()
+    public static function getAppSeedPath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Seed']);
+        return FileHandler::appPathFromArray(['src', 'Seed']);
     }
 
-    public static function getProjectTraitsPath()
+    public static function getAppTraitsPath()
     {
-        return FileHandler::projectPathFromArray(['src', 'Traits']);
+        return FileHandler::appPathFromArray(['src', 'Traits']);
     }
 
-    public static function getProjectPublicPath()
+    public static function getAppPublicPath()
     {
-        return FileHandler::projectPathFromArray(['public']);
+        return FileHandler::appPathFromArray(['public']);
     }
 
-    public static function getProjectTemplatesPath()
+    public static function getAppTemplatesPath()
     {
-        return FileHandler::projectPathFromArray(['templates']);
+        return FileHandler::appPathFromArray(['templates']);
     }
 
-    public static function getProjectLogPath($logFile = null)
+    public static function getAppLogPath($logFile = null)
     {
         $pathArray = ['log'];
 
         if ($logFile !== null)
             $pathArray[] = $logFile;
 
-        return FileHandler::projectPathFromArray($pathArray);
+        return FileHandler::appPathFromArray($pathArray);
     }
 
     public static function getTemplatePath($template)
     {
-        return FileHandler::pathFromArray([self::getProjectTemplatesPath(), $template . '.php']);
+        return FileHandler::pathFromArray([self::getAppTemplatesPath(), $template . '.php']);
     }
 
     /**
-     * Returns path to project root directory
+     * Returns path to app root directory
      *
-     * @param string|null $path [optional] = null
-     * <p>Path to specific file or folder in Project root directory</p>
+     * @param string|array|null $path [optional] = null
+     * <p>Path to specific file or folder in App root directory</p>
      *
      * @return string
      */
-    public static function getProjectPath($path = null)
+    public static function getAppPath($path = null)
     {
         $abs_path = FileHandler::getAbsolutePath(dirname($_SERVER['SCRIPT_FILENAME']) . '/..');
 
@@ -203,7 +194,7 @@ final class Kernel
     /**
      * Returns path to package root directory
      *
-     * @param string|null $path [optional] = null
+     * @param string|array|null $path [optional] = null
      * <p>Path to specific file or folder in Package root directory</p>
      *
      * @return string
@@ -510,7 +501,7 @@ final class Kernel
     }
 
     /**
-     *  Configure App from {Package|Project}/config/app.php
+     *  Configure App from {Package|App}/config/app.php
      */
     protected function configureApp()
     {
@@ -518,45 +509,21 @@ final class Kernel
     }
 
     /**
-     *  Configure default and application routes from {APP|CORE}/config/routes.php
+     *  Configure default and application routes from {APP|CORE}/config/routes.php & resources
      */
     protected function configureRoutes()
     {
-        // Load default routes
-        $loader = new RoutingConfigLoader(new FileLocator());
+        $configLoader = new RoutingConfigLoader(
+            $this::CONFIG_FOLDER,
+            $this::ROUTES_CONFIG_FILE,
+            $this::getAppResourcePath()
+        );
 
-        self::$routes = $loader->load($this::getPackagePath([$this::CONFIG_FOLDER, $this::ROUTES_CONFIG_FILE]));
-
-        // Load application resource routes
-        $path = $this::getProjectPath() . '/' . $this::SRC_RESOURCE_FOLDER;
-        $resourceFiles = FileHandler::getFilesInFolder($path);
-
-        foreach ($resourceFiles->result as $key => $resourceFile) {
-            $filePath = $path . '/' . $resourceFile;
-
-            /** @var AbstractResource $resourceClass */
-            $resourceClass = FileHandler::getFileClassName($filePath);
-
-            if (in_array('registerRoutes', get_class_methods($resourceClass)) === false)
-                continue;
-
-            $collection = new RouteCollection();
-            $resourceClass::registerRoutes(new RoutingConfigurator($collection, $loader, $path, $filePath));
-            $collection->addResource(new FileResource($filePath));
-
-            self::$routes->addCollection($collection);
-        }
-
-        // Load application top level routes
-        $path = $this::getProjectPath($this::CONFIG_FOLDER);
-        if (FileHandler::fileExists($path)) {
-            $loader = new RoutingConfigLoader(new FileLocator());
-            self::$routes->addCollection($loader->load($path . '/' . $this::ROUTES_CONFIG_FILE));
-        }
+        self::$routes = $configLoader->loadRoutes();
     }
 
     /**
-     *  Configure Auth from {Package|Project}/config/auth.php
+     *  Configure Auth from {Package|App}/config/auth.php
      */
     protected function configureAuth()
     {
@@ -572,7 +539,7 @@ final class Kernel
     }
 
     /**
-     *  Configure Database from {Package|Project}/config/db.php
+     *  Configure Database from {Package|App}/config/db.php
      */
     protected function configureDB()
     {
@@ -580,7 +547,7 @@ final class Kernel
     }
 
     /**
-     *  Configure Control Panel from {Package|Project}/config/cp.php
+     *  Configure Control Panel from {Package|App}/config/cp.php
      */
     protected function configureCP()
     {
@@ -593,7 +560,7 @@ final class Kernel
     }
 
     /**
-     *  Configure Mail from {Package|Project}/config/mail.php
+     *  Configure Mail from {Package|App}/config/mail.php
      */
     protected function configureMail()
     {
@@ -601,7 +568,7 @@ final class Kernel
     }
 
     /**
-     *  Configure ErrorHandler from {Package|Project}/config/mail.php
+     *  Configure ErrorHandler from {Package|App}/config/mail.php
      */
     protected function configureErrorHandler()
     {
@@ -609,7 +576,7 @@ final class Kernel
     }
 
     /**
-     *  Configure Validator from {Package|Project}/config/validator.php
+     *  Configure Validator from {Package|App}/config/validator.php
      */
     protected function configureValidator()
     {

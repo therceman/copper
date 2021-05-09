@@ -14,6 +14,10 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouteCollection;
 
+/**
+ * Class ViewHandler
+ * @package Copper\Component\Templating
+ */
 class ViewHandler
 {
     use RequestTrait;

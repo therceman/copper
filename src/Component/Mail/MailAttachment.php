@@ -4,6 +4,10 @@
 namespace Copper\Component\Mail;
 
 
+/**
+ * Class MailAttachment
+ * @package Copper\Component\Mail
+ */
 class MailAttachment
 {
     const ENCODING_7BIT = '7bit';

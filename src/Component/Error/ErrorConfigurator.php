@@ -76,9 +76,9 @@ class ErrorConfigurator
     public $log_filepath;
 
     /**
-     * @var bool Hide project path from file path where exception occurred. <br>
-     * E.g. /opt/lampp/htdocs/project/public/index.php -> /public/index.php
+     * @var bool Hide app path from file path where exception occurred. <br>
+     * E.g. /opt/lampp/htdocs/app/public/index.php -> /public/index.php
      * Default: true
      */
-    public $e_hide_project_path = true;
+    public $e_hide_app_path = true;
 }
