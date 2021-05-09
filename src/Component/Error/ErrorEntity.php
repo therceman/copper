@@ -77,11 +77,11 @@ class ErrorEntity
 
     /**
      * @param \Exception $e
-     * @param bool $hideProjectPath
+     * @param bool $hideAppPath
      *
      * @return ErrorEntity
      */
-    public static function createFromException($e, bool $hideProjectPath)
+    public static function createFromException($e, bool $hideAppPath)
     {
         $trace = $e->getTrace();
 
@@ -103,8 +103,8 @@ class ErrorEntity
 
         $error->args = StringHandler::dump($error->args, true);
 
-        if ($hideProjectPath)
-            $error->file = StringHandler::replace($error->file, Kernel::getProjectPath(), '');
+        if ($hideAppPath)
+            $error->file = StringHandler::replace($error->file, Kernel::getAppPath(), '');
 
         return $error;
     }

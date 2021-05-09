@@ -245,7 +245,7 @@ class DBService
 
     public static function getClassNames($folder)
     {
-        $folderPath = Kernel::getProjectPath() . '/src/' . $folder;
+        $folderPath = Kernel::getAppPath() . '/src/' . $folder;
 
         return FileHandler::getClassNamesInFolder($folderPath);
     }

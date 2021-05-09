@@ -153,7 +153,7 @@ class CPController extends AbstractController
 
     private function db_generator()
     {
-        $resourceList = FileHandler::getClassNamesInFolder(Kernel::getProjectPath() . '/src/Resource')->result;
+        $resourceList = FileHandler::getClassNamesInFolder(Kernel::getAppPath() . '/src/Resource')->result;
         /** @var AbstractResource $resource */
         $resource = $this->request->get('resource', null);
 

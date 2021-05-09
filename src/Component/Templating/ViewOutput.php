@@ -4,6 +4,10 @@ namespace Copper\Component\Templating;
 
 use Copper\Sanitizer;
 
+/**
+ * Class ViewOutput
+ * @package Copper\Component\Templating
+ */
 class ViewOutput
 {
 

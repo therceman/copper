@@ -4,8 +4,13 @@
 namespace Copper\Component\Mail;
 
 
+use Copper\FunctionResponse;
 use Copper\Kernel;
 
+/**
+ * Class Mail
+ * @package Copper\Component\Mail
+ */
 class Mail
 {
     /** @var string */
@@ -103,6 +108,11 @@ class Mail
         return $this;
     }
 
+    /**
+     * @param MailAttachment $attachment
+     *
+     * @return $this
+     */
     public function addAttachment(MailAttachment $attachment)
     {
         $this->attachmentList[] = $attachment;
@@ -110,6 +120,9 @@ class Mail
         return $this;
     }
 
+    /**
+     * @return FunctionResponse
+     */
     public function send()
     {
         return Kernel::getMail()->send($this);

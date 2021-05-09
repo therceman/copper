@@ -3,7 +3,6 @@
 use Copper\Component\CP\CPController;
 use Copper\Component\Error\ErrorController;
 use Copper\Kernel;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 use Copper\Controller\AbstractController;
 use Copper\Controller\RedirectController;
@@ -13,7 +12,7 @@ const ROUTE_index = 'index';
 const ROUTE_get_copper_cp = 'get_copper_cp';
 const ROUTE_copper_cp_action = 'copper_cp_action';
 
-return function (RoutingConfigurator $routes) {
+return function ($routes) {
     // redirect URLs with a trailing slash to the same URL without a trailing slash (for example /en/blog/ to /en/blog).
     $routes->add('remove_trailing_slash', '/{url}')
         ->controller([RedirectController::class, 'removeTrailingSlashAction'])

@@ -6,17 +6,16 @@ namespace Copper\Traits;
 
 use Copper\Handler\FileHandler;
 use Copper\Kernel;
-use Copper\PhpFileLoader;
-use Symfony\Component\Config\FileLocator;
+use Copper\ConfigLoader;
 
 trait ComponentHandlerTrait
 {
-    protected function mergeConfig($packageConfig, $projectConfig)
+    protected function mergeConfig($packageConfig, $appConfig)
     {
-        if ($projectConfig === null)
+        if ($appConfig === null)
             return $packageConfig;
 
-        $vars = get_object_vars($projectConfig);
+        $vars = get_object_vars($appConfig);
 
         foreach ($vars as $key => $value) {
             if ($value !== null || trim($value) !== "")
@@ -26,20 +25,47 @@ trait ComponentHandlerTrait
         return $packageConfig;
     }
 
-    protected function configure($configurator, $configFilename)
+    /**
+     * @param string $configuratorClassName
+     * @param string $configFilename
+     *
+     * @return mixed
+     */
+    private function loadPackageConfig(string $configuratorClassName, string $configFilename)
     {
-        $packagePath = Kernel::getPackagePath() . '/' . Kernel::CONFIG_FOLDER;
-        $projectPath = Kernel::getProjectPath() . '/' . Kernel::CONFIG_FOLDER;
+        $packageConfigPath = Kernel::getPackagePath(Kernel::CONFIG_FOLDER);
 
-        $loader = PhpFileLoader::create($configurator, new FileLocator($packagePath));
-        $packageConfig = $loader->load($configFilename);
+        $loader = ConfigLoader::create($configuratorClassName, $packageConfigPath);
 
-        $projectConfig = null;
-        if (FileHandler::fileExists($projectPath . '/' . $configFilename)) {
-            $loader = PhpFileLoader::create($configurator, new FileLocator($projectPath));
-            $projectConfig = $loader->load($configFilename);
-        }
+        return $loader->load($configFilename);
+    }
 
-        return $this->mergeConfig($packageConfig, $projectConfig);
+    /**
+     * @param string $configuratorClassName
+     * @param string $configFilename
+     *
+     * @return mixed|null
+     */
+    private function loadAppConfig(string $configuratorClassName, string $configFilename)
+    {
+        $appConfigPath = Kernel::getAppPath(Kernel::CONFIG_FOLDER);
+
+        if (FileHandler::fileExists($appConfigPath) === false)
+            return null;
+
+        if (FileHandler::fileExists(FileHandler::pathFromArray([$appConfigPath, $configFilename])) === false)
+            return null;
+
+        $loader = ConfigLoader::create($configuratorClassName, $appConfigPath);
+
+        return $loader->load($configFilename);
+    }
+
+    protected function configure(string $configuratorClassName, string $configFilename)
+    {
+        $packageConfig = $this->loadPackageConfig($configuratorClassName, $configFilename);
+        $appConfig = $this->loadAppConfig($configuratorClassName, $configFilename);
+
+        return $this->mergeConfig($packageConfig, $appConfig);
     }
 }

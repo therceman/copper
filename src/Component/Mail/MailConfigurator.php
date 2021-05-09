@@ -3,42 +3,45 @@
 
 namespace Copper\Component\Mail;
 
+/**
+ * Class MailConfigurator
+ * @package Copper\Component\Mail
+ */
 class MailConfigurator
 {
-    /** @var string */
+    /** @var string Host (SMTP). Example: smtp.gmail.com` */
     public $host;
-    /** @var int */
+    /** @var int Port. Example: 587 */
     public $port;
     /** @var string */
     public $username;
     /** @var string */
     public $password;
 
-    /** @var string */
+    /** @var string [optional] */
     public $from;
-    /** @var string */
+    /** @var string [optional] */
     public $fromName;
 
-    /** @var string */
+    /** @var string [optional] */
     public $replyTo;
-    /** @var string */
+    /** @var string [optional] */
     public $replyToName;
 
-    /** @var bool */
+    /** @var bool [optional] = true */
     public $isSMTPEnabled;
-    /** @var bool */
+    /** @var bool [optional] = true */
     public $isSMTPAuthEnabled;
-    /** @var bool */
+    /** @var bool [optional] = false */
     public $isSMTPDebugEnabled;
-    /** @var bool */
+    /** @var bool [optional] = false */
     public $setSMTPDebugToClientMode;
-    /** @var bool */
+    /** @var bool [optional] = true */
     public $setSMTPSecureToSTARTTLS;
 
-    /** @var string */
-    public $charset;
-    /** @var string */
+    /** @var string [optional] = base64 <p>Mail Encoding</p> */
     public $encoding;
-
+    /** @var string [optional] = utf-8 <p>Mail Charset</p>*/
+    public $charset;
 
 }

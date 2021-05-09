@@ -142,14 +142,14 @@ class FileHandler
     }
 
     /**
-     * Project path from array
+     * App path from array
      *
      * @param array $pathArray
      * @return string
      */
-    public static function projectPathFromArray(array $pathArray)
+    public static function appPathFromArray(array $pathArray)
     {
-        return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getProjectPath()], $pathArray));
+        return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getAppPath()], $pathArray));
     }
 
     /**
@@ -194,59 +194,49 @@ class FileHandler
     /**
      * Append content to the end of a file
      *
-     * @param string $filePath
-     * @param string $content
-     * @param bool $lock
-     * @param bool $create_new
+     * @param string $filePath File path
+     * @param string $content File content
+     * @param bool $onlyIfExists [optional] = false
+     * <p>If is true and filepath doesn't exists - response with error is returned</p>
      *
      * @return FunctionResponse
      */
-    public static function appendContent(string $filePath, string $content, bool $create_new = false, bool $lock = false)
+    public static function appendContent(string $filePath, string $content, bool $onlyIfExists = false)
     {
         $response = new FunctionResponse();
 
-        if (self::fileExists($filePath) === false && $create_new === false)
+        if (self::fileExists($filePath) === false && $onlyIfExists === true)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
         $filePath = self::cleanPath($filePath);
 
-        $flags = ($lock) ? FILE_APPEND | LOCK_EX : FILE_APPEND;
-
-        return $response->result(file_put_contents($filePath, $content, $flags), self::ERROR_PUT_CONTENT);
+        return $response->result(file_put_contents($filePath, $content, FILE_APPEND), self::ERROR_PUT_CONTENT);
     }
 
     /**
      * Set content of a file
      *
-     * @param string $filePath
-     * @param string $content
-     * @param bool $create_new
+     * @param string $filePath File path
+     * @param string $content File content
+     * @param bool $onlyIfExists [optional] = false
+     * <p>If is true and filepath doesn't exists - response with error is returned</p>
+     * @param bool $lock [optional] = false
+     * <p>If is true the file will be locked while content is being saved to file</p>
      *
      * @return FunctionResponse
      */
-    public static function setContent(string $filePath, string $content, bool $create_new = false)
+    public static function setContent(string $filePath, string $content, bool $onlyIfExists = false, $lock = false)
     {
         $response = new FunctionResponse();
 
-        if (self::fileExists($filePath) === false && $create_new === false)
+        if (self::fileExists($filePath) === false && $onlyIfExists === true)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
         $filePath = self::cleanPath($filePath);
 
-        return $response->result(file_put_contents($filePath, $content), self::ERROR_PUT_CONTENT);
-    }
+        $flags = ($lock) ? LOCK_EX : 0;
 
-    /**
-     * Create new file with content
-     *
-     * @param string $filePath
-     * @param string $content
-     *
-     * @return FunctionResponse
-     */
-    public static function create(string $filePath, string $content)
-    {
-        return self::setContent($filePath, $content, true);
+        return $response->result(file_put_contents($filePath, $content, $flags), self::ERROR_PUT_CONTENT);
     }
 
     /**

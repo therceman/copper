@@ -12,7 +12,8 @@ use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+use Copper\Component\Routing\RoutingConfigurator;
 
 abstract class AbstractResource
 {
@@ -60,7 +61,7 @@ abstract class AbstractResource
 
     static function getModelPath()
     {
-        return self::getPhpFilePath(Kernel::getProjectModelPath(), self::getModelName());
+        return self::getPhpFilePath(Kernel::getAppModelPath(), self::getModelName());
     }
 
     static function getModelName()
@@ -77,7 +78,7 @@ abstract class AbstractResource
 
     static function getEntityPath()
     {
-        return self::getPhpFilePath(Kernel::getProjectEntityPath(), self::getEntityName());
+        return self::getPhpFilePath(Kernel::getAppEntityPath(), self::getEntityName());
     }
 
     static function getEntityName()
@@ -97,7 +98,7 @@ abstract class AbstractResource
 
     static function getControllerPath()
     {
-        return self::getPhpFilePath(Kernel::getProjectControllerPath(), self::getControllerName());
+        return self::getPhpFilePath(Kernel::getAppControllerPath(), self::getControllerName());
     }
 
     static function getControllerName()
@@ -117,7 +118,7 @@ abstract class AbstractResource
 
     static function getServicePath()
     {
-        return self::getPhpFilePath(Kernel::getProjectServicePath(), self::getServiceName());
+        return self::getPhpFilePath(Kernel::getAppServicePath(), self::getServiceName());
     }
 
     static function getServiceName()
@@ -137,7 +138,7 @@ abstract class AbstractResource
 
     static function getSeedPath()
     {
-        return self::getPhpFilePath(Kernel::getProjectSeedPath(), self::getSeedName());
+        return self::getPhpFilePath(Kernel::getAppSeedPath(), self::getSeedName());
     }
 
     static function getSeedName()
@@ -154,7 +155,7 @@ abstract class AbstractResource
 
     static function getPath()
     {
-        return self::getPhpFilePath(Kernel::getProjectResourcePath(), self::getName());
+        return self::getPhpFilePath(Kernel::getAppResourcePath(), self::getName());
     }
 
     static function getName()
