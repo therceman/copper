@@ -40,6 +40,9 @@ class ViewOutput
         if (is_numeric($value))
             return $value;
 
+        if (is_object($value))
+            $value = (array)$value;
+
         if (is_array($value))
             return $this->json($value);
 

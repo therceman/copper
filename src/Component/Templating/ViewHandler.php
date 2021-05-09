@@ -334,12 +334,12 @@ class ViewHandler
     /**
      * Output data as JavaScript
      *
-     * @param mixed $value
-     * @param bool $wrapIfStr
+     * @param mixed $value <p>Any desired value</p>
+     * @param bool $wrapIfStr [optional] = true <p>Wrap strings with single quotes</p>
      *
      * @return string
      */
-    public function js($value, $wrapIfStr = false)
+    public function js($value, $wrapIfStr = true)
     {
         return $this->output->js($value, $wrapIfStr);
     }
