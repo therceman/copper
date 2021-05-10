@@ -208,7 +208,8 @@ class DBModelField
             $this->length = $length;
     }
 
-    public static function cleanLength($length_list) {
+    public static function cleanLength($length_list)
+    {
         $list = [];
 
         foreach ($length_list as $val) {
@@ -562,6 +563,24 @@ class DBModelField
                 DBModelField::DATETIME,
 //                DBModelField::TIMESTAMP,
             ]) !== false);
+    }
+
+
+    /**
+     * Returns decimal count for field with type = DECIMAL
+     *
+     * @return int
+     */
+    public function getDecimalCount()
+    {
+        $dbConfig = Kernel::getDb()->config;
+
+        $default_decimal_length = $dbConfig->default_decimal_length;
+
+        if ($this->type === DBModelField::DECIMAL)
+            return ($this->getLength() === false) ? $default_decimal_length[1] : $this->getLength()[1];
+
+        return 0;
     }
 
     /**

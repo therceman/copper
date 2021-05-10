@@ -26,6 +26,6 @@ class DBConfigurator
     /** @var int */
     public $default_varchar_length;
 
-    /** @var array */
+    /** @var int[] */
     public $default_decimal_length;
 }

@@ -506,6 +506,8 @@ final class Kernel
     protected function configureApp()
     {
         self::$app = new App(self::APP_CONFIG_FILE);
+
+        ini_set('serialize_precision', strval(self::$app->config->serialize_precision));
     }
 
     /**

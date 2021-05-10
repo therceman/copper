@@ -14,4 +14,5 @@ return function (AppConfigurator $appConfig) {
     $appConfig->bag->set('keywords', ['PHP', 'Framework', 'CopperPHP', 'Web Development']);
     $appConfig->timezone = false;
 
+    $appConfig->serialize_precision = -1;
 };
