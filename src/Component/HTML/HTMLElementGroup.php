@@ -204,6 +204,9 @@ abstract class HTMLElementGroup
      */
     public function getHTMLElements()
     {
+        if ($this->toggle === false)
+            return [];
+
         $this->build();
 
         $el_list = $this->getList();

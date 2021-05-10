@@ -14,8 +14,8 @@ use Copper\Handler\StringHandler;
 class HTML
 {
     /**
-     * @param array $trList
-     * @param array $thList
+     * @param HTMLElement[]|HTMLElementGroup[] $trList
+     * @param HTMLElement[]|HTMLElementGroup[] $thList
      * @param string|array|null $class
      *
      * @return HTMLElement
@@ -156,6 +156,11 @@ class HTML
         $el->innerText($text)->setAttr('value', ($value === null) ? '' : $value);
 
         return $el;
+    }
+
+    public static function hr()
+    {
+        return new HTMLElement(HTMLElement::HR, false);
     }
 
     public static function h1($text = '')
@@ -551,11 +556,11 @@ class HTML
      * Create textarea element
      *
      * @param string $name
-     * @param string $text
+     * @param string|null $text
      *
      * @return HTMLElement
      */
-    public static function textarea($name = null, string $text = '')
+    public static function textarea($name = null, $text = '')
     {
         $el = new HTMLElement(HTMLElement::TEXTAREA);
 

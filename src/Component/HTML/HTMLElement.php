@@ -25,6 +25,7 @@ class HTMLElement
     const META = 'meta';
     const INPUT = 'input';
     const IMG = 'img';
+    const HR = 'hr';
 
     // with end tag
 

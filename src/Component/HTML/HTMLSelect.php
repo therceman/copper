@@ -8,6 +8,8 @@ class HTMLSelect extends HTMLElement
 {
     private $useKeyAsValue = false;
     private $value = '';
+    private $defaultOptionText = null;
+    private $defaultOptionKey = null;
     private $options = [];
 
     public function __construct()
@@ -36,8 +38,19 @@ class HTMLSelect extends HTMLElement
         return $this;
     }
 
+    public function defaultOption($text, $key = null)
+    {
+        $this->defaultOptionText = $text;
+        $this->defaultOptionKey = $key;
+
+        return $this;
+    }
+
     public function __toString()
     {
+        if ($this->defaultOptionText !== null)
+            $this->addElement(HTML::option($this->defaultOptionText, $this->defaultOptionKey));
+
         foreach ($this->options as $value => $text) {
             $optionEl = HTML::option($text, ($this->useKeyAsValue) ? $value : $text);
 
