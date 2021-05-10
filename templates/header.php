@@ -112,12 +112,12 @@ $keywords = $view->dataBag->get('keywords', $view->appConfig->bag->get('keywords
             cursor: pointer;
         }
 
-        table.collection th.sort.asc:after {
+        table.collection th.sort.desc:after {
             content: "⇣";
             position: absolute;
         }
 
-        table.collection th.sort.desc:after {
+        table.collection th.sort.asc:after {
             content: "⇡";
             position: absolute;
         }

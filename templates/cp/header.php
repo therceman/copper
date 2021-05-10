@@ -62,12 +62,12 @@ $title = $view->dataBag->get('title', 'Copper Panel');
             cursor: pointer;
         }
 
-        table.collection th.sort.asc:after {
+        table.collection th.sort.desc:after {
             content: "⇣";
             position: absolute;
         }
 
-        table.collection th.sort.desc:after {
+        table.collection th.sort.asc:after {
             content: "⇡";
             position: absolute;
         }
