@@ -53,6 +53,7 @@ class HTMLElement
     const H5 = 'h5';
     const H6 = 'h6';
     const STYLE = 'style';
+    const TABLE = 'table';
 
     /** @var string */
     private $tag;
@@ -533,15 +534,22 @@ class HTMLElement
 
     /**
      * @param HTMLElementGroup $elGroup
+     * @param bool $skipWrapper
      *
      * @return $this
      */
-    public function addElementGroup(HTMLElementGroup $elGroup)
+    public function addElementGroup(HTMLElementGroup $elGroup, $skipWrapper = false)
     {
-        $elGroup->build();
+        if ($skipWrapper === false) {
+            $elList = $elGroup->getHTMLElements();
+        } else {
+            $elGroup->build();
+            $elList = $elGroup->getList();
+        }
 
-        foreach ($elGroup->getList() as $el)
+        foreach ($elList as $el) {
             $this->addElement($el);
+        }
 
         return $this;
     }

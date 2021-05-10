@@ -198,6 +198,23 @@ abstract class HTMLElementGroup
         return $this->__toString();
     }
 
+
+    /**
+     * @return HTMLElement[]
+     */
+    public function getHTMLElements()
+    {
+        $this->build();
+
+        $el_list = $this->getList();
+
+        if ($this->wrapper !== null) {
+            return [$this->wrapper->innerHTML(join(PHP_EOL, $el_list))];
+        }
+
+        return $el_list;
+    }
+
     /**
      * @return string
      */

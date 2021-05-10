@@ -213,7 +213,11 @@ class ViewHandler
 
     /**
      * Return Route / Template / Query parameter by key.
-     * Check Priority: 1) Route -> 2) Template -> 3) Query.
+     * <hr>
+     * <p>Check Priority:</p>
+     * <p>1) Route</p>
+     * <p>2) Template</p>
+     * <p>3) Query</p>
      *
      * @param string $key
      * @param mixed|null $default

@@ -4,6 +4,7 @@
 namespace Copper\Component\HTML;
 
 
+use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
 
 /**
@@ -12,6 +13,27 @@ use Copper\Handler\StringHandler;
  */
 class HTML
 {
+    /**
+     * @param array $trList
+     * @param array $thList
+     * @param string|array|null $class
+     *
+     * @return HTMLElement
+     */
+    public static function table($thList = [], $trList = [], $class = null)
+    {
+        $el = new HTMLElement(HTMLElement::TABLE);
+
+        foreach (ArrayHandler::merge($thList, $trList) as $row) {
+            if ($row instanceof HTMLElementGroup)
+                $el->addElementGroup($row);
+            else
+                $el->addElement($row);
+        }
+
+        return $el->class($class);
+    }
+
     /**
      * @param $text
      *
