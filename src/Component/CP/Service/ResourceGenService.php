@@ -565,7 +565,7 @@ XML;
         // custom route registration
     }";
 
-        $routingConfiguratorClass = 'use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;';
+        $routingConfiguratorClass = 'use Copper\Component\Routing\RoutingConfigurator;';
         if ($controller === false) {
             $routes = '';
             $routingConfiguratorClass = '';

@@ -58,7 +58,7 @@ class AppConfigurator
      * Example: 'Europe/Riga'
      * <br>
      * Default: false
-     * @var string
+     * @var string|false
      */
     public $timezone;
 
