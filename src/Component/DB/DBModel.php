@@ -453,8 +453,14 @@ abstract class DBModel
     {
         foreach ($mods as $mod) {
             $column = $mod->getColumn();
-            if ($column !== null && ArrayHandler::hasValue($columns, $column)) {
+
+            if ($column === null)
+                continue;
+
+            if (ArrayHandler::hasValue($columns, $column)) {
                 $columns = ArrayHandler::replaceValue($columns, $column, $mod->getCraftedStatement());
+            } else {
+                $columns[] = $mod->getCraftedStatement();
             }
         }
 
@@ -463,10 +469,11 @@ abstract class DBModel
 
     /**
      * @param DBSelect $select
+     * @param bool $countOnly [optional] = false
      * @return Select
      * @throws Exception
      */
-    private function prepareSelectStatement(DBSelect $select = null)
+    private function prepareSelectStatement(DBSelect $select = null, $countOnly = false)
     {
         $db = Kernel::getDb();
 
@@ -490,8 +497,11 @@ abstract class DBModel
         if ($ignoredColumns !== null)
             $columns = ArrayHandler::diff($this->getFieldNames(true), $ignoredColumns);
 
+        if ($countOnly)
+            $columns = ['COUNT(*)'];
+
         if ($columnMods !== null)
-            $columns = $this->processColumnMods($columnMods, $columns);
+            $columns = $this->processColumnMods($columnMods, $columns ?? []);
 
         if ($limit !== null)
             $stm = $stm->limit($limit);
@@ -618,9 +628,9 @@ abstract class DBModel
     public function doCount(DBSelect $select = null)
     {
         try {
-            $stm = $this->prepareSelectStatement($select);
+            $stm = $this->prepareSelectStatement($select, true);
 
-            $result = $stm->count();
+            $result = $stm->fetchColumn();
 
             if ($result === false)
                 $result = 0;
