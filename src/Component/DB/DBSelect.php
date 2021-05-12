@@ -83,6 +83,10 @@ class DBSelect
      * // Using subPerc (as column)
      * - columnMod('price', DBColumnMod::subPerc('discount_perc');
      * # Transforms to: SELECT `price` - (`price` * `discount_perc`) / 100 as `price` ...
+     *
+     * // Chaining
+     * - columnMod('price', DBColumnMod::subPerc(10)->andAddPerc(5));
+     * # Transforms to: SELECT `price` - (`price` * 10) / 100 + (`price` * 5) / 100 as `price`
      * </code>
      * @param string $column
      * @param DBColumnMod|null $mod

@@ -10,6 +10,22 @@ class NumberHandler
     const SIGN_EUR = '€';
     const SIGN_PERCENT = '%';
 
+    /**
+     * Returns absolute value
+     * <hr>
+     * <code>
+     * - absolute(-1)    // 1
+     * - absolute(-1.33) // 1.33
+     * - absolute(1.33)  // 1.33
+     * </code>
+     * @param float|int $num
+     * @return float|int
+     */
+    public static function absolute($num)
+    {
+        return abs($num);
+    }
+
     public static function divisionRemainder($num1, $num2)
     {
         return $num1 % $num2;

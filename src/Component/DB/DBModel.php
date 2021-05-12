@@ -734,17 +734,12 @@ abstract class DBModel
      * - Brand::getModel()->doSelectById(1)
      * </code>
      * @param string|int $id
-     * @param array $columns
+     * @param DBSelect|null $select
      *
      * @return AbstractEntity|null
      */
-    public function doSelectById($id, $columns = [])
+    public function doSelectById($id, DBSelect $select = null)
     {
-        $select = null;
-
-        if (count($columns) > 0)
-            $select = DBSelect::columns($columns);
-
         return $this->doSelectFirstWhereIs(DBModel::ID, $id, $select);
     }
 

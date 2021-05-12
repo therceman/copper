@@ -970,7 +970,7 @@ trait $annotationTraitName
 
     /** @return $entity|null 
      * @see \Copper\Component\DB\DBModel::doSelectById() */
-    public function doSelectById(\$id, \$columns = [])
+    public function doSelectById(\$id, DBSelect \$select = null)
     {
         return \$this->cpm(__FUNCTION__, func_get_args());
     }
