@@ -174,12 +174,18 @@ abstract class DBModel
 
     /**
      * @param $name
+     * @param bool $escape [default] = false
      *
      * @return string
      */
-    public static function formatFieldName($name)
+    public static function formatFieldName($name, $escape = false)
     {
-        return preg_replace("/[^a-zA-Z0-9_]+/", "", $name);
+        $res = preg_replace("/[^a-zA-Z0-9_]+/", "", $name);
+
+        if ($escape === true)
+            $res = '`' . $res . '`';
+
+        return $res;
     }
 
     /**
@@ -448,7 +454,7 @@ abstract class DBModel
         foreach ($mods as $mod) {
             $column = $mod->getColumn();
             if ($column !== null && ArrayHandler::hasValue($columns, $column)) {
-                $columns[$column] = $mod->getCraftedStatement();
+                $columns = ArrayHandler::replaceValue($columns, $column, $mod->getCraftedStatement());
             }
         }
 
@@ -500,7 +506,7 @@ abstract class DBModel
             $stm = $stm->select($columns, true);
 
         if ($where !== null)
-            $stm = $where->buildForStatement($stm);
+            $stm = $where->buildForStatement($stm, $columnMods);
 
         if ($order !== false && $order instanceof DBOrder)
             $stm->order($order);

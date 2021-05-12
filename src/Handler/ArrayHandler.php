@@ -13,6 +13,24 @@ use Copper\Entity\AbstractEntity;
 class ArrayHandler
 {
     /**
+     * @param array $array
+     * @param mixed $search
+     * @param mixed $replaceTo
+     * @param bool $strict [default] = false
+     *
+     * @return array
+     */
+    public static function replaceValue(array $array, $search, $replaceTo, $strict = false)
+    {
+        foreach ($array as $key => $value) {
+            if ($strict && $value === $search || $strict === false && $value == $search)
+                $array[$key] = $replaceTo;
+        }
+
+        return $array;
+    }
+
+    /**
      * Get intersection list of two arrays
      * <hr>
      * <code>

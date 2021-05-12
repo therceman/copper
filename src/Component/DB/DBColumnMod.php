@@ -31,6 +31,11 @@ class DBColumnMod
     private $statement;
 
     /**
+     * @var int|null
+     */
+    private $roundResultDec;
+
+    /**
      * DBColumnMod constructor.
      * @param string|null $statement
      * @param string|null $params
@@ -39,6 +44,8 @@ class DBColumnMod
     {
         $this->actions = [];
         $this->statement = null;
+
+        $this->roundResultDec = null;
 
         if ($statement !== null && $params !== null)
             $this->statement = $this->createStatement($statement, $params);
@@ -105,6 +112,11 @@ class DBColumnMod
             if ($type === DBColumnModAction::MUL)
                 $statement = $statement . $this->createStatement(' * $1', [$val]);
         }
+
+        $statement = '(' . $statement . ')';
+
+        if ($this->roundResultDec !== null)
+            $statement = 'ROUND(' . $statement . ',' . $this->roundResultDec . ')';
 
         return $statement . ' as ' . $this->column;
     }
@@ -381,6 +393,25 @@ class DBColumnMod
     public function andAddPerc($value)
     {
         $this->addAction(new DBColumnModAction(DBColumnModAction::ADD_PERC, $value));
+
+        return $this;
+    }
+
+    /**
+     * Rounds result
+     * <hr>
+     * <code>
+     * - roundResult(2) // Rounds to 2 decimals. E.g. 1.236 => 1.24
+     * - roundResult(0) // Rounds to 0 decimals. E.g. 1.236 => 1
+     * </code>
+     *
+     * @param int|null $dec
+     *
+     * @return $this
+     */
+    public function roundResult($dec)
+    {
+        $this->roundResultDec = $dec;
 
         return $this;
     }

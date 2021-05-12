@@ -5,6 +5,7 @@ namespace Copper\Component\DB;
 
 
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\StringHandler;
 use Envms\FluentPDO\Queries\Delete;
 use Envms\FluentPDO\Queries\Select;
 use Envms\FluentPDO\Queries\Update;
@@ -650,9 +651,10 @@ class DBWhere
 
     /**
      * @param Select|Delete|Update $stm
+     * @param DBColumnMod[]|null $columnMods
      * @return Select
      */
-    public function buildForStatement($stm)
+    public function buildForStatement($stm, $columnMods)
     {
         foreach ($this->conditions as $cond) {
             $value = $cond->formatValue();
@@ -682,6 +684,24 @@ class DBWhere
 
             if (is_array($value) && count($value) === 0 && in_array($cond->cond, [self::IS, self::IN]))
                 $condStr = '1 = 2';
+
+            $columnModFound = false;
+            if ($columnMods !== null) {
+                foreach ($columnMods as $mod) {
+                    if ($mod->getColumn() === DBModel::formatFieldName($cond->field, true))
+                        $columnModFound = true;
+                }
+            }
+
+            if ($columnModFound === true) {
+                // TODO test needed
+                $condStr = StringHandler::has($condStr, '?')
+                    ? StringHandler::replace($condStr, '?', $value)
+                    : $condStr;
+
+                $stm->having($condStr);
+                continue;
+            }
 
             if ($cond->chain === self::CHAIN_OR)
                 $stm->whereOr($condStr, $value);
