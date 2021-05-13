@@ -22,16 +22,20 @@ class DBColumnModAction
     private $type;
     /** @var string|int|float|null */
     private $value;
+    /** @var bool */
+    private $chained;
 
     /**
      * DBColumnMod constructor.
      * @param int $type
      * @param string|int|float $value
+     * @param $chained
      */
-    public function __construct(int $type, $value)
+    public function __construct(int $type, $value, $chained = false)
     {
         $this->type = $type;
         $this->value = $this->formatValue($value);
+        $this->chained = $chained;
     }
 
     /**
@@ -62,5 +66,13 @@ class DBColumnModAction
     public function getValue()
     {
         return $this->value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isChained(): bool
+    {
+        return $this->chained;
     }
 }

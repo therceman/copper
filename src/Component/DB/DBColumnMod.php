@@ -94,22 +94,28 @@ class DBColumnMod
             $type = $action->getType();
             $val = $action->getValue();
 
-            if ($type === DBColumnModAction::ADD_PERC)
+            if ($type === DBColumnModAction::ADD_PERC && $action->isChained() === false)
                 $statement = $statement . $this->createStatement(' + ($1 * $2) / 100', [$col, $val]);
 
-            if ($type === DBColumnModAction::SUB_PERC)
+            if ($type === DBColumnModAction::ADD_PERC && $action->isChained())
+                $statement = '(' . $statement . $this->createStatement(') + ((' . $statement . ') * $1) / 100', [$val]);
+
+            if ($type === DBColumnModAction::SUB_PERC && $action->isChained() === false)
                 $statement = $statement . $this->createStatement(' - ($1 * $2) / 100', [$col, $val]);
 
-            if ($type === DBColumnModAction::ADD)
+            if ($type === DBColumnModAction::SUB_PERC && $action->isChained())
+                $statement = '(' . $statement . $this->createStatement(') - ((' . $statement . ') * $1) / 100', [$val]);
+
+            if ($type === DBColumnModAction::ADD && $action->isChained())
                 $statement = $statement . $this->createStatement(' + $1', [$val]);
 
-            if ($type === DBColumnModAction::SUB)
+            if ($type === DBColumnModAction::SUB && $action->isChained())
                 $statement = $statement . $this->createStatement(' - $1', [$val]);
 
-            if ($type === DBColumnModAction::DIV)
+            if ($type === DBColumnModAction::DIV && $action->isChained())
                 $statement = $statement . $this->createStatement(' / $1', [$val]);
 
-            if ($type === DBColumnModAction::MUL)
+            if ($type === DBColumnModAction::MUL && $action->isChained())
                 $statement = $statement . $this->createStatement(' * $1', [$val]);
         }
 
@@ -195,7 +201,7 @@ class DBColumnMod
     {
         $self = new self();
 
-        $self->addAction(new DBColumnModAction(DBColumnModAction::SUB, $value));
+        $self->addAction(new DBColumnModAction(DBColumnModAction::SUB, $value, true));
 
         return $self;
     }
@@ -211,7 +217,7 @@ class DBColumnMod
      */
     public function andSub($value)
     {
-        $this->addAction(new DBColumnModAction(DBColumnModAction::SUB, $value));
+        $this->addAction(new DBColumnModAction(DBColumnModAction::SUB, $value, true));
 
         return $this;
     }
@@ -231,7 +237,7 @@ class DBColumnMod
     {
         $self = new self();
 
-        $self->addAction(new DBColumnModAction(DBColumnModAction::ADD, $value));
+        $self->addAction(new DBColumnModAction(DBColumnModAction::ADD, $value, true));
 
         return $self;
     }
@@ -247,7 +253,7 @@ class DBColumnMod
      */
     public function andAdd($value)
     {
-        $this->addAction(new DBColumnModAction(DBColumnModAction::ADD, $value));
+        $this->addAction(new DBColumnModAction(DBColumnModAction::ADD, $value, true));
 
         return $this;
     }
@@ -267,7 +273,7 @@ class DBColumnMod
     {
         $self = new self();
 
-        $self->addAction(new DBColumnModAction(DBColumnModAction::DIV, $value));
+        $self->addAction(new DBColumnModAction(DBColumnModAction::DIV, $value, true));
 
         return $self;
     }
@@ -283,7 +289,7 @@ class DBColumnMod
      */
     public function andDiv($value)
     {
-        $this->addAction(new DBColumnModAction(DBColumnModAction::DIV, $value));
+        $this->addAction(new DBColumnModAction(DBColumnModAction::DIV, $value, true));
 
         return $this;
     }
@@ -303,7 +309,7 @@ class DBColumnMod
     {
         $self = new self();
 
-        $self->addAction(new DBColumnModAction(DBColumnModAction::MUL, $value));
+        $self->addAction(new DBColumnModAction(DBColumnModAction::MUL, $value, true));
 
         return $self;
     }
@@ -319,7 +325,7 @@ class DBColumnMod
      */
     public function andMul($value)
     {
-        $this->addAction(new DBColumnModAction(DBColumnModAction::MUL, $value));
+        $this->addAction(new DBColumnModAction(DBColumnModAction::MUL, $value, true));
 
         return $this;
     }
@@ -328,18 +334,27 @@ class DBColumnMod
      * Subtract Percents
      * <hr>
      * <code>
-     * - subPerc(10)                    // subtracts 10 %
-     * - subPerc('price_discount_perc') // subtracts column `price_discount_perc` value as %
+     * - subPerc(10)
+     * # sub perc: A - (A * 10) / 100
+     *
+     * - subPerc('price_discount_perc')
+     * # sub column perc: A - (A * `price_discount_perc`) / 100
+     *
+     * - subPerc(10)->andSubPerc(20)
+     * # multi sub perc: A - (A * 10) / 100 - (A * 20) / 100
+     *
+     * - subPerc(10)->andSubPerc(20, true)
+     * # multi sub chained perc: (A - (A * 10) / 100) - ((A - (A * 10) / 100) * 20) / 100
      * </code>
      * @param int|float|string $value
-     *
+     * @param bool $chained [optional] = true
      * @return DBColumnMod
      */
-    public static function subPerc($value)
+    public static function subPerc($value, $chained = false)
     {
         $self = new self();
 
-        $self->addAction(new DBColumnModAction(DBColumnModAction::SUB_PERC, $value));
+        $self->addAction(new DBColumnModAction(DBColumnModAction::SUB_PERC, $value, $chained));
 
         return $self;
     }
@@ -348,14 +363,15 @@ class DBColumnMod
      * Subtract Percents
      *
      * @param int|float|string $value
+     * @param bool $chained
      *
      * @return $this
      *
      * @see subPerc for example
      */
-    public function andSubPerc($value)
+    public function andSubPerc($value, $chained = false)
     {
-        $this->addAction(new DBColumnModAction(DBColumnModAction::SUB_PERC, $value));
+        $this->addAction(new DBColumnModAction(DBColumnModAction::SUB_PERC, $value, $chained));
 
         return $this;
     }
@@ -364,18 +380,27 @@ class DBColumnMod
      * Add Percents
      * <hr>
      * <code>
-     * - addPerc(10)                    // adds 10 %
-     * - addPerc('price_discount_perc') // adds column `price_discount_perc` value as %
+     * - addPerc(10)
+     * # add perc: A + (A * 10) / 100
+     *
+     * - addPerc('price_discount_perc')
+     * # add perc column: A + (A * `price_discount_perc`) / 100
+     *
+     * - addPerc(10)->andAddPerc(20)
+     * # multi add perc: A + (A * 10) / 100 + (A * 20) / 100
+     *
+     * - addPerc(10)->andaddPerc(20, true)
+     * # multi add chained perc: (A + (A * 10) / 100) + ((A + (A * 10) / 100) * 20) / 100
      * </code>
      * @param int|float|string $value
      *
      * @return DBColumnMod
      */
-    public static function addPerc($value)
+    public static function addPerc($value, $chained = false)
     {
         $self = new self();
 
-        $self->addAction(new DBColumnModAction(DBColumnModAction::ADD_PERC, $value));
+        $self->addAction(new DBColumnModAction(DBColumnModAction::ADD_PERC, $value, $chained));
 
         return $self;
     }
@@ -390,9 +415,9 @@ class DBColumnMod
      *
      * @see addPerc for example
      */
-    public function andAddPerc($value)
+    public function andAddPerc($value, $chained = false)
     {
-        $this->addAction(new DBColumnModAction(DBColumnModAction::ADD_PERC, $value));
+        $this->addAction(new DBColumnModAction(DBColumnModAction::ADD_PERC, $value, $chained));
 
         return $this;
     }
