@@ -4,6 +4,9 @@ namespace Copper\Component\Auth;
 
 use Copper\Component\DB\DBHandler;
 use Copper\Entity\AbstractEntity;
+use Copper\Handler\DateHandler;
+use Copper\Handler\FileHandler;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Copper\Traits\ComponentHandlerTrait;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -13,6 +16,9 @@ class AuthHandler
     use ComponentHandlerTrait;
 
     const SESSION_KEY = 'auth_id';
+
+    const LOG_ACTION__AUTHORIZE = 'Authorize';
+    const LOG_ACTION__LOGOUT = 'Logout';
 
     /** @var Session */
     public $session;
@@ -39,11 +45,31 @@ class AuthHandler
         $this->config = $this->configure(AuthConfigurator::class, $configFilename);
     }
 
+    private function log($action, $userId)
+    {
+        if ($this->config->log === false)
+            return false;
+
+        $log_data = StringHandler::sprintf($this->config->log_format, [
+            DateHandler::dateTime(),
+            $action,
+            $this->sessionId(),
+            $userId
+        ]);
+
+        if (FileHandler::fileExists(Kernel::getAppLogPath()) === false)
+            FileHandler::createFolder(Kernel::getAppLogPath());
+
+        return FileHandler::appendContent($this->config->log_filepath, $log_data . "\n");
+    }
+
     /**
      * Remove authorization access
      */
     public function logout()
     {
+        $this->log(self::LOG_ACTION__LOGOUT, $this->session->get(self::SESSION_KEY));
+
         $this->session->invalidate();
     }
 
@@ -55,6 +81,8 @@ class AuthHandler
     public function authorize(int $id)
     {
         $this->session->set(self::SESSION_KEY, intval($id));
+
+        $this->log(self::LOG_ACTION__AUTHORIZE, $id);
     }
 
     /**

@@ -53,7 +53,7 @@ class ErrorConfigurator
      * %8$s - File where exception occurred. e.g. {PROJECT}/public/index.php <br>
      * %9$s - File line where exception occurred. e.g. 40 <br>
      * %10$s - User IP addresses. e.g. 192.168.0.1 <br>
-     * %11$s - Logged-In User ID. e.g. 1 <br>
+     * %11$s - Session ID. e.g. 46805ada232c677bad6120a8da9e3a28 <br>
      * %12$s - Request Referer (from where user came from). e.g. https://google.com <br>
      * <br>
      * Default: '[%1$s] - "%2$s %3$s %4$s" %5$s - [%6$s] %7$s (%8$s @ %9$s) | %10$s | %11$s | %12$s'

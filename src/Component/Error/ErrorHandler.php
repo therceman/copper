@@ -189,7 +189,6 @@ class ErrorHandler
          */
         $checkForFatal = function () use ($logError) {
             $error = error_get_last();
-
             if ($error !== NULL && $error["type"] == E_ERROR)
                 $logError($error["type"], $error["message"], $error["file"], $error["line"]);
         };

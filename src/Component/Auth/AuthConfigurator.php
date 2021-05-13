@@ -13,11 +13,21 @@ class AuthConfigurator
     public $validateHandlerClosure;
 
     /** @var string */
-    public $loginRoute = 'get_auth_login';
+    public $loginRoute;
     /** @var string */
-    public $returnToRouteParam = 'return_to_route';
+    public $returnToRouteParam;
     /** @var string */
-    public $forbiddenTemplate = 'forbidden';
+    public $forbiddenTemplate;
+
+    /** @var bool */
+    public $log;
+    /** @var string */
+    public $log_filepath;
+    /** @var string */
+    public $log_format;
+
+    // TODO this functions should be changed to Class::method string or ['Class','method'] array
+    // for future config cache to work correctly
 
     /**
      * @param Closure $login_password_closure

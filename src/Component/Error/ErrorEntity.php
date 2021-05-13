@@ -39,8 +39,8 @@ class ErrorEntity
     public $args;
     /** @var string */
     public $ips;
-    /** @var int */
-    public $user_id;
+    /** @var string */
+    public $session_id;
     /** @var string */
     public $referer;
 
@@ -57,7 +57,6 @@ class ErrorEntity
         $this->method =  strtoupper($_SERVER['REQUEST_METHOD']);
         $this->url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $this->protocol_ver = $_SERVER['SERVER_PROTOCOL'];
-
         $this->status = $status;
 
         $this->type = $type;
@@ -71,7 +70,9 @@ class ErrorEntity
         // ------------------
 
         $this->ips = ArrayHandler::join(Kernel::getIPAddressList());
-        $this->user_id = Kernel::getAuth()->check() ? Kernel::getAuth()->user()->id : 0;
+
+        $this->session_id = Kernel::getAuth()->sessionId();
+
         $this->referer = $_SERVER['HTTP_REFERER'] ?? '';
     }
 
@@ -122,7 +123,7 @@ class ErrorEntity
             $this->file,
             $this->line,
             $this->ips,
-            $this->user_id,
+            $this->session_id,
             $this->referer
         ];
 
@@ -143,7 +144,7 @@ class ErrorEntity
             '$func' => $this->func,
             '$args' => $this->args,
             '$ips' => $this->ips,
-            '$user_id' => $this->user_id,
+            '$session_id' => $this->session_id,
             '$referer' => $this->referer,
             '$protocol_ver' => $this->protocol_ver,
             '$status' => $this->status,

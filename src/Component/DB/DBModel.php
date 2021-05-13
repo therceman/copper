@@ -178,7 +178,7 @@ abstract class DBModel
      *
      * @return string
      */
-    public static function formatFieldName($name, $escape = false)
+    public static function formatFieldName(string $name, $escape = false)
     {
         $res = preg_replace("/[^a-zA-Z0-9_]+/", "", $name);
 
@@ -445,7 +445,7 @@ abstract class DBModel
     }
 
     /**
-     * @param DBColumnMod[] $mods
+     * @param DBColumnMod[]|null $mods
      * @param array $columns
      * @return mixed
      */
@@ -501,7 +501,7 @@ abstract class DBModel
             $columns = ['COUNT(*)'];
 
         if ($columnMods !== null)
-            $columns = $this->processColumnMods($columnMods, $columns ?? []);
+            $columns = $this->processColumnMods($columnMods, $columns ?? $this->getFieldNames(true));
 
         if ($limit !== null)
             $stm = $stm->limit($limit);

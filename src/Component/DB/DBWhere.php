@@ -481,7 +481,11 @@ class DBWhere
 
     /**
      * Shortcut for andLike: %value%
-     *
+     * <hr>
+     * <code>
+     * - andLike('name', 'john');
+     * - andLike(['name', 'middle_name'], 'john')
+     * </code>
      * @param string|string[] $field
      * @param string $value
      *
@@ -525,7 +529,11 @@ class DBWhere
 
     /**
      * Shortcut for orLike: %value%
-     *
+     * <hr>
+     * <code>
+     * - orLikeAny('name', 'john');
+     * - orLikeAny(['name', 'middle_name'], 'john')
+     * </code>
      * @param string|string[] $field
      * @param mixed $value
      *
@@ -650,11 +658,45 @@ class DBWhere
     }
 
     /**
+     * @param DBColumnMod[]|null $columnMods
+     * @param DBWhereEntry $cond
+     * @param string $condStr
+     * @param mixed $value
+     *
+     * @return false|mixed|string
+     */
+    private function getHavingCondStrByColumnMod($columnMods, DBWhereEntry $cond, string $condStr, $value)
+    {
+        $condFieldList = is_array($cond->field) ? $cond->field : [$cond->field];
+
+        if ($columnMods === null)
+            return false;
+
+        $columnModFound = false;
+        foreach ($columnMods as $mod) {
+            foreach ($condFieldList as $condField) {
+                if ($mod->getColumn() === DBModel::formatFieldName($condField, true))
+                    $columnModFound = true;
+            }
+        }
+
+        if ($columnModFound === false)
+            return false;
+
+        // TODO test needed
+        $condStr = StringHandler::has($condStr, '?')
+            ? StringHandler::replace($condStr, '?', $value)
+            : $condStr;
+
+        return $condStr;
+    }
+
+    /**
      * @param Select|Delete|Update $stm
      * @param DBColumnMod[]|null $columnMods
      * @return Select
      */
-    public function buildForStatement($stm, $columnMods)
+    public function buildForStatement($stm, $columnMods = null)
     {
         foreach ($this->conditions as $cond) {
             $value = $cond->formatValue();
@@ -685,21 +727,11 @@ class DBWhere
             if (is_array($value) && count($value) === 0 && in_array($cond->cond, [self::IS, self::IN]))
                 $condStr = '1 = 2';
 
-            $columnModFound = false;
-            if ($columnMods !== null) {
-                foreach ($columnMods as $mod) {
-                    if ($mod->getColumn() === DBModel::formatFieldName($cond->field, true))
-                        $columnModFound = true;
-                }
-            }
 
-            if ($columnModFound === true) {
-                // TODO test needed
-                $condStr = StringHandler::has($condStr, '?')
-                    ? StringHandler::replace($condStr, '?', $value)
-                    : $condStr;
+            $havingCondStr = self::getHavingCondStrByColumnMod($columnMods, $cond, $condStr, $value);
 
-                $stm->having($condStr);
+            if ($havingCondStr !== false) {
+                $stm->having($havingCondStr);
                 continue;
             }
 

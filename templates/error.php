@@ -15,7 +15,7 @@ $func = $view->dataBag->get('$func', null);
 $args = $view->dataBag->get('$args', null);
 $trace_string = $view->dataBag->get('$trace_string', null);
 $ips = $view->dataBag->get('$ips', null);
-$user_id = $view->dataBag->get('$user_id', null);
+$session_id = $view->dataBag->get('$session_id', null);
 $referer = $view->dataBag->get('$referer', null);
 
 $request = "\"{$method} {$url} {$protocol_ver}\" {$status}";
@@ -39,6 +39,6 @@ if ($args !== null)
     print "<tr style='background-color:rgb(230,230,230);'><th>Args</th><td>{$args}</td></tr>";
 
 print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Ips</th><td>$ips</td></tr>";
-print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>User ID</th><td>$user_id</td></tr>";
+print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Session ID</th><td>$session_id</td></tr>";
 print "<tr style='background-color:rgb(230,230,230);'><th style='width: 80px;'>Referer</th><td>$referer</td></tr>";
 print "</table></div>";
