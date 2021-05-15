@@ -170,7 +170,7 @@ class HTMLElement
             if (is_array($value) && count($value) === 0)
                 continue;
 
-            $strList[] = $this->sanitizer->key_escape($key) . $valueStr;
+            $strList[] = $this->sanitizer->tag_attr_escape($key) . $valueStr;
         }
 
         return join(' ', $strList);
@@ -619,7 +619,7 @@ class HTMLElement
     public function getStartTag($newLineAfter = true)
     {
         $attrStr = $this->isAttributeListEmpty() ? '' : ' ' . $this->createAttrString($this->attributes);
-        $tagStr = $this->sanitizer->key_escape($this->tag);
+        $tagStr = $this->sanitizer->tag_name_escape($this->tag);
 
         return '<' . $tagStr . $attrStr . '>' . (($newLineAfter) ? PHP_EOL : '');
     }
@@ -631,7 +631,7 @@ class HTMLElement
      */
     public function getEndTag($newLineBefore = true)
     {
-        $tagStr = $this->sanitizer->key_escape($this->tag);
+        $tagStr = $this->sanitizer->tag_name_escape($this->tag);
 
         return (($newLineBefore) ? PHP_EOL : '') . '</' . $tagStr . '>';
     }
