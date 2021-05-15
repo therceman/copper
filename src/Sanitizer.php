@@ -38,7 +38,7 @@ class Sanitizer
 
     public function tag_attr_escape($value)
     {
-        return preg_replace("/[^#:a-zA-Z0-9_-]+/", "", $value);
+        return preg_replace("/[^@#:a-zA-Z0-9_-]+/", "", $value);
     }
 
     public function double_quote_escape($value)

@@ -28,7 +28,7 @@ class StringHandler
         if (strlen(self::trim($str)) === 0)
             return [];
 
-        $res = explode(',', $str);
+        $res = explode($delimiter, $str);
 
         return ($res === false) ? [] : $res;
     }

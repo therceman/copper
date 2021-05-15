@@ -5,6 +5,7 @@ namespace Copper\Component\HTML;
 
 
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\StringHandler;
 use Copper\Sanitizer;
 
 /**
@@ -228,6 +229,19 @@ class HTMLElement
     }
 
     /**
+     * @param array|iterable $attrs
+     * @return $this
+     */
+    public function setAttrs($attrs)
+    {
+        foreach ($attrs as $key => $value) {
+            $this->setAttr($key, $value);
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string $attr
      * @param string|array $value
      *
@@ -350,6 +364,30 @@ class HTMLElement
             return $this->deleteClass($value);
 
         $this->attributes[self::ATTR_CLASS][] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Set style using raw CSS statement
+     * <hr>
+     * <code>
+     * - styleRaw('float:right;margin-bottom:10px')
+     * </code>
+     * @param string $style
+     */
+    public function styleRaw(string $style)
+    {
+        $keyValueList = StringHandler::explode($style, ';');
+
+        foreach ($keyValueList as $keyValue) {
+            $res = StringHandler::explode($keyValue, ':');
+
+            if (count($res) !== 2)
+                continue;
+
+            $this->addStyle(StringHandler::trim($res[0]), StringHandler::trim($res[1]));
+        }
 
         return $this;
     }
