@@ -427,12 +427,15 @@ class ArrayHandler
 
     /**
      * @param array $array
-     * @param string $key
+     * @param mixed|null $key
      *
      * @return bool
      */
-    public static function hasKey(array $array, string $key)
+    public static function hasKey(array $array, $key)
     {
+        if ($key === null)
+            return false;
+
         return array_key_exists($key, $array);
     }
 

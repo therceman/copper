@@ -4,6 +4,7 @@
 namespace Copper\Component\CP\Service;
 
 
+use Copper\Component\DB\DBModel;
 use Copper\Handler\ArrayHandler;
 use Copper\Component\CP\CPController;
 use Copper\Component\DB\DBModelField;
@@ -79,6 +80,21 @@ class ResourceGenService
         $content = str_replace('Copper\Resource\AbstractResource', $resource::getClassName(), $content);
         $content = str_replace('AbstractEntity', $resource::getEntityName(), $content);
         $content = str_replace('$Resource', '$' . lcfirst($resource::getName()), $content);
+
+        $field_names_str = '$field_names = [' . PHP_EOL;
+
+        foreach ($resource::getModel()->getFieldNames() as $field) {
+            if ($field === DBModel::REMOVED_AT)
+                continue;
+
+            $fieldNameNormalized = StringHandler::underscoreToCamelCase($field, true);
+
+            $field_names_str = $field_names_str . self::T . "'$field' => '$fieldNameNormalized'," . PHP_EOL;
+        }
+
+        $field_names_str .= ']';
+
+        $content = str_replace('// custom $field_names', $field_names_str, $content);
 
         $contentSaveRes = FileHandler::setContent($filepath, $content);
 

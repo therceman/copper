@@ -3,6 +3,7 @@
 use Copper\Component\HTML\HTML;
 use Copper\Entity\AbstractEntity;
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\StringHandler;
 
 $list = AbstractEntity::fromViewAsList($view, 'list');
 
@@ -23,8 +24,6 @@ $show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
 
 $undoId = $view->flashMessage->get('undo_id', 0);
 
-$field_names = ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT);
-
 // ----------------------- Routes -----------------------
 
 $urlGetNew = $view->url($Resource::route($Resource::GET_NEW));
@@ -40,6 +39,16 @@ $urlGetEdit = function ($id) use ($view, $Resource, $model) {
 $urlPostUndoRemove = function ($id) use ($view, $Resource, $model) {
     return $view->url($Resource::route($Resource::POST_UNDO_REMOVE), [$model::ID => $id]);
 };
+
+// ------------------- Field Names ------------------------
+
+$field_names = [];
+
+foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $field) {
+    $field_names[$field] = StringHandler::underscoreToCamelCase($field, true);
+};
+
+// custom $field_names
 
 ?>
 
@@ -90,17 +99,27 @@ $urlPostUndoRemove = function ($id) use ($view, $Resource, $model) {
     <div style="clear: both"></div>
     <table class="collection">
         <tr>
-            <?php foreach ($field_names as $fieldName): ?>
-                <th id="<?= $fieldName ?>"><?= $fieldName ?></th>
-            <?php endforeach; ?>
+            <?php foreach ($field_names as $fieldName => $fieldText) {
+                $th = HTML::th($fieldText)->id($fieldName);
+
+                echo $th;
+            } ?>
             <th class="empty"></th>
         </tr>
         <?php foreach ($list as $entry) {
             $tr = HTML::tr()->toggleClass('removed', $entry->isRemoved());
 
-            foreach ($field_names as $fieldName) {
+            foreach ($field_names as $fieldName => $fieldText) {
                 $value = $entry->$fieldName;
-                $tr->addElement(HTML::td($value));
+
+                $td = HTML::td($value);
+
+                /*
+                if ($fieldName === 'image')
+                    $td = HTML::td()->addElement(HTML::img($value)->setAttr('width', '45px'));
+                */
+
+                $tr->addElement($td);
             }
 
             $td = HTML::td()->addStyle('text-align', 'center');
