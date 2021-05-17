@@ -21,6 +21,9 @@ class FileHandler
     const ERROR_PUT_CONTENT = 'Unable to save content to file';
     const ERROR_GET_CONTENT = 'Unable to get content from file';
 
+    const MIME_TYPE__IMAGE_JPEG = 'image/jpeg';
+    const MIME_TYPE__IMAGE_PNG = 'image/png';
+
     /**
      * Clean File Path (allowed characters: 0-9_-./A-Za-z)
      * <hr>

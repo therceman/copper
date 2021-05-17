@@ -205,9 +205,11 @@ class HTML
         return $el->innerText($text);
     }
 
-    public static function span($text = '')
+    public static function span($text = '', $class = null)
     {
         $el = new HTMLElement(HTMLElement::SPAN);
+
+        $el->class($class);
 
         return $el->innerText($text);
     }
@@ -446,12 +448,18 @@ class HTML
 
     /**
      * @param string $name
-     * @param string $value
+     * @param string|string[] $accept List of MIME types, e.g. image/png, image/jpeg
      * @return HTMLInput
      */
-    public static function inputFile($name = null, $value = null)
+    public static function inputFile($name = null, $accept = [])
     {
-        return HTML::input($name, $value)->type('file');
+        $type_list = (is_array($accept)) ? $accept : [$accept];
+
+        $el = HTML::input($name, null)->type('file');
+
+        $el->setAttr('accept', ArrayHandler::join($type_list));
+
+        return $el;
     }
 
     /**

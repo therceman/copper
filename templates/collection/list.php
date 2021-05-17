@@ -107,7 +107,7 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
             <th class="empty"></th>
         </tr>
         <?php foreach ($list as $entry) {
-            $tr = HTML::tr()->toggleClass('removed', $entry->isRemoved());
+            $tr = HTML::tr()->id('entry_' . $entry->id)->toggleClass('removed', $entry->isRemoved());
 
             foreach ($field_names as $fieldName => $fieldText) {
                 $value = $entry->$fieldName;
@@ -119,7 +119,7 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
                     $td = HTML::td()->addElement(HTML::img($value)->setAttr('width', '45px'));
                 */
 
-                $tr->addElement($td);
+                $tr->addElement($td->addClass('col_' . $fieldName));
             }
 
             $td = HTML::td()->addStyle('text-align', 'center');

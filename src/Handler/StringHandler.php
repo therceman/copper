@@ -170,6 +170,9 @@ class StringHandler
 
     public static function trim($str)
     {
+        if ($str === null)
+            return '';
+
         $str = trim($str);
 
         //handle unicode spaces
