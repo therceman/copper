@@ -30,7 +30,7 @@ class PaginationEntity
     public $item_count_to;
 
     /**
-     * @param null $hrefMap
+     * @param \Closure|null $hrefMap
      * @param string $class
      * @return HTMLGroup
      */
