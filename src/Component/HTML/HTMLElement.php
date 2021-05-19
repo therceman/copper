@@ -229,6 +229,18 @@ class HTMLElement
     }
 
     /**
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function data(string $key, $value)
+    {
+        $this->setAttr('data-' . $this->sanitizer->tag_attr_escape($key), $value);
+
+        return $this;
+    }
+
+    /**
      * @param array|iterable $attrs
      * @return $this
      */
