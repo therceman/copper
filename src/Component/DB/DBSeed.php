@@ -14,6 +14,9 @@ abstract class DBSeed
     /** @var array */
     public $seeds = [];
 
+    /** @var \Closure|null */
+    private $onCompleteClosure = null;
+
     abstract function getModelClassName();
 
     abstract function setSeeds();
@@ -22,6 +25,14 @@ abstract class DBSeed
     {
         $this->modelClassName = $this->getModelClassName();
         $this->setSeeds();
+    }
+
+    /**
+     * @param \Closure|null $closure
+     */
+    public function onComplete(\Closure $closure)
+    {
+        $this->onCompleteClosure = $closure;
     }
 
     /**
@@ -41,5 +52,13 @@ abstract class DBSeed
         $this->seeds[] = $formattedSeedData;
 
         return count($this->seeds);
+    }
+
+    /**
+     * @return \Closure|null
+     */
+    public function getOnCompleteClosure()
+    {
+        return $this->onCompleteClosure;
     }
 }

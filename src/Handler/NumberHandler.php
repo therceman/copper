@@ -43,6 +43,9 @@ class NumberHandler
 
     public static function format($num, $dec = 2, $d_sep = '.', $t_sep = '')
     {
+        if (is_string($num))
+            $num = self::round($num, $dec);
+
         return number_format($num, $dec, $d_sep, $t_sep);
     }
 

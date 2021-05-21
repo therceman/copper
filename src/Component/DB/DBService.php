@@ -134,6 +134,8 @@ class DBService
         try {
             $db->pdo->setAttribute($db->pdo::ATTR_ERRMODE, $db->pdo::ERRMODE_EXCEPTION);
             $db->pdo->exec($query);
+            if ($seed->getOnCompleteClosure() !== null)
+                call_user_func($seed->getOnCompleteClosure());
             return $response->success("Seeded `$model->tableName` Table", $query);
         } catch (PDOException $e) {
             $errorMsg = $e->getMessage();
