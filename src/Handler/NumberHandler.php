@@ -26,6 +26,16 @@ class NumberHandler
         return abs($num);
     }
 
+    /**
+     * @param float|int $currentPrice Price, e.g. 1.25
+     * @param float|int $discount Discount in percents, e.g. 25%
+     * @return float|int
+     */
+    public static function priceWithoutDiscount($currentPrice, $discount)
+    {
+        return $currentPrice * (100 / (100 - $discount));
+    }
+
     public static function divisionRemainder($num1, $num2)
     {
         return $num1 % $num2;
