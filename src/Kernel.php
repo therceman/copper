@@ -13,6 +13,7 @@ use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
+use Copper\Handler\StringHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -429,7 +430,11 @@ final class Kernel
                 $msg = 'Method [' . $request->getMethod() . '] is not allowed.';
                 $response = self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_BAD_REQUEST);
             } else {
-                $response = self::$errorHandler->throwErrorAsResponse($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+                $status = StringHandler::has($e->getMessage(), 'No routes found')
+                    ? Response::HTTP_NOT_FOUND
+                    : Response::HTTP_INTERNAL_SERVER_ERROR;
+
+                $response = self::$errorHandler->throwErrorAsResponse($e->getMessage(), $status);
             }
         }
 
