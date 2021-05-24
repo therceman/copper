@@ -35,8 +35,6 @@ class AbstractController
     protected $requestContext;
     /** @var RouteCollection */
     protected $routes;
-    /** @var Session */
-    protected $session;
     /** @var FlashMessageHandler */
     protected $flashMessage;
     /** @var AuthHandler */

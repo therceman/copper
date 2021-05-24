@@ -6,6 +6,8 @@ namespace Copper\Component\DB;
 
 use Copper\Entity\AbstractEntity;
 use Copper\FunctionResponse;
+use Copper\FunctionResponse\DBUpdateResponse;
+use Copper\FunctionResponse\DBUpdateResponseResultEntity;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\CollectionHandler;
 use Copper\Handler\DateHandler;
@@ -670,13 +672,13 @@ abstract class DBModel
             foreach ($result as $entry) {
                 $entity = $this->getEntity()::fromArray($entry);
 
+                if ($output !== null && $output->getMap() !== null)
+                    $entity = $output->getMap()($entity);
+
                 if ($output !== null && $output->getListOutputField() !== null && $entity->has($output->getListOutputField())) {
                     $list[] = $entity->get($output->getListOutputField());
                     continue;
                 }
-
-                if ($output !== null && $output->getMap() !== null)
-                    $entity = $output->getMap()($entity);
 
                 if ($output !== null && $output->getDeletedFields() !== null)
                     foreach ($output->getDeletedFields() as $field) {
@@ -829,7 +831,7 @@ abstract class DBModel
      */
     public function doUpdate(DBWhere $where, array $fields)
     {
-        $response = new FunctionResponse();
+        $response = new DBUpdateResponse();
 
         $db = Kernel::getDb();
 
@@ -837,6 +839,8 @@ abstract class DBModel
 
         $updateData = $this->getFieldValuesFromEntity($entity, array_keys($fields));
         $formattedUpdateData = $this->formatFieldValues($updateData, false, true);
+
+        $resultRowCount = 0;
 
         try {
             $stm = $db->query->update('`' . $this->getTableName() . '`', $formattedUpdateData);
@@ -852,9 +856,9 @@ abstract class DBModel
             if ($resultRowCount === 0)
                 throw new Exception('No record found for update or new data not provided');
 
-            $response->result($resultRowCount);
+            $response->result(new DBUpdateResponseResultEntity($resultRowCount, $updateData));
         } catch (Exception $e) {
-            $response->fail($e->getMessage(), $formattedUpdateData);
+            $response->fail($e->getMessage(), new DBUpdateResponseResultEntity($resultRowCount, $updateData));
         }
 
         return $response;

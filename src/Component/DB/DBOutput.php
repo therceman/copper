@@ -98,6 +98,13 @@ class DBOutput
     }
 
     /**
+     * Set Entity map
+     * <hr>
+     * <code>
+     * setMap(function($entity) {
+     *  return $entity->set('demo','123);
+     * });
+     * </code>
      * @param \Closure|null $mapClosure
      *
      * @return $this
