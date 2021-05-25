@@ -12,6 +12,7 @@ class ValidatorHandler
 {
     use ComponentHandlerTrait;
 
+    /** @var ValidatorRule[] */
     private $rules;
 
     /** @var ValidatorConfigurator */
@@ -29,6 +30,9 @@ class ValidatorHandler
         $this->rules = [];
     }
 
+    /**
+     * @param ValidatorRule $rule
+     */
     public function addRule(ValidatorRule $rule)
     {
         $this->rules[] = $rule;
@@ -49,7 +53,7 @@ class ValidatorHandler
             if ($field->typeIsInteger())
                 $rule = ValidatorRule::integer($name, $field->getLength(), ($field->getNull() !== false));
 
-            elseif ($field->typeIsFloat())
+            else if ($field->typeIsFloat())
                 $rule = ValidatorRule::float($name);
 
             else if ($field->typeIsBoolean())
@@ -82,15 +86,27 @@ class ValidatorHandler
             $this->addRule($rule);
         }
 
-        return $this->validate($params);
+        // TODO ... need all rules validation
+        return FunctionResponse::createSuccess('ok');
     }
 
-    public function validate($params)
+    /**
+     * @param array $params
+     * @return FunctionResponse
+     */
+    public function validate(array $params)
     {
         $response = new FunctionResponse();
 
-        // validation logic for rules here
+        $errors = [];
 
-        return $response->ok();
+        foreach ($this->rules as $rule) {
+            $validationRes = $rule->validate($params, $rule->name);
+
+            if ($validationRes->hasError())
+                $errors[$rule->name] = $validationRes;
+        }
+
+        return $response->successOrError(count($errors) === 0, $errors);
     }
 }
