@@ -255,6 +255,8 @@ class DBWhere
     public static function likeAny($field, $value)
     {
         $value = str_replace('%', '', $value);
+        $value = str_replace('.', '\\.', $value);
+        $value = str_replace('_', '\\_', $value);
         $value = '%' . $value . '%';
 
         return self::createCondition($field, $value, self::LIKE, self::CHAIN_NULL);
@@ -494,6 +496,8 @@ class DBWhere
     public function andLikeAny($field, string $value)
     {
         $value = str_replace('%', '', $value);
+        $value = str_replace('.', '\\.', $value);
+        $value = str_replace('_', '\\_', $value);
         $value = '%' . $value . '%';
 
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_AND);
@@ -542,6 +546,8 @@ class DBWhere
     public function orLikeAny($field, string $value)
     {
         $value = str_replace('%', '', $value);
+        $value = str_replace('.', '\\.', $value);
+        $value = str_replace('_', '\\_', $value);
         $value = '%' . $value . '%';
 
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_OR);

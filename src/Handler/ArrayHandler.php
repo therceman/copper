@@ -94,6 +94,23 @@ class ArrayHandler
     }
 
     /**
+     * Transform array to collection
+     *
+     * @param array $array
+     * @param string $textField
+     * @param string $keyField
+     * @return mixed
+     */
+    public static function toCollection(array $array, string $textField, string $keyField = 'id')
+    {
+        $counter = 0;
+        return self::map($array, function ($text) use ($textField, $keyField, &$counter) {
+            $counter++;
+            return [$keyField => $counter, $textField => $text];
+        });
+    }
+
+    /**
      * Create an array containing a range of elements.
      *
      * <hr>

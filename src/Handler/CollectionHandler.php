@@ -142,6 +142,24 @@ class CollectionHandler
     }
 
     /**
+     * Clears index of collection
+     *
+     * @param AbstractEntity[]|object[] $collection
+     *
+     * @return AbstractEntity[]|object[]
+     */
+    public static function clearIndex(array $collection)
+    {
+        $newCollection = [];
+
+        foreach ($collection as $value) {
+            $newCollection[] = $value;
+        }
+
+        return $newCollection;
+    }
+
+    /**
      * @param AbstractEntity[]|object[] $collection
      * @param array $filter
      *

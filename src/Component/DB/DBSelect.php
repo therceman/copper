@@ -173,6 +173,18 @@ class DBSelect
     }
 
     /**
+     * @param string|null $index
+     *
+     * @return DBSelect
+     */
+    public static function outputIndex(?string $index = DBModel::ID)
+    {
+        $params = new DBSelect();
+
+        return $params->setOutput(DBOutput::index($index));
+    }
+
+    /**
      * @param $columns
      * @return mixed
      */
@@ -191,7 +203,6 @@ class DBSelect
 
     /**
      * Set column modification
-
      * @param string $column
      * @param DBColumnMod|null $mod
      *
@@ -215,6 +226,21 @@ class DBSelect
     public function setColumns($columns): DBSelect
     {
         $this->columns = $this->prepareColumns($columns);
+
+        return $this;
+    }
+
+    /**
+     * @param string|string[]|null $fields
+     *
+     * @return DBSelect
+     */
+    public function setOutputFields($fields): DBSelect
+    {
+        if ($this->output === null)
+            $this->output = DBOutput::fields($fields);
+        else
+            $this->output->setFields($fields);
 
         return $this;
     }
