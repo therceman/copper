@@ -25,13 +25,13 @@ class AppConfigurator
 
     /**
      * Application title
-     * @var string
+     * @var string|array
      */
     public $title;
 
     /**
      * Application description
-     * @var string
+     * @var string|array
      */
     public $description;
 
