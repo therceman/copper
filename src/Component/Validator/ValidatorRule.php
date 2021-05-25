@@ -412,13 +412,13 @@ class ValidatorRule
         $value = strval($value);
 
         if ($this->minLength > 0 && strlen($value) < $this->minLength)
-            return $res->error('min_length', $this->minLength);
+            return $res->error('minLengthRequired', $this->minLength);
 
         if ($this->maxLength !== false && strlen($value) > $this->maxLength)
-            return $res->error('max_length', $this->maxLength);
+            return $res->error('maxLengthReached', $this->maxLength);
 
         if ($this->length !== false && strlen($value) !== $this->length)
-            return $res->error('length', $this->length);
+            return $res->error('wrongLength', $this->length);
 
         return $res->ok();
     }
@@ -501,7 +501,7 @@ class ValidatorRule
         $lengthValidationRes = $this->validateValueLength($value);
 
         if ($lengthValidationRes->hasError())
-            return $res->error('wrong length', $lengthValidationRes);
+            return $res->error($lengthValidationRes->msg, $lengthValidationRes->result);
 
         /** @var bool|null $typeValidationStatus */
         $typeValidationStatus = null;

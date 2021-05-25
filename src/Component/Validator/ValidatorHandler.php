@@ -91,10 +91,25 @@ class ValidatorHandler
     }
 
     /**
+     * @param FunctionResponse $validationRes
+     * @param string $lang
+     * @param string $textClass
+     */
+    private function translateErrorRes($validationRes, $lang, $textClass)
+    {
+        if ($textClass !== null && method_exists($textClass, $validationRes->msg))
+            $validationRes->msg = $textClass::{$validationRes->msg}($lang, [$validationRes->result]);
+
+        return $validationRes;
+    }
+
+    /**
      * @param array $params
+     * @param string $lang
+     * @param string|null $textClass
      * @return FunctionResponse
      */
-    public function validate(array $params)
+    public function validate(array $params, $lang = 'en', string $textClass = null)
     {
         $response = new FunctionResponse();
 
@@ -104,7 +119,7 @@ class ValidatorHandler
             $validationRes = $rule->validate($params, $rule->name);
 
             if ($validationRes->hasError())
-                $errors[$rule->name] = $validationRes;
+                $errors[$rule->name] = $this->translateErrorRes($validationRes, $lang, $textClass);
         }
 
         return $response->successOrError(count($errors) === 0, $errors);
