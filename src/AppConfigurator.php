@@ -58,9 +58,38 @@ class AppConfigurator
      * Example: 'Europe/Riga'
      * <br>
      * Default: false
+     *
      * @var string|false
      */
     public $timezone;
+
+    /**
+     * Default Time format (for DateHandler)
+     * <hr>
+     * Example: 'm-d-Y'
+     * <br>
+     * Default: 'Y-m-d'
+     * @var string
+     */
+    public $dateFormat;
+
+    /**
+     * Default Time format (for DateHandler)
+     * <hr>
+     * Default: 'H:i:s'
+     * @var string
+     */
+    public $timeFormat;
+
+    /**
+     * Default Time format (for DateHandler)
+     * <hr>
+     * Example: 'm-d-Y H:i:s'
+     * <br>
+     * Default: 'Y-m-d H:i:s'
+     * @var string
+     */
+    public $dateTimeFormat;
 
     /**
      * @var int [default] = -1

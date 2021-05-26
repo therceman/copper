@@ -10,11 +10,33 @@ use DateTimeZone;
 
 class DateHandler
 {
-    // TODO move this configuration to App Config -> app.php
-
     const DATE_FORMAT = 'Y-m-d';
     const TIME_FORMAT = 'H:i:s';
     const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
+
+    public static function getDateFormat()
+    {
+        if (Kernel::getApp() !== null)
+            return Kernel::getApp()->config->dateFormat;
+
+        return self::DATE_FORMAT;
+    }
+
+    public static function getTimeFormat()
+    {
+        if (Kernel::getApp() !== null)
+            return Kernel::getApp()->config->timeFormat;
+
+        return self::TIME_FORMAT;
+    }
+
+    public static function getDateTimeFormat()
+    {
+        if (Kernel::getApp() !== null)
+            return Kernel::getApp()->config->dateTimeFormat;
+
+        return self::DATE_TIME_FORMAT;
+    }
 
     /**
      * @param string|null $timezone
@@ -65,12 +87,14 @@ class DateHandler
 
     /**
      * @param string|null $timezone
-     * @param string $format
+     * @param string|null $format
      *
      * @return false|string
      */
-    public static function date($timezone = null, $format = self::DATE_FORMAT)
+    public static function date($timezone = null, $format = null)
     {
+        $format = ($format === null) ? self::getDateFormat() : $format;
+
         return self::newDate($timezone)->format($format);
     }
 
@@ -102,31 +126,36 @@ class DateHandler
 
     /**
      * @param string|null $timezone
-     *
+     * @param string|null $format
      * @return false|string
      */
-    public static function time($timezone = null)
+    public static function time($timezone = null, $format = null)
     {
-        return self::date($timezone, self::TIME_FORMAT);
+        $format = ($format === null) ? self::getTimeFormat() : $format;
+
+        return self::date($timezone, $format);
     }
 
     /**
      * @param string|null $timezone
-     *
+     * @param string|null $format
      * @return false|string
      */
-    public static function dateTime($timezone = null)
+    public static function dateTime($timezone = null, $format = null)
     {
-        return self::date($timezone, self::DATE_TIME_FORMAT);
+        $format = ($format === null) ? self::getDateTimeFormat() : $format;
+
+        return self::date($timezone, $format);
     }
 
     /**
      * @param string $dateFrom
      * @param string $dateTo
      * @param string|null $date [default] = current date
-     * @param string $format [default] = Y-m-d
+     * @param bool $include
+     * @return bool
      */
-    public static function isBetweenDates($dateFrom, $dateTo, $date = null, $include = true, $format = self::DATE_FORMAT)
+    public static function isBetweenDates(string $dateFrom, string $dateTo, $date = null, $include = true)
     {
         if ($date === null)
             $date = self::date();
@@ -157,12 +186,14 @@ class DateHandler
      * </code>
      * @param string|null $dateA
      * @param string|null $dateB
-     * @param string $format [optional] = Y-m-d
+     * @param string|null $format [optional] = Y-m-d
      *
      * @return int
      */
-    public static function dateDiff($dateA, $dateB = null, $format = self::DATE_FORMAT)
+    public static function dateDiff(?string $dateA, $dateB = null, $format = null)
     {
+        $format = ($format === null) ? self::getDateFormat() : $format;
+
         if ($dateA === null)
             $dateA = self::date();
 
@@ -184,12 +215,14 @@ class DateHandler
     /**
      * @param string $date
      * @param string $fromFormat
-     * @param string $toFormat
+     * @param string|null $toFormat
      *
      * @return string
      */
-    public static function fromFormat(string $date, string $fromFormat, $toFormat = self::DATE_FORMAT)
+    public static function fromFormat(string $date, string $fromFormat, $toFormat = null)
     {
+        $toFormat = ($toFormat === null) ? self::getDateFormat() : $toFormat;
+
         return DateTime::createFromFormat($fromFormat, $date)->format($toFormat);
     }
 }

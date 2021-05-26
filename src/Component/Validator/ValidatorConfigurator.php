@@ -5,13 +5,34 @@ namespace Copper\Component\Validator;
 
 class ValidatorConfigurator
 {
-    /** @var string Only Digits */
-    public $integer_regex;
-    /** @var string Only 0 or 1 */
-    public $boolean_regex;
-
-    /** @var string Only Digits with dots */
-    public $float_regex;
+    /** @var int Email min length. <hr> Default: 7 */
+    public $email_minLength;
+    /** @var int Email max length. <hr> Default: 50 */
+    public $email_maxLength;
+    /**
+     * Email regex check.
+     * <hr>
+     * <code>
+     * Default: (^[a-zA-Z0-9][a-zA-Z0-9\+\.\-\_]*@[a-zA-Z0-9][a-zA-Z0-9\-\.]*\.[a-zA-Z0-9]{2,}$)
+     *
+     * test1+extra@qwe.com                  - true
+     * test2.2ndPart+extra@qwe.com          - true
+     * test2.2ndPart+extra@sub.qwe.com      - true
+     * test3_normal@qwe.com                 - true
+     * test4-normal@qwe.com                 - true
+     * test5.min2chars.top.level@qwe.co     - true
+     * test6_noatsign.com                   - false
+     * test7_wrongchar_=qwe@qwe.com         - false
+     * test8_min1char.top.level@qwe.a       - false
+     * test9_wrongchar_domain@qwe.c!om      - false
+     * test10_dot_after_atsign@.qwe.com     - false
+     * test11_minus_after_atsign@-qwe.com   - false
+     * -test12_minus_sign_at_start@qwe.com  - false
+     * .test13_dot_sign_at_start@qwe.com    - false
+     * </code>
+     * @var string
+     */
+    public $email_regex;
 
     /** @var string 4 Digits */
     public $year_regex;

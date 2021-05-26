@@ -13,6 +13,9 @@ return function (AppConfigurator $appConfig) {
     $appConfig->author = 'Anton (therceman)';
     $appConfig->bag->set('keywords', ['PHP', 'Framework', 'CopperPHP', 'Web Development']);
     $appConfig->timezone = false;
+    $appConfig->dateFormat = 'Y-m-d';
+    $appConfig->timeFormat = 'H:i:s';
+    $appConfig->dateTimeFormat = 'Y-m-d H:i:s';
 
     $appConfig->serialize_precision = -1;
 };

@@ -8,6 +8,7 @@ use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
+use Copper\Kernel;
 
 /**
  * Class ValidatorRule
@@ -44,19 +45,19 @@ class ValidatorRule
     public $name;
     /** @var int */
     public $type;
-    /** @var int */
+    /** @var int|null */
     public $maxLength;
     /** @var int */
     public $minLength;
-    /** @var int */
+    /** @var int|null */
     public $length;
     /** @var bool */
     public $required;
     /** @var bool */
     public $strict;
-    /** @var null|string */
+    /** @var string|null */
     public $regex;
-    /** @var null|array */
+    /** @var array|null */
     public $filterValues;
     /** @var bool */
     public $blacklistFilter;
@@ -66,10 +67,10 @@ class ValidatorRule
      *
      * @param string $name
      * @param int $type
-     * @param bool $maxLength
+     * @param int|null $maxLength
      * @param bool $required
      */
-    public function __construct(string $name, $type = self::STRING, $maxLength = false, $required = false)
+    public function __construct(string $name, $type = self::STRING, $maxLength = null, $required = false)
     {
         $this->name = $name;
         $this->type = $type;
@@ -77,7 +78,7 @@ class ValidatorRule
         $this->required = $required;
 
         $this->minLength = 0;
-        $this->length = false;
+        $this->length = null;
         $this->filterValues = null;
         $this->regex = null;
         $this->blacklistFilter = false;
@@ -95,10 +96,10 @@ class ValidatorRule
     }
 
     /**
-     * @param int $max
+     * @param int|null $max
      * @return $this
      */
-    public function maxLength(int $max)
+    public function maxLength(?int $max)
     {
         $this->maxLength = $max;
 
@@ -117,10 +118,10 @@ class ValidatorRule
     }
 
     /**
-     * @param int $len
+     * @param int|null $len
      * @return $this
      */
-    public function length(int $len)
+    public function length(?int $len)
     {
         $this->length = $len;
 
@@ -272,14 +273,25 @@ class ValidatorRule
 
     /**
      * @param string $name
-     * @param bool $maxLength
+     * @param int|null $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function email(string $name, $maxLength = false, $required = false)
+    public static function email(string $name, $required = false, $maxLength = null)
     {
-        return new self($name, self::EMAIL, $maxLength, $required);
+        $rule = new self($name, self::EMAIL, $maxLength, $required);
+
+        if (Kernel::getValidator() === null)
+            return $rule;
+
+        $validatorConfig = Kernel::getValidator()->config;
+
+        $rule->minLength($validatorConfig->email_minLength);
+        $rule->maxLength($validatorConfig->email_maxLength);
+        $rule->regex($validatorConfig->email_regex);
+
+        return $rule;
     }
 
     /**
@@ -414,10 +426,10 @@ class ValidatorRule
         if ($this->minLength > 0 && strlen($value) < $this->minLength)
             return $res->error('minLengthRequired', $this->minLength);
 
-        if ($this->maxLength !== false && strlen($value) > $this->maxLength)
+        if ($this->maxLength !== null && strlen($value) > $this->maxLength)
             return $res->error('maxLengthReached', $this->maxLength);
 
-        if ($this->length !== false && strlen($value) !== $this->length)
+        if ($this->length !== null && strlen($value) !== $this->length)
             return $res->error('wrongLength', $this->length);
 
         return $res->ok();
@@ -432,10 +444,35 @@ class ValidatorRule
         if ($this->required === false)
             return true;
 
+        if (VarHandler::isString($value) && StringHandler::trim($value) === '')
+            return false;
+
         if ($value === null)
             return false;
 
         return true;
+    }
+
+    /**
+     * @param string $value
+     * @return FunctionResponse
+     */
+    private function validateValueRegex($value)
+    {
+        $res = new FunctionResponse();
+
+        if (VarHandler::isString($value) === false)
+            return $res->error('wrongValueType', ["string", VarHandler::getType($value)]);
+
+        if ($this->regex === null)
+            return $res->ok();
+
+        $regexResult = StringHandler::regex($value, $this->regex);
+
+        if ($regexResult === false)
+            return $res->error('invalidValueFormat');
+
+        return $res->ok();
     }
 
     /**
@@ -483,6 +520,7 @@ class ValidatorRule
         return VarHandler::isNumeric($value);
     }
 
+
     /**
      * @param $params
      * @param $name
@@ -495,39 +533,55 @@ class ValidatorRule
 
         $value = ArrayHandler::hasKey($params, $name) ? $params[$name] : null;
 
+        // required
+
         if ($this->validateValueRequired($value) === false)
-            return $res->error('value is required');
+            return $res->error('valueCannotBeEmpty');
+
+        // length
 
         $lengthValidationRes = $this->validateValueLength($value);
-
         if ($lengthValidationRes->hasError())
             return $res->error($lengthValidationRes->msg, $lengthValidationRes->result);
+
+        // regex
+
+        $regexValidationRes = $this->validateValueRegex($value);
+        if ($regexValidationRes->hasError())
+            return $res->error($regexValidationRes->msg, $regexValidationRes->result);
+
+        // type
 
         /** @var bool|null $typeValidationStatus */
         $typeValidationStatus = null;
 
         switch ($this->type) {
             case self::STRING:
-                $typeValidationStatus = $this->validateString($value);
+                if ($this->validateString($value) === false)
+                    return $res->error('wrongValueType', ['string', VarHandler::getType($value)]);
                 break;
             case self::INTEGER:
-                $typeValidationStatus = $this->validateInteger($value);
+                if ($this->validateInteger($value) === false)
+                    return $res->error('wrongValueType', ['integer', VarHandler::getType($value)]);
                 break;
             case self::BOOLEAN:
-                $typeValidationStatus = $this->validateBoolean($value);
+                if ($this->validateBoolean($value) === false)
+                    return $res->error('wrongValueType', ['boolean', VarHandler::getType($value)]);
                 break;
             case self::FLOAT:
-                $typeValidationStatus = $this->validateFloat($value);
+                if ($this->validateFloat($value) === false)
+                    return $res->error('wrongValueType', ['float', VarHandler::getType($value)]);
                 break;
             case self::NUMERIC:
-                $typeValidationStatus = $this->validateNumeric($value);
+                if ($this->validateNumeric($value) === false)
+                    return $res->error('valueTypeIsNotNumeric');
+                break;
+            case self::EMAIL:
+                $typeValidationStatus = true; // no custom logic
         }
 
         if ($typeValidationStatus === null)
-            return $res->error('wrong validation type');
-
-        if ($typeValidationStatus === false)
-            return $res->error('type validation failed');
+            return $res->error('wrongValidationType');
 
         return $res->ok();
     }

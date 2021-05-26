@@ -11,6 +11,33 @@ namespace Copper\Handler;
 class VarHandler
 {
     /**
+     * Get type of variable
+     * <hr>
+     * <code>
+     * "boolean"
+     * "integer"
+     * "float"
+     * "string"
+     * "array"
+     * "object"
+     * "resource"
+     * "resource (closed)" as of PHP 7.2.0
+     * "NULL"
+     * "unknown type"
+     * </code>
+     * @param mixed $var
+     * @return string
+     */
+    public static function getType($var)
+    {
+        // Fix for: (for historical reasons "double" is returned in case of a float, and not simply "float")
+        if (self::isFloat($var))
+            return "float";
+
+        return gettype($var);
+    }
+
+    /**
      * Check if value is numeric
      * <hr>
      *<code>
