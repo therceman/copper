@@ -82,7 +82,7 @@ class TestDB
 
         $query = $migrateResponse->result;
 
-        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `is` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` ENUM('guest','user','moderator','admin','super_admin') NOT NULL DEFAULT 'guest' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
+        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `is` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` ENUM('guest','user','moderator','admin','super_admin') NOT NULL DEFAULT 'guest' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `int` INT NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
             return $response->fail('Wrong Query', $query);
 
         if ($migrateResponse->hasError())
@@ -136,7 +136,7 @@ class TestDB
         $user->password = DBHandler::hashWithSalt('new_user_pass', TestDBSeed::HASH_SALT);
         $user->role = TestDBEntity::ROLE_USER;
         $user->email = 'new_user@arkadia_trade.com';
-        $user->salary = 555.56;
+        $user->salary = ' 555.56 ';
 
         $response = TestDBService::create($this->db, $user);
 
@@ -736,12 +736,20 @@ class TestDB
 
         // TODO doTruncate, doMigrate, do... other
 
+        $entity = new TestDBEntity();
+        $entity->int = '    1236 ';
+        $entity->login = 'demo';
+        $entity->password = 'demo123';
+        $entity->email = 'demo123@qwe.com';
+
+        $model->doInsert($entity);
+
         // doCount
 
         $entityCount = $model->doCount();
 
-        if ($entityCount !== 6)
-            return $response->fail('[doCount] User List should have count of 6', $entityCount);
+        if ($entityCount !== 7)
+            return $response->fail('[doCount] User List should have count of 7', $entityCount);
 
         return $response->ok();
     }

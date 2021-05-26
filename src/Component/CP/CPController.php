@@ -12,6 +12,7 @@ use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;
 use Copper\Test\TestCore;
+use Copper\Test\TestValidator;
 
 class CPController extends AbstractController
 {
@@ -20,6 +21,7 @@ class CPController extends AbstractController
     const ACTION_DB_SEED = 'db_seed';
     const ACTION_DB_TEST = 'db_test';
     const ACTION_CORE_TEST = 'core_test';
+    const ACTION_VALIDATOR_TEST = 'validator_test';
     const ACTION_DB_GENERATOR = 'db_generator';
     const ACTION_DB_GENERATOR_RUN = 'db_generator_run';
     const ACTION_DB_GENERATOR_DEL = 'db_generator_del';
@@ -63,6 +65,9 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_CORE_TEST:
                 return $this->core_test();
+                break;
+            case self::ACTION_VALIDATOR_TEST:
+                return $this->validator_test();
                 break;
             case self::ACTION_DB_GENERATOR:
                 return $this->db_generator();
@@ -145,6 +150,15 @@ class CPController extends AbstractController
     private function core_test()
     {
         $test = new TestCore();
+
+        $response = $test->run();
+
+        return $this->dump_response($response);
+    }
+
+    private function validator_test()
+    {
+        $test = new TestValidator();
 
         $response = $test->run();
 

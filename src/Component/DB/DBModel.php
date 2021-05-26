@@ -470,7 +470,7 @@ abstract class DBModel
     }
 
     /**
-     * @param DBSelect $select
+     * @param DBSelect|null $select
      * @param bool $countOnly [optional] = false
      * @return Select
      * @throws Exception
@@ -481,8 +481,13 @@ abstract class DBModel
 
         $stm = $db->query->from('`' . $this->getTableName() . '`');
 
-        if ($select === null)
+        if ($select === null) {
+
+            if ($countOnly)
+                $stm = $stm->select(['COUNT(*)'], true);
+
             return $stm;
+        }
 
         $columns = $select->getColumns();
         $ignoredColumns = $select->getIgnoredColumns();
@@ -632,7 +637,7 @@ abstract class DBModel
         try {
             $stm = $this->prepareSelectStatement($select, true);
 
-            $result = $stm->fetchColumn();
+            $result = (int) $stm->fetchColumn();
 
             if ($result === false)
                 $result = 0;

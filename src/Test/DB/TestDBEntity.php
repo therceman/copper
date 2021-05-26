@@ -23,4 +23,6 @@ class TestDBEntity extends AbstractUserEntity
     public $enum;
     /** @var float */
     public $dec_def;
+    /** @var int */
+    public $int;
 }

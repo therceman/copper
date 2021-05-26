@@ -10,6 +10,7 @@ namespace Copper\Handler;
  */
 class VarHandler
 {
+
     /**
      * Get type of variable
      * <hr>
@@ -156,10 +157,14 @@ class VarHandler
      * 23     - true
      * </code>
      * @param mixed $var
+     * @param bool $strict
      * @return bool
      */
-    public static function isInt($var)
+    public static function isInt($var, $strict = true)
     {
+        if ($strict === false)
+            return (StringHandler::regex(StringHandler::trim(self::toString($var)), '(^[\-]?[\pN]+$)') !== false);
+
         return is_int($var);
     }
 
@@ -225,6 +230,17 @@ class VarHandler
             return true;
 
         return false;
+    }
+
+    public static function toString($var)
+    {
+        if (self::isNull($var))
+            return 'null';
+
+        if (self::isArray($var) || self::isObject($var))
+            return json_encode($var);
+
+        return strval($var);
     }
 
     /**

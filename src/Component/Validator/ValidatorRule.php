@@ -44,29 +44,29 @@ class ValidatorRule
     const ALPHA_NUMERIC = 21;
 
     /** @var string */
-    public $name;
+    private $name;
     /** @var int */
-    public $type;
+    private $type;
     /** @var int|null */
-    public $maxLength;
+    private $maxLength;
     /** @var int */
-    public $minLength;
+    private $minLength;
     /** @var int|null */
-    public $length;
+    private $length;
     /** @var bool */
-    public $required;
+    private $required;
     /** @var bool */
-    public $strict;
+    private $strict;
     /** @var string|null */
-    public $regex;
+    private $regex;
     /** @var array|null */
-    public $filterValues;
+    private $filterValues;
     /** @var bool */
-    public $blacklistFilter;
+    private $blacklistFilter;
     /** @var bool */
-    public $allowAlphaSpaces;
+    private $allowAlphaSpaces;
     /** @var string|null */
-    public $regexFormatExample;
+    private $regexFormatExample;
 
     /**
      * ValidatorRule constructor.
@@ -170,11 +170,15 @@ class ValidatorRule
 
     /**
      * @param string|null $regex
+     * @param string|null $example
      * @return $this
      */
-    public function regex(?string $regex)
+    public function regex(?string $regex, ?string $example = null)
     {
         $this->regex = $regex;
+
+        if ($example !== null)
+            $this->regexFormatExample = $example;
 
         return $this;
     }
@@ -505,11 +509,11 @@ class ValidatorRule
     {
         $res = new FunctionResponse();
 
-        if (VarHandler::isString($value) === false)
-            return $res->error('wrongValueType', ["string", VarHandler::getType($value)]);
-
         if ($this->regex === null)
             return $res->ok();
+
+        if (VarHandler::isString($value) === false)
+            return $res->error('wrongValueType', ["string", VarHandler::getType($value)]);
 
         $regexResult = StringHandler::regex($value, $this->regex);
 
@@ -534,7 +538,25 @@ class ValidatorRule
      */
     private function validateInteger($value)
     {
-        return VarHandler::isInt($value);
+        return VarHandler::isInt($value, $this->strict);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateIntegerNegative($value)
+    {
+        return self::validateInteger($value) && $value < 0;
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateIntegerPositive($value)
+    {
+        return self::validateInteger($value) && $value > 0;
     }
 
     /**
@@ -625,6 +647,14 @@ class ValidatorRule
                 if ($this->validateInteger($value) === false)
                     return $res->error('wrongValueType', ['integer', VarHandler::getType($value)]);
                 break;
+            case self::INTEGER_NEGATIVE:
+                if ($this->validateIntegerNegative($value) === false)
+                    return $res->error('valueTypeIsNotNegativeInteger');
+                break;
+            case self::INTEGER_POSITIVE:
+                if ($this->validateIntegerPositive($value) === false)
+                    return $res->error('valueTypeIsNotPositiveInteger');
+                break;
             case self::BOOLEAN:
                 if ($this->validateBoolean($value) === false)
                     return $res->error('wrongValueType', ['boolean', VarHandler::getType($value)]);
@@ -652,5 +682,13 @@ class ValidatorRule
         }
 
         return $res->ok();
+    }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

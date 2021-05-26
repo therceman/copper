@@ -241,7 +241,12 @@ class StringHandler
     {
         $matches = self::regexAll($str, $re);
 
-        return count($matches) > 0 ? $matches[$matchIndex][$group] : false;
+        if (count($matches) === 0)
+            return false;
+
+        $match = $matches[$matchIndex];
+
+        return ArrayHandler::hasKey($match, $group) ? $match[$group] : $match[0];
     }
 
     /**
@@ -257,7 +262,7 @@ class StringHandler
         $matches = self::regexAll($str, $re);
 
         foreach ($matches as $matchIndex => $groupList) {
-            $groupValue = $groupList[$group];
+            $groupValue = ArrayHandler::hasKey($groupList, $group) ? $groupList[$group] : $groupList[0];
 
             $str = str_replace($groupValue, $value, $str);
         }
