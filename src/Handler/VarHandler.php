@@ -252,10 +252,13 @@ class VarHandler
      */
     public static function toBoolean($var)
     {
-        if ($var === false || $var === null || $var === 0 || $var === '0' || $var === '')
-            return false;
+        if (self::isString($var))
+            $var = StringHandler::trim($var);
 
-        return true;
+        if ($var === true || $var === 1 || $var === '1' || $var === 'true')
+            return true;
+
+        return false;
     }
 
     /**

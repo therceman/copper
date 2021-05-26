@@ -12,6 +12,7 @@ use Copper\Handler\ArrayHandler;
 use Copper\Handler\CollectionHandler;
 use Copper\Handler\DateHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Envms\FluentPDO\Exception;
 use Envms\FluentPDO\Queries\Select;
@@ -255,6 +256,9 @@ abstract class DBModel
 
             if (is_bool($value) && $field->getType() === $field::BOOLEAN)
                 $value = intval($value);
+
+            if ($db !== null && $db->config->boolean_not_strict && $field->getType() === $field::BOOLEAN)
+                $value = VarHandler::toBooleanInt($value);
 
             if ($db !== null && $db->config->trim_enum && $field->typeIsEnum())
                 $value = StringHandler::trim($value);

@@ -37,4 +37,24 @@ class DBConfigurator
 
     /** @var bool Trim ENUM on update or create */
     public $trim_enum;
+
+    /**
+     * Boolean field is not strict on update or create.
+     * <hr>
+     * <code>
+     * You can pass the following values to boolean field
+     * - true - true
+     * - false - false
+     * - '1' - true
+     * - '0' - false
+     * - 1 - true
+     * - 0 - false
+     * - 'true' - true
+     * - 'false' - false
+     * - '' - false
+     * - null - false
+     * </code>
+     * @var bool
+     */
+    public $boolean_not_strict;
 }

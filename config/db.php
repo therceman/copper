@@ -26,4 +26,6 @@ return function (DBConfigurator $db) {
     $db->trim_text = true;
     $db->trim_enum = true;
 
+    $db->boolean_not_strict = true;
+
 };

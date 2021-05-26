@@ -742,6 +742,17 @@ class TestDB
         $entity->password = 'demo123    ';
         $entity->email = '  demo123@qwe.com';
         $entity->enum = ' banana    ';
+        $entity->enabled = ' true    ';
+
+        $model->doInsert($entity);
+
+        $entity = new TestDBEntity();
+        $entity->int = '    12361 ';
+        $entity->login = '  demo21    ';
+        $entity->password = 'demo123 1   ';
+        $entity->email = '  demo1231@qwe.com';
+        $entity->enum = ' banana    ';
+        $entity->enabled = ' e';
 
         $model->doInsert($entity);
 
@@ -762,12 +773,20 @@ class TestDB
         if ($entity->enum !== 'banana')
             return $response->fail("\$entity->enum should be 'banana'");
 
+        if ($entity->enabled !== true)
+            return $response->fail("\$entity->enabled should be true");
+
+        $entity = $model->doSelectById(8);
+
+        if ($entity->enabled !== false)
+            return $response->fail("\$entity->enabled should be false");
+
         // doCount
 
         $entityCount = $model->doCount();
 
-        if ($entityCount !== 7)
-            return $response->fail('[doCount] User List should have count of 7', $entityCount);
+        if ($entityCount !== 8)
+            return $response->fail('[doCount] User List should have count of 8', $entityCount);
 
         return $response->ok();
     }
