@@ -10,10 +10,34 @@ use Copper\Handler\ArrayHandler;
 
 class TestValidator
 {
+    private function testValidatorResponse($vRes, &$res, $key, $msg, $result = null)
+    {
+        if (ArrayHandler::hasKey($vRes->result, $key) === false)
+            $res->fail($key . ' should be invalid');
+
+        if ($vRes->result[$key]->status !== false)
+            $res->fail($key . ' should have status: false');
+
+        if ($vRes->result[$key]->msg !== $msg)
+            $res->fail($key . ' should have msg: ' . $msg);
+
+        if ($result === null)
+            return $res;
+
+        if (is_array($result)) {
+            foreach ($result as $rKey => $rValue) {
+                if ($vRes->result[$key]->result[$rKey] !== $rValue)
+                    $res->fail($key . ' should have result[' . $rKey . ']: ' . $rValue);
+            }
+        } else {
+            if ($vRes->result[$key]->result !== $result)
+                $res->fail($key . ' should have result: ' . $result);
+        }
+    }
 
     private function stringAndBaseMethods()
     {
-        $response = new FunctionResponse();
+        $res = new FunctionResponse();
 
         $validator = new ValidatorHandler();
 
@@ -58,127 +82,60 @@ class TestValidator
         ]);
 
         if (ArrayHandler::hasKey($validatorRes->result, 'string'))
-            $response->fail('string should be valid');
+            $res->fail('string should be valid');
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_fail') === false)
-            $response->fail('string_fail should be invalid');
-
-        if ($validatorRes->result['string_fail']->status !== false)
-            $response->fail('string_fail should have status: false');
-
-        if ($validatorRes->result['string_fail']->msg !== 'wrongValueType')
-            $response->fail('string_fail should have msg: wrongValueType');
-
-        if ($validatorRes->result['string_fail']->result[0] !== 'string')
-            $response->fail('string_fail should have result[0]: string');
-
-        if ($validatorRes->result['string_fail']->result[1] !== 'integer')
-            $response->fail('string_fail should have result[1]: integer');
+        $this->testValidatorResponse($validatorRes, $res, 'string_fail', 'wrongValueType', ['string', 'integer']);
 
         // ----- string_required ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'string_required'))
-            $response->fail('string_required should be valid');
+            $res->fail('string_required should be valid');
 
         // --- string_required_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_required_fail') === false)
-            $response->fail('string_required_fail should be invalid');
-
-        if ($validatorRes->result['string_required_fail']->status !== false)
-            $response->fail('string_required_fail should have status: false');
-
-        if ($validatorRes->result['string_required_fail']->msg !== 'valueCannotBeEmpty')
-            $response->fail('string_required_fail should have msg: valueCannotBeEmpty');
+        $this->testValidatorResponse($validatorRes, $res, 'string_required_fail', 'valueCannotBeEmpty');
 
         // --- string_required_fail2 ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_required_fail2') === false)
-            $response->fail('string_required_fail2 should be invalid');
-
-        if ($validatorRes->result['string_required_fail2']->status !== false)
-            $response->fail('string_required_fail2 should have status: false');
-
-        if ($validatorRes->result['string_required_fail2']->msg !== 'valueCannotBeEmpty')
-            $response->fail('string_required_fail2 should have msg: valueCannotBeEmpty');
+        $this->testValidatorResponse($validatorRes, $res, 'string_required_fail2', 'valueCannotBeEmpty');
 
         // ----- string_min_len_5 ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'string_min_len_5'))
-            $response->fail('string_min_len_5 should be valid');
+            $res->fail('string_min_len_5 should be valid');
 
         // --- string_min_len_5_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_min_len_5_fail') === false)
-            $response->fail('string_min_len_5_fail should be invalid');
-
-        if ($validatorRes->result['string_min_len_5_fail']->status !== false)
-            $response->fail('string_min_len_5_fail should have status: false');
-
-        if ($validatorRes->result['string_min_len_5_fail']->msg !== 'minLengthRequired')
-            $response->fail('string_min_len_5_fail should have msg: minLengthRequired');
-
-        if ($validatorRes->result['string_min_len_5_fail']->result !== 5)
-            $response->fail('string_min_len_5_fail should have result: 5');
+        $this->testValidatorResponse($validatorRes, $res, 'string_min_len_5_fail', 'minLengthRequired', 5);
 
         // ----- string_max_len_10 ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'string_max_len_10'))
-            $response->fail('string_max_len_10 should be valid');
+            $res->fail('string_max_len_10 should be valid');
 
         // --- string_max_len_10_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_max_len_10_fail') === false)
-            $response->fail('string_max_len_10_fail should be invalid');
-
-        if ($validatorRes->result['string_max_len_10_fail']->status !== false)
-            $response->fail('string_max_len_10_fail should have status: false');
-
-        if ($validatorRes->result['string_max_len_10_fail']->msg !== 'maxLengthReached')
-            $response->fail('string_max_len_10_fail should have msg: maxLengthReached');
-
-        if ($validatorRes->result['string_max_len_10_fail']->result !== 10)
-            $response->fail('string_max_len_10_fail should have result: 10');
+        $this->testValidatorResponse($validatorRes, $res, 'string_max_len_10_fail', 'maxLengthReached', 10);
 
         // ----- string_len_11 ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'string_len_11'))
-            $response->fail('string_len_11 should be valid');
+            $res->fail('string_len_11 should be valid');
 
         // --- string_len_11_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_len_11_fail') === false)
-            $response->fail('string_len_11_fail should be invalid');
-
-        if ($validatorRes->result['string_len_11_fail']->status !== false)
-            $response->fail('string_len_11_fail should have status: false');
-
-        if ($validatorRes->result['string_len_11_fail']->msg !== 'wrongLength')
-            $response->fail('string_len_11_fail should have msg: wrongLength');
-
-        if ($validatorRes->result['string_len_11_fail']->result !== 11)
-            $response->fail('string_len_11_fail should have result: 11');
+        $this->testValidatorResponse($validatorRes, $res, 'string_len_11_fail', 'wrongLength', 11);
 
         // ----- string_regex ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'string_regex'))
-            $response->fail('string_regex should be valid');
+            $res->fail('string_regex should be valid');
 
         // --- string_regex_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'string_regex_fail') === false)
-            $response->fail('string_regex_fail should be invalid');
+        $this->testValidatorResponse($validatorRes, $res, 'string_regex_fail', 'invalidValueFormat', ['example' => '1337']);
 
-        if ($validatorRes->result['string_regex_fail']->status !== false)
-            $response->fail('string_regex_fail should have status: false');
-
-        if ($validatorRes->result['string_regex_fail']->msg !== 'invalidValueFormat')
-            $response->fail('string_regex_fail should have msg: invalidValueFormat');
-
-        if ($validatorRes->result['string_regex_fail']->result['example'] !== '1337')
-            $response->fail('string_regex_fail should have result example: 1337');
-
-        return ($response->hasError()) ? $response : $response->ok();
+        return ($res->hasError()) ? $res : $res->ok();
     }
 
     private function integer()
@@ -243,36 +200,15 @@ class TestValidator
 
         // --- integer_positive_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_positive_fail') === false)
-            $response->fail('integer_positive_fail should be invalid');
-
-        if ($validatorRes->result['integer_positive_fail']->status !== false)
-            $response->fail('integer_positive_fail should have status: false');
-
-        if ($validatorRes->result['integer_positive_fail']->msg !== 'wrongValueType')
-            $response->fail('integer_positive_fail should have msg: wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_positive_fail', 'wrongValueType');
 
         // --- integer_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_fail') === false)
-            $response->fail('integer_fail should be invalid');
-
-        if ($validatorRes->result['integer_fail']->status !== false)
-            $response->fail('integer_fail should have status: false');
-
-        if ($validatorRes->result['integer_fail']->msg !== 'wrongValueType')
-            $response->fail('integer_fail should have msg: wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_fail', 'wrongValueType');
 
         // --- integer_fail2 ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_fail2') === false)
-            $response->fail('integer_fail2 should be invalid');
-
-        if ($validatorRes->result['integer_fail2']->status !== false)
-            $response->fail('integer_fail2 should have status: false');
-
-        if ($validatorRes->result['integer_fail2']->msg !== 'wrongValueType')
-            $response->fail('integer_fail2 should have msg: wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_fail2', 'wrongValueType');
 
         // ----- integer_with_tabs_and_spaces ----
 
@@ -286,14 +222,7 @@ class TestValidator
 
         // --- integer_strict_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_strict_fail') === false)
-            $response->fail('integer_strict_fail should be invalid');
-
-        if ($validatorRes->result['integer_strict_fail']->status !== false)
-            $response->fail('integer_strict_fail should have status: false');
-
-        if ($validatorRes->result['integer_strict_fail']->msg !== 'wrongValueType')
-            $response->fail('integer_strict_fail should have msg: wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_strict_fail', 'wrongValueType');
 
         // ====================================================
 
@@ -314,25 +243,11 @@ class TestValidator
 
         // --- integer_only_negative_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_negative_fail') === false)
-            $response->fail('integer_only_negative_fail should be invalid');
-
-        if ($validatorRes->result['integer_only_negative_fail']->status !== false)
-            $response->fail('integer_only_negative_fail should have status: false');
-
-        if ($validatorRes->result['integer_only_negative_fail']->msg !== 'valueTypeIsNotNegativeInteger')
-            $response->fail('integer_only_negative_fail should have msg: valueTypeIsNotNegativeInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_fail', 'valueTypeIsNotNegativeInteger');
 
         // --- integer_only_negative_strict_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_negative_strict_fail') === false)
-            $response->fail('integer_only_negative_strict_fail should be invalid');
-
-        if ($validatorRes->result['integer_only_negative_strict_fail']->status !== false)
-            $response->fail('integer_only_negative_strict_fail should have status: false');
-
-        if ($validatorRes->result['integer_only_negative_strict_fail']->msg !== 'valueTypeIsNotNegativeInteger')
-            $response->fail('integer_only_negative_strict_fail should have msg: valueTypeIsNotNegativeInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_strict_fail', 'valueTypeIsNotNegativeInteger');
 
         // ====================================================
 
@@ -353,27 +268,90 @@ class TestValidator
 
         // --- integer_only_positive_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_positive_fail') === false)
-            $response->fail('integer_only_positive_fail should be invalid');
-
-        if ($validatorRes->result['integer_only_positive_fail']->status !== false)
-            $response->fail('integer_only_positive_fail should have status: false');
-
-        if ($validatorRes->result['integer_only_positive_fail']->msg !== 'valueTypeIsNotPositiveInteger')
-            $response->fail('integer_only_positive_fail should have msg: valueTypeIsNotPositiveInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_fail', 'valueTypeIsNotPositiveInteger');
 
         // --- integer_only_positive_strict_fail ---
 
-        if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_positive_strict_fail') === false)
-            $response->fail('integer_only_positive_strict_fail should be invalid');
-
-        if ($validatorRes->result['integer_only_positive_strict_fail']->status !== false)
-            $response->fail('integer_only_positive_strict_fail should have status: false');
-
-        if ($validatorRes->result['integer_only_positive_strict_fail']->msg !== 'valueTypeIsNotPositiveInteger')
-            $response->fail('integer_only_positive_strict_fail should have msg: valueTypeIsNotPositiveInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_strict_fail', 'valueTypeIsNotPositiveInteger');
 
         return ($response->hasError()) ? $response : $response->ok();
+    }
+
+    private function boolean()
+    {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $validator->addBooleanRule('bool');
+        $validator->addBooleanRule('bool2');
+        $validator->addBooleanRule('bool3');
+        $validator->addBooleanRule('bool4');
+        $validator->addBooleanRule('bool5');
+        $validator->addBooleanRule('bool6');
+        $validator->addBooleanRule('bool7');
+        $validator->addBooleanRule('bool8');
+        $validator->addBooleanRule('bool_fail');
+        $validator->addBooleanRule('bool_fail2');
+        $validator->addBooleanRule('bool_fail3');
+        $validator->addBooleanRule('bool_fail4');
+        $validator->addBooleanRule('bool_strict')->strict(true);
+        $validator->addBooleanRule('bool_strict_fail')->strict(true);
+        $validator->addBooleanRule('bool_strict_fail2')->strict(true);
+        $validator->addBooleanRule('bool_strict_fail3')->strict(true);
+
+        $validatorRes = $validator->validate([
+            'bool' => true,
+            'bool2' => false,
+            'bool3' => 1,
+            'bool4' => 0,
+            'bool5' => '1',
+            'bool6' => '0',
+            'bool7' => 'true',
+            'bool8' => 'false',
+            'bool_fail' => '2',
+            'bool_fail2' => 2,
+            'bool_fail3' => null,
+            'bool_fail4' => 'qwe',
+            'bool_strict' => true,
+            'bool_strict_fail' => 'true',
+            'bool_strict_fail2' => '1',
+            'bool_strict_fail3' => 1,
+        ]);
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool'))
+            $res->fail('bool should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool2'))
+            $res->fail('bool2 should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool3'))
+            $res->fail('bool3 should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool4'))
+            $res->fail('bool4 should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool5'))
+            $res->fail('bool5 should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool6'))
+            $res->fail('bool6 should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool7'))
+            $res->fail('bool7 should be valid');
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'bool8'))
+            $res->fail('bool8 should be valid');
+
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail', 'wrongValueType', ['boolean', 'string']);
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail2', 'wrongValueType', ['boolean', 'integer']);
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail3', 'wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail4', 'wrongValueType', ['boolean', 'string']);
+        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail', 'wrongValueType', ['boolean', 'string']);
+        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail2', 'wrongValueType', ['boolean', 'string']);
+        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail3', 'wrongValueType', ['boolean', 'integer']);
+
+        return ($res->hasError()) ? $res : $res->ok();
     }
 
     public function run()
@@ -384,6 +362,7 @@ class TestValidator
 
         $results[] = ['string, minLength, maxLength, length, regex', $this->stringAndBaseMethods()];
         $results[] = ['integer', $this->integer()];
+        $results[] = ['boolean', $this->boolean()];
 
         $failedTests = [];
 

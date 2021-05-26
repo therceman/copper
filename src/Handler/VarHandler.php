@@ -226,7 +226,10 @@ class VarHandler
         if ($strict && is_bool($var) === false)
             return false;
 
-        if ($var === false || $var === 0 || $var === 1 || $var === '0' || $var === '1' || $var === true)
+        if ($var === 0 || $var === 1 || $var === '0' || $var === '1')
+            return true;
+
+        if ($var === false || $var === true || $var === 'false' || $var === 'true')
             return true;
 
         return false;
