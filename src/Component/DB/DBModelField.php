@@ -502,9 +502,14 @@ class DBModelField
     public function typeIsString()
     {
         $isText = $this->typeIsText();
-        $isVarchar = ($this->type === DBModelField::VARCHAR);
+        $isVarchar = $this->typeIsVarchar();
 
         return ($isText || $isVarchar);
+    }
+
+    public function typeIsVarchar()
+    {
+        return ($this->type === DBModelField::VARCHAR);
     }
 
     public function typeIsText()

@@ -738,11 +738,29 @@ class TestDB
 
         $entity = new TestDBEntity();
         $entity->int = '    1236 ';
-        $entity->login = 'demo';
-        $entity->password = 'demo123';
-        $entity->email = 'demo123@qwe.com';
+        $entity->login = '  demo2    ';
+        $entity->password = 'demo123    ';
+        $entity->email = '  demo123@qwe.com';
+        $entity->enum = ' banana    ';
 
         $model->doInsert($entity);
+
+        $entity = $model->doSelectById(7);
+
+        if ($entity->int !== 1236)
+            return $response->fail('$entity->int should be 1236');
+
+        if ($entity->login !== 'demo2')
+            return $response->fail("\$entity->login should be 'demo2'");
+
+        if ($entity->password !== 'demo123')
+            return $response->fail("\$entity->password should be 'demo123'");
+
+        if ($entity->email !== 'demo123@qwe.com')
+            return $response->fail("\$entity->email should be 'demo123@qwe.com'");
+
+        if ($entity->enum !== 'banana')
+            return $response->fail("\$entity->enum should be 'banana'");
 
         // doCount
 

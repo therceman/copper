@@ -21,4 +21,9 @@ return function (DBConfigurator $db) {
 
     $db->default_varchar_length = 255;
     $db->default_decimal_length = [9, 2];
+
+    $db->trim_varchar = true;
+    $db->trim_text = true;
+    $db->trim_enum = true;
+
 };

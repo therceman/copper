@@ -11,6 +11,7 @@ use Copper\FunctionResponse\DBUpdateResponseResultEntity;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\CollectionHandler;
 use Copper\Handler\DateHandler;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Envms\FluentPDO\Exception;
 use Envms\FluentPDO\Queries\Select;
@@ -167,7 +168,7 @@ abstract class DBModel
      */
     public static function formatBoolean(string $bool)
     {
-        $bool = trim($bool);
+        $bool = StringHandler::trim($bool);
 
         $true = ($bool === '1' || $bool === 1 || $bool === 'on');
 
@@ -207,7 +208,7 @@ abstract class DBModel
      */
     public static function formatEmail(string $email)
     {
-        return str_replace(['"', "'", '<', '>'], '', trim($email));
+        return str_replace(['"', "'", '<', '>'], '', StringHandler::trim($email));
     }
 
     /**
@@ -221,6 +222,8 @@ abstract class DBModel
      */
     public function formatFieldValues(array $fieldValues, $removeNullFields = false, $escapeFieldNames = false)
     {
+        $db = Kernel::getDb();
+
         $formattedValues = [];
 
         foreach ($this->fields as $field) {
@@ -229,7 +232,13 @@ abstract class DBModel
 
             $value = $fieldValues[$field->getName()];
 
-            if (trim($value) === '' && $field->typeIsString() && $field->getNull() === true)
+            if ($db !== null && $db->config->trim_varchar && $field->typeIsVarchar())
+                $value = StringHandler::trim($value);
+
+            if ($db !== null && $db->config->trim_text && $field->typeIsText())
+                $value = StringHandler::trim($value);
+
+            if (StringHandler::trim($value) === '' && $field->typeIsString() && $field->getNull() === true)
                 $value = null;
 
             if ($value === null && in_array($field->getType(), [$field::DATETIME, $field::DATE]) && $field->getNull() !== true)
@@ -246,6 +255,9 @@ abstract class DBModel
 
             if (is_bool($value) && $field->getType() === $field::BOOLEAN)
                 $value = intval($value);
+
+            if ($db !== null && $db->config->trim_enum && $field->typeIsEnum())
+                $value = StringHandler::trim($value);
 
             $formattedFieldName = ($escapeFieldNames) ? '`' . $field->getName() . '`' : $field->getName();
 

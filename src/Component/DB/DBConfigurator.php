@@ -28,4 +28,13 @@ class DBConfigurator
 
     /** @var int[] */
     public $default_decimal_length;
+
+    /** @var bool Trim VARCHAR on update or create */
+    public $trim_varchar;
+
+    /** @var bool Trim TEXT on update or create */
+    public $trim_text;
+
+    /** @var bool Trim ENUM on update or create */
+    public $trim_enum;
 }
