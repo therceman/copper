@@ -6,6 +6,7 @@ namespace Copper\Component\Validator;
 
 use Copper\Component\DB\DBModel;
 use Copper\FunctionResponse;
+use Copper\Handler\VarHandler;
 use Copper\Traits\ComponentHandlerTrait;
 
 class ValidatorHandler
@@ -99,8 +100,12 @@ class ValidatorHandler
      */
     private function translateErrorRes(FunctionResponse $validationRes, string $lang, string $textClass)
     {
+        $result = $validationRes->result;
+
+        $result = VarHandler::isArray($result) ? $result : [$result];
+
         if ($textClass !== null && method_exists($textClass, $validationRes->msg))
-            $validationRes->msg = $textClass::{$validationRes->msg}($lang, [$validationRes->result]);
+            $validationRes->msg = $textClass::{$validationRes->msg}($lang, $result);
 
         return $validationRes;
     }

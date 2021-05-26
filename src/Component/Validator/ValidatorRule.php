@@ -40,6 +40,8 @@ class ValidatorRule
     const YEAR = 18;
 
     const NUMERIC = 19;
+    const ALPHA = 20;
+    const ALPHA_NUMERIC = 21;
 
     /** @var string */
     public $name;
@@ -61,27 +63,32 @@ class ValidatorRule
     public $filterValues;
     /** @var bool */
     public $blacklistFilter;
+    /** @var bool */
+    public $allowAlphaSpaces;
+    /** @var string|null */
+    public $regexFormatExample;
 
     /**
      * ValidatorRule constructor.
      *
      * @param string $name
      * @param int $type
-     * @param int|null $maxLength
      * @param bool $required
      */
-    public function __construct(string $name, $type = self::STRING, $maxLength = null, $required = false)
+    public function __construct(string $name, $type = self::STRING, $required = false)
     {
         $this->name = $name;
         $this->type = $type;
-        $this->maxLength = $maxLength;
         $this->required = $required;
 
         $this->minLength = 0;
+        $this->maxLength = null;
         $this->length = null;
         $this->filterValues = null;
         $this->regex = null;
         $this->blacklistFilter = false;
+        $this->allowAlphaSpaces = true;
+        $this->regexFormatExample = null;
     }
 
     /**
@@ -151,12 +158,34 @@ class ValidatorRule
     }
 
     /**
+     * @param bool $bool
+     * @return $this
+     */
+    public function allowAlphaSpaces($bool = true)
+    {
+        $this->allowAlphaSpaces = $bool;
+
+        return $this;
+    }
+
+    /**
      * @param string|null $regex
      * @return $this
      */
     public function regex(?string $regex)
     {
         $this->regex = $regex;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $example
+     * @return $this
+     */
+    public function regexFormatExample(?string $example)
+    {
+        $this->regexFormatExample = $example;
 
         return $this;
     }
@@ -177,50 +206,46 @@ class ValidatorRule
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function string(string $name, $maxLength = false, $required = false)
+    public static function string(string $name, $required = false)
     {
-        return new self($name, self::STRING, $maxLength, $required);
+        return new self($name, self::STRING, $required);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function integer(string $name, $maxLength = false, $required = false)
+    public static function integer(string $name, $required = false)
     {
-        return new self($name, self::INTEGER, $maxLength, $required);
+        return new self($name, self::INTEGER, $required);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function integerPositive(string $name, $maxLength = false, $required = false)
+    public static function integerPositive(string $name, $required = false)
     {
-        return new self($name, self::INTEGER_POSITIVE, $maxLength, $required);
+        return new self($name, self::INTEGER_POSITIVE, $required);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function integerNegative(string $name, $maxLength = false, $required = false)
+    public static function integerNegative(string $name, $required = false)
     {
-        return new self($name, self::INTEGER_NEGATIVE, $maxLength, $required);
+        return new self($name, self::INTEGER_NEGATIVE, $required);
     }
 
     /**
@@ -232,55 +257,51 @@ class ValidatorRule
      */
     public static function boolean(string $name, $required = false, $strict = false)
     {
-        return new self($name, self::BOOLEAN, false, $required);
+        return (new self($name, self::BOOLEAN, $required))->strict($strict);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function float(string $name, $maxLength = false, $required = false)
+    public static function float(string $name, $required = false)
     {
-        return new self($name, self::FLOAT, $maxLength, $required);
+        return new self($name, self::FLOAT, $required);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function floatPositive(string $name, $maxLength = false, $required = false)
+    public static function floatPositive(string $name, $required = false)
     {
-        return new self($name, self::FLOAT_POSITIVE, $maxLength, $required);
+        return new self($name, self::FLOAT_POSITIVE, $required);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function floatNegative(string $name, $maxLength = false, $required = false)
+    public static function floatNegative(string $name, $required = false)
     {
-        return new self($name, self::FLOAT_NEGATIVE, $maxLength, $required);
+        return new self($name, self::FLOAT_NEGATIVE, $required);
     }
 
     /**
      * @param string $name
-     * @param int|null $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function email(string $name, $required = false, $maxLength = null)
+    public static function email(string $name, $required = false)
     {
-        $rule = new self($name, self::EMAIL, $maxLength, $required);
+        $rule = new self($name, self::EMAIL, $required);
 
         if (Kernel::getValidator() === null)
             return $rule;
@@ -290,20 +311,20 @@ class ValidatorRule
         $rule->minLength($validatorConfig->email_minLength);
         $rule->maxLength($validatorConfig->email_maxLength);
         $rule->regex($validatorConfig->email_regex);
+        $rule->regexFormatExample($validatorConfig->email_regex_format_example);
 
         return $rule;
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function phone(string $name, $maxLength = false, $required = false)
+    public static function phone(string $name, $required = false)
     {
-        return new self($name, self::PHONE, $maxLength, $required);
+        return new self($name, self::PHONE, $required);
     }
 
     /**
@@ -315,7 +336,7 @@ class ValidatorRule
      */
     public static function enum(string $name, $values = null, $required = false)
     {
-        return (new self($name, self::ENUM, false, $required))->filterValues($values);
+        return (new self($name, self::ENUM, $required))->filterValues($values);
     }
 
     /**
@@ -328,7 +349,7 @@ class ValidatorRule
      */
     public static function decimal(string $name, int $maxDigits, int $maxDecimals, $required = false)
     {
-        return (new self($name, self::DECIMAL, false, $required))->filterValues([$maxDigits, $maxDecimals]);
+        return (new self($name, self::DECIMAL, $required))->filterValues([$maxDigits, $maxDecimals]);
     }
 
     /**
@@ -341,7 +362,7 @@ class ValidatorRule
      */
     public static function decimalPositive(string $name, int $maxDigits, int $maxDecimals, $required = false)
     {
-        return (new self($name, self::DECIMAL_POSITIVE, false, $required))->filterValues([$maxDigits, $maxDecimals]);
+        return (new self($name, self::DECIMAL_POSITIVE, $required))->filterValues([$maxDigits, $maxDecimals]);
     }
 
     /**
@@ -354,7 +375,7 @@ class ValidatorRule
      */
     public static function decimalNegative(string $name, int $maxDigits, int $maxDecimals, $required = false)
     {
-        return (new self($name, self::DECIMAL_NEGATIVE, false, $required))->filterValues([$maxDigits, $maxDecimals]);
+        return (new self($name, self::DECIMAL_NEGATIVE, $required))->filterValues([$maxDigits, $maxDecimals]);
     }
 
     /**
@@ -365,7 +386,7 @@ class ValidatorRule
      */
     public static function date(string $name, $required = false)
     {
-        return new self($name, self::DATE, false, $required);
+        return new self($name, self::DATE, $required);
     }
 
     /**
@@ -376,7 +397,7 @@ class ValidatorRule
      */
     public static function time(string $name, $required = false)
     {
-        return new self($name, self::TIME, false, $required);
+        return new self($name, self::TIME, $required);
     }
 
     /**
@@ -387,7 +408,7 @@ class ValidatorRule
      */
     public static function datetime(string $name, $required = false)
     {
-        return new self($name, self::DATETIME, false, $required);
+        return new self($name, self::DATETIME, $required);
     }
 
     /**
@@ -398,19 +419,42 @@ class ValidatorRule
      */
     public static function year(string $name, $required = false)
     {
-        return new self($name, self::YEAR, false, $required);
+        return new self($name, self::YEAR, $required);
     }
 
     /**
      * @param string $name
-     * @param bool $maxLength
      * @param bool $required
      *
      * @return ValidatorRule
      */
-    public static function numeric(string $name, $maxLength = false, $required = false)
+    public static function numeric(string $name, $required = false)
     {
-        return new self($name, self::NUMERIC, $maxLength, $required);
+        return new self($name, self::NUMERIC, $required);
+    }
+
+    /**
+     * @param string $name
+     * @param bool $required
+     * @param bool $allowSpaces
+     *
+     * @return ValidatorRule
+     */
+    public static function alpha(string $name, $required = false, $allowSpaces = true)
+    {
+        return (new self($name, self::ALPHA, $required))->allowAlphaSpaces($allowSpaces);
+    }
+
+    /**
+     * @param string $name
+     * @param bool $required
+     * @param bool $allowSpaces
+     *
+     * @return ValidatorRule
+     */
+    public static function alphaNumeric(string $name, $required = false, $allowSpaces = true)
+    {
+        return (new self($name, self::ALPHA_NUMERIC, $required))->allowAlphaSpaces($allowSpaces);
     }
 
     /**
@@ -470,7 +514,7 @@ class ValidatorRule
         $regexResult = StringHandler::regex($value, $this->regex);
 
         if ($regexResult === false)
-            return $res->error('invalidValueFormat');
+            return $res->error('invalidValueFormat', ['example' => $this->regexFormatExample]);
 
         return $res->ok();
     }
@@ -520,6 +564,23 @@ class ValidatorRule
         return VarHandler::isNumeric($value);
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateAlpha($value)
+    {
+        return VarHandler::isAlpha($value, $this->allowAlphaSpaces);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateAlphaNumeric($value)
+    {
+        return VarHandler::isAlphaNumeric($value, $this->allowAlphaSpaces);
+    }
 
     /**
      * @param $params
@@ -576,12 +637,19 @@ class ValidatorRule
                 if ($this->validateNumeric($value) === false)
                     return $res->error('valueTypeIsNotNumeric');
                 break;
+            case self::ALPHA:
+                if ($this->validateAlpha($value) === false)
+                    return $res->error('valueTypeIsNotAlphabetic', ($this->allowAlphaSpaces));
+                break;
+            case self::ALPHA_NUMERIC:
+                if ($this->validateAlphaNumeric($value) === false)
+                    return $res->error('valueTypeIsNotAlphabeticOrNumeric', ($this->allowAlphaSpaces));
+                break;
             case self::EMAIL:
-                $typeValidationStatus = true; // no custom logic
+                return $res->ok();
+            default:
+                return $res->error('wrongValidationType');
         }
-
-        if ($typeValidationStatus === null)
-            return $res->error('wrongValidationType');
 
         return $res->ok();
     }

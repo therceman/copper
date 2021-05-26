@@ -33,6 +33,8 @@ class ValidatorConfigurator
      * @var string
      */
     public $email_regex;
+    /** @var string Email format example. Default: jonh.wick@gmail.com */
+    public $email_regex_format_example;
 
     /** @var string 4 Digits */
     public $year_regex;

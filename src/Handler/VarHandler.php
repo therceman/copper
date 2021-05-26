@@ -38,6 +38,38 @@ class VarHandler
     }
 
     /**
+     * @param mixed $var
+     * @param bool $allowSpaces
+     * @return bool
+     */
+    public static function isAlphaNumeric($var, $allowSpaces = true)
+    {
+        $spaceDelimiter = ($allowSpaces) ? ' ' : '';
+
+        if (self::isBoolean($var) || self::isArray($var) || self::isObject($var) || self::isNull($var))
+            return false;
+
+        $var = strval($var);
+
+        return (StringHandler::regex($var, '/(^[\pL\pN' . $spaceDelimiter . ']+$)/u') !== false);
+    }
+
+    /**
+     * @param mixed $var
+     * @param bool $allowSpaces
+     * @return bool
+     */
+    public static function isAlpha($var, $allowSpaces = true)
+    {
+        $spaceDelimiter = ($allowSpaces) ? ' ' : '';
+
+        if (self::isString($var) === false)
+            return false;
+
+        return (StringHandler::regex($var, '/(^[\pL' . $spaceDelimiter . ']+$)/u') !== false);
+    }
+
+    /**
      * Check if value is numeric
      * <hr>
      *<code>
@@ -91,6 +123,15 @@ class VarHandler
     public static function isObject($var)
     {
         return is_object($var);
+    }
+
+    /**
+     * @param mixed $var
+     * @return bool
+     */
+    public static function isNull($var)
+    {
+        return $var === null;
     }
 
     /**
@@ -180,7 +221,7 @@ class VarHandler
         if ($strict && is_bool($var) === false)
             return false;
 
-        if ($var === false || $var == 0 || $var == 1 || $var === true)
+        if ($var === false || $var === 0 || $var === 1 || $var === '0' || $var === '1' || $var === true)
             return true;
 
         return false;

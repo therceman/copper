@@ -8,6 +8,7 @@ return function (ValidatorConfigurator $validator) {
     $validator->email_minLength = 7;
     $validator->email_maxLength = 50;
     $validator->email_regex = '/(^[a-zA-Z0-9][a-zA-Z0-9\+\.\-\_]*@[a-zA-Z0-9][a-zA-Z0-9\-\.]*\.[a-zA-Z0-9]{2,}$)/';
+    $validator->email_regex_format_example = 'john.wick@gmail.com';
     // year
     $validator->year_regex = '/(\d{4})/';
     // time
