@@ -18,4 +18,5 @@ return function (AppConfigurator $appConfig) {
     $appConfig->dateTimeFormat = 'Y-m-d H:i:s';
 
     $appConfig->serialize_precision = -1;
+    $appConfig->trim_input = true;
 };

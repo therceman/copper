@@ -13,6 +13,7 @@ use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
+use Copper\Handler\NumberHandler;
 use Copper\Handler\StringHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -406,6 +407,35 @@ final class Kernel
     }
 
     /**
+     * Returns script execution time (in seconds) at current function call
+     *
+     * @param bool $format
+     * @param int $formatDecimals
+     *
+     * @return float
+     */
+    public static function getScriptExecutionTime($format = true, $formatDecimals = 4)
+    {
+        $res = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+
+        return ($format) ? NumberHandler::format($res, $formatDecimals) : $res;
+    }
+
+    private function processRequest(Request &$request)
+    {
+        if (self::$app->config->trim_input === false)
+            return;
+
+        foreach ($request->request->all() as $key => $value) {
+            $request->request->set($key, StringHandler::trim($value));
+        }
+
+        foreach ($request->query->all() as $key => $value) {
+            $request->query->set($key, StringHandler::trim($value));
+        }
+    }
+
+    /**
      * Handles Request
      *
      * @param Request $request
@@ -424,6 +454,7 @@ final class Kernel
 
         try {
             $this->configureMatchedRequestAttributes($matcher, $request);
+            $this->processRequest($request);
             $response = $this->getRequestControllerResponse($request, $requestContext);
         } catch (\Exception $e) {
             if ($e instanceof MethodNotAllowedException) {

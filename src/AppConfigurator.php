@@ -100,6 +100,18 @@ class AppConfigurator
      */
     public $serialize_precision;
 
+    /**
+     * Trims all input to controller from request query, body, json
+     * <hr>
+     * All whitespaces (+unicode whitespaces)
+     * and tabs are removed
+     * <hr>
+     * Default: true
+     *
+     * @var bool
+     */
+    public $trim_input;
+
     public function __construct()
     {
         $this->bag = new ParameterBag();

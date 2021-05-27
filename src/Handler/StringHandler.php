@@ -14,6 +14,20 @@ use Copper\Transliterator;
  */
 class StringHandler
 {
+    /**
+     * Removes white spaces around keys and values in JSON string
+     *
+     * @param string $json
+     * @return string
+     */
+    public static function trimJSON(string $json)
+    {
+        foreach (StringHandler::regexAll($json, '/"(\s{0,}\p{L}*\s{0,}\p{L}.\s{0,})"/mu') as $group) {
+            $json = StringHandler::replace($json, $group[1], StringHandler::trim($group[1]));
+        }
+
+        return $json;
+    }
 
     /**
      * Explode/Split string by delimiter

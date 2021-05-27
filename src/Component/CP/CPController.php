@@ -294,7 +294,7 @@ class CPController extends AbstractController
 
     private function route_add()
     {
-        $content = $this->requestJson();
+        $content = $this->requestJSON();
 
         $response = ResourceGenService::addRoute($content);
 
@@ -303,7 +303,7 @@ class CPController extends AbstractController
 
     private function route_del()
     {
-        $content = $this->requestJson();
+        $content = $this->requestJSON();
 
         $response = ResourceGenService::delRoute($content);
 
@@ -312,7 +312,7 @@ class CPController extends AbstractController
 
     private function route_list_update()
     {
-        $content = $this->requestJson();
+        $content = $this->requestJSON();
 
         $response = ResourceGenService::updateRouteList($content);
 

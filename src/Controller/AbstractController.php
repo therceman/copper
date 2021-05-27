@@ -2,6 +2,7 @@
 
 namespace Copper\Controller;
 
+use Copper\AppConfigurator;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\CP\CPHandler;
 use Copper\Component\DB\DBHandler;
@@ -11,6 +12,7 @@ use Copper\Component\Mail\MailHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Copper\RequestTrait;
 
@@ -49,6 +51,8 @@ class AbstractController
     protected $mail;
     /** @var ParameterBag */
     protected $viewDataBag;
+    /** @var AppConfigurator */
+    protected $config;
 
     /**
      * AbstractController constructor.
@@ -75,6 +79,7 @@ class AbstractController
         $this->cp = $cp;
         $this->validator = $validator;
         $this->mail = $mail;
+        $this->config = Kernel::getApp()->config;
 
         $this->viewDataBag = new ParameterBag([]);
 
@@ -244,12 +249,17 @@ class AbstractController
      *
      * @return array|mixed
      */
-    protected function requestJson()
+    protected function requestJSON()
     {
         if ($this->request->getContentType() !== 'json')
             return [];
 
-        $data = json_decode($this->request->getContent(), true);
+        $content = $this->request->getContent();
+
+        if ($this->config->trim_input)
+            $content = StringHandler::trimJSON($content);
+
+        $data = json_decode($content, true);
 
         return ($data === null) ? [] : $data;
     }
