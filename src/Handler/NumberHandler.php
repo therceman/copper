@@ -10,6 +10,10 @@ class NumberHandler
     const SIGN_EUR = '€';
     const SIGN_PERCENT = '%';
 
+    // The float data type can commonly store a value up to 1.7976931348623E+308 (platform dependent),
+    // and have a maximum precision of 14 digits.
+    const MAX_FLOAT_PRECISION = 14;
+
     /**
      * Returns absolute value
      * <hr>
@@ -43,6 +47,8 @@ class NumberHandler
 
     public static function round($num, $dec = 2)
     {
+        $dec = $dec > self::MAX_FLOAT_PRECISION ? self::MAX_FLOAT_PRECISION : $dec;
+
         return round($num, $dec);
     }
 
@@ -55,6 +61,8 @@ class NumberHandler
     {
         if (is_string($num))
             $num = self::round($num, $dec);
+
+        $dec = $dec > self::MAX_FLOAT_PRECISION ? self::MAX_FLOAT_PRECISION : $dec;
 
         return number_format($num, $dec, $d_sep, $t_sep);
     }

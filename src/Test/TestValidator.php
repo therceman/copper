@@ -84,7 +84,7 @@ class TestValidator
         if (ArrayHandler::hasKey($validatorRes->result, 'string'))
             $res->fail('string should be valid');
 
-        $this->testValidatorResponse($validatorRes, $res, 'string_fail', 'wrongValueType', ['string', 'integer']);
+        $this->testValidatorResponse($validatorRes, $res, 'string_fail', 'valueTypeIsNotString', 'integer');
 
         // ----- string_required ----
 
@@ -140,7 +140,7 @@ class TestValidator
 
     private function integer()
     {
-        $response = new FunctionResponse();
+        $res = new FunctionResponse();
 
         $validator = new ValidatorHandler();
 
@@ -191,90 +191,90 @@ class TestValidator
         // ----- integer ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer'))
-            $response->fail('integer should be valid');
+            $res->fail('integer should be valid');
 
         // ----- integer_negative ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_negative'))
-            $response->fail('integer_negative should be valid');
+            $res->fail('integer_negative should be valid');
 
         // --- integer_positive_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_positive_fail', 'wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_positive_fail', 'valueTypeIsNotInteger');
 
         // --- integer_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_fail', 'wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_fail', 'valueTypeIsNotInteger');
 
         // --- integer_fail2 ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_fail2', 'wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_fail2', 'valueTypeIsNotInteger');
 
         // ----- integer_with_tabs_and_spaces ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_with_tabs_and_spaces'))
-            $response->fail('integer_with_tabs_and_spaces should be valid');
+            $res->fail('integer_with_tabs_and_spaces should be valid');
 
         // ----- integer_strict ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_strict'))
-            $response->fail('integer_strict should be valid');
+            $res->fail('integer_strict should be valid');
 
         // --- integer_strict_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_strict_fail', 'wrongValueType');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_strict_fail', 'valueTypeIsNotInteger');
 
         // ====================================================
 
         // ----- integer_only_negative ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_negative'))
-            $response->fail('integer_only_negative should be valid');
+            $res->fail('integer_only_negative should be valid');
 
         // ----- integer_only_negative_spaces ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_negative_spaces'))
-            $response->fail('integer_only_negative_spaces should be valid');
+            $res->fail('integer_only_negative_spaces should be valid');
 
         // ----- integer_only_negative_strict ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_negative_strict'))
-            $response->fail('integer_only_negative_strict should be valid');
+            $res->fail('integer_only_negative_strict should be valid');
 
         // --- integer_only_negative_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_fail', 'valueTypeIsNotNegativeInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_fail', 'valueTypeIsNotNegative');
 
         // --- integer_only_negative_strict_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_strict_fail', 'valueTypeIsNotNegativeInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_strict_fail', 'valueTypeIsNotInteger', 'string');
 
         // ====================================================
 
         // ----- integer_only_positive ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_positive'))
-            $response->fail('integer_only_positive should be valid');
+            $res->fail('integer_only_positive should be valid');
 
         // ----- integer_only_positive_spaces ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_positive_spaces'))
-            $response->fail('integer_only_positive_spaces should be valid');
+            $res->fail('integer_only_positive_spaces should be valid');
 
         // ----- integer_only_positive_strict ----
 
         if (ArrayHandler::hasKey($validatorRes->result, 'integer_only_positive_strict'))
-            $response->fail('integer_only_positive_strict should be valid');
+            $res->fail('integer_only_positive_strict should be valid');
 
         // --- integer_only_positive_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_fail', 'valueTypeIsNotPositiveInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_fail', 'valueTypeIsNotPositive');
 
         // --- integer_only_positive_strict_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_strict_fail', 'valueTypeIsNotPositiveInteger');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_strict_fail', 'valueTypeIsNotInteger', 'string');
 
-        return ($response->hasError()) ? $response : $response->ok();
+        return ($res->hasError()) ? $res : $res->ok();
     }
 
     private function boolean()
@@ -343,13 +343,240 @@ class TestValidator
         if (ArrayHandler::hasKey($validatorRes->result, 'bool8'))
             $res->fail('bool8 should be valid');
 
-        $this->testValidatorResponse($validatorRes, $res, 'bool_fail', 'wrongValueType', ['boolean', 'string']);
-        $this->testValidatorResponse($validatorRes, $res, 'bool_fail2', 'wrongValueType', ['boolean', 'integer']);
-        $this->testValidatorResponse($validatorRes, $res, 'bool_fail3', 'wrongValueType');
-        $this->testValidatorResponse($validatorRes, $res, 'bool_fail4', 'wrongValueType', ['boolean', 'string']);
-        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail', 'wrongValueType', ['boolean', 'string']);
-        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail2', 'wrongValueType', ['boolean', 'string']);
-        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail3', 'wrongValueType', ['boolean', 'integer']);
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail', 'valueTypeIsNotBoolean', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail2', 'valueTypeIsNotBoolean', 'integer');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail3', 'valueTypeIsNotBoolean', 'NULL');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_fail4', 'valueTypeIsNotBoolean', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail', 'valueTypeIsNotBoolean', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail2', 'valueTypeIsNotBoolean', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail3', 'valueTypeIsNotBoolean', 'integer');
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function float()
+    {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $trueVars = [
+            'float' => 1.55,
+            'float2' => -1.55,
+            'float3' => '1.55',
+            'float4' => '-1.55',
+            'float_max_3_dec' => '1.555',
+            'float_max_3_dec2' => 1.001,
+            'float_5' => '1.00',
+            'float_6' => 1.00,
+            'float_7' => '  1.05',
+            'float_8' => ' 1.010 ',
+            'float_9' => 1,
+            'float_10' => 0,
+            'float_11' => -1,
+            'float_12' => .55,
+            'float_13' => '.55',
+            'float_14' => '-.55',
+        ];
+
+        $falseVars = [
+            'float_fail' => '1.55a',
+            'float_fail_2' => '1e3',
+            'float_fail_3' => null,
+            'float_fail_4' => 'qwe',
+            'float_fail_5' => false,
+            'float_fail_6' => true,
+            'float_fail_7' => [],
+        ];
+
+        foreach (ArrayHandler::merge($trueVars, $falseVars) as $key => $var) {
+            $validator->addFloatRule($key);
+        }
+
+        $trueVarsStrict = [
+            'strict_float' => 1.55,
+            'strict_float2' => 1.00,
+            'strict_float3' => -1.123
+        ];
+
+        $falseVarsStrict = [
+            'strict_float_fail' => '1.55',
+            'strict_float2_fail' => '1.00',
+            'strict_float3_fail' => '-1.123'
+        ];
+
+        foreach (ArrayHandler::merge($trueVarsStrict, $falseVarsStrict) as $key => $var) {
+            $validator->addFloatRule($key)->strict(true);
+        }
+
+        // decimals check
+
+        $decTrueVars = [
+            'dec_float' => 1.22,
+            'dec_float2' => -1.22,
+            'dec_float3' => '1.22',
+            'dec_float4' => '-1.22',
+            'dec_float5' => '.22',
+            'dec_float6' => '-.23',
+            'dec_float7' => 123456789011.001000006066046, // will be turned to 123456789011 @see validateFloat
+            'dec_float8' => '123456789011.01',
+            'dec_float9' => '123456.0100',
+            'dec_float10' => 123456.0100,
+            'dec_float11' => 123456789012.0112,            // will be turned to 12345678901.01 @see validateFloat
+        ];
+
+        $decFalseVars = [
+            'dec_float_fail' => 1.223,
+            'dec_float2_fail' => -1.223,
+            'dec_float3_fail' => '1.223',
+            'dec_float4_fail' => '-1.223',
+            'dec_float5_fail' => '123456789011.001000006066046',
+            'dec_float6_fail' => '123456789011.01000006066046',
+            'dec_float7_fail' => 12345678901.001000006066046,
+            'dec_float8_fail' => '123456789011.001',
+            'dec_float9_fail' => '12345678901.001',
+        ];
+
+        foreach (ArrayHandler::merge($decTrueVars, $decFalseVars) as $key => $var) {
+            $validator->addFloatRule($key)->floatMaxDecimals(2);
+        }
+
+        $decTrueVarsStrict = [
+            'dec_float_strict' => 1.22,
+            'dec_float_strict2' => -1.22,
+            'dec_float_strict3' => -.22,
+            'dec_float_strict4' => 0.22,
+            'dec_float_strict5' => .22,
+        ];
+
+        $decFalseVarsStrict = [
+            'dec_float_fail_strict' => 1.223,
+            'dec_float_fail_strict2' => -1.223,
+            'dec_float_fail_strict3' => -.223,
+            'dec_float_fail_strict4' => 0.223,
+            'dec_float_fail_strict5' => .223,
+        ];
+
+        $otherTrue = [
+            'floatMaxDecimals_0' => 1.23
+        ];
+
+        foreach (ArrayHandler::merge($decTrueVarsStrict, $decFalseVarsStrict) as $key => $var) {
+            $validator->addFloatRule($key)->floatMaxDecimals(2)->strict(true);
+        }
+
+        $validator->addFloatRule('floatMaxDecimals_0')->floatMaxDecimals(0);
+
+        // positive
+
+        $positiveTrue = [
+            'float_pos' => 1,
+            'float_pos2' => 1.1,
+            'float_pos3' => '1',
+            'float_pos4' => '1.1',
+            'float_pos5' => '.55',
+        ];
+
+        $positiveFalse = [
+            'float_false_pos' => -1,
+            'float_false_pos2' => -1.1,
+            'float_false_pos3' => '-1',
+            'float_false_pos4' => '-1.1',
+            'float_false_pos5' => '-.55',
+        ];
+
+        foreach (ArrayHandler::merge($positiveTrue, $positiveFalse) as $key => $var) {
+            $validator->addFloatPositiveRule($key);
+        }
+
+        // negative
+
+        $negativeTrue = [
+            'float_neg' => -1,
+            'float_neg2' => -1.1,
+            'float_neg3' => '-1',
+            'float_neg4' => '-1.1',
+            'float_neg5' => '-.55',
+        ];
+
+        $negativeFalse = [
+            'float_false_neg' => 1,
+            'float_false_neg2' => 1.1,
+            'float_false_neg3' => '1',
+            'float_false_neg4' => '1.1',
+            'float_false_neg5' => '.55',
+        ];
+
+        foreach (ArrayHandler::merge($negativeTrue, $negativeFalse) as $key => $var) {
+            $validator->addFloatNegativeRule($key);
+        }
+
+        $vars = ArrayHandler::merge($trueVars, $falseVars);
+        $vars = ArrayHandler::merge($vars, $trueVarsStrict);
+        $vars = ArrayHandler::merge($vars, $falseVarsStrict);
+        $vars = ArrayHandler::merge($vars, $decTrueVars);
+        $vars = ArrayHandler::merge($vars, $decFalseVars);
+        $vars = ArrayHandler::merge($vars, $decTrueVarsStrict);
+        $vars = ArrayHandler::merge($vars, $decFalseVarsStrict);
+        $vars = ArrayHandler::merge($vars, $otherTrue);
+        $vars = ArrayHandler::merge($vars, $positiveTrue);
+        $vars = ArrayHandler::merge($vars, $positiveFalse);
+        $vars = ArrayHandler::merge($vars, $negativeTrue);
+        $vars = ArrayHandler::merge($vars, $negativeFalse);
+
+        $validatorRes = $validator->validate($vars);
+
+        $trueVars = ArrayHandler::merge($trueVars, $trueVarsStrict);
+        $trueVars = ArrayHandler::merge($trueVars, $decTrueVars);
+        $trueVars = ArrayHandler::merge($trueVars, $decTrueVarsStrict);
+        $trueVars = ArrayHandler::merge($trueVars, $otherTrue);
+        $trueVars = ArrayHandler::merge($trueVars, $positiveTrue);
+        $trueVars = ArrayHandler::merge($trueVars, $negativeTrue);
+
+        foreach ($trueVars as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail', 'valueTypeIsNotFloat', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail_2', 'valueTypeIsNotFloat', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail_3', 'valueTypeIsNotFloat', 'NULL');
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail_4', 'valueTypeIsNotFloat', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail_5', 'valueTypeIsNotFloat', 'boolean');
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail_6', 'valueTypeIsNotFloat', 'boolean');
+        $this->testValidatorResponse($validatorRes, $res, 'float_fail_7', 'valueTypeIsNotFloat', 'array');
+
+        $this->testValidatorResponse($validatorRes, $res, 'strict_float_fail', 'valueTypeIsNotFloat', 'string');
+        $this->testValidatorResponse($validatorRes, $res, 'strict_float2_fail', 'valueTypeIsNotFloat',  'string');
+        $this->testValidatorResponse($validatorRes, $res, 'strict_float3_fail', 'valueTypeIsNotFloat', 'string');
+
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float2_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float3_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float4_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float5_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float6_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float7_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float8_fail', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float9_fail', 'tooManyDecimalDigits', 2);
+
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict2', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict3', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict4', 'tooManyDecimalDigits', 2);
+        $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict5', 'tooManyDecimalDigits', 2);
+
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos', 'valueTypeIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos2', 'valueTypeIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos3', 'valueTypeIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos4', 'valueTypeIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos5', 'valueTypeIsNotPositive');
+
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg', 'valueTypeIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg2', 'valueTypeIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg3', 'valueTypeIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg4', 'valueTypeIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg5', 'valueTypeIsNotNegative');
 
         return ($res->hasError()) ? $res : $res->ok();
     }
@@ -363,6 +590,7 @@ class TestValidator
         $results[] = ['string, minLength, maxLength, length, regex', $this->stringAndBaseMethods()];
         $results[] = ['integer', $this->integer()];
         $results[] = ['boolean', $this->boolean()];
+        $results[] = ['float', $this->float()];
 
         $failedTests = [];
 

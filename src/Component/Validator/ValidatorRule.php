@@ -64,9 +64,11 @@ class ValidatorRule
     /** @var bool */
     private $blacklistFilter;
     /** @var bool */
-    private $allowAlphaSpaces;
+    private $alphaAllowSpaces;
     /** @var string|null */
     private $regexFormatExample;
+    /** @var int|null */
+    private $floatMaxDecimals;
 
     /**
      * ValidatorRule constructor.
@@ -87,8 +89,12 @@ class ValidatorRule
         $this->filterValues = null;
         $this->regex = null;
         $this->blacklistFilter = false;
-        $this->allowAlphaSpaces = true;
+
+        $this->alphaAllowSpaces = true;
         $this->regexFormatExample = null;
+        $this->floatMaxDecimals = null;
+
+        $this->strict = Kernel::getValidator()->config->strict;
     }
 
     /**
@@ -106,7 +112,7 @@ class ValidatorRule
      * @param int|null $max
      * @return $this
      */
-    public function maxLength(?int $max)
+    public function maxLength($max = null)
     {
         $this->maxLength = $max;
 
@@ -128,7 +134,7 @@ class ValidatorRule
      * @param int|null $len
      * @return $this
      */
-    public function length(?int $len)
+    public function length($len = null)
     {
         $this->length = $len;
 
@@ -158,12 +164,23 @@ class ValidatorRule
     }
 
     /**
+     * @param int|null $decimals
+     * @return $this
+     */
+    public function floatMaxDecimals($decimals = null)
+    {
+        $this->floatMaxDecimals = $decimals;
+
+        return $this;
+    }
+
+    /**
      * @param bool $bool
      * @return $this
      */
-    public function allowAlphaSpaces($bool = true)
+    public function alphaAllowSpaces($bool = true)
     {
-        $this->allowAlphaSpaces = $bool;
+        $this->alphaAllowSpaces = $bool;
 
         return $this;
     }
@@ -259,42 +276,45 @@ class ValidatorRule
      *
      * @return ValidatorRule
      */
-    public static function boolean(string $name, $required = false, $strict = false)
+    public static function boolean(string $name, $required = false)
     {
-        return (new self($name, self::BOOLEAN, $required))->strict($strict);
+        return (new self($name, self::BOOLEAN, $required));
     }
 
     /**
      * @param string $name
      * @param bool $required
+     * @param int|null $maxDecimals
      *
      * @return ValidatorRule
      */
-    public static function float(string $name, $required = false)
+    public static function float(string $name, $required = false, $maxDecimals = null)
     {
-        return new self($name, self::FLOAT, $required);
+        return (new self($name, self::FLOAT, $required))->floatMaxDecimals($maxDecimals);
     }
 
     /**
      * @param string $name
      * @param bool $required
+     * @param int|null $maxDecimals
      *
      * @return ValidatorRule
      */
-    public static function floatPositive(string $name, $required = false)
+    public static function floatPositive(string $name, $required = false, $maxDecimals = null)
     {
-        return new self($name, self::FLOAT_POSITIVE, $required);
+        return (new self($name, self::FLOAT_POSITIVE, $required))->floatMaxDecimals($maxDecimals);
     }
 
     /**
      * @param string $name
      * @param bool $required
+     * @param int|null $maxDecimals
      *
      * @return ValidatorRule
      */
-    public static function floatNegative(string $name, $required = false)
+    public static function floatNegative(string $name, $required = false, $maxDecimals = null)
     {
-        return new self($name, self::FLOAT_NEGATIVE, $required);
+        return (new self($name, self::FLOAT_NEGATIVE, $required))->floatMaxDecimals($maxDecimals);
     }
 
     /**
@@ -446,7 +466,7 @@ class ValidatorRule
      */
     public static function alpha(string $name, $required = false, $allowSpaces = true)
     {
-        return (new self($name, self::ALPHA, $required))->allowAlphaSpaces($allowSpaces);
+        return (new self($name, self::ALPHA, $required))->alphaAllowSpaces($allowSpaces);
     }
 
     /**
@@ -458,7 +478,7 @@ class ValidatorRule
      */
     public static function alphaNumeric(string $name, $required = false, $allowSpaces = true)
     {
-        return (new self($name, self::ALPHA_NUMERIC, $required))->allowAlphaSpaces($allowSpaces);
+        return (new self($name, self::ALPHA_NUMERIC, $required))->alphaAllowSpaces($allowSpaces);
     }
 
     /**
@@ -468,6 +488,9 @@ class ValidatorRule
     private function validateValueLength($value)
     {
         $res = new FunctionResponse();
+
+        if (VarHandler::isArray($value) || VarHandler::isObject($value))
+            $value = json_encode($value);
 
         $value = strval($value);
 
@@ -543,20 +566,40 @@ class ValidatorRule
 
     /**
      * @param $value
-     * @return bool
+     * @return FunctionResponse
      */
     private function validateIntegerNegative($value)
     {
-        return self::validateInteger($value) && $value < 0;
+        $fRes = new FunctionResponse();
+
+        $res = self::validateInteger($value);
+
+        if ($res === false)
+            return $fRes->error('valueTypeIsNotInteger', VarHandler::getType($value));
+
+        if ($value >= 0)
+            return $fRes->error('valueTypeIsNotNegative');
+
+        return $fRes->ok();
     }
 
     /**
      * @param $value
-     * @return bool
+     * @return FunctionResponse
      */
     private function validateIntegerPositive($value)
     {
-        return self::validateInteger($value) && $value > 0;
+        $fRes = new FunctionResponse();
+
+        $res = self::validateInteger($value);
+
+        if ($res === false)
+            return $fRes->error('valueTypeIsNotInteger', VarHandler::getType($value));
+
+        if ($value < 0)
+            return $fRes->error('valueTypeIsNotPositive');
+
+        return $fRes->ok();
     }
 
     /**
@@ -569,12 +612,76 @@ class ValidatorRule
     }
 
     /**
+     * Float validation.
+     * <hr>
+     * floatMaxDecimals is processed here.
+     * <hr>
+     * Info: Be aware that PHP supports only 15 symbols long float value.
+     * Everything after 15 symbols will be stripped (and if it has 16 symbol, this symbol will be rounded with 15)
+     * <p>
+     * For Example:
+     * <code>
+     * - 12345678901.001000006066046 = 12345678901.001
+     * - 1234567890.001000006066046 = 1234567890.001
+     * - 123456789.000100006066046 = 1234567890.0001
+     * - 789.000100001233 = 789.00010000123
+     * - 789.000100001236 = 789.00010000124
+     * </code>
      * @param $value
-     * @return bool
+     * @return FunctionResponse
      */
     private function validateFloat($value)
     {
-        return VarHandler::isFloat($value);
+        $fRes = new FunctionResponse();
+
+        $res = VarHandler::isFloat($value, $this->strict);
+
+        if ($res && $this->floatMaxDecimals !== null) {
+
+            if ($this->floatMaxDecimals === 0)
+                return $fRes->ok();
+
+            if (VarHandler::isString($value) === false)
+                $value = (string)$value;
+
+            $parts = StringHandler::explode($value, '.');
+
+            if (count($parts) === 1)
+                return $fRes->ok();
+
+            $trimZeros = rtrim($parts[1], '0');
+
+            $res = (strlen($trimZeros) <= $this->floatMaxDecimals);
+
+            if ($res === false)
+                return $fRes->error('tooManyDecimalDigits', $this->floatMaxDecimals);
+        }
+
+        return ($res) ? $fRes->ok() : $fRes->error('valueTypeIsNotFloat', VarHandler::getType($value));
+    }
+
+    public function validateFloatNegative($value)
+    {
+        $fRes = $this->validateFloat($value);
+
+        if ($fRes->hasError())
+            return $fRes;
+
+        $res = (StringHandler::substr((float)$value . "", 0, 1) === '-');
+
+        return  ($res) ? $fRes->ok() : $fRes->error('valueTypeIsNotNegative');
+    }
+
+    public function validateFloatPositive($value)
+    {
+        $fRes = $this->validateFloat($value);
+
+        if ($fRes->hasError())
+            return $fRes;
+
+        $res = (StringHandler::has((float)$value . "", '-') === false);
+
+        return  ($res) ? $fRes->ok() : $fRes->error('valueTypeIsNotPositive');
     }
 
     /**
@@ -592,7 +699,7 @@ class ValidatorRule
      */
     private function validateAlpha($value)
     {
-        return VarHandler::isAlpha($value, $this->allowAlphaSpaces);
+        return VarHandler::isAlpha($value, $this->alphaAllowSpaces);
     }
 
     /**
@@ -601,7 +708,7 @@ class ValidatorRule
      */
     private function validateAlphaNumeric($value)
     {
-        return VarHandler::isAlphaNumeric($value, $this->allowAlphaSpaces);
+        return VarHandler::isAlphaNumeric($value, $this->alphaAllowSpaces);
     }
 
     /**
@@ -641,27 +748,40 @@ class ValidatorRule
         switch ($this->type) {
             case self::STRING:
                 if ($this->validateString($value) === false)
-                    return $res->error('wrongValueType', ['string', VarHandler::getType($value)]);
+                    return $res->error('valueTypeIsNotString', VarHandler::getType($value));
                 break;
             case self::INTEGER:
                 if ($this->validateInteger($value) === false)
-                    return $res->error('wrongValueType', ['integer', VarHandler::getType($value)]);
+                    return $res->error('valueTypeIsNotInteger', VarHandler::getType($value));
                 break;
             case self::INTEGER_NEGATIVE:
-                if ($this->validateIntegerNegative($value) === false)
-                    return $res->error('valueTypeIsNotNegativeInteger');
+                $checkRes = $this->validateIntegerNegative($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
                 break;
             case self::INTEGER_POSITIVE:
-                if ($this->validateIntegerPositive($value) === false)
-                    return $res->error('valueTypeIsNotPositiveInteger');
+                $checkRes = $this->validateIntegerPositive($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
                 break;
             case self::BOOLEAN:
                 if ($this->validateBoolean($value) === false)
-                    return $res->error('wrongValueType', ['boolean', VarHandler::getType($value)]);
+                    return $res->error('valueTypeIsNotBoolean', VarHandler::getType($value));
                 break;
             case self::FLOAT:
-                if ($this->validateFloat($value) === false)
-                    return $res->error('wrongValueType', ['float', VarHandler::getType($value)]);
+                $checkRes = $this->validateFloat($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
+                break;
+            case self::FLOAT_NEGATIVE:
+                $checkRes = $this->validateFloatNegative($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
+                break;
+            case self::FLOAT_POSITIVE:
+                $checkRes = $this->validateFloatPositive($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
                 break;
             case self::NUMERIC:
                 if ($this->validateNumeric($value) === false)
@@ -669,11 +789,11 @@ class ValidatorRule
                 break;
             case self::ALPHA:
                 if ($this->validateAlpha($value) === false)
-                    return $res->error('valueTypeIsNotAlphabetic', ($this->allowAlphaSpaces));
+                    return $res->error('valueTypeIsNotAlphabetic', ($this->alphaAllowSpaces));
                 break;
             case self::ALPHA_NUMERIC:
                 if ($this->validateAlphaNumeric($value) === false)
-                    return $res->error('valueTypeIsNotAlphabeticOrNumeric', ($this->allowAlphaSpaces));
+                    return $res->error('valueTypeIsNotAlphabeticOrNumeric', ($this->alphaAllowSpaces));
                 break;
             case self::EMAIL:
                 return $res->ok();

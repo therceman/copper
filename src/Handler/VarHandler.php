@@ -89,12 +89,16 @@ class VarHandler
      * "02471"          - true
      * "1337e0"         - true
      * 9.1              - true
+     * " 9.1 "          - true
      * </code>
      * @param $var
      * @return bool
      */
     public static function isNumeric($var)
     {
+        if (self::isString($var))
+            $var = StringHandler::trim($var);
+
         return is_numeric($var);
     }
 
@@ -110,10 +114,24 @@ class VarHandler
      * 1e7   - true
      * </code>
      * @param mixed $var
+     * @param bool $strict
      * @return bool
      */
-    public static function isFloat($var)
+    public static function isFloat($var, $strict = true)
     {
+        if ($var === null || $var === true || $var === false || self::isArray($var) || self::isObject($var))
+            return false;
+
+        if ($strict === false && self::isNumeric($var)) {
+            if (self::isString($var))
+                $var = StringHandler::trim($var);
+
+            if (self::isString($var) && StringHandler::has($var, 'e'))
+                return false;
+
+            $var = floatval($var);
+        }
+
         return is_float($var);
     }
 

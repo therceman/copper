@@ -59,85 +59,81 @@ class ValidatorHandler
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
      *
      * @return ValidatorRule
      */
-    public function addIntegerRule(string $name, $required = false, $strict = false)
+    public function addIntegerRule(string $name, $required = false)
     {
-        return $this->addRule(ValidatorRule::integer($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::integer($name, $required));
     }
 
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
      *
      * @return ValidatorRule
      */
-    public function addIntegerNegativeRule(string $name, $required = false, $strict = false)
+    public function addIntegerNegativeRule(string $name, $required = false)
     {
-        return $this->addRule(ValidatorRule::integerNegative($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::integerNegative($name, $required));
     }
 
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
      *
      * @return ValidatorRule
      */
-    public function addIntegerPositiveRule(string $name, $required = false, $strict = false)
+    public function addIntegerPositiveRule(string $name, $required = false)
     {
-        return $this->addRule(ValidatorRule::integerPositive($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::integerPositive($name, $required));
     }
 
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
      *
      * @return ValidatorRule
      */
-    public function addBooleanRule(string $name, $required = false, $strict = false)
+    public function addBooleanRule(string $name, $required = false)
     {
-        return $this->addRule(ValidatorRule::boolean($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::boolean($name, $required));
     }
 
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
+     * @param int|null $maxDecimals
      *
      * @return ValidatorRule
      */
-    public function addFloatRule(string $name, $required = false, $strict = false)
+    public function addFloatRule(string $name, $required = false, $maxDecimals = null)
     {
-        return $this->addRule(ValidatorRule::float($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::float($name, $required, $maxDecimals));
     }
 
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
+     * @param int|null $maxDecimals
      *
      * @return ValidatorRule
      */
-    public function addFloatNegativeRule(string $name, $required = false, $strict = false)
+    public function addFloatNegativeRule(string $name, $required = false, $maxDecimals = null)
     {
-        return $this->addRule(ValidatorRule::floatNegative($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::floatNegative($name, $required, $maxDecimals));
     }
 
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
+     * @param int|null $maxDecimals
      *
      * @return ValidatorRule
      */
-    public function addFloatPositiveRule(string $name, $required = false, $strict = false)
+    public function addFloatPositiveRule(string $name, $required = false, $maxDecimals = null)
     {
-        return $this->addRule(ValidatorRule::floatPositive($name, $required))->strict($strict);
+        return $this->addRule(ValidatorRule::floatPositive($name, $required, $maxDecimals));
     }
 
     /**
@@ -172,47 +168,6 @@ class ValidatorHandler
     public function addEnumRule(string $name, $values = null, $required = false)
     {
         return $this->addRule(ValidatorRule::enum($name, $values, $required));
-    }
-
-    /**
-     * @param string $name
-     * @param int $maxDigits
-     * @param int $maxDecimals
-     * @param bool $required
-     *
-     * @return ValidatorRule
-     */
-    public function addDecimalRule(string $name, int $maxDigits, int $maxDecimals, $required = false)
-    {
-        return $this->addRule(ValidatorRule::decimal($name, $maxDigits, $maxDecimals, $required));
-    }
-
-    /**
-     * @param string $name
-     * @param int $maxDigits
-     * @param int $maxDecimals
-     * @param bool $required
-     * @param bool $strict
-     *
-     * @return ValidatorRule
-     */
-    public function addDecimalPositiveRule(string $name, int $maxDigits, int $maxDecimals, $required = false, $strict = false)
-    {
-        return $this->addRule(ValidatorRule::decimalPositive($name, $maxDigits, $maxDecimals, $required))->strict($strict);
-    }
-
-    /**
-     * @param string $name
-     * @param int $maxDigits
-     * @param int $maxDecimals
-     * @param bool $required
-     * @param bool $strict
-     *
-     * @return ValidatorRule
-     */
-    public function addDecimalNegativeRule(string $name, int $maxDigits, int $maxDecimals, $required = false, $strict = false)
-    {
-        return $this->addRule(ValidatorRule::decimalNegative($name, $maxDigits, $maxDecimals, $required))->strict($strict);
     }
 
     /**

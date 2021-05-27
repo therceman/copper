@@ -45,4 +45,7 @@ class ValidatorConfigurator
     /** @var string Datetime range is 1000-01-01 00:00:00 to 9999-12-31 23:59:59 */
     public $datetime_regex;
 
+    /** @var bool $strict Allow only strict validation */
+    public $strict;
+
 }
