@@ -46,7 +46,7 @@ class HTMLSelect extends HTMLElement
         return $this;
     }
 
-    public function __toString()
+    public function getHTML()
     {
         if ($this->defaultOptionText !== null)
             $this->addElement(HTML::option($this->defaultOptionText, $this->defaultOptionKey));
@@ -60,6 +60,6 @@ class HTMLSelect extends HTMLElement
             $this->addElement($optionEl);
         }
 
-        return parent::__toString();
+        return parent::getHTML();
     }
 }
