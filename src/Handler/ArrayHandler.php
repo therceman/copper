@@ -450,9 +450,32 @@ class ArrayHandler
      */
     public static function hasValue(array $array, $value, $strict = false)
     {
-        $key = array_search($value, $array, $strict);
+        if ($strict === false) {
+            $value = StringHandler::trim($value);
 
-        return ($key !== false);
+            foreach ($array as $key => $val) {
+                $array[$key] = StringHandler::trim($val);
+            }
+        }
+
+        $ok = false;
+
+        foreach ($array as $key => $val) {
+            if ($strict && $val === $value)
+                $ok = true;
+            if ($strict === false && VarHandler::toString($val) === VarHandler::toString($value))
+                $ok = true;
+        }
+
+        return $ok;
+
+        // We can't use array_search($value, $array, $strict) because of bug
+        // array_search('2 2', [1, 2], false) === 1
+
+        // Another way to solve this is to use array_flip + array_has_key
+        // BUT! in this case strict check for 1 on array ['1', 2] will return true
+        // $array = array_flip($array);
+        // return ArrayHandler::hasKey($array, $value);
     }
 
     /**

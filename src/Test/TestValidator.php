@@ -679,7 +679,82 @@ class TestValidator
         foreach ($falseVars as $key => $var) {
             $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::INVALID_PHONE_FORMAT);
         }
-        
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function enum() {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $array = ['1', 2, '3 ', '   4   ', '   5   '];
+
+        $validator->addEnumRule('test1', $array);
+        $validator->addEnumRule('test2', $array);
+        $validator->addEnumRule('test3', $array);
+        $validator->addEnumRule('test4', $array);
+        $validator->addEnumRule('test5', $array);
+        $validator->addEnumRule('test6', $array);
+
+        $validator->addEnumRule('test7', $array)->strict();
+        $validator->addEnumRule('test8', $array)->strict();
+        $validator->addEnumRule('test9', $array)->strict();
+        $validator->addEnumRule('test10', $array)->strict();
+
+        $validator->addEnumRule('test11', $array);
+        $validator->addEnumRule('test12', $array);
+        $validator->addEnumRule('test13', $array);
+
+        $validator->addEnumRule('test14', $array)->strict();
+        $validator->addEnumRule('test15', $array)->strict();
+        $validator->addEnumRule('test16', $array)->strict();
+
+        $trueVars = [
+            'test1' => 1,
+            'test2' => '2',
+            'test3' => 3,
+            'test4' => 4,
+            'test5' => ' 4  ',
+            'test6' => '  5       '
+        ];
+
+        $strictTrueVars = [
+            'test7' => '1',
+            'test8' => 2,
+            'test9' => '3 ',
+            'test10' => '   4   ',
+        ];
+
+        $true = ArrayHandler::merge($trueVars, $strictTrueVars);
+
+        $falseVars = [
+            'test11' => 6,
+            'test12' => '1a',
+            'test13' => '2   2',
+        ];
+
+        $strictFalseVars = [
+            'test14' => 1,
+            'test15' => '2',
+            'test16' => '3',
+        ];
+
+        $false = ArrayHandler::merge($falseVars, $strictFalseVars);
+
+        $vars = ArrayHandler::merge($true, $false);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($true as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach ($false as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::WRONG_ENUM_VALUE);
+        }
+
         return ($res->hasError()) ? $res : $res->ok();
     }
 
@@ -695,6 +770,7 @@ class TestValidator
         $results[] = ['float', $this->float()];
         $results[] = ['email', $this->email()];
         $results[] = ['phone', $this->phone()];
+        $results[] = ['enum', $this->enum()];
 
         $failedTests = [];
 

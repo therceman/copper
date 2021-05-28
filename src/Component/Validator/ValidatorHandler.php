@@ -24,6 +24,7 @@ class ValidatorHandler
     const VALUE_TYPE_IS_NOT_NUMERIC = 'valueTypeIsNotNumeric';
     const WRONG_VALIDATION_TYPE = 'wrongValidationType';
 
+    const WRONG_ENUM_VALUE = 'wrongEnumValue';
     const TOO_MANY_DECIMAL_DIGITS = 'tooManyDecimalDigits';
     const VALUE_IS_NOT_POSITIVE = 'valueIsNotPositive';
     const VALUE_IS_NOT_NEGATIVE = 'valueIsNotNegative';

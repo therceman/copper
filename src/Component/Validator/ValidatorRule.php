@@ -52,9 +52,7 @@ class ValidatorRule
     /** @var string|null */
     private $regex;
     /** @var array|null */
-    private $filterValues;
-    /** @var bool */
-    private $blacklistFilter;
+    private $enumList;
     /** @var bool */
     private $alphaAllowSpaces;
     /** @var string|array|null */
@@ -82,9 +80,8 @@ class ValidatorRule
         $this->minLength = 0;
         $this->maxLength = null;
         $this->length = null;
-        $this->filterValues = null;
+        $this->enumList = null;
         $this->regex = null;
-        $this->blacklistFilter = false;
 
         $this->alphaAllowSpaces = true;
         $this->regexFormatExample = null;
@@ -233,14 +230,12 @@ class ValidatorRule
 
     /**
      * @param array|null $values
-     * @param false $blacklist
      *
      * @return $this
      */
-    public function filterValues(?array $values, $blacklist = false)
+    public function enumList(?array $values)
     {
-        $this->filterValues = $values;
-        $this->blacklistFilter = $blacklist;
+        $this->enumList = $values;
 
         return $this;
     }
@@ -344,7 +339,7 @@ class ValidatorRule
      */
     public static function enum(string $name, $values = null, $required = false)
     {
-        return (new self($name, self::ENUM, $required))->filterValues($values);
+        return (new self($name, self::ENUM, $required))->enumList($values);
     }
 
     /**
@@ -654,6 +649,18 @@ class ValidatorRule
     }
 
     /**
+     * @param $value
+     * @return bool
+     */
+    private function validateEnum($value)
+    {
+        if ($this->enumList === null)
+            return false;
+
+        return ArrayHandler::hasValue($this->enumList, $value, $this->strict);
+    }
+
+    /**
      * @param $params
      * @param $name
      *
@@ -721,6 +728,10 @@ class ValidatorRule
                 $checkRes = $this->validateDecimal($value);
                 if ($checkRes->hasError())
                     return $checkRes;
+                break;
+            case self::ENUM:
+                if ($this->validateEnum($value) === false)
+                    return $res->error(ValidatorHandler::WRONG_ENUM_VALUE);
                 break;
             case self::NUMERIC:
                 if ($this->validateNumeric($value) === false)

@@ -187,6 +187,9 @@ class StringHandler
         if ($str === null)
             return '';
 
+        if (VarHandler::isString($str) === false)
+            return $str;
+
         $str = trim($str);
 
         //handle unicode spaces
