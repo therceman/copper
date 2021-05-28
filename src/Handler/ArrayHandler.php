@@ -12,6 +12,19 @@ use Copper\Entity\AbstractEntity;
  */
 class ArrayHandler
 {
+
+    /**
+     * @param $array
+     * @return mixed|null
+     */
+    public static function firstValue($array)
+    {
+        if (self::count($array) === 0)
+            return null;
+
+        return array_values($array)[0];
+    }
+
     /**
      * @param array $array
      * @param mixed $search

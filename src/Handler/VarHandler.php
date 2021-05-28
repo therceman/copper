@@ -258,6 +258,9 @@ class VarHandler
         if (self::isNull($var))
             return 'null';
 
+        if (self::isBoolean($var, true))
+            return self::toBooleanString($var);
+
         if (self::isArray($var) || self::isObject($var))
             return json_encode($var);
 

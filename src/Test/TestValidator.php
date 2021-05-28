@@ -243,7 +243,7 @@ class TestValidator
 
         // --- integer_only_negative_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_fail', 'valueTypeIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_negative_fail', 'valueIsNotNegative');
 
         // --- integer_only_negative_strict_fail ---
 
@@ -268,7 +268,7 @@ class TestValidator
 
         // --- integer_only_positive_fail ---
 
-        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_fail', 'valueTypeIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'integer_only_positive_fail', 'valueIsNotPositive');
 
         // --- integer_only_positive_strict_fail ---
 
@@ -438,7 +438,7 @@ class TestValidator
         ];
 
         foreach (ArrayHandler::merge($decTrueVars, $decFalseVars) as $key => $var) {
-            $validator->addFloatRule($key)->floatMaxDecimals(2);
+            $validator->addFloatRule($key)->maxDecimals(2);
         }
 
         $decTrueVarsStrict = [
@@ -462,10 +462,10 @@ class TestValidator
         ];
 
         foreach (ArrayHandler::merge($decTrueVarsStrict, $decFalseVarsStrict) as $key => $var) {
-            $validator->addFloatRule($key)->floatMaxDecimals(2)->strict(true);
+            $validator->addFloatRule($key)->maxDecimals(2)->strict(true);
         }
 
-        $validator->addFloatRule('floatMaxDecimals_0')->floatMaxDecimals(0);
+        $validator->addFloatRule('floatMaxDecimals_0')->maxDecimals(0);
 
         // positive
 
@@ -566,17 +566,69 @@ class TestValidator
         $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict4', 'tooManyDecimalDigits', 2);
         $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail_strict5', 'tooManyDecimalDigits', 2);
 
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos', 'valueTypeIsNotPositive');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos2', 'valueTypeIsNotPositive');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos3', 'valueTypeIsNotPositive');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos4', 'valueTypeIsNotPositive');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos5', 'valueTypeIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos', 'valueIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos2', 'valueIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos3', 'valueIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos4', 'valueIsNotPositive');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_pos5', 'valueIsNotPositive');
 
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg', 'valueTypeIsNotNegative');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg2', 'valueTypeIsNotNegative');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg3', 'valueTypeIsNotNegative');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg4', 'valueTypeIsNotNegative');
-        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg5', 'valueTypeIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg', 'valueIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg2', 'valueIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg3', 'valueIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg4', 'valueIsNotNegative');
+        $this->testValidatorResponse($validatorRes, $res, 'float_false_neg5', 'valueIsNotNegative');
+
+
+        print_r($validatorRes);
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function email() {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $trueVars = [
+            'test1' => 'test1+extra@qwe.com',
+            'test2' => 'test2.2ndPart+extra@qwe.com',
+            'test3' => 'test2.2ndPart+extra@sub.qwe.com',
+            'test4' => 'test3_normal@qwe.com',
+            'test5' => 'test4-normal@qwe.com',
+            'test6' => 'test5.min2chars.top.level@qwe.co',
+        ];
+
+        $falseVars = [
+            'test1_fail' => 'test6_noatsign.com',
+            'test2_fail' => 'test7_wrongchar_=qwe@qwe.com',
+            'test3_fail' => 'test8_min1char.top.level@qwe.a',
+            'test4_fail' => 'test9_wrongchar_domain@qwe.c!om',
+            'test5_fail' => 'test10_dot_after_atsign@.qwe.com',
+            'test6_fail' => 'test11_minus_after_atsign@-qwe.com',
+            'test7_fail' => '-test12_minus_sign_at_start@qwe.com',
+            'test8_fail' => '.test13_dot_sign_at_start@qwe.com',
+            'test9_fail' => ',test13_dot_sign_at_start@qwe.com',
+        ];
+
+        foreach (ArrayHandler::merge($trueVars, $falseVars) as $key => $var) {
+            $validator->addEmailRule($key);
+        }
+
+
+        $vars = ArrayHandler::merge($trueVars, $falseVars);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($trueVars as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach ($falseVars as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, 'invalidEmailFormat');
+        }
+
+        print_r($validatorRes);
 
         return ($res->hasError()) ? $res : $res->ok();
     }
@@ -591,6 +643,7 @@ class TestValidator
         $results[] = ['integer', $this->integer()];
         $results[] = ['boolean', $this->boolean()];
         $results[] = ['float', $this->float()];
+        $results[] = ['email', $this->email()];
 
         $failedTests = [];
 

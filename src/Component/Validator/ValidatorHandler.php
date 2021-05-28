@@ -14,6 +14,27 @@ class ValidatorHandler
 {
     use ComponentHandlerTrait;
 
+    const VALUE_TYPE_IS_NOT_STRING = 'valueTypeIsNotString';
+    const VALUE_TYPE_IS_NOT_INTEGER = 'valueTypeIsNotInteger';
+    const VALUE_TYPE_IS_NOT_FLOAT = 'valueTypeIsNotFloat';
+    const VALUE_TYPE_IS_NOT_DECIMAL = 'valueTypeIsNotDecimal';
+    const VALUE_TYPE_IS_NOT_BOOLEAN = 'valueTypeIsNotBoolean';
+    const VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC = 'valueTypeIsNotAlphabeticOrNumeric';
+    const VALUE_TYPE_IS_NOT_ALPHABETIC = 'valueTypeIsNotAlphabetic';
+    const VALUE_TYPE_IS_NOT_NUMERIC = 'valueTypeIsNotNumeric';
+    const WRONG_VALIDATION_TYPE = 'wrongValidationType';
+
+    const TOO_MANY_DECIMAL_DIGITS = 'tooManyDecimalDigits';
+    const VALUE_IS_NOT_POSITIVE = 'valueIsNotPositive';
+    const VALUE_IS_NOT_NEGATIVE = 'valueIsNotNegative';
+    const MIN_LENGTH_REQUIRED = 'minLengthRequired';
+    const MAX_LENGTH_REACHED = 'maxLengthReached';
+    const WRONG_LENGTH = 'wrongLength';
+    const VALUE_CANNOT_BE_EMPTY = 'valueCannotBeEmpty';
+
+    const INVALID_VALUE_FORMAT = 'invalidValueFormat';
+    const INVALID_EMAIL_FORMAT = 'invalidEmailFormat';
+
     /** @var ValidatorRule[] */
     private $rules;
 
@@ -75,7 +96,7 @@ class ValidatorHandler
      */
     public function addIntegerNegativeRule(string $name, $required = false)
     {
-        return $this->addRule(ValidatorRule::integerNegative($name, $required));
+        return $this->addRule(ValidatorRule::integer($name, $required))->negative();
     }
 
     /**
@@ -86,7 +107,7 @@ class ValidatorHandler
      */
     public function addIntegerPositiveRule(string $name, $required = false)
     {
-        return $this->addRule(ValidatorRule::integerPositive($name, $required));
+        return $this->addRule(ValidatorRule::integer($name, $required))->positive();
     }
 
     /**
@@ -121,7 +142,7 @@ class ValidatorHandler
      */
     public function addFloatNegativeRule(string $name, $required = false, $maxDecimals = null)
     {
-        return $this->addRule(ValidatorRule::floatNegative($name, $required, $maxDecimals));
+        return $this->addRule(ValidatorRule::float($name, $required, $maxDecimals))->negative();
     }
 
     /**
@@ -133,7 +154,43 @@ class ValidatorHandler
      */
     public function addFloatPositiveRule(string $name, $required = false, $maxDecimals = null)
     {
-        return $this->addRule(ValidatorRule::floatPositive($name, $required, $maxDecimals));
+        return $this->addRule(ValidatorRule::float($name, $required, $maxDecimals))->positive();
+    }
+
+    /**
+     * @param string $name
+     * @param bool $required
+     * @param int|null $maxDecimals
+     *
+     * @return ValidatorRule
+     */
+    public function addDecimalRule(string $name, $required = false, $maxDecimals = null)
+    {
+        return $this->addRule(ValidatorRule::decimal($name, $required, $maxDecimals));
+    }
+
+    /**
+     * @param string $name
+     * @param bool $required
+     * @param int|null $maxDecimals
+     *
+     * @return ValidatorRule
+     */
+    public function addDecimalNegativeRule(string $name, $required = false, $maxDecimals = null)
+    {
+        return $this->addRule(ValidatorRule::decimal($name, $required, $maxDecimals))->negative();
+    }
+
+    /**
+     * @param string $name
+     * @param bool $required
+     * @param int|null $maxDecimals
+     *
+     * @return ValidatorRule
+     */
+    public function addDecimalPositiveRule(string $name, $required = false, $maxDecimals = null)
+    {
+        return $this->addRule(ValidatorRule::decimal($name, $required, $maxDecimals))->positive();
     }
 
     /**
