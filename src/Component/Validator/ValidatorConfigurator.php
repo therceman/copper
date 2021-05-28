@@ -63,8 +63,10 @@ class ValidatorConfigurator
     public $year_regex;
     /** @var string Time range is -838:59:59 to 838:59:59 */
     public $time_regex;
-    /** @var string Date range is 1000-01-01 to 9999-12-31 */
-    public $date_regex;
+
+    /** @var string|null Custom date format for validation. If not provided - app->dateFormat will be used */
+    public $date_format;
+
     /** @var string Datetime range is 1000-01-01 00:00:00 to 9999-12-31 23:59:59 */
     public $datetime_regex;
 

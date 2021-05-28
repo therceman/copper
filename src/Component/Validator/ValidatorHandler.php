@@ -36,6 +36,7 @@ class ValidatorHandler
     const INVALID_VALUE_FORMAT = 'invalidValueFormat';
     const INVALID_EMAIL_FORMAT = 'invalidEmailFormat';
     const INVALID_PHONE_FORMAT = 'invalidPhoneFormat';
+    const INVALID_DATE_FORMAT = 'invalidDateFormat';
 
     /** @var ValidatorRule[] */
     private $rules;
@@ -232,12 +233,13 @@ class ValidatorHandler
     /**
      * @param string $name
      * @param bool $required
+     * @param string|null $dateFormat
      *
      * @return ValidatorRule
      */
-    public function addDateRule(string $name, $required = false)
+    public function addDateRule(string $name, $required = false, $dateFormat = null)
     {
-        return $this->addRule(ValidatorRule::date($name, $required));
+        return $this->addRule(ValidatorRule::date($name, $required, $dateFormat));
     }
 
     /**

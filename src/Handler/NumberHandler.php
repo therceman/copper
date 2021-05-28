@@ -52,9 +52,20 @@ class NumberHandler
         return round($num, $dec);
     }
 
-    public static function leadingZeros($num, $count)
+    /**
+     * Add leading zeros to the number
+     * <hr>
+     * <code>
+     * - leadingZeros(1, 2) // 01
+     * - leadingZeros(1, 3) // 001
+     * </code>
+     * @param $num
+     * @param $length
+     * @return string
+     */
+    public static function leadingZeros($num, $length)
     {
-        return str_pad($num, $count, '0', STR_PAD_LEFT);
+        return str_pad($num, $length, '0', STR_PAD_LEFT);
     }
 
     public static function format($num, $dec = 2, $d_sep = '.', $t_sep = '')

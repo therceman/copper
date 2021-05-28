@@ -6,6 +6,7 @@ namespace Copper\Component\Validator;
 
 use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\DateHandler;
 use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
 use Copper\Kernel;
@@ -63,6 +64,8 @@ class ValidatorRule
     private $positive;
     /** @var bool|null */
     private $negative;
+    /** @var string|null */
+    private $dateFormat;
 
     /**
      * ValidatorRule constructor.
@@ -88,6 +91,7 @@ class ValidatorRule
         $this->maxDecimals = null;
         $this->positive = null;
         $this->negative = null;
+        $this->dateFormat = Kernel::getValidator()->config->date_format;
 
         $this->strict = Kernel::getValidator()->config->strict;
     }
@@ -165,6 +169,17 @@ class ValidatorRule
     public function maxDecimals($decimals = null)
     {
         $this->maxDecimals = $decimals;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $format
+     * @return $this
+     */
+    public function dateFormat($format = null)
+    {
+        $this->dateFormat = $format;
 
         return $this;
     }
@@ -357,12 +372,13 @@ class ValidatorRule
     /**
      * @param string $name
      * @param bool $required
+     * @param string|null $dateFormat
      *
      * @return ValidatorRule
      */
-    public static function date(string $name, $required = false)
+    public static function date(string $name, $required = false, $dateFormat = null)
     {
-        return new self($name, self::DATE, $required);
+        return (new self($name, self::DATE, $required))->dateFormat($dateFormat);
     }
 
     /**
@@ -661,6 +677,15 @@ class ValidatorRule
     }
 
     /**
+     * @param $value
+     * @return bool
+     */
+    private function validateDate($value)
+    {
+        return DateHandler::isValid($value, $this->dateFormat);
+    }
+
+    /**
      * @param $params
      * @param $name
      *
@@ -732,6 +757,10 @@ class ValidatorRule
             case self::ENUM:
                 if ($this->validateEnum($value) === false)
                     return $res->error(ValidatorHandler::WRONG_ENUM_VALUE);
+                break;
+            case self::DATE:
+                if ($this->validateDate($value) === false)
+                    return $res->error(ValidatorHandler::INVALID_DATE_FORMAT);
                 break;
             case self::NUMERIC:
                 if ($this->validateNumeric($value) === false)

@@ -683,7 +683,8 @@ class TestValidator
         return ($res->hasError()) ? $res : $res->ok();
     }
 
-    private function enum() {
+    private function enum()
+    {
         $res = new FunctionResponse();
 
         $validator = new ValidatorHandler();
@@ -758,6 +759,92 @@ class TestValidator
         return ($res->hasError()) ? $res : $res->ok();
     }
 
+    private function date()
+    {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $trueVarsAppConfigDate = [
+            'date1' => '2020-01-31',
+            'date2' => '1000-12-31',
+            'date3' => '9999-01-31',
+        ];
+
+        foreach ($trueVarsAppConfigDate as $key => $value) {
+            $validator->addDateRule($key);
+        }
+
+        $badVarsAppConfigDate = [
+            'date1_bad' => '2020-13-31',
+            'date2_bad' => '1000-01-32',
+            'date3_bad' => '999-01-31',
+            'date4_bad' => '10000-01-31'
+        ];
+
+        foreach ($badVarsAppConfigDate as $key => $value) {
+            $validator->addDateRule($key);
+        }
+
+        $vars = ArrayHandler::merge($trueVarsAppConfigDate, $badVarsAppConfigDate);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($badVarsAppConfigDate as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::INVALID_DATE_FORMAT);
+        }
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function time()
+    {
+        $res = new FunctionResponse();
+
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function datetime()
+    {
+        $res = new FunctionResponse();
+
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function year()
+    {
+        $res = new FunctionResponse();
+
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function numeric()
+    {
+        $res = new FunctionResponse();
+
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function alpha()
+    {
+        $res = new FunctionResponse();
+
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
+    private function alphaNumeric()
+    {
+        $res = new FunctionResponse();
+
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
     public function run()
     {
         $response = new FunctionResponse();
@@ -771,6 +858,14 @@ class TestValidator
         $results[] = ['email', $this->email()];
         $results[] = ['phone', $this->phone()];
         $results[] = ['enum', $this->enum()];
+        // $results[] = ['decimal', $this->decimal()]; the same test as $this->float()
+        $results[] = ['date', $this->date()];
+        $results[] = ['time', $this->time()];
+        $results[] = ['datetime', $this->datetime()];
+        $results[] = ['year', $this->year()];
+        $results[] = ['numeric', $this->numeric()];
+        $results[] = ['alpha', $this->alpha()];
+        $results[] = ['alphaNumeric', $this->alphaNumeric()];
 
         $failedTests = [];
 

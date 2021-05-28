@@ -450,20 +450,16 @@ class ArrayHandler
      */
     public static function hasValue(array $array, $value, $strict = false)
     {
-        if ($strict === false) {
-            $value = StringHandler::trim($value);
-
-            foreach ($array as $key => $val) {
-                $array[$key] = StringHandler::trim($val);
-            }
-        }
-
         $ok = false;
+
+        if ($strict === false)
+            $value = StringHandler::trim($value);
 
         foreach ($array as $key => $val) {
             if ($strict && $val === $value)
                 $ok = true;
-            if ($strict === false && VarHandler::toString($val) === VarHandler::toString($value))
+
+            if ($strict === false && VarHandler::toString(StringHandler::trim($val)) === VarHandler::toString($value))
                 $ok = true;
         }
 

@@ -61,6 +61,25 @@ class DateHandler
     }
 
     /**
+     * Check if date is valid
+     *
+     * @param $date
+     * @param string|null $format
+     * @return bool
+     */
+    public static function isValid($date, $format = null)
+    {
+        $format = ($format === null) ? self::getDateFormat() : $format;
+
+        $formattedDate = self::fromFormat($date, $format, $format);
+
+        if ($formattedDate === false)
+            return false;
+
+        return $formattedDate === $date;
+    }
+
+    /**
      * @param false $twoDigits
      * @return int
      */
@@ -217,12 +236,17 @@ class DateHandler
      * @param string $fromFormat
      * @param string|null $toFormat
      *
-     * @return string
+     * @return string|false
      */
     public static function fromFormat(string $date, string $fromFormat, $toFormat = null)
     {
         $toFormat = ($toFormat === null) ? self::getDateFormat() : $toFormat;
 
-        return DateTime::createFromFormat($fromFormat, $date)->format($toFormat);
+        $date = DateTime::createFromFormat($fromFormat, $date);
+
+        if ($date === false)
+            return false;
+
+        return $date->format($toFormat);
     }
 }
