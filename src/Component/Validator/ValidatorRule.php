@@ -322,7 +322,17 @@ class ValidatorRule
      */
     public static function phone(string $name, $required = false)
     {
-        return new self($name, self::PHONE, $required);
+        $rule = new self($name, self::PHONE, $required);
+
+        if (Kernel::getValidator() === null)
+            return $rule;
+
+        $validatorConfig = Kernel::getValidator()->config;
+
+        $rule->regex($validatorConfig->phone_regex);
+        $rule->regexFormatExample($validatorConfig->phone_regex_format_example);
+
+        return $rule;
     }
 
     /**
@@ -490,6 +500,9 @@ class ValidatorRule
         switch ($this->type) {
             case self::EMAIL:
                 $errorMsg = ValidatorHandler::INVALID_EMAIL_FORMAT;
+                break;
+            case self::PHONE:
+                $errorMsg = ValidatorHandler::INVALID_PHONE_FORMAT;
                 break;
         }
 
@@ -722,6 +735,8 @@ class ValidatorRule
                     return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC, ($this->alphaAllowSpaces));
                 break;
             case self::EMAIL:
+            case self::PHONE:
+                // this types are processed on creation (mostly they have regex validation, min/max length)
                 return $res->ok();
             default:
                 return $res->error(ValidatorHandler::WRONG_VALIDATION_TYPE);

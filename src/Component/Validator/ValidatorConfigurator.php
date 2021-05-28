@@ -36,6 +36,29 @@ class ValidatorConfigurator
     /** @var string Email format example. Default: jonh.wick@gmail.com */
     public $email_regex_format_example;
 
+    /**
+     * Phone regex check.
+     * <hr>
+     * <code>
+     * Default: (^\+?\(?\d{0,3}\)?\s(?:\d\s*){8,18}$)
+     *
+     * +371 12345678        - true
+     * 371 12345678         - true
+     * 12345678             - true
+     * +(371) 12345678      - true
+     * (371) 12345678       - true
+     * -371 12345678        - false
+     * +371 1234567         - false
+     * +317 hello 12345678  - false
+     * +371 12345678+       - false
+     * +((371) 12345678+    - false
+     * </code>
+     * @var string
+     */
+    public $phone_regex;
+    /** @var string */
+    public $phone_regex_format_example;
+
     /** @var string 4 Digits */
     public $year_regex;
     /** @var string Time range is -838:59:59 to 838:59:59 */

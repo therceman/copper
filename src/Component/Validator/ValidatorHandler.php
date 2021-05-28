@@ -34,6 +34,7 @@ class ValidatorHandler
 
     const INVALID_VALUE_FORMAT = 'invalidValueFormat';
     const INVALID_EMAIL_FORMAT = 'invalidEmailFormat';
+    const INVALID_PHONE_FORMAT = 'invalidPhoneFormat';
 
     /** @var ValidatorRule[] */
     private $rules;

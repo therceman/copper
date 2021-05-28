@@ -7,6 +7,7 @@ namespace Copper\Test;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\StringHandler;
 
 class TestValidator
 {
@@ -547,7 +548,7 @@ class TestValidator
         $this->testValidatorResponse($validatorRes, $res, 'float_fail_7', 'valueTypeIsNotFloat', 'array');
 
         $this->testValidatorResponse($validatorRes, $res, 'strict_float_fail', 'valueTypeIsNotFloat', 'string');
-        $this->testValidatorResponse($validatorRes, $res, 'strict_float2_fail', 'valueTypeIsNotFloat',  'string');
+        $this->testValidatorResponse($validatorRes, $res, 'strict_float2_fail', 'valueTypeIsNotFloat', 'string');
         $this->testValidatorResponse($validatorRes, $res, 'strict_float3_fail', 'valueTypeIsNotFloat', 'string');
 
         $this->testValidatorResponse($validatorRes, $res, 'dec_float_fail', 'tooManyDecimalDigits', 2);
@@ -578,13 +579,11 @@ class TestValidator
         $this->testValidatorResponse($validatorRes, $res, 'float_false_neg4', 'valueIsNotNegative');
         $this->testValidatorResponse($validatorRes, $res, 'float_false_neg5', 'valueIsNotNegative');
 
-
-        print_r($validatorRes);
-
         return ($res->hasError()) ? $res : $res->ok();
     }
 
-    private function email() {
+    private function email()
+    {
         $res = new FunctionResponse();
 
         $validator = new ValidatorHandler();
@@ -628,8 +627,59 @@ class TestValidator
             $this->testValidatorResponse($validatorRes, $res, $key, 'invalidEmailFormat');
         }
 
-        print_r($validatorRes);
+        return ($res->hasError()) ? $res : $res->ok();
+    }
 
+
+    private function phone()
+    {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $vars = [
+            ' +371 12345678        ' => true,
+            ' 371 12345678         ' => true,
+            ' 12345678             ' => true,
+            ' +(371) 12345678      ' => true,
+            ' (371) 12345678       ' => true,
+            ' -371 12345678        ' => false,
+            ' +371 1234567         ' => false,
+            ' +317 hello 12345678  ' => false,
+            ' +371 12345678+       ' => false,
+            ' +((371) 12345678+    ' => false,
+        ];
+
+        $trueVars = [];
+        $falseVars = [];
+
+        foreach ($vars as $key => $bool) {
+            $field = StringHandler::replace($key, ' ', '_');
+            $value = StringHandler::trim($key);
+
+            if ($bool)
+                $trueVars[$field] = $value;
+            else
+                $falseVars[$field] = $value;
+        }
+
+        foreach (ArrayHandler::merge($trueVars, $falseVars) as $key => $var) {
+            $validator->addPhoneRule($key);
+        }
+
+        $vars = ArrayHandler::merge($trueVars, $falseVars);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($trueVars as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach ($falseVars as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::INVALID_PHONE_FORMAT);
+        }
+        
         return ($res->hasError()) ? $res : $res->ok();
     }
 
@@ -644,6 +694,7 @@ class TestValidator
         $results[] = ['boolean', $this->boolean()];
         $results[] = ['float', $this->float()];
         $results[] = ['email', $this->email()];
+        $results[] = ['phone', $this->phone()];
 
         $failedTests = [];
 
