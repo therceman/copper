@@ -28,6 +28,8 @@ class ValidatorHandler
     const TOO_MANY_DECIMAL_DIGITS = 'tooManyDecimalDigits';
     const VALUE_IS_NOT_POSITIVE = 'valueIsNotPositive';
     const VALUE_IS_NOT_NEGATIVE = 'valueIsNotNegative';
+    const VALUE_IS_LESS_THAN_MINIMUM = 'valueIsLessThanMinimum';
+    const VALUE_IS_GREATER_THAN_MAXIMUM = 'valueIsGreaterThanMaximum';
     const MIN_LENGTH_REQUIRED = 'minLengthRequired';
     const MAX_LENGTH_REACHED = 'maxLengthReached';
     const WRONG_LENGTH = 'wrongLength';
@@ -37,6 +39,7 @@ class ValidatorHandler
     const INVALID_EMAIL_FORMAT = 'invalidEmailFormat';
     const INVALID_PHONE_FORMAT = 'invalidPhoneFormat';
     const INVALID_DATE_FORMAT = 'invalidDateFormat';
+    const INVALID_TIME_FORMAT = 'invalidTimeFormat';
 
     /** @var ValidatorRule[] */
     private $rules;

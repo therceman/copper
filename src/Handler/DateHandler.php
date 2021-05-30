@@ -61,22 +61,64 @@ class DateHandler
     }
 
     /**
-     * Check if date is valid
+     * @param string $date
+     * @param string $format
      *
-     * @param $date
-     * @param string|null $format
      * @return bool
      */
-    public static function isValid($date, $format = null)
+    private static function isValid(string $date, string $format)
     {
-        $format = ($format === null) ? self::getDateFormat() : $format;
-
         $formattedDate = self::fromFormat($date, $format, $format);
 
         if ($formattedDate === false)
             return false;
 
         return $formattedDate === $date;
+    }
+
+    /**
+     * Check if date is valid. E.g. 2020-01-01
+     *
+     * @param string $date
+     * @param string|null $format
+     *
+     * @return bool
+     */
+    public static function isDateValid(string $date, $format = null)
+    {
+        $format = ($format === null) ? self::getDateFormat() : $format;
+
+        return self::isValid($date, $format);
+    }
+
+    /**
+     * Check if time is valid. E.g. 12:53:49
+     *
+     * @param string $time
+     * @param string|null $format
+     *
+     * @return bool
+     */
+    public static function isTimeValid(string $time, $format = null)
+    {
+        $format = ($format === null) ? self::getTimeFormat() : $format;
+
+        return self::isValid($time, $format);
+    }
+
+    /**
+     * Check if datetime is valid. E.g. 2020-01-01 12:53:49
+     *
+     * @param string $time
+     * @param string|null $format
+     *
+     * @return bool
+     */
+    public static function isDateTimeValid(string $time, $format = null)
+    {
+        $format = ($format === null) ? self::getDateTimeFormat() : $format;
+
+        return self::isValid($time, $format);
     }
 
     /**

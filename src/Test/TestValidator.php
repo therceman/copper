@@ -151,6 +151,9 @@ class TestValidator
         $validator->addIntegerRule('integer_positive_fail');
         $validator->addIntegerRule('integer_fail');
         $validator->addIntegerRule('integer_fail2');
+        $validator->addIntegerRule('integer_fail3');
+        $validator->addIntegerRule('integer_fail4');
+        $validator->addIntegerRule('integer_ok');
         $validator->addIntegerRule('integer_with_tabs_and_spaces');
         $validator->addIntegerRule('integer_strict')->strict(true);
         $validator->addIntegerRule('integer_strict_fail')->strict(true);
@@ -167,12 +170,43 @@ class TestValidator
         $validator->addIntegerPositiveRule('integer_only_positive_strict')->strict(true);
         $validator->addIntegerPositiveRule('integer_only_positive_strict_fail')->strict(true);
 
+        $validator->addIntegerRule('int_min_10')->min(10);
+        $validator->addIntegerRule('int_min_10_exact')->min(10);
+        $validator->addIntegerRule('int_min_10_fail')->min(10);
+
+        $validator->addIntegerRule('int_max_20')->max(20);
+        $validator->addIntegerRule('int_max_20_exact')->max(20);
+        $validator->addIntegerRule('int_max_20_fail')->max(20);
+
+        $validator->addIntegerRule('int_min_5_max_10')->min(5)->max(10);
+        $validator->addIntegerRule('int_min_5_max_10_exact_min')->min(5)->max(10);
+        $validator->addIntegerRule('int_min_5_max_10_exact_max')->min(5)->max(10);
+        $validator->addIntegerRule('int_min_5_max_10_fail_min')->min(5)->max(10);
+        $validator->addIntegerRule('int_min_5_max_10_fail_max')->min(5)->max(10);
+
         $validatorRes = $validator->validate([
+            'int_min_10' => '11',
+            'int_min_10_exact' => 10,
+            'int_min_10_fail' => 9,
+
+            'int_max_20' => 19,
+            'int_max_20_exact' => 20,
+            'int_max_20_fail' => 21,
+
+            'int_min_5_max_10' => ' 6   ',
+            'int_min_5_max_10_exact_min' => 5,
+            'int_min_5_max_10_exact_max' => 10,
+            'int_min_5_max_10_fail_min' => 4,
+            'int_min_5_max_10_fail_max' => 11,
+
             'integer' => '1',
             'integer_negative' => '-5',
             'integer_positive_fail' => '+5',
             'integer_fail' => 'qwe',
             'integer_fail2' => 'qwe5',
+            'integer_fail3' => '1.1',
+            'integer_fail4' => 1.1,
+            'integer_ok' => 1.0,
             'integer_with_tabs_and_spaces' => '    5 ',
             'integer_strict' => 1338,
             'integer_strict_fail' => '1337',
@@ -189,6 +223,28 @@ class TestValidator
             'integer_only_positive_fail' => '-1',
             'integer_only_positive_strict_fail' => '1',
         ]);
+
+        // ---------------------------------- Min / Max ----------------------------------
+
+        $trueMinMax = [
+            'int_min_10' => '11',
+            'int_min_10_exact' => 10,
+            'int_max_20' => 19,
+            'int_max_20_exact' => 20,
+            'int_min_5_max_10' => ' 6   ',
+            'int_min_5_max_10_exact_min' => 5,
+            'int_min_5_max_10_exact_max' => 10
+        ];
+
+        foreach ($trueMinMax as $key => $value) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        $this->testValidatorResponse($validatorRes, $res, 'int_min_10_fail', ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM);
+        $this->testValidatorResponse($validatorRes, $res, 'int_max_20_fail', ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
+        $this->testValidatorResponse($validatorRes, $res, 'int_min_5_max_10_fail_min', ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM);
+        $this->testValidatorResponse($validatorRes, $res, 'int_min_5_max_10_fail_max', ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
 
         // ----- integer ----
 
@@ -211,6 +267,19 @@ class TestValidator
         // --- integer_fail2 ---
 
         $this->testValidatorResponse($validatorRes, $res, 'integer_fail2', 'valueTypeIsNotInteger');
+
+        // --- integer_fail3 ---
+
+        $this->testValidatorResponse($validatorRes, $res, 'integer_fail3', 'valueTypeIsNotInteger');
+
+        // --- integer_fail4 ---
+
+        $this->testValidatorResponse($validatorRes, $res, 'integer_fail4', 'valueTypeIsNotInteger');
+
+        // ----- integer_ok ----
+
+        if (ArrayHandler::hasKey($validatorRes->result, 'integer_ok'))
+            $res->fail('integer_ok should be valid');
 
         // ----- integer_with_tabs_and_spaces ----
 
@@ -766,7 +835,7 @@ class TestValidator
 
         $validator = new ValidatorHandler();
 
-        // ---------------------- App Config Format ----------------------
+        // ---------------------- App Config Date Format (Y-m-d) ----------------------
 
         $trueVarsAppConfigDate = [
             'date1' => '2020-01-31',
@@ -791,23 +860,23 @@ class TestValidator
             $validator->addDateRule($key);
         }
 
-        // ---------------------- Custom Format ----------------------
+        // ---------------------- Custom Date Format (Y:n:j) ----------------------
 
         $customFormat = 'Y:n:j';
 
         $trueVarsCustomFormat = [
-            'data1' => '2020:1:11',
-            'data2' => '2020:1:3',
-            'data3' => '9999:1:3',
-            'data4' => '1000:1:3',
+            'date1b' => '2020:1:11',
+            'date2b' => '2020:1:3',
+            'date3b' => '9999:1:3',
+            'date4b' => '1000:1:3',
         ];
 
         $badVarsCustomFormat = [
-            'date0_bad' => '2020:01:31',
-            'date1_bad' => '2020:13:31',
-            'date2_bad' => '1000:1:32',
-            'date3_bad' => '999:01:31',
-            'date4_bad' => '2020-01-31',
+            'date0b_bad' => '2020:01:31',
+            'date1b_bad' => '2020:13:31',
+            'date2b_bad' => '1000:1:32',
+            'date3b_bad' => '999:01:31',
+            'date4b_bad' => '2020-01-31',
         ];
 
         $customVars = ArrayHandler::merge($trueVarsCustomFormat, $badVarsCustomFormat);
@@ -838,6 +907,75 @@ class TestValidator
     {
         $res = new FunctionResponse();
 
+        $validator = new ValidatorHandler();
+
+        // ---------------------- App Config Time Format (H:i:s) ----------------------
+
+        $trueVarsAppConfigTime = [
+            'time1' => '20:03:59',
+            'time2' => '00:00:00',
+            'time3' => '23:59:59',
+        ];
+
+        $badVarsAppConfigTime = [
+            'time0_bad' => '1:03:45', // false, because app format is 'H:i:s', 'H' - hour with leading zeros (not 'G')
+            'time1_bad' => '23:58:61',
+            'time2_bad' => '23:61:57',
+            'time3_bad' => '23:31:5e',
+            'time4_bad' => '23:33:52a',
+            'time6_bad' => 'z23:61:53',
+            'time7_bad' => '23:23:5',
+        ];
+
+        $appConfigVars = ArrayHandler::merge($trueVarsAppConfigTime, $badVarsAppConfigTime);
+
+        foreach ($appConfigVars as $key => $value) {
+            $validator->addTimeRule($key);
+        }
+
+        // ---------------------- Custom Time Format (g/i/s) ----------------------
+        // g - 1 through 12
+
+        $customFormat = 'g/i/s';
+
+        $trueVarsCustomFormat = [
+            'time1b' => '1/03/43',
+            'time2b' => '12/43/03',
+            'time3b' => '1/00/00',
+        ];
+
+        $badVarsCustomFormat = [
+            'time0b_bad' => '13/03/23',
+            'time1b_bad' => '12/61/30',
+            'time2b_bad' => '12/30/62',
+            'time3b_bad' => 'a12/30/33',
+            'time4b_bad' => '1e/30/33',
+            'time5b_bad' => '11/30/3',
+            'time6b_bad' => '01/30/30',
+            'time7b_bad' => '5/30/30a',
+            'time8b_bad' => '0/00/00',
+        ];
+
+        $customVars = ArrayHandler::merge($trueVarsCustomFormat, $badVarsCustomFormat);
+
+        foreach ($customVars as $key => $value) {
+            $validator->addTimeRule($key)->timeFormat($customFormat);
+        }
+
+        // ------------------------------------------------------------------
+
+        $vars = ArrayHandler::merge($appConfigVars, $customVars);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach (ArrayHandler::merge($trueVarsAppConfigTime, $trueVarsCustomFormat) as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach (ArrayHandler::merge($badVarsAppConfigTime, $badVarsCustomFormat) as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::INVALID_TIME_FORMAT);
+        }
 
         return ($res->hasError()) ? $res : $res->ok();
     }

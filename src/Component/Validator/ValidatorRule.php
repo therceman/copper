@@ -66,6 +66,14 @@ class ValidatorRule
     private $negative;
     /** @var string|null */
     private $dateFormat;
+    /** @var string|null */
+    private $timeFormat;
+    /** @var string|null */
+    private $dateTimeFormat;
+    /** @var int|float|null */
+    private $min;
+    /** @var int|float|null */
+    private $max;
 
     /**
      * ValidatorRule constructor.
@@ -92,6 +100,11 @@ class ValidatorRule
         $this->positive = null;
         $this->negative = null;
         $this->dateFormat = Kernel::getValidator()->config->date_format;
+        $this->timeFormat = Kernel::getValidator()->config->time_format;
+        $this->dateTimeFormat = Kernel::getValidator()->config->dateTime_format;
+
+        $this->min = null;
+        $this->max = null;
 
         $this->strict = Kernel::getValidator()->config->strict;
     }
@@ -163,6 +176,32 @@ class ValidatorRule
     }
 
     /**
+     * Minimum value for numeric input
+     *
+     * @param int|float|null $min
+     * @return $this
+     */
+    public function min($min = null)
+    {
+        $this->min = $min;
+
+        return $this;
+    }
+
+    /**
+     * Maximum value for numeric input
+     *
+     * @param int|float|null $max
+     * @return $this
+     */
+    public function max($max = null)
+    {
+        $this->max = $max;
+
+        return $this;
+    }
+
+    /**
      * @param int|null $decimals
      * @return $this
      */
@@ -180,6 +219,28 @@ class ValidatorRule
     public function dateFormat($format = null)
     {
         $this->dateFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $format
+     * @return $this
+     */
+    public function timeFormat($format = null)
+    {
+        $this->timeFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * @param string|null $format
+     * @return $this
+     */
+    public function dateTimeFormat($format = null)
+    {
+        $this->dateTimeFormat = $format;
 
         return $this;
     }
@@ -280,7 +341,6 @@ class ValidatorRule
     /**
      * @param string $name
      * @param bool $required
-     * @param bool $strict
      *
      * @return ValidatorRule
      */
@@ -384,12 +444,13 @@ class ValidatorRule
     /**
      * @param string $name
      * @param bool $required
+     * @param string|null $timeFormat
      *
      * @return ValidatorRule
      */
-    public static function time(string $name, $required = false)
+    public static function time(string $name, $required = false, $timeFormat = null)
     {
-        return new self($name, self::TIME, $required);
+        return (new self($name, self::TIME, $required))->timeFormat($timeFormat);
     }
 
     /**
@@ -637,6 +698,30 @@ class ValidatorRule
         return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_NOT_POSITIVE);
     }
 
+    private function validateMinimum($value)
+    {
+        $fRes = new FunctionResponse();
+
+        if ($this->min === null || VarHandler::isNumeric($value) === false)
+            return $fRes->ok();
+
+        $res = (float) $value >= $this->min;
+
+        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM);
+    }
+
+    private function validateMaximum($value)
+    {
+        $fRes = new FunctionResponse();
+
+        if ($this->max === null || VarHandler::isNumeric($value) === false)
+            return $fRes->ok();
+
+        $res = (float) $value <= $this->max;
+
+        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
+    }
+
     /**
      * @param $value
      * @return bool
@@ -682,7 +767,25 @@ class ValidatorRule
      */
     private function validateDate($value)
     {
-        return DateHandler::isValid($value, $this->dateFormat);
+        return DateHandler::isDateValid($value, $this->dateFormat);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateTime($value)
+    {
+        return DateHandler::isTimeValid($value, $this->timeFormat);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateDateTime($value)
+    {
+        return DateHandler::isDateTimeValid($value, $this->timeFormat);
     }
 
     /**
@@ -726,6 +829,18 @@ class ValidatorRule
         if ($negValidationRes->hasError())
             return $res->error($negValidationRes->msg);
 
+        // maximum
+
+        $maxValidationRes = $this->validateMaximum($value);
+        if ($maxValidationRes->hasError())
+            return $res->error($maxValidationRes->msg);
+
+        // minimum
+
+        $minValidationRes = $this->validateMinimum($value);
+        if ($minValidationRes->hasError())
+            return $res->error($minValidationRes->msg);
+
         // type
 
         /** @var bool|null $typeValidationStatus */
@@ -761,6 +876,10 @@ class ValidatorRule
             case self::DATE:
                 if ($this->validateDate($value) === false)
                     return $res->error(ValidatorHandler::INVALID_DATE_FORMAT);
+                break;
+            case self::TIME:
+                if ($this->validateTime($value) === false)
+                    return $res->error(ValidatorHandler::INVALID_TIME_FORMAT);
                 break;
             case self::NUMERIC:
                 if ($this->validateNumeric($value) === false)
