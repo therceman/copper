@@ -707,7 +707,7 @@ class ValidatorRule
 
         $res = (float) $value >= $this->min;
 
-        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM);
+        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM, $this->min);
     }
 
     private function validateMaximum($value)
@@ -719,7 +719,7 @@ class ValidatorRule
 
         $res = (float) $value <= $this->max;
 
-        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
+        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM, $this->max);
     }
 
     /**
