@@ -7,6 +7,7 @@ namespace Copper\Component\DB;
 use Copper\Handler\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use PDOException;
 
@@ -158,7 +159,7 @@ class DBService
             if ($field->getType() === DBModelField::DECIMAL)
                 $str .= '(' . join(",", self::escapeStrArray($field->getLength())) . ')';
             else
-                $str .= '(' . (is_array($field->getLength())
+                $str .= '(' . (VarHandler::isArray($field->getLength())
                         ? "'" . join("','", self::escapeStrArray($field->getLength())) . "'"
                         : self::escapeStr($field->getLength())) . ')';
         }

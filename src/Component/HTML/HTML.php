@@ -6,6 +6,7 @@ namespace Copper\Component\HTML;
 
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 
 /**
  * Class HTML
@@ -453,7 +454,7 @@ class HTML
      */
     public static function inputFile($name = null, $accept = [])
     {
-        $type_list = (is_array($accept)) ? $accept : [$accept];
+        $type_list = (VarHandler::isArray($accept)) ? $accept : [$accept];
 
         $el = HTML::input($name, null)->type('file');
 

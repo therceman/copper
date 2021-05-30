@@ -4,6 +4,8 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Handler\VarHandler;
+
 class DBOutput
 {
     /** @var \Closure|null */
@@ -123,7 +125,7 @@ class DBOutput
      */
     public function setFields($fields): DBOutput
     {
-        $this->fields = is_array($fields) ? $fields : [$fields];
+        $this->fields = VarHandler::isArray($fields) ? $fields : [$fields];
 
         return $this;
     }
@@ -135,7 +137,7 @@ class DBOutput
      */
     public function setDeletedFields($fields): DBOutput
     {
-        $this->deletedFields = is_array($fields) ? $fields : [$fields];
+        $this->deletedFields = VarHandler::isArray($fields) ? $fields : [$fields];
 
         return $this;
     }

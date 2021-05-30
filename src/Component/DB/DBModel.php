@@ -74,7 +74,7 @@ abstract class DBModel
 
         $length = $field->getLength();
 
-        return (is_array($length)) ? $length : [];
+        return (VarHandler::isArray($length)) ? $length : [];
     }
 
     /**
@@ -584,7 +584,7 @@ abstract class DBModel
                 ->where('TABLE_SCHEMA', $db->config->dbname)
                 ->where('TABLE_NAME', $this->getTableName());
 
-            if ($columns !== false && is_array($columns))
+            if ($columns !== false && VarHandler::isArray($columns))
                 $db_stm->select($columns, true);
 
             $db_result = $db_stm->fetch();

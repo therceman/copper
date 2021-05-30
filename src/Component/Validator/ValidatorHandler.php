@@ -319,6 +319,9 @@ class ValidatorHandler
 
     public function validateModel($params, DBModel $model)
     {
+        // TODO ... need all rules validation
+        return FunctionResponse::createSuccess('ok');
+
         foreach ($model->getFieldNames() as $name) {
             $field = $model->getFieldByName($name);
 
@@ -359,9 +362,6 @@ class ValidatorHandler
 
             $this->addRule($rule);
         }
-
-        // TODO ... need all rules validation
-        return FunctionResponse::createSuccess('ok');
     }
 
     /**

@@ -36,7 +36,7 @@ class ArrayHandler
     public static function replaceValue(array $array, $search, $replaceTo, $strict = false)
     {
         foreach ($array as $key => $value) {
-            if ($strict && $value === $search || $strict === false && $value == $search)
+            if ($strict && $value === $search || $strict === false && VarHandler::toString($value) === VarHandler::toString($search))
                 $array[$key] = $replaceTo;
         }
 
@@ -286,7 +286,7 @@ class ArrayHandler
      */
     public static function delete(array $array, $value)
     {
-        $value_list = is_array($value) ? $value : [$value];
+        $value_list = VarHandler::isArray($value) ? $value : [$value];
 
         $new_array = [];
 
@@ -312,7 +312,7 @@ class ArrayHandler
      */
     public static function deleteKey(array $array, $key)
     {
-        $key_list = is_array($key) ? $key : [$key];
+        $key_list = VarHandler::isArray($key) ? $key : [$key];
 
         $new_array = [];
 
@@ -351,7 +351,7 @@ class ArrayHandler
         $list = [];
 
         foreach ($array as $k => $item) {
-            if (is_array($item))
+            if (VarHandler::isArray($item))
                 $list[$item[$keyField]] = $item;
             else
                 $list[$item->$keyField] = $item;
@@ -445,22 +445,28 @@ class ArrayHandler
      * @param bool $strict [optional]
      * <p> Tell the function to consider the type of provided value </p>
      * If strict is false the function will treat '1' and 1 as the same value
-     *
+     * @param bool $trimNonStrictValues [optional]
+     * <p> Trims values when not is strict mode </p>
      * @return bool
      */
-    public static function hasValue(array $array, $value, $strict = false)
+    public static function hasValue(array $array, $value, $strict = false, $trimNonStrictValues = true)
     {
         $ok = false;
 
-        if ($strict === false)
+        if ($strict === false && $trimNonStrictValues)
             $value = StringHandler::trim($value);
 
         foreach ($array as $key => $val) {
             if ($strict && $val === $value)
                 $ok = true;
 
-            if ($strict === false && VarHandler::toString(StringHandler::trim($val)) === VarHandler::toString($value))
-                $ok = true;
+            if ($strict === false) {
+                if ($trimNonStrictValues)
+                    $val = StringHandler::trim($val);
+
+                if (VarHandler::toString($val) === VarHandler::toString($value))
+                    $ok = true;
+            }
         }
 
         return $ok;
@@ -548,7 +554,7 @@ class ArrayHandler
         $list = [];
 
         foreach ($array as $k => $item) {
-            if (is_array($item))
+            if (VarHandler::isArray($item))
                 $list[$item[$keyField]] = $item[$valueField];
             else
                 $list[$item->$keyField] = $item->$valueField;
@@ -568,7 +574,7 @@ class ArrayHandler
         $list = [];
 
         foreach ($array as $k => $item) {
-            if (is_array($item))
+            if (VarHandler::isArray($item))
                 $list[] = $item[$key];
             else
                 $list[] = $item->$key;
@@ -588,19 +594,19 @@ class ArrayHandler
         $matched = true;
 
         $itemIsObject = true;
-        if (is_array($item))
+        if (VarHandler::isArray($item))
             $itemIsObject = false;
 
         foreach ($filter as $pairKey => $pairValue) {
             if ($itemIsObject === false) {
-                if (is_array($pairValue) === false && $item[$pairKey] != $pairValue)
+                if (VarHandler::isArray($pairValue) === false && $item[$pairKey] != $pairValue)
                     $matched = false;
-                elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item[$pairKey]) === false)
+                elseif (VarHandler::isArray($pairValue) && ArrayHandler::hasValue($pairValue, $item[$pairKey]) === false)
                     $matched = false;
             } else {
-                if (is_array($pairValue) === false && $item->$pairKey != $pairValue)
+                if (VarHandler::isArray($pairValue) === false && $item->$pairKey != $pairValue)
                     $matched = false;
-                elseif (is_array($pairValue) && ArrayHandler::hasValue($pairValue, $item->$pairKey) === false)
+                elseif (VarHandler::isArray($pairValue) && ArrayHandler::hasValue($pairValue, $item->$pairKey) === false)
                     $matched = false;
             }
         }
@@ -692,7 +698,7 @@ class ArrayHandler
         foreach ($array as $key => $value) {
             if ($value === null && $delNull === true
                 || is_string($value) && trim($value) === '' && $delEmptyStr
-                || is_array($value) && count($value) === 0 && $delEmptyArray)
+                || VarHandler::isArray($value) && count($value) === 0 && $delEmptyArray)
                 continue;
 
             if ($isAssoc === true)
@@ -714,7 +720,7 @@ class ArrayHandler
         foreach ($array as $key => $value) {
             if (is_object($value) && method_exists($value, '__toString'))
                 $array[$key] = $value->__toString();
-            elseif (is_array($value)) {
+            elseif (VarHandler::isArray($value)) {
                 self::objectsToString($value);
                 $array[$key] = $value;
             }

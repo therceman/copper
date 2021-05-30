@@ -2,6 +2,7 @@
 
 namespace Copper\Component\Templating;
 
+use Copper\Handler\VarHandler;
 use Copper\Sanitizer;
 
 /**
@@ -43,7 +44,7 @@ class ViewOutput
         if (is_object($value))
             $value = (array)$value;
 
-        if (is_array($value))
+        if (VarHandler::isArray($value))
             return $this->json($value);
 
         if (is_string($value) & $wrapIfStr)

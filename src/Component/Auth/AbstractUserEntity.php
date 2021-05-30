@@ -4,6 +4,7 @@
 namespace Copper\Component\Auth;
 
 use Copper\Entity\AbstractEntity;
+use Copper\Handler\VarHandler;
 
 class AbstractUserEntity extends AbstractEntity
 {
@@ -27,7 +28,7 @@ class AbstractUserEntity extends AbstractEntity
      */
     public function hasRole($role)
     {
-        if (is_array($role))
+        if (VarHandler::isArray($role))
             return in_array($this->role, $role);
         else
             return $this->role === $role;

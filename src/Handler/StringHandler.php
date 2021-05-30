@@ -199,23 +199,28 @@ class StringHandler
     }
 
     /**
-     * @param string|int|null|bool $str
-     *
+     * Check if string is not empty. The string is trimmed by default before check.
+     * @param string $str
+     * @param bool $trim
      * @return bool
      */
-    public static function isNotEmpty($str)
+    public static function isNotEmpty(string $str, $trim = true)
     {
-        return (self::isEmpty($str) === false);
+        return (self::isEmpty($str, $trim) === false);
     }
 
     /**
-     * @param string|int|null|bool $str
-     *
+     * Check if string is empty. The string is trimmed by default before check.
+     * @param string $str
+     * @param bool $trim
      * @return bool
      */
-    public static function isEmpty($str)
+    public static function isEmpty(string $str, $trim = true)
     {
-        return (trim($str) === '' || $str === null || $str === false);
+        if ($trim)
+            $str = self::trim($str);
+
+        return $str === '';
     }
 
     /**
@@ -352,7 +357,7 @@ class StringHandler
      */
     public static function removeFirstChars(string $str, string $charList)
     {
-        if (is_array($charList))
+        if (VarHandler::isArray($charList))
             $charList = join('', $charList);
 
         return ltrim($str, $charList);
@@ -366,7 +371,7 @@ class StringHandler
      */
     public static function removeLastChars(string $str, string $charList)
     {
-        if (is_array($charList))
+        if (VarHandler::isArray($charList))
             $charList = join('', $charList);
 
         return rtrim($str, $charList);

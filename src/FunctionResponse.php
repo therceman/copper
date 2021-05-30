@@ -4,6 +4,9 @@
 namespace Copper;
 
 
+use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
+
 class FunctionResponse
 {
     /** @var bool */
@@ -182,13 +185,13 @@ class FunctionResponse
      */
     public function hasResult()
     {
-        if ($this->result === null)
+        if (VarHandler::isNull($this->result))
             return false;
 
-        if (trim($this->result) === '')
+        if (StringHandler::isEmpty($this->result))
             return false;
 
-        if (is_array($this->result) && count($this->result) === 0)
+        if (VarHandler::isArray($this->result) && count($this->result) === 0)
             return false;
 
         return true;

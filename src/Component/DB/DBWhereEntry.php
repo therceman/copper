@@ -4,6 +4,8 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Handler\VarHandler;
+
 class DBWhereEntry
 {
     /** @var string|string[] */
@@ -25,7 +27,7 @@ class DBWhereEntry
 
     public function formatField()
     {
-        if (is_array($this->field) === false)
+        if (VarHandler::isArray($this->field) === false)
             return '`' . DBModel::formatFieldName($this->field) . '`';
 
         $formatted_field_list = [];
@@ -44,7 +46,7 @@ class DBWhereEntry
         if (is_bool($value) === true)
             $value = intval($value);
 
-        if (is_array($value)) {
+        if (VarHandler::isArray($value)) {
             $value_list = [];
 
             foreach ($value as $key => $val) {

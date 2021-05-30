@@ -4,6 +4,7 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 
 class DBModelField
@@ -228,7 +229,7 @@ class DBModelField
         if (is_string($length) && strpos($length, ',') !== false)
             $length = explode(',', $length);
 
-        if (is_array($length))
+        if (VarHandler::isArray($length))
             $length = self::cleanLength($length);
 
         $field->attr($array['attr']);

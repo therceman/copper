@@ -5,6 +5,7 @@ namespace Copper\Component\DB;
 
 
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\VarHandler;
 
 /**
  * Class DBSelect
@@ -191,7 +192,7 @@ class DBSelect
     private function prepareColumns($columns)
     {
         if ($columns !== null) {
-            $columns = (is_array($columns) === false) ? [$columns] : $columns;
+            $columns = (VarHandler::isArray($columns) === false) ? [$columns] : $columns;
 
             $columns = ArrayHandler::map($columns, function ($column) {
                 return '`' . DBModel::formatFieldName($column) . '`';

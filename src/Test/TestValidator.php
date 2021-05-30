@@ -8,6 +8,7 @@ use Copper\Component\Validator\ValidatorHandler;
 use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 
 class TestValidator
 {
@@ -25,7 +26,7 @@ class TestValidator
         if ($result === null)
             return $res;
 
-        if (is_array($result)) {
+        if (VarHandler::isArray($result)) {
             foreach ($result as $rKey => $rValue) {
                 if ($vRes->result[$key]->result[$rKey] !== $rValue)
                     $res->fail($key . ' should have result[' . $rKey . ']: ' . $rValue);
@@ -765,32 +766,68 @@ class TestValidator
 
         $validator = new ValidatorHandler();
 
+        // ---------------------- App Config Format ----------------------
+
         $trueVarsAppConfigDate = [
             'date1' => '2020-01-31',
             'date2' => '1000-12-31',
             'date3' => '9999-01-31',
         ];
 
-        foreach ($trueVarsAppConfigDate as $key => $value) {
-            $validator->addDateRule($key);
-        }
-
         $badVarsAppConfigDate = [
+            'date0_bad' => '2020-1-31', // false, because app format is 'Y-m-d', 'm' - month with leading zeros (not 'n')
             'date1_bad' => '2020-13-31',
             'date2_bad' => '1000-01-32',
             'date3_bad' => '999-01-31',
-            'date4_bad' => '10000-01-31'
+            'date4_bad' => '10000-01-31',
+            'date5_bad' => '2e0-12-12',
+            'date6_bad' => 'qwe',
+            'date7_bad' => '2020-01-31a',
         ];
 
-        foreach ($badVarsAppConfigDate as $key => $value) {
+        $appConfigVars = ArrayHandler::merge($trueVarsAppConfigDate, $badVarsAppConfigDate);
+
+        foreach ($appConfigVars as $key => $value) {
             $validator->addDateRule($key);
         }
 
-        $vars = ArrayHandler::merge($trueVarsAppConfigDate, $badVarsAppConfigDate);
+        // ---------------------- Custom Format ----------------------
+
+        $customFormat = 'Y:n:j';
+
+        $trueVarsCustomFormat = [
+            'data1' => '2020:1:11',
+            'data2' => '2020:1:3',
+            'data3' => '9999:1:3',
+            'data4' => '1000:1:3',
+        ];
+
+        $badVarsCustomFormat = [
+            'date0_bad' => '2020:01:31',
+            'date1_bad' => '2020:13:31',
+            'date2_bad' => '1000:1:32',
+            'date3_bad' => '999:01:31',
+            'date4_bad' => '2020-01-31',
+        ];
+
+        $customVars = ArrayHandler::merge($trueVarsCustomFormat, $badVarsCustomFormat);
+
+        foreach ($customVars as $key => $value) {
+            $validator->addDateRule($key)->dateFormat($customFormat);
+        }
+
+        // ------------------------------------------------------------------
+
+        $vars = ArrayHandler::merge($appConfigVars, $customVars);
 
         $validatorRes = $validator->validate($vars);
 
-        foreach ($badVarsAppConfigDate as $key => $var) {
+        foreach (ArrayHandler::merge($trueVarsAppConfigDate, $trueVarsCustomFormat) as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach (ArrayHandler::merge($badVarsAppConfigDate, $badVarsCustomFormat) as $key => $var) {
             $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::INVALID_DATE_FORMAT);
         }
 

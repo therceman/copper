@@ -15,6 +15,7 @@ use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\NumberHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -188,7 +189,7 @@ final class Kernel
         $pathArray = [$abs_path];
 
         if ($path !== null)
-            $pathArray[] = is_array($path) ? FileHandler::pathFromArray($path) : $path;
+            $pathArray[] = VarHandler::isArray($path) ? FileHandler::pathFromArray($path) : $path;
 
         return FileHandler::pathFromArray($pathArray);
     }
@@ -206,7 +207,7 @@ final class Kernel
         $pathArray = [dirname(__DIR__)];
 
         if ($path !== null)
-            $pathArray[] = is_array($path) ? FileHandler::pathFromArray($path) : $path;
+            $pathArray[] = VarHandler::isArray($path) ? FileHandler::pathFromArray($path) : $path;
 
         return FileHandler::pathFromArray($pathArray);
     }
@@ -504,7 +505,7 @@ final class Kernel
         $controller = $request->attributes->get('_controller');
 
         // controller as class. (e.g [DefaultController::class, 'index']) OR '\App\Controller\DefaultController::index')
-        if (is_array($controller) || (is_string($controller) && strpos($controller, '::') !== false)) {
+        if (VarHandler::isArray($controller) || (is_string($controller) && strpos($controller, '::') !== false)) {
 
             if (is_string($controller)) {
                 $controller = explode('::', $controller);
@@ -525,7 +526,7 @@ final class Kernel
         if (!is_callable($controller)) {
             $msg = 'Controller is not callable';
 
-            if (is_array($controller) && count($controller) === 2 && $controller[0] instanceof AbstractController)
+            if (VarHandler::isArray($controller) && count($controller) === 2 && $controller[0] instanceof AbstractController)
                 $msg = 'Controller [' . get_class($controller[0]) . '] doesn\'t have callable method [' . $controller[1] . ']';
 
             $response = self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_NOT_IMPLEMENTED);

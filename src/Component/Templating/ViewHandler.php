@@ -6,6 +6,7 @@ use Copper\AppConfigurator;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
 use Copper\Handler\FileHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\RequestTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
@@ -320,7 +321,7 @@ class ViewHandler
      */
     public function out($value)
     {
-        return is_array($value) ? $this->output->dump($value) : $this->output->text($value);
+        return VarHandler::isArray($value) ? $this->output->dump($value) : $this->output->text($value);
     }
 
     /**

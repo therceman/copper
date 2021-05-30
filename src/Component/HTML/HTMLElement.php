@@ -6,6 +6,7 @@ namespace Copper\Component\HTML;
 
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Sanitizer;
 
 /**
@@ -135,10 +136,10 @@ class HTMLElement
         $empty = true;
 
         foreach ($this->attributes as $key => $value) {
-            if (is_array($value) && count($value) > 0)
+            if (VarHandler::isArray($value) && count($value) > 0)
                 $empty = false;
 
-            if (is_array($value) === false && $value !== false)
+            if (VarHandler::isArray($value) === false && $value !== false)
                 $empty = false;
         }
 
@@ -155,7 +156,7 @@ class HTMLElement
         $strList = [];
 
         foreach ($attrList as $key => $value) {
-            $valueStr = is_array($value) ? join($this->attrValueDefaultDelimiter, $value) : $value;
+            $valueStr = VarHandler::isArray($value) ? join($this->attrValueDefaultDelimiter, $value) : $value;
 
             if ($key === self::ATTR_STYLE)
                 $valueStr = $this->createStyleString($value);
@@ -168,7 +169,7 @@ class HTMLElement
             else
                 $valueStr = '="' . $this->sanitizer->double_quote_escape($valueStr) . '"';
 
-            if (is_array($value) && count($value) === 0)
+            if (VarHandler::isArray($value) && count($value) === 0)
                 continue;
 
             $strList[] = $this->sanitizer->tag_attr_escape($key) . $valueStr;
@@ -264,8 +265,8 @@ class HTMLElement
         if ($value === null)
             return $this->removeAttr($attr);
 
-        if (array_key_exists($attr, $this->attributes) && is_array($this->attributes[$attr])) {
-            $this->attributes[$attr] = is_array($value) ? $value : [$value];
+        if (array_key_exists($attr, $this->attributes) && VarHandler::isArray($this->attributes[$attr])) {
+            $this->attributes[$attr] = VarHandler::isArray($value) ? $value : [$value];
         } else {
             $this->attributes[$attr] = $value;
         }
@@ -307,7 +308,7 @@ class HTMLElement
         if ($value === null)
             return $this;
 
-        if (is_array($value) === false)
+        if (VarHandler::isArray($value) === false)
             $value = explode(' ', $value);
 
         $this->setAttr(self::ATTR_CLASS, $value);
@@ -416,7 +417,7 @@ class HTMLElement
         $styles = [];
 
         foreach ($arr as $k => $keyValuePair) {
-            if (is_array($keyValuePair))
+            if (VarHandler::isArray($keyValuePair))
                 foreach ($keyValuePair as $key => $value) {
                     $styles[$key] = $value;
                 }

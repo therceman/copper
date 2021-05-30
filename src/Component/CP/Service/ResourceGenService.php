@@ -12,6 +12,7 @@ use Copper\Component\DB\DBService;
 use Copper\Handler\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Traits\EntityStateFields;
@@ -494,7 +495,7 @@ XML;
     {
         foreach ($fields as $key => $field) {
             foreach ($field as $fKey => $fVal) {
-                if (is_array($fVal))
+                if (VarHandler::isArray($fVal))
                     $fields[$key][$fKey] = join(',', $fVal);
             }
         }

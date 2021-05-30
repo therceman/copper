@@ -6,6 +6,7 @@ namespace Copper\Component\DB;
 
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Envms\FluentPDO\Queries\Delete;
 use Envms\FluentPDO\Queries\Select;
 use Envms\FluentPDO\Queries\Update;
@@ -646,12 +647,12 @@ class DBWhere
                 break;
             case self::LIKE:
                 $value = DBService::escapeStr($value);
-                $str = (is_array($field))
+                $str = (VarHandler::isArray($field))
                     ? '(' . ArrayHandler::join($field, ' LIKE \'' . $value . '\' OR ') . ' LIKE ?)'
                     : $field . ' LIKE ?';
                 break;
             case self::NOT_LIKE:
-                $str = (is_array($field))
+                $str = (VarHandler::isArray($field))
                     ? 'CONCAT_WS(\'\', ' . ArrayHandler::join($field) . ') NOT LIKE ?'
                     : $field . ' NOT LIKE ?';
                 break;
@@ -673,7 +674,7 @@ class DBWhere
      */
     private function getHavingCondStrByColumnMod($columnMods, DBWhereEntry $cond, string $condStr, $value)
     {
-        $condFieldList = is_array($cond->field) ? $cond->field : [$cond->field];
+        $condFieldList = VarHandler::isArray($cond->field) ? $cond->field : [$cond->field];
 
         if ($columnMods === null)
             return false;
@@ -710,7 +711,7 @@ class DBWhere
 
             $condStr = $this->getConditionString($field, $cond->cond, $value);
 
-            if ($cond->cond === self::NOT && $value !== null && is_array($value) === false)
+            if ($cond->cond === self::NOT && $value !== null && VarHandler::isArray($value) === false)
                 $value = [$value];
 
             if (in_array($cond->cond, [
@@ -727,10 +728,10 @@ class DBWhere
                 continue;
             }
 
-            if (is_array($value) && count($value) === 0 && in_array($cond->cond, [self::NOT, self::NOT_IN]))
+            if (VarHandler::isArray($value) && count($value) === 0 && in_array($cond->cond, [self::NOT, self::NOT_IN]))
                 $condStr = '1 = 1';
 
-            if (is_array($value) && count($value) === 0 && in_array($cond->cond, [self::IS, self::IN]))
+            if (VarHandler::isArray($value) && count($value) === 0 && in_array($cond->cond, [self::IS, self::IN]))
                 $condStr = '1 = 2';
 
 
