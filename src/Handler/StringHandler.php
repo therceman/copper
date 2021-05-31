@@ -200,11 +200,11 @@ class StringHandler
 
     /**
      * Check if string is not empty. The string is trimmed by default before check.
-     * @param string $str
+     * @param string|null $str
      * @param bool $trim
      * @return bool
      */
-    public static function isNotEmpty(string $str, $trim = true)
+    public static function isNotEmpty(?string $str, $trim = true)
     {
         return (self::isEmpty($str, $trim) === false);
     }
