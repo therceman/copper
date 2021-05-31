@@ -364,7 +364,6 @@ class TestValidator
         $validator->addBooleanRule('bool8');
         $validator->addBooleanRule('bool_fail');
         $validator->addBooleanRule('bool_fail2');
-        $validator->addBooleanRule('bool_fail3');
         $validator->addBooleanRule('bool_fail4');
         $validator->addBooleanRule('bool_strict')->strict(true);
         $validator->addBooleanRule('bool_strict_fail')->strict(true);
@@ -382,7 +381,6 @@ class TestValidator
             'bool8' => 'false',
             'bool_fail' => '2',
             'bool_fail2' => 2,
-            'bool_fail3' => null,
             'bool_fail4' => 'qwe',
             'bool_strict' => true,
             'bool_strict_fail' => 'true',
@@ -416,7 +414,6 @@ class TestValidator
 
         $this->testValidatorResponse($validatorRes, $res, 'bool_fail', 'valueTypeIsNotBoolean', 'string');
         $this->testValidatorResponse($validatorRes, $res, 'bool_fail2', 'valueTypeIsNotBoolean', 'integer');
-        $this->testValidatorResponse($validatorRes, $res, 'bool_fail3', 'valueTypeIsNotBoolean', 'NULL');
         $this->testValidatorResponse($validatorRes, $res, 'bool_fail4', 'valueTypeIsNotBoolean', 'string');
         $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail', 'valueTypeIsNotBoolean', 'string');
         $this->testValidatorResponse($validatorRes, $res, 'bool_strict_fail2', 'valueTypeIsNotBoolean', 'string');
@@ -453,7 +450,6 @@ class TestValidator
         $falseVars = [
             'float_fail' => '1.55a',
             'float_fail_2' => '1e3',
-            'float_fail_3' => null,
             'float_fail_4' => 'qwe',
             'float_fail_5' => false,
             'float_fail_6' => true,
@@ -603,7 +599,6 @@ class TestValidator
 
         $this->testValidatorResponse($validatorRes, $res, 'float_fail', 'valueTypeIsNotFloat', 'string');
         $this->testValidatorResponse($validatorRes, $res, 'float_fail_2', 'valueTypeIsNotFloat', 'string');
-        $this->testValidatorResponse($validatorRes, $res, 'float_fail_3', 'valueTypeIsNotFloat', 'NULL');
         $this->testValidatorResponse($validatorRes, $res, 'float_fail_4', 'valueTypeIsNotFloat', 'string');
         $this->testValidatorResponse($validatorRes, $res, 'float_fail_5', 'valueTypeIsNotFloat', 'boolean');
         $this->testValidatorResponse($validatorRes, $res, 'float_fail_6', 'valueTypeIsNotFloat', 'boolean');
@@ -895,6 +890,55 @@ class TestValidator
         return ($res->hasError()) ? $res : $res->ok();
     }
 
+    private function split_date()
+    {
+        $res = new FunctionResponse();
+
+        $validator = new ValidatorHandler();
+
+        $trueDates = [
+            'year' => '2020',
+            'month' => '12',
+            'day' => '31',
+            'year_1' => '1000',
+            'month_1' => '1',
+            'day_1' => '1',
+            'year_2' => 9999,
+            'month_2' => 12,
+            'day_2' => 31,
+        ];
+
+        $badDates = [
+            'year_bad' => '999',
+            'month_bad' => '01',
+            'day_bad' => '01',
+            'year_bad2' => 2020,
+            'month_bad2' => 02,
+            'day_bad2' => 31,
+            'year_bad3' => 2020,
+            'month_bad3' => 02,
+            'day_bad3' => '',
+        ];
+
+        $vars = ArrayHandler::merge($trueDates, $badDates);
+
+        $validator->addSplitDateRule('date1', 'year', 'month', 'day');
+        $validator->addSplitDateRule('date2', 'year_1', 'month_1', 'day_1');
+        $validator->addSplitDateRule('date3', 'year_2', 'month_2', 'day_2');
+
+        $validator->addSplitDateRule('bad_date1', 'year_bad', 'month_bad', 'day_bad');
+        $validator->addSplitDateRule('bad_date2', 'year_bad2', 'month_bad2', 'day_bad2');
+        $validator->addSplitDateRule('bad_date3', 'year_bad3', 'month_bad3', 'day_bad3');
+
+        $validatorRes = $validator->validate($vars);
+
+        $this->testValidatorResponse($validatorRes, $res, 'bad_date1', ValidatorHandler::INVALID_DATE_FORMAT);
+        $this->testValidatorResponse($validatorRes, $res, 'bad_date2', ValidatorHandler::INVALID_DATE_FORMAT);
+        $this->testValidatorResponse($validatorRes, $res, 'bad_date3', ValidatorHandler::INVALID_DATE_FORMAT);
+
+        return ($res->hasError()) ? $res : $res->ok();
+    }
+
     private function time()
     {
         $res = new FunctionResponse();
@@ -1124,7 +1168,6 @@ class TestValidator
             'numeric3_bad' => 'ex123',
             'numeric4_bad' => true,
             'numeric5_bad' => false,
-            'numeric6_bad' => null,
             'numeric7_bad' => [],
         ];
 
@@ -1186,7 +1229,6 @@ class TestValidator
             'alpha_bad2' => 1000,
             'alpha_bad3' => true,
             'alpha_bad4' => false,
-            'alpha_bad5' => null,
             'alpha_bad6' => [],
             'alpha_bad7' => '1e3',
         ];
@@ -1242,7 +1284,6 @@ class TestValidator
             'alpha_numeric_bad1' => 'hello@1337',
             'alpha_numeric_bad2' => true,
             'alpha_numeric_bad3' => false,
-            'alpha_numeric_bad4' => null,
             'alpha_numeric_bad5' => [],
         ];
 
@@ -1281,6 +1322,7 @@ class TestValidator
         $results[] = ['enum', $this->enum()];
         // $results[] = ['decimal', $this->decimal()]; the same test as $this->float()
         $results[] = ['date', $this->date()];
+        $results[] = ['split_date', $this->split_date()];
         $results[] = ['time', $this->time()];
         $results[] = ['datetime', $this->datetime()];
         $results[] = ['year', $this->year()];

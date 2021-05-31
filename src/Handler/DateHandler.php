@@ -77,6 +77,25 @@ class DateHandler
     }
 
     /**
+     * @param int|string $year
+     * @param int|string $month
+     * @param int|string $day
+     *
+     * @return bool
+     */
+    public static function isValidSplitDate($year, $month, $day)
+    {
+        $year = (int)$year;
+        $month = (int)$month;
+        $day = (int)$day;
+
+        if ($year > 9999 || $year < 1000)
+            return false;
+
+        return checkdate($month, $day, $year);
+    }
+
+    /**
      * Check if date is valid. E.g. 2020-01-01
      *
      * @param string $date

@@ -43,6 +43,29 @@ class FlashMessageHandler
     }
 
     /**
+     * @param $array
+     * @return mixed
+     */
+    public function setValidationErrorList($array)
+    {
+        $this->set(FlashMessage::VALIDATION_ERROR_LIST, base64_encode(json_encode($array)));
+
+        return $array;
+    }
+
+    /**
+     * Returns saved validation error list as key value array
+     *
+     * @return array
+     */
+    public function getValidationErrorList()
+    {
+        $encoded_validation_error_list = $this->get(FlashMessage::VALIDATION_ERROR_LIST);
+
+        return json_decode(base64_decode($encoded_validation_error_list), true) ?? [];
+    }
+
+    /**
      * Save request input list as key value array for later usage (if error occurs)
      * <hr>
      * <code>

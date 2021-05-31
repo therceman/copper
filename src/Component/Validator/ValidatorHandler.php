@@ -249,6 +249,20 @@ class ValidatorHandler
 
     /**
      * @param string $name
+     * @param string|int $year
+     * @param string|int $month
+     * @param string|int $day
+     * @param bool $required
+     *
+     * @return ValidatorRule
+     */
+    public function addSplitDateRule(string $name, string $year, string $month, string $day, $required = false)
+    {
+        return $this->addRule(ValidatorRule::splitDate($name, $year, $month, $day, $required));
+    }
+
+    /**
+     * @param string $name
      * @param bool $required
      *
      * @return ValidatorRule

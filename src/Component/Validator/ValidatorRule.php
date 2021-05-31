@@ -28,13 +28,14 @@ class ValidatorRule
     const DECIMAL = 8;
 
     const DATE = 9;
-    const TIME = 10;
-    const DATETIME = 11;
-    const YEAR = 12;
+    const SPLIT_DATE = 10;
+    const TIME = 11;
+    const DATETIME = 12;
+    const YEAR = 13;
 
-    const NUMERIC = 13;
-    const ALPHA = 14;
-    const ALPHA_NUMERIC = 15;
+    const NUMERIC = 14;
+    const ALPHA = 15;
+    const ALPHA_NUMERIC = 16;
 
     /** @var string */
     private $name;
@@ -74,6 +75,8 @@ class ValidatorRule
     private $min;
     /** @var int|float|null */
     private $max;
+    /** @var array|null */
+    private $splitDateList;
 
     /**
      * ValidatorRule constructor.
@@ -105,6 +108,8 @@ class ValidatorRule
 
         $this->min = null;
         $this->max = null;
+
+        $this->splitDateList = null;
 
         $this->strict = Kernel::getValidator()->config->strict;
     }
@@ -317,6 +322,18 @@ class ValidatorRule
     }
 
     /**
+     * @param array|null $values
+     *
+     * @return $this
+     */
+    public function splitDateList(?array $values)
+    {
+        $this->splitDateList = $values;
+
+        return $this;
+    }
+
+    /**
      * @param string $name
      * @param bool $required
      *
@@ -437,6 +454,20 @@ class ValidatorRule
 
     /**
      * @param string $name
+     * @param string|int $year
+     * @param string|int $month
+     * @param string|int $day
+     * @param bool $required
+     *
+     * @return ValidatorRule
+     */
+    public static function splitDate(string $name, $year, $month, $day, $required = false)
+    {
+        return (new self($name, self::SPLIT_DATE, $required))->splitDateList([$year, $month, $day]);
+    }
+
+    /**
+     * @param string $name
      * @param bool $required
      * @param string|null $timeFormat
      *
@@ -539,10 +570,7 @@ class ValidatorRule
      */
     private function validateValueRequired($value)
     {
-        if ($this->required === false)
-            return true;
-
-        if (VarHandler::isString($value) && StringHandler::trim($value) === '')
+        if (VarHandler::isString($value) && StringHandler::isEmpty($value))
             return false;
 
         if ($value === null)
@@ -730,6 +758,20 @@ class ValidatorRule
         return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM, $this->max);
     }
 
+    private function validateSplitDate($params)
+    {
+        $fields = $this->splitDateList;
+
+        $year = ArrayHandler::hasKey($params, $fields[0]) ? $params[$fields[0]] : null;
+        $month = ArrayHandler::hasKey($params, $fields[1]) ? $params[$fields[1]] : null;
+        $day = ArrayHandler::hasKey($params, $fields[2]) ? $params[$fields[2]] : null;
+
+        if (StringHandler::isEmpty($day) || StringHandler::isEmpty($month) || StringHandler::isEmpty($year))
+            return false;
+
+        return DateHandler::isValidSplitDate($year, $month, $day);
+    }
+
     /**
      * @param $value
      * @return bool
@@ -841,9 +883,15 @@ class ValidatorRule
 
         $value = ArrayHandler::hasKey($params, $name) ? $params[$name] : null;
 
+        // empty and not required
+
+        if ($this->required === false && $this->validateValueRequired($value) === false
+            && $this->type !== self::SPLIT_DATE)
+            return $res->ok();
+
         // required
 
-        if ($this->validateValueRequired($value) === false)
+        if ($this->required === true && $this->validateValueRequired($value) === false)
             return $res->error(ValidatorHandler::VALUE_CANNOT_BE_EMPTY);
 
         // max decimals
@@ -922,6 +970,10 @@ class ValidatorRule
                 break;
             case self::DATE:
                 if ($this->validateDate($value) === false)
+                    return $res->error(ValidatorHandler::INVALID_DATE_FORMAT);
+                break;
+            case self::SPLIT_DATE:
+                if ($this->validateSplitDate($params) === false)
                     return $res->error(ValidatorHandler::INVALID_DATE_FORMAT);
                 break;
             case self::TIME:

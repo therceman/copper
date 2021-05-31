@@ -9,6 +9,7 @@ class FlashMessage
     const WARNING = 'warning';
     const INFO = 'info';
     const INPUT_LIST = 'encoded_input_list';
+    const VALIDATION_ERROR_LIST = 'encoded_validation_list';
 
     /** @var string */
     public $type;
