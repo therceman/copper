@@ -1072,6 +1072,7 @@ class TestValidator
             'year3_bad' => 'qwe',
             'year4_bad' => '2021.0',
             'year5_bad' => 2021.1,
+            'year6_bad' => -2021,
         ];
 
         $vars = ArrayHandler::merge($trueVarsYear, $badVarsYear);
@@ -1093,6 +1094,7 @@ class TestValidator
         $this->testValidatorResponse($validatorRes, $res, 'year3_bad', ValidatorHandler::INVALID_YEAR_FORMAT);
         $this->testValidatorResponse($validatorRes, $res, 'year4_bad', ValidatorHandler::INVALID_YEAR_FORMAT);
         $this->testValidatorResponse($validatorRes, $res, 'year5_bad', ValidatorHandler::TOO_MANY_DECIMAL_DIGITS);
+        $this->testValidatorResponse($validatorRes, $res, 'year6_bad', ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM);
 
         return ($res->hasError()) ? $res : $res->ok();
     }
@@ -1101,6 +1103,57 @@ class TestValidator
     {
         $res = new FunctionResponse();
 
+        $validator = new ValidatorHandler();
+
+        $trueVars = [
+            'numeric1' => '1000',
+            'numeric2' => 1000,
+            'numeric3' => 2021,
+            'numeric4' => 2021.0,
+            'numeric5' => 2021.1,
+            'numeric6' => -2021.1,
+            'numeric7' => '-2021.1',
+            'numeric8' => '-.1',
+            'numeric9' => '1e3',
+        ];
+
+        $badVars = [
+            'numeric0_bad' => '1d3',
+            'numeric1_bad' => '1.33e',
+            'numeric2_bad' => '0x33',
+            'numeric3_bad' => 'ex123',
+            'numeric4_bad' => true,
+            'numeric5_bad' => false,
+            'numeric6_bad' => null,
+            'numeric7_bad' => [],
+        ];
+
+
+        $vars = ArrayHandler::merge($trueVars, $badVars);
+        $vars = ArrayHandler::merge($vars, [
+            'numeric_max_good' => '1e3',
+            'numeric_max_bad' => '2e3',
+        ]);
+
+        foreach ($vars as $key => $value) {
+            $validator->addNumericRule($key);
+        }
+
+        $validator->addNumericRule('numeric_max_good')->max(1000);
+        $validator->addNumericRule('numeric_max_bad')->max(1999);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($trueVars as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach ($badVars as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::VALUE_TYPE_IS_NOT_NUMERIC);
+        }
+
+        $this->testValidatorResponse($validatorRes, $res, 'numeric_max_bad', ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
 
         return ($res->hasError()) ? $res : $res->ok();
     }
