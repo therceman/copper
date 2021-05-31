@@ -924,11 +924,11 @@ class ValidatorRule
                 break;
             case self::ALPHA:
                 if ($this->validateAlpha($value) === false)
-                    return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC, ($this->alphaAllowSpaces));
+                    return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC, ['allow_spaces' => $this->alphaAllowSpaces]);
                 break;
             case self::ALPHA_NUMERIC:
                 if ($this->validateAlphaNumeric($value) === false)
-                    return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC, ($this->alphaAllowSpaces));
+                    return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC, ['allow_spaces' => $this->alphaAllowSpaces]);
                 break;
             case self::EMAIL:
             case self::PHONE:

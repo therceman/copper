@@ -1133,6 +1133,8 @@ class TestValidator
         $vars = ArrayHandler::merge($vars, [
             'numeric_max_good' => '1e3',
             'numeric_max_bad' => '2e3',
+            'numeric_max_dec_bad' => 1999.1,
+            'numeric_max_dec_bad2' => '1999.1',
         ]);
 
         foreach ($vars as $key => $value) {
@@ -1141,6 +1143,8 @@ class TestValidator
 
         $validator->addNumericRule('numeric_max_good')->max(1000);
         $validator->addNumericRule('numeric_max_bad')->max(1999);
+        $validator->addNumericRule('numeric_max_dec_bad')->max(1999)->maxDecimals(0);
+        $validator->addNumericRule('numeric_max_dec_bad2')->max(1999)->maxDecimals(0);
 
         $validatorRes = $validator->validate($vars);
 
@@ -1154,6 +1158,8 @@ class TestValidator
         }
 
         $this->testValidatorResponse($validatorRes, $res, 'numeric_max_bad', ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
+        $this->testValidatorResponse($validatorRes, $res, 'numeric_max_dec_bad', ValidatorHandler::TOO_MANY_DECIMAL_DIGITS);
+        $this->testValidatorResponse($validatorRes, $res, 'numeric_max_dec_bad2', ValidatorHandler::TOO_MANY_DECIMAL_DIGITS);
 
         return ($res->hasError()) ? $res : $res->ok();
     }
@@ -1162,6 +1168,43 @@ class TestValidator
     {
         $res = new FunctionResponse();
 
+        $validator = new ValidatorHandler();
+
+        $trueVars = [
+            'alpha1' => 'qwe',
+            'alpha2' => 'йцу',
+            'alpha3' => 'formāts',
+            'alpha4' => 'formāts qwe',
+            'alpha5' => 'formāts    qwe',
+            'alpha6' => '   formāts    qwe  ',
+        ];
+
+        $badVars = [
+            'alpha_bad1' => '1000',
+            'alpha_bad2' => 1000,
+            'alpha_bad3' => true,
+            'alpha_bad4' => false,
+            'alpha_bad5' => null,
+            'alpha_bad6' => [],
+            'alpha_bad7' => '1e3',
+        ];
+
+        $vars = ArrayHandler::merge($trueVars, $badVars);
+
+        foreach ($vars as $key => $value) {
+            $validator->addAlphaRule($key);
+        }
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($trueVars as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach ($badVars as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC);
+        }
 
         return ($res->hasError()) ? $res : $res->ok();
     }
