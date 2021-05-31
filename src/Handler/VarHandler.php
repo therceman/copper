@@ -41,33 +41,43 @@ class VarHandler
     /**
      * @param mixed $var
      * @param bool $allowSpaces
+     * @param string|null $extraAllowedCharacters
      * @return bool
      */
-    public static function isAlphaNumeric($var, $allowSpaces = true)
+    public static function isAlphaNumeric($var, $allowSpaces = true, $extraAllowedCharacters = null)
     {
         $spaceDelimiter = ($allowSpaces) ? ' ' : '';
 
         if (self::isBoolean($var) || self::isArray($var) || self::isObject($var) || self::isNull($var))
             return false;
 
+        $extraCharacters = '';
+        if ($extraAllowedCharacters !== null)
+            $extraCharacters = $extraAllowedCharacters;
+
         $var = strval($var);
 
-        return (StringHandler::regex($var, '/(^[\pL\pN' . $spaceDelimiter . ']+$)/u') !== false);
+        return (StringHandler::regex($var, '/(^[\pL\pN' . $spaceDelimiter . $extraCharacters . ']+$)/u') !== false);
     }
 
     /**
      * @param mixed $var
      * @param bool $allowSpaces
+     * @param string|null $extraAllowedCharacters
      * @return bool
      */
-    public static function isAlpha($var, $allowSpaces = true)
+    public static function isAlpha($var, $allowSpaces = true, $extraAllowedCharacters = null)
     {
         $spaceDelimiter = ($allowSpaces) ? ' ' : '';
 
         if (self::isString($var) === false)
             return false;
 
-        return (StringHandler::regex($var, '/(^[\pL' . $spaceDelimiter . ']+$)/u') !== false);
+        $extraCharacters = '';
+        if ($extraAllowedCharacters !== null)
+            $extraCharacters = $extraAllowedCharacters;
+
+        return (StringHandler::regex($var, '/(^[\pL' . $spaceDelimiter . $extraCharacters . ']+$)/u') !== false);
     }
 
     /**

@@ -371,9 +371,6 @@ class ValidatorRule
     {
         $rule = new self($name, self::EMAIL, $required);
 
-        if (Kernel::getValidator() === null)
-            return $rule;
-
         $validatorConfig = Kernel::getValidator()->config;
 
         $rule->minLength($validatorConfig->email_minLength);
@@ -393,9 +390,6 @@ class ValidatorRule
     public static function phone(string $name, $required = false)
     {
         $rule = new self($name, self::PHONE, $required);
-
-        if (Kernel::getValidator() === null)
-            return $rule;
 
         $validatorConfig = Kernel::getValidator()->config;
 
@@ -747,20 +741,44 @@ class ValidatorRule
 
     /**
      * @param $value
-     * @return bool
+     * @return FunctionResponse
      */
     private function validateAlpha($value)
     {
-        return VarHandler::isAlpha($value, $this->alphaAllowSpaces);
+        $fRes = new FunctionResponse();
+
+        $extraCharacters = Kernel::getValidator()->config->alpha_non_strict_extra_characters;
+
+        if ($this->strict)
+            $extraCharacters = null;
+
+        $res = VarHandler::isAlpha($value, $this->alphaAllowSpaces, $extraCharacters);
+
+        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC, [
+            'allow_spaces' => $this->alphaAllowSpaces,
+            'allow_chars' => $extraCharacters
+        ]);
     }
 
     /**
      * @param $value
-     * @return bool
+     * @return FunctionResponse
      */
     private function validateAlphaNumeric($value)
     {
-        return VarHandler::isAlphaNumeric($value, $this->alphaAllowSpaces);
+        $fRes = new FunctionResponse();
+
+        $extraCharacters = Kernel::getValidator()->config->alpha_non_strict_extra_characters;
+
+        if ($this->strict)
+            $extraCharacters = null;
+
+        $res = VarHandler::isAlphaNumeric($value, $this->alphaAllowSpaces, $extraCharacters);
+
+        return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC, [
+            'allow_spaces' => $this->alphaAllowSpaces,
+            'allow_chars' => ($extraCharacters === null) ? '' : $extraCharacters
+        ]);
     }
 
     /**
@@ -923,12 +941,14 @@ class ValidatorRule
                     return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_NUMERIC);
                 break;
             case self::ALPHA:
-                if ($this->validateAlpha($value) === false)
-                    return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC, ['allow_spaces' => $this->alphaAllowSpaces]);
+                $checkRes = $this->validateAlpha($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
                 break;
             case self::ALPHA_NUMERIC:
-                if ($this->validateAlphaNumeric($value) === false)
-                    return $res->error(ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC, ['allow_spaces' => $this->alphaAllowSpaces]);
+                $checkRes = $this->validateAlphaNumeric($value);
+                if ($checkRes->hasError())
+                    return $checkRes;
                 break;
             case self::EMAIL:
             case self::PHONE:

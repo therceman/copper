@@ -9,6 +9,7 @@ class ValidatorConfigurator
     public $email_minLength;
     /** @var int Email max length. <hr> Default: 50 */
     public $email_maxLength;
+
     /**
      * Email regex check.
      * <hr>
@@ -59,15 +60,15 @@ class ValidatorConfigurator
     /** @var string */
     public $phone_regex_format_example;
 
-    /** @var string 4 Digits */
-    public $year_regex;
-
     /** @var string|null Custom date format for validation. If not provided - app->dateFormat will be used */
     public $date_format;
     /** @var string|null Custom time format for validation. If not provided - app->timeFormat will be used */
     public $time_format;
     /** @var string|null Custom datetime format for validation. If not provided - app->dateTimeFormat will be used */
     public $dateTime_format;
+
+    /** @var string|null Extra characters that are allowed in alpha() & alphaNumeric() check when strict mode is false */
+    public $alpha_non_strict_extra_characters;
 
     /** @var bool $strict Allow only strict validation */
     public $strict;

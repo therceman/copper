@@ -1177,6 +1177,8 @@ class TestValidator
             'alpha4' => 'formāts qwe',
             'alpha5' => 'formāts    qwe',
             'alpha6' => '   formāts    qwe  ',
+            'alpha7' => 'John Q. Rich',
+            'alpha8' => 'John, Bill',
         ];
 
         $badVars = [
@@ -1213,6 +1215,53 @@ class TestValidator
     {
         $res = new FunctionResponse();
 
+        $validator = new ValidatorHandler();
+
+        $trueVars = [
+            'alpha_numeric1' => '1qwe',
+            'alpha_numeric2' => 'йцу2',
+            'alpha_numeric3' => 'formāts3',
+            'alpha_numeric4' => 'formāts qwe4',
+            'alpha_numeric5' => 'formāts    qwe5',
+            'alpha_numeric6' => '   formāts    qwe  6',
+            'alpha_numeric_b1' => 'qwe',
+            'alpha_numeric_b2' => 'йцу',
+            'alpha_numeric_b3' => 'formāts',
+            'alpha_numeric_b4' => 'formāts qwe',
+            'alpha_numeric_b5' => 'formāts    qwe',
+            'alpha_numeric_b6' => '   formāts    qwe  ',
+            'alpha_numeric_b7' => '1000',
+            'alpha_numeric_b8' => 1000,
+            'alpha_numeric_b9' => '1e3',
+            'alpha_numeric_10' => 1.337,
+            'alpha_numeric_11' => '1.337',
+            'alpha_numeric_12' => '10 337,00',
+        ];
+
+        $badVars = [
+            'alpha_numeric_bad1' => 'hello@1337',
+            'alpha_numeric_bad2' => true,
+            'alpha_numeric_bad3' => false,
+            'alpha_numeric_bad4' => null,
+            'alpha_numeric_bad5' => [],
+        ];
+
+        $vars = ArrayHandler::merge($trueVars, $badVars);
+
+        foreach ($vars as $key => $value) {
+            $validator->addAlphaNumericRule($key);
+        }
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($trueVars as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach ($badVars as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::VALUE_TYPE_IS_NOT_ALPHABETIC_OR_NUMERIC);
+        }
 
         return ($res->hasError()) ? $res : $res->ok();
     }

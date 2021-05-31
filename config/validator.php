@@ -17,8 +17,7 @@ return function (ValidatorConfigurator $validator) {
     $validator->phone_regex = '/(^\+?\(?\d{0,3}\)?\s?\d{8,18}$)/';
     $validator->phone_regex_format_example = '+371 12345678';
 
-    // year
-    $validator->year_regex = '/(\d{4})/';
+    $validator->alpha_non_strict_extra_characters = '.,';
 
     $validator->strict = false;
 };
