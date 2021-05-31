@@ -528,15 +528,9 @@ class TestValidator
             'dec_float_fail_strict5' => .223,
         ];
 
-        $otherTrue = [
-            'floatMaxDecimals_0' => 1.23
-        ];
-
         foreach (ArrayHandler::merge($decTrueVarsStrict, $decFalseVarsStrict) as $key => $var) {
             $validator->addFloatRule($key)->maxDecimals(2)->strict(true);
         }
-
-        $validator->addFloatRule('floatMaxDecimals_0')->maxDecimals(0);
 
         // positive
 
@@ -589,7 +583,6 @@ class TestValidator
         $vars = ArrayHandler::merge($vars, $decFalseVars);
         $vars = ArrayHandler::merge($vars, $decTrueVarsStrict);
         $vars = ArrayHandler::merge($vars, $decFalseVarsStrict);
-        $vars = ArrayHandler::merge($vars, $otherTrue);
         $vars = ArrayHandler::merge($vars, $positiveTrue);
         $vars = ArrayHandler::merge($vars, $positiveFalse);
         $vars = ArrayHandler::merge($vars, $negativeTrue);
@@ -600,7 +593,6 @@ class TestValidator
         $trueVars = ArrayHandler::merge($trueVars, $trueVarsStrict);
         $trueVars = ArrayHandler::merge($trueVars, $decTrueVars);
         $trueVars = ArrayHandler::merge($trueVars, $decTrueVarsStrict);
-        $trueVars = ArrayHandler::merge($trueVars, $otherTrue);
         $trueVars = ArrayHandler::merge($trueVars, $positiveTrue);
         $trueVars = ArrayHandler::merge($trueVars, $negativeTrue);
 
@@ -984,6 +976,75 @@ class TestValidator
     {
         $res = new FunctionResponse();
 
+        $validator = new ValidatorHandler();
+
+        // ---------------------- App Config DateTime Format (Y-m-d H:i:s) ----------------------
+
+        $trueVarsAppConfigDateTime = [
+            'datetime1' => '2020-01-30 20:03:59',
+            'datetime2' => '1000-01-01 00:00:00',
+            'datetime3' => '9999-01-01 23:59:59',
+        ];
+
+        $badVarsAppConfigDateTime = [
+            'datetime0_bad' => '2021-01-30 1:03:45', // false, because app format is 'H:i:s', 'H' - hour with leading zeros (not 'G')
+            'datetime1_bad' => '2021-01-30 23:58:61',
+            'datetime2_bad' => '2021-01-30 23:61:57',
+            'datetime3_bad' => '2021-01-30 23:31:5e',
+            'datetime4_bad' => '2021-01-30 23:33:52a',
+            'datetime6_bad' => 'z2021-10-30 23:61:53',
+            'datetime7_bad' => '2021-10-30 23:23:5',
+        ];
+
+        $appConfigVars = ArrayHandler::merge($trueVarsAppConfigDateTime, $badVarsAppConfigDateTime);
+
+        foreach ($appConfigVars as $key => $value) {
+            $validator->addDateTimeRule($key);
+        }
+
+        // ---------------------- Custom DateTime Format (Y-m-d g/i/s) ----------------------
+        // g - 1 through 12
+
+        $customFormat = 'Y-m-d g/i/s';
+
+        $trueVarsCustomFormat = [
+            'datetime1b' => '2021-01-30 1/03/43',
+            'datetime2b' => '2021-01-30 12/43/03',
+            'datetime3b' => '2021-01-30 1/00/00',
+        ];
+
+        $badVarsCustomFormat = [
+            'datetime0b_bad' => '2021-01-30 13/03/23',
+            'datetime1b_bad' => '2021-01-30 12/61/30',
+            'datetime2b_bad' => '2021-01-30 12/30/62',
+            'datetime3b_bad' => 'a2021-01-30 12/30/33',
+            'datetime4b_bad' => '2021-01-30 1e/30/33',
+            'datetime5b_bad' => '2021-01-30 11/30/3',
+            'datetime6b_bad' => '2021-01-30 01/30/30',
+            'datetime7b_bad' => '2021-01-30 5/30/30a',
+            'datetime8b_bad' => '2021-01-30 0/00/00',
+        ];
+
+        $customVars = ArrayHandler::merge($trueVarsCustomFormat, $badVarsCustomFormat);
+
+        foreach ($customVars as $key => $value) {
+            $validator->addDateTimeRule($key)->dateTimeFormat($customFormat);
+        }
+
+        // ------------------------------------------------------------------
+
+        $vars = ArrayHandler::merge($appConfigVars, $customVars);
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach (ArrayHandler::merge($trueVarsAppConfigDateTime, $trueVarsCustomFormat) as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        foreach (ArrayHandler::merge($badVarsAppConfigDateTime, $badVarsCustomFormat) as $key => $var) {
+            $this->testValidatorResponse($validatorRes, $res, $key, ValidatorHandler::INVALID_DATETIME_FORMAT);
+        }
 
         return ($res->hasError()) ? $res : $res->ok();
     }
@@ -992,6 +1053,46 @@ class TestValidator
     {
         $res = new FunctionResponse();
 
+        $validator = new ValidatorHandler();
+
+        $trueVarsYear = [
+            'year1' => '1000',
+            'year2' => '2021',
+            'year3' => '9999',
+            'year4' => 1000,
+            'year5' => 2021,
+            'year6' => 9999,
+            'year7' => 2021.0,
+        ];
+
+        $badVarsYear = [
+            'year0_bad' => '999',
+            'year1_bad' => '10000',
+            'year2_bad' => '2021a',
+            'year3_bad' => 'qwe',
+            'year4_bad' => '2021.0',
+            'year5_bad' => 2021.1,
+        ];
+
+        $vars = ArrayHandler::merge($trueVarsYear, $badVarsYear);
+
+        foreach ($vars as $key => $value) {
+            $validator->addYearRule($key);
+        }
+
+        $validatorRes = $validator->validate($vars);
+
+        foreach ($trueVarsYear as $key => $var) {
+            if (ArrayHandler::hasKey($validatorRes->result, $key))
+                $res->fail($key . ' should be valid');
+        }
+
+        $this->testValidatorResponse($validatorRes, $res, 'year0_bad', ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM);
+        $this->testValidatorResponse($validatorRes, $res, 'year1_bad', ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM);
+        $this->testValidatorResponse($validatorRes, $res, 'year2_bad', ValidatorHandler::INVALID_YEAR_FORMAT);
+        $this->testValidatorResponse($validatorRes, $res, 'year3_bad', ValidatorHandler::INVALID_YEAR_FORMAT);
+        $this->testValidatorResponse($validatorRes, $res, 'year4_bad', ValidatorHandler::INVALID_YEAR_FORMAT);
+        $this->testValidatorResponse($validatorRes, $res, 'year5_bad', ValidatorHandler::TOO_MANY_DECIMAL_DIGITS);
 
         return ($res->hasError()) ? $res : $res->ok();
     }

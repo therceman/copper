@@ -19,10 +19,6 @@ return function (ValidatorConfigurator $validator) {
 
     // year
     $validator->year_regex = '/(\d{4})/';
-    // time
-    $validator->time_regex = '/-?(\d{1,3}:\d{1,2}:\d{1,2})/';
-    // datetime
-    $validator->datetime_regex = '/(\d{4}\W\d{1,2}\W\d{1,2}) (\d{1,3}:\d{1,2}:\d{1,2})/';
 
     $validator->strict = false;
 };

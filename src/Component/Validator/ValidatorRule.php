@@ -472,7 +472,13 @@ class ValidatorRule
      */
     public static function year(string $name, $required = false)
     {
-        return new self($name, self::YEAR, $required);
+        $rule = new self($name, self::YEAR, $required);
+
+        $rule->min(1000);
+        $rule->max(9999);
+        $rule->maxDecimals(0);
+
+        return $rule;
     }
 
     /**
@@ -637,28 +643,36 @@ class ValidatorRule
 
         $res = VarHandler::isFloat($value, $this->strict);
 
-        if ($res && $this->maxDecimals !== null) {
-
-            if ($this->maxDecimals === 0)
-                return $fRes->ok();
-
-            if (VarHandler::isString($value) === false)
-                $value = (string)$value;
-
-            $parts = StringHandler::explode($value, '.');
-
-            if (count($parts) === 1)
-                return $fRes->ok();
-
-            $trimZeros = rtrim($parts[1], '0');
-
-            $res = (strlen($trimZeros) <= $this->maxDecimals);
-
-            if ($res === false)
-                return $fRes->error(ValidatorHandler::TOO_MANY_DECIMAL_DIGITS, $this->maxDecimals);
-        }
-
         return ($res) ? $fRes->ok() : $fRes->error($typeErrorMsg, VarHandler::getType($value));
+    }
+
+    /**
+     * @param $value
+     * @return FunctionResponse
+     */
+    private function validateMaxDecimals($value)
+    {
+        $fRes = new FunctionResponse();
+
+        if ($this->maxDecimals === null || VarHandler::isFloat($value, false) === false)
+            return $fRes->ok();
+
+        if (VarHandler::isString($value) === false)
+            $value = (string)$value;
+
+        $parts = StringHandler::explode($value, '.');
+
+        if (count($parts) === 1)
+            return $fRes->ok();
+
+        $trimZeros = rtrim($parts[1], '0');
+
+        $res = (strlen($trimZeros) <= $this->maxDecimals);
+
+        if ($res === false)
+            return $fRes->error(ValidatorHandler::TOO_MANY_DECIMAL_DIGITS, $this->maxDecimals);
+
+        return $fRes->ok();
     }
 
     /**
@@ -705,7 +719,7 @@ class ValidatorRule
         if ($this->min === null || VarHandler::isNumeric($value) === false)
             return $fRes->ok();
 
-        $res = (float) $value >= $this->min;
+        $res = (float)$value >= $this->min;
 
         return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_LESS_THAN_MINIMUM, $this->min);
     }
@@ -717,7 +731,7 @@ class ValidatorRule
         if ($this->max === null || VarHandler::isNumeric($value) === false)
             return $fRes->ok();
 
-        $res = (float) $value <= $this->max;
+        $res = (float)$value <= $this->max;
 
         return ($res) ? $fRes->ok() : $fRes->error(ValidatorHandler::VALUE_IS_GREATER_THAN_MAXIMUM, $this->max);
     }
@@ -785,7 +799,16 @@ class ValidatorRule
      */
     private function validateDateTime($value)
     {
-        return DateHandler::isDateTimeValid($value, $this->timeFormat);
+        return DateHandler::isDateTimeValid($value, $this->dateTimeFormat);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private function validateYear($value)
+    {
+        return VarHandler::isInt($value, false);
     }
 
     /**
@@ -804,6 +827,12 @@ class ValidatorRule
 
         if ($this->validateValueRequired($value) === false)
             return $res->error(ValidatorHandler::VALUE_CANNOT_BE_EMPTY);
+
+        // max decimals
+
+        $maxDecimalsValidationRes = $this->validateMaxDecimals($value);
+        if ($maxDecimalsValidationRes->hasError())
+            return $res->error($maxDecimalsValidationRes->msg, $this->maxDecimals);
 
         // length
 
@@ -880,6 +909,14 @@ class ValidatorRule
             case self::TIME:
                 if ($this->validateTime($value) === false)
                     return $res->error(ValidatorHandler::INVALID_TIME_FORMAT);
+                break;
+            case self::DATETIME:
+                if ($this->validateDateTime($value) === false)
+                    return $res->error(ValidatorHandler::INVALID_DATETIME_FORMAT);
+                break;
+            case self::YEAR:
+                if ($this->validateYear($value) === false)
+                    return $res->error(ValidatorHandler::INVALID_YEAR_FORMAT);
                 break;
             case self::NUMERIC:
                 if ($this->validateNumeric($value) === false)

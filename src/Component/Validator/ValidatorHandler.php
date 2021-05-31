@@ -40,6 +40,8 @@ class ValidatorHandler
     const INVALID_PHONE_FORMAT = 'invalidPhoneFormat';
     const INVALID_DATE_FORMAT = 'invalidDateFormat';
     const INVALID_TIME_FORMAT = 'invalidTimeFormat';
+    const INVALID_DATETIME_FORMAT = 'invalidDateTimeFormat';
+    const INVALID_YEAR_FORMAT = 'invalidYearFormat';
 
     /** @var ValidatorRule[] */
     private $rules;
