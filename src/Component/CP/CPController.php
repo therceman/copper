@@ -4,15 +4,18 @@ namespace Copper\Component\CP;
 
 use Copper\Component\CP\Service\ResourceGenService;
 use Copper\Component\DB\DBService;
+use Copper\Component\HTML\HTML;
 use Copper\Controller\AbstractController;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\CollectionHandler;
 use Copper\Handler\FileHandler;
+use Copper\Handler\StringHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;
 use Copper\Test\TestCore;
 use Copper\Test\TestValidator;
+use Copper\Traits\ResourceControllerActions;
 
 class CPController extends AbstractController
 {
@@ -25,9 +28,8 @@ class CPController extends AbstractController
     const ACTION_DB_GENERATOR = 'db_generator';
     const ACTION_DB_GENERATOR_RUN = 'db_generator_run';
     const ACTION_DB_GENERATOR_DEL = 'db_generator_del';
-    const ACTION_ROUTE_ADD = 'route_add';
-    const ACTION_ROUTE_DEL = 'route_del';
     const ACTION_ROUTE_LIST_UPDATE = 'route_list_update';
+    const ACTION_ROUTE_ADD = 'route_add';
     const ACTION_LOGOUT = 'logout';
 
     private function hasAccess()
@@ -80,9 +82,6 @@ class CPController extends AbstractController
                 break;
             case self::ACTION_ROUTE_ADD:
                 return $this->route_add();
-                break;
-            case self::ACTION_ROUTE_DEL:
-                return $this->route_del();
                 break;
             case self::ACTION_ROUTE_LIST_UPDATE:
                 return $this->route_list_update();
@@ -215,6 +214,8 @@ class CPController extends AbstractController
 
             $action_list = ($action_list !== null) ? $action_list : [];
 
+            $trait_class_list = get_class_methods(ResourceControllerActions::class);
+
             try {
                 $reflection_class = new \ReflectionClass($resource::getControllerClassName());
             } catch (\ReflectionException $e) {
@@ -236,7 +237,7 @@ class CPController extends AbstractController
 
                 $name_with_params = $action . '(' . join(', ', $params) . ')';
 
-                if ($getMethod || $postMethod)
+                if (($getMethod || $postMethod) && ArrayHandler::hasValue($trait_class_list, $action) === false)
                     $route_action_list[] = ["name" => $action, "params" => $params,
                         "name_with_params" => $name_with_params,
                         "used" => false, "method" => ($getMethod) ? 'GET' : 'POST'];
@@ -292,24 +293,6 @@ class CPController extends AbstractController
         return $this->json($response);
     }
 
-    private function route_add()
-    {
-        $content = $this->requestJSON();
-
-        $response = ResourceGenService::addRoute($content);
-
-        return $this->json($response);
-    }
-
-    private function route_del()
-    {
-        $content = $this->requestJSON();
-
-        $response = ResourceGenService::delRoute($content);
-
-        return $this->json($response);
-    }
-
     private function route_list_update()
     {
         $content = $this->requestJSON();
@@ -317,6 +300,33 @@ class CPController extends AbstractController
         $response = ResourceGenService::updateRouteList($content);
 
         return $this->json($response);
+    }
+
+    private function route_add()
+    {
+        $content = $this->requestJSON();
+
+        $action = $content['action_with_params'];
+        $method = $content['method'];
+        $path = $content['path'];
+        $name = $content['name'];
+
+        $li = HTML::li()->id($name);
+
+        $elMethod = HTML::select(['GET', 'POST'], "method[$name]", $method)->class('method')
+            ->onInput('route_action_edit__method(this)');
+
+        $elPath = HTML::input("path[$name]", $path)->class('path')
+            ->onInput('route_action_edit__path(this)');
+
+        $elAction = HTML::input("action[$name]", $action)->class('action')->disabled();
+
+        $elDelete = HTML::button("Del", "del[$name]")->class('delete')
+            ->onClick('route_action_edit__delete(this)');;
+
+        $li->addElement($elMethod)->addElement($elPath)->addElement($elAction)->addElement($elDelete);
+
+        return $this->json(['li' => $li]);
     }
 
 }

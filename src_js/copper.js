@@ -1,5 +1,4 @@
-
-// TODO move to separate file opa
+// TODO move to separate file
 // ------------------------ Imported Third-Party Scripts ----------------------------
 
 /*! sprintf-js v1.1.2 | Copyright (c) 2007-present, Alexandru Mărășteanu <hello@alexei.ro> | BSD-3-Clause */
@@ -130,7 +129,7 @@
 // https://tc39.github.io/ecma262/#sec-array.prototype.find
 if (!Array.prototype.find) {
     Object.defineProperty(Array.prototype, 'find', {
-        value: function(predicate) {
+        value: function (predicate) {
             if (this == null) {
                 throw TypeError('"this" is null or not defined');
             }
@@ -225,6 +224,36 @@ ArrayHandler.prototype.hasValue = function (array, value, strict = false) {
         match = (array.indexOf(value) !== -1);
 
     return match;
+}
+
+ArrayHandler.prototype.assocMatch = function (item, filter) {
+    let self = this;
+
+    let matched = true;
+
+    Object.keys(filter).forEach(function (pairKey) {
+        let pairValue = filter[pairKey];
+
+        if (Array.isArray(pairValue) === false && item[pairKey] != pairValue)
+            matched = false;
+        else if (Array.isArray(pairValue) && self.hasValue(pairValue, item[pairKey]) === false)
+            matched = false;
+    });
+
+    return matched;
+}
+
+ArrayHandler.prototype.assocDelete = function (array, filter) {
+    let self = this;
+
+    let newArray = [];
+
+    array.forEach(function (item) {
+        if (self.assocMatch(item, filter) === false)
+            newArray.push(item);
+    });
+
+    return newArray;
 }
 
 ArrayHandler.prototype.isArray = function (array) {
@@ -409,10 +438,10 @@ function EventHandler() {
 }
 
 EventHandler.prototype.keyboardKeys = {
-    Enter : "Enter",
-    Backspace : "Backspace",
-    Tab : "Tab",
-    Space : " ",
+    Enter: "Enter",
+    Backspace: "Backspace",
+    Tab: "Tab",
+    Space: " ",
     ArrowLeft: "ArrowLeft",
     ArrowRight: "ArrowRight"
 }

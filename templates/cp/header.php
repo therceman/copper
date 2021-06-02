@@ -1,5 +1,7 @@
 <?php global $view;
 
+use Copper\Component\AssetsManager\AssetsManager;
+
 $title = $view->dataBag->get('title', 'Copper Panel');
 
 ?>
@@ -9,6 +11,8 @@ $title = $view->dataBag->get('title', 'Copper Panel');
 <head>
     <meta charset="utf-8">
     <title><?= $view->out($title) ?></title>
+
+    <?= AssetsManager::js('copper.js')?>
 
     <style>
         body {
