@@ -134,6 +134,25 @@ class FileHandler
     }
 
     /**
+     * Extend path array with another path as string/array
+     *
+     * @param array $pathArray
+     * @param string|array $path
+     * @return array
+     */
+    public static function extendPathArray(array $pathArray, $path)
+    {
+        if ($path !== null) {
+            if (VarHandler::isArray($path) === false)
+                $pathArray[] = $path;
+            else
+                $pathArray = ArrayHandler::merge($pathArray, $path);
+        }
+
+        return $pathArray;
+    }
+
+    /**
      * Package path from array
      *
      * @param array $pathArray
@@ -247,10 +266,11 @@ class FileHandler
      *
      * @param string $filePath
      * @param string $destFolderPath
+     * @param string $newFileName
      *
      * @return FunctionResponse
      */
-    public static function copyFileToFolder(string $filePath, string $destFolderPath)
+    public static function copyFileToFolder(string $filePath, string $destFolderPath, string $newFileName = null)
     {
         $response = new FunctionResponse();
 
@@ -266,7 +286,7 @@ class FileHandler
         $filePath = self::cleanPath($filePath);
         $destFolderPath = self::cleanPath($destFolderPath);
 
-        $filename = basename($filePath);
+        $filename = ($newFileName === null) ? basename($filePath) : $newFileName;
 
         $copyStatus = copy($filePath, $destFolderPath . '/' . $filename);
 
@@ -287,12 +307,15 @@ class FileHandler
     }
 
     /**
-     * @param string $filePath
+     * @param string|array $filePath
      *
      * @return FunctionResponse
      */
-    public static function delete(string $filePath)
+    public static function delete($filePath)
     {
+        if (VarHandler::isArray($filePath))
+            $filePath = self::pathFromArray($filePath);
+
         if (self::fileExists($filePath) === false)
             return FunctionResponse::createError('File does not exist');
 
@@ -301,7 +324,18 @@ class FileHandler
         return FunctionResponse::createSuccessOrError(unlink($filePath));
     }
 
-    public static function getFilesInFolder($folderPath)
+    /**
+     * Gets file modification time
+     *
+     * @param $filePath
+     * @return false|int
+     */
+    public static function getModTime($filePath)
+    {
+        return filemtime($filePath);
+    }
+
+    public static function getFilesInFolder($folderPath, $withModTimeAsKey = false)
     {
         $response = new FunctionResponse();
 
@@ -311,6 +345,17 @@ class FileHandler
         $folderPath = self::cleanPath($folderPath);
 
         $files = array_diff(scandir($folderPath), array('.', '..'));
+
+        if ($withModTimeAsKey) {
+
+            $files_with_mod_time = [];
+
+            foreach ($files as $file) {
+                $files_with_mod_time[FileHandler::getModTime($folderPath . '/' . $file)] = $file;
+            }
+
+            $files = $files_with_mod_time;
+        }
 
         return $response->result($files);
     }

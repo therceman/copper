@@ -196,6 +196,40 @@ class ArrayHandler
     }
 
     /**
+     * Find value in array by regular expression
+     *
+     * @param array $array
+     * @param string $regex
+     * @return mixed|null
+     */
+    public static function findByRegex(array $array, string $regex)
+    {
+        $result = ArrayHandler::find($array, function ($item) use ($regex) {
+            if (StringHandler::regex($item, $regex) !== false)
+                return $item;
+            return null;
+        });
+
+        $result = array_values($result);
+
+        return (count($result)) ? $result : null;
+    }
+
+    /**
+     * Find in array by regular expression on value
+     *
+     * @param array $array
+     * @param string $regex
+     * @return mixed|null
+     */
+    public static function findFirstByRegex(array $array, string $regex)
+    {
+        $result = self::findByRegex($array, $regex);
+
+        return ($result !== null && count($result) > 0) ? $result[0] : null;
+    }
+
+    /**
      * Return number of items in array
      *
      * @param array $array
@@ -612,6 +646,17 @@ class ArrayHandler
         }
 
         return $matched;
+    }
+
+    /**
+     * @param array $array
+     * @param mixed $value
+     *
+     * @return false|int|string
+     */
+    public static function findKey(array $array, $value)
+    {
+        return array_search($value, $array, true);
     }
 
     /**

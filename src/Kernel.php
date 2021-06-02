@@ -7,6 +7,7 @@ use Copper\Component\Mail\MailHandler;
 use Copper\Component\Routing\RoutingConfigLoader;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Controller\AbstractController;
+use Copper\Handler\ArrayHandler;
 use Copper\Handler\FileHandler;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\CP\CPHandler;
@@ -149,9 +150,11 @@ final class Kernel
         return FileHandler::appPathFromArray(['src', 'Traits']);
     }
 
-    public static function getAppPublicPath()
+    public static function getAppPublicPath($path)
     {
-        return FileHandler::appPathFromArray(['public']);
+        $pathArray = FileHandler::extendPathArray(['public'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
     public static function getAppTemplatesPath()
