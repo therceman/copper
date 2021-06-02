@@ -2,6 +2,7 @@
 
 namespace Copper;
 
+use Copper\Component\AssetsManager\AssetsManager;
 use Copper\Component\Error\ErrorHandler;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Routing\RoutingConfigLoader;
@@ -66,6 +67,9 @@ final class Kernel
     public function __construct()
     {
         $this->configureErrorHandler();
+
+        AssetsManager::init();
+
         $this->configureApp();
         $this->configureCP();
         $this->configureDB();
