@@ -31,6 +31,7 @@ class HTMLElement
 
     // with end tag
 
+    const SCRIPT = 'script';
     const TITLE = 'title';
     const SVG = 'svg';
     const DIV = 'div';

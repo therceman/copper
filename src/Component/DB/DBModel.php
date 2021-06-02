@@ -78,6 +78,19 @@ abstract class DBModel
     }
 
     /**
+     * Returns enum values as collection
+     *
+     * @param string $name
+     * @param string $textField
+     * @param string $idField
+     * @return mixed
+     */
+    public function getFieldEnumValuesAsCollection(string $name, $textField = 'title', $idField = DBModel::ID)
+    {
+        return ArrayHandler::toCollection($this->getFieldEnumValues($name), $textField, $idField);
+    }
+
+    /**
      * @param $name
      *
      * @return DBModelField|null
@@ -653,7 +666,7 @@ abstract class DBModel
         try {
             $stm = $this->prepareSelectStatement($select, true);
 
-            $result = (int) $stm->fetchColumn();
+            $result = (int)$stm->fetchColumn();
 
             if ($result === false)
                 $result = 0;

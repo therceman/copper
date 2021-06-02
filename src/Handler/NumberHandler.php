@@ -4,15 +4,19 @@
 namespace Copper\Handler;
 
 
+/**
+ * Class NumberHandler
+ * @package Copper\Handler
+ */
 class NumberHandler
 {
-    const SIGN_USD = '$';
-    const SIGN_EUR = '€';
-    const SIGN_PERCENT = '%';
+    public const SIGN_USD = '$';
+    public const SIGN_EUR = '€';
+    public const SIGN_PERCENT = '%';
 
     // The float data type can commonly store a value up to 1.7976931348623E+308 (platform dependent),
     // and have a maximum precision of 14 digits.
-    const MAX_FLOAT_PRECISION = 14;
+    public const MAX_FLOAT_PRECISION = 14;
 
     /**
      * Returns absolute value
@@ -31,6 +35,32 @@ class NumberHandler
     }
 
     /**
+     * Add percent to number
+     *
+     * @param float|int $num
+     * @param float|int $perc
+     * @return float|int
+     */
+    public static function addPercent($num, $perc)
+    {
+        return $num - (($num * $perc) / 100);
+    }
+
+    /**
+     * Subtract percent from number
+     *
+     * @param float|int $num
+     * @param float|int $perc
+     * @return float|int
+     */
+    public static function subPercent($num, $perc)
+    {
+        return $num + (($num * $perc) / 100);
+    }
+
+    /**
+     * Calculate price without discount
+     *
      * @param float|int $currentPrice Price, e.g. 1.25
      * @param float|int $discount Discount in percents, e.g. 25%
      * @return float|int
@@ -40,11 +70,21 @@ class NumberHandler
         return $currentPrice * (100 / (100 - $discount));
     }
 
+    /**
+     * @param float|int $num1
+     * @param float|int $num2
+     * @return int
+     */
     public static function divisionRemainder($num1, $num2)
     {
         return $num1 % $num2;
     }
 
+    /**
+     * @param $num
+     * @param int $dec
+     * @return float
+     */
     public static function round($num, $dec = 2)
     {
         $dec = $dec > self::MAX_FLOAT_PRECISION ? self::MAX_FLOAT_PRECISION : $dec;
@@ -68,6 +108,13 @@ class NumberHandler
         return str_pad($num, $length, '0', STR_PAD_LEFT);
     }
 
+    /**
+     * @param int|float $num
+     * @param int $dec
+     * @param string $d_sep
+     * @param string $t_sep
+     * @return string
+     */
     public static function format($num, $dec = 2, $d_sep = '.', $t_sep = '')
     {
         if (is_string($num))
@@ -78,16 +125,36 @@ class NumberHandler
         return number_format($num, $dec, $d_sep, $t_sep);
     }
 
+    /**
+     * @param int|float $num
+     * @param string $currency
+     * @param int $dec
+     * @param string $d_sep
+     * @param string $t_sep
+     * @return string
+     */
     public static function currencyFormat($num, $currency = self::SIGN_EUR, $dec = 2, $d_sep = '.', $t_sep = '')
     {
         return self::format($num, $dec, $d_sep, $t_sep) . ' ' . $currency;
     }
 
+    /**
+     * @param int|float $num
+     * @param int $dec
+     * @param string $d_sep
+     * @param string $t_sep
+     * @return string
+     */
     public static function percentFormat($num, $dec = 2, $d_sep = '.', $t_sep = '')
     {
         return self::format($num, $dec, $d_sep, $t_sep) . ' ' . self::SIGN_PERCENT;
     }
 
+    /**
+     * @param int $min
+     * @param int|null $max
+     * @return int
+     */
     public static function random($min = 0, $max = null)
     {
         return rand($min, $max);

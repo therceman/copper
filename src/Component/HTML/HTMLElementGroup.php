@@ -12,6 +12,8 @@ abstract class HTMLElementGroup
     /** @var HTMLElement */
     private $wrapper = null;
 
+    protected $wrapper_attrs = [];
+
     /** @var HTMLElement[] */
     protected $list;
     protected $toggle = true;
@@ -29,19 +31,6 @@ abstract class HTMLElementGroup
     }
 
     /**
-     * @param string $class
-     * @param string|null $id
-     *
-     * @return HTMLElementGroup
-     */
-    public function divWrapper(string $class, $id = null)
-    {
-        $this->wrapper = HTML::div($class)->id($id);
-
-        return $this;
-    }
-
-    /**
      * @return HTMLElement|null
      */
     public function getWrapper()
@@ -54,9 +43,20 @@ abstract class HTMLElementGroup
      *
      * @return HTMLElementGroup
      */
-    public function wrapper($wrapper)
+    public function setWrapper($wrapper)
     {
         $this->wrapper = $wrapper;
+
+        return $this;
+    }
+
+    /**
+     * @param array|iterable $attrs
+     * @return $this
+     */
+    public function setWrapperAttrs($attrs)
+    {
+        $this->wrapper_attrs = $attrs;
 
         return $this;
     }
@@ -104,6 +104,8 @@ abstract class HTMLElementGroup
     }
 
     /**
+     * // TODO deep finding
+     *
      * @param string $selector
      * @param \Closure $closure
      * @param bool $stopOnFirstMatch
@@ -228,8 +230,10 @@ abstract class HTMLElementGroup
 
         $this->build();
 
-        if ($this->wrapper !== null)
+        if ($this->wrapper !== null) {
+            $this->wrapper->setAttrs($this->wrapper_attrs);
             return $this->wrapper->innerHTML(join(PHP_EOL, $this->list))->getOuterHTML();
+        }
 
         return join(PHP_EOL, $this->list);
     }

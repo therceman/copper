@@ -15,6 +15,19 @@ use Copper\Handler\VarHandler;
 class HTML
 {
     /**
+     * @param string $content
+     * @return HTMLElement
+     */
+    public static function script($content)
+    {
+        $el = new HTMLElement(HTMLElement::SCRIPT, true);
+
+        $el->innerHTML($content);
+
+        return $el;
+    }
+
+    /**
      * @param HTMLElement[]|HTMLElementGroup[] $trList
      * @param HTMLElement[]|HTMLElementGroup[] $thList
      * @param string|array|null $class

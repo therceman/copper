@@ -101,6 +101,12 @@ class HTMLGroup extends HTMLElementGroup
         return $this;
     }
 
+    public function attrs($attrs) {
+        $this->attrs = $attrs;
+
+        return $this;
+    }
+
     /**
      * @return HTMLGroup
      */
@@ -113,13 +119,14 @@ class HTMLGroup extends HTMLElementGroup
         }
 
         if ($this->useWrapper === false)
-            return $this->wrapper(null);
+            return $this->setWrapper(null);
 
         $wrapper = new HTMLElement($this->tag, HTMLElement::hasEndTag($this->tag));
         $wrapper->class($this->class);
         $wrapper->id($this->id);
+        $wrapper->setAttrs($this->wrapper_attrs);
 
-        $this->wrapper($wrapper);
+        $this->setWrapper($wrapper);
 
         return $this;
     }
