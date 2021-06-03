@@ -192,7 +192,7 @@ ArrayHandler.prototype.clone = function (array) {
 ArrayHandler.prototype.toggle = function (array, value, strict = false) {
     array = this.clone(array);
 
-    if (this.hasValue(array, value, strict))
+    if (this.has(array, value, strict))
         array = this.delete(array, value)
     else
         array.push(value);
@@ -208,14 +208,14 @@ ArrayHandler.prototype.delete = function (array, value, strict = false) {
     let new_array = [];
 
     array.forEach(function (value) {
-        if (_this.hasValue(value_list, value, strict) === false)
+        if (_this.has(value_list, value, strict) === false)
             new_array.push(value);
     });
 
     return new_array;
 }
 
-ArrayHandler.prototype.hasValue = function (array, value, strict = false) {
+ArrayHandler.prototype.has = function (array, value, strict = false) {
     let match;
 
     if (strict === false)
@@ -236,7 +236,7 @@ ArrayHandler.prototype.assocMatch = function (item, filter) {
 
         if (Array.isArray(pairValue) === false && item[pairKey] != pairValue)
             matched = false;
-        else if (Array.isArray(pairValue) && self.hasValue(pairValue, item[pairKey]) === false)
+        else if (Array.isArray(pairValue) && self.has(pairValue, item[pairKey]) === false)
             matched = false;
     });
 
