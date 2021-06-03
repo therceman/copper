@@ -30,6 +30,9 @@ use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 
 final class Kernel
 {
+    const CSRF_TOKEN = '__csrf_token';
+    const CSRF_TOKEN_HEADER = 'X-CSRF-TOKEN';
+
     const CONFIG_FOLDER = 'config';
 
     const ERROR_CONFIG_FILE = 'error.php';
@@ -154,7 +157,7 @@ final class Kernel
         return FileHandler::appPathFromArray(['src', 'Traits']);
     }
 
-    public static function getAppPublicPath($path)
+    public static function getAppPublicPath($path = null)
     {
         $pathArray = FileHandler::extendPathArray(['public'], $path);
 
@@ -459,6 +462,25 @@ final class Kernel
         self::$requestContext = $requestContext;
 
         $matcher = new UrlMatcher(self::$routes, $requestContext);
+
+        // ---------------- CSRF Verification --------------------
+
+        $isXmlHttpRequest = $request->isXmlHttpRequest();
+        $csrf_token = $request->request->get(Kernel::CSRF_TOKEN, null);
+
+        if ($csrf_token === null)
+            $csrf_token = $request->headers->get(Kernel::CSRF_TOKEN_HEADER);
+
+        if ($csrf_token !== Kernel::getAuth()->sessionId() && ($isXmlHttpRequest || $request->getMethod() === 'POST')) {
+            $msg = 'CSRF Verification Failed for method [' . $request->getMethod() . ']';
+
+            if ($isXmlHttpRequest)
+                $msg .= ' @ XMLHttpRequest';
+
+            return self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_FORBIDDEN);
+        }
+
+        // -------------------------------------------------------------
 
         try {
             $this->configureMatchedRequestAttributes($matcher, $request);

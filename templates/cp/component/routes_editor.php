@@ -35,52 +35,26 @@ $resource = $view->get('$resource');
     }
 
     function route_action_list_update(list, callback) {
-        let http = new XMLHttpRequest();
-
         let url = '<?=CPController::ACTION_ROUTE_LIST_UPDATE?>';
 
-        let JSONParams = {
+        let data = {
             "list": list
         }
 
-        let params = JSON.stringify(JSONParams);
-
-        http.open('POST', url, true);
-
-        http.setRequestHeader('Content-type', 'application/json');
-
-        http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200)
-                callback(JSON.parse(http.responseText));
-        }
-
-        http.send(params);
+        copper.requestHandler.postJSON(url, data, callback)
     }
 
     function route_add_request(action_with_params, method, path, name, callback) {
-        let http = new XMLHttpRequest();
-
         let url = '<?=CPController::ACTION_ROUTE_ADD?>';
 
-        let JSONParams = {
+        let data = {
             "action_with_params": action_with_params,
             "method": method,
             "path": path,
             "name": name,
         }
 
-        let params = JSON.stringify(JSONParams);
-
-        http.open('POST', url, true);
-
-        http.setRequestHeader('Content-type', 'application/json');
-
-        http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200)
-                callback(JSON.parse(http.responseText));
-        }
-
-        http.send(params);
+        copper.requestHandler.postJSON(url, data, callback);
     }
 
     function route_action_add() {
@@ -94,7 +68,7 @@ $resource = $view->get('$resource');
 
         route_add_request(action_with_params, method, path, name, function (result) {
             let li = document.createElement('li');
-            li.innerHTML= result.li;
+            li.innerHTML = result.li;
 
             document.getElementById('routes_list_container').append(li);
 
@@ -198,7 +172,7 @@ $resource = $view->get('$resource');
         console.log('deleting existing action');
         let name = self.value.split('[')[1].slice(0, -1);
 
-        route_list = copper.ArrayHandler.assocDelete(route_list, {"name": name});
+        route_list = copper.arrayHandler.assocDelete(route_list, {"name": name});
         document.getElementById(name).remove();
 
         console.log(route_list, name);

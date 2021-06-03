@@ -898,7 +898,7 @@ class ValidatorRule
 
         $maxDecimalsValidationRes = $this->validateMaxDecimals($value);
         if ($maxDecimalsValidationRes->hasError())
-            return $res->error($maxDecimalsValidationRes->msg, $this->maxDecimals);
+            return $res->error($maxDecimalsValidationRes->msg, $maxDecimalsValidationRes->result);
 
         // length
 
@@ -928,13 +928,13 @@ class ValidatorRule
 
         $maxValidationRes = $this->validateMaximum($value);
         if ($maxValidationRes->hasError())
-            return $res->error($maxValidationRes->msg);
+            return $res->error($maxValidationRes->msg, $maxValidationRes->result);
 
         // minimum
 
         $minValidationRes = $this->validateMinimum($value);
         if ($minValidationRes->hasError())
-            return $res->error($minValidationRes->msg);
+            return $res->error($minValidationRes->msg, $minValidationRes->result);
 
         // type
 

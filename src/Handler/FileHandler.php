@@ -137,10 +137,10 @@ class FileHandler
      * Extend path array with another path as string/array
      *
      * @param array $pathArray
-     * @param string|array $path
+     * @param string|array|null $path
      * @return array
      */
-    public static function extendPathArray(array $pathArray, $path)
+    public static function extendPathArray(array $pathArray, $path = null)
     {
         if ($path !== null) {
             if (VarHandler::isArray($path) === false)

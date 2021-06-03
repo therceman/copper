@@ -158,7 +158,7 @@ if (!Array.prototype.find) {
 
 let copper = {};
 
-// --------------------------- StringHandler ---------------------------
+// --------------------------- stringHandler ---------------------------
 
 function StringHandler() {
 }
@@ -170,12 +170,12 @@ function StringHandler() {
  * @returns {boolean|undefined}
  */
 StringHandler.prototype.sprintf = function (str, args) {
-    return sprintf.apply(this, copper.ArrayHandler.merge([str], args));
+    return sprintf.apply(this, copper.arrayHandler.merge([str], args));
 }
 
-copper.StringHandler = new StringHandler();
+copper.stringHandler = new StringHandler();
 
-// --------------------------- ArrayHandler ---------------------------
+// --------------------------- arrayHandler ---------------------------
 
 function ArrayHandler() {
 
@@ -260,9 +260,9 @@ ArrayHandler.prototype.isArray = function (array) {
     return Array.isArray(array);
 }
 
-copper.ArrayHandler = new ArrayHandler();
+copper.arrayHandler = new ArrayHandler();
 
-// --------------------------- NumberHandler ---------------------------
+// --------------------------- numberHandler ---------------------------
 
 function NumberHandler() {
 }
@@ -287,9 +287,9 @@ NumberHandler.prototype.round = function (num, precision) {
     }
 }
 
-copper.NumberHandler = new NumberHandler();
+copper.numberHandler = new NumberHandler();
 
-// --------------------------- CollectionHandler ---------------------------
+// --------------------------- collectionHandler ---------------------------
 
 function CollectionHandler() {
 }
@@ -303,9 +303,9 @@ CollectionHandler.prototype.match = function (item, filter, strict = false) {
         let pairKey = key;
         let pairValue = filter[key];
 
-        if (copper.ArrayHandler.isArray(pairValue) === false && item[pairKey] != pairValue)
+        if (copper.arrayHandler.isArray(pairValue) === false && item[pairKey] != pairValue)
             matched = false;
-        else if (copper.ArrayHandler.isArray(pairValue) && _this.hasValue(pairValue, item[pairKey], strict) === false)
+        else if (copper.arrayHandler.isArray(pairValue) && _this.hasValue(pairValue, item[pairKey], strict) === false)
             matched = false;
     })
 
@@ -337,7 +337,7 @@ CollectionHandler.prototype.findFirst = function (collection, filter) {
     return (list.length > 0) ? list[0] : null
 }
 
-copper.CollectionHandler = new CollectionHandler();
+copper.collectionHandler = new CollectionHandler();
 
 // ------------------------------------------------------------------------
 
@@ -371,53 +371,104 @@ CookiesHandler.prototype.get = function (name) {
     return "";
 }
 
-copper.CookiesHandler = new CookiesHandler();
+copper.cookiesHandler = new CookiesHandler();
 
 // ------------------------------------------------------------------------
 
 function RequestHandler() {
+    let self = this;
+
     this.base_uri = '';
-}
 
-RequestHandler.prototype.get = function (url, params, callback) {
-    let http = new XMLHttpRequest();
+    this.timeout = {
+        get: 100,
+        post: 500
+    };
 
-    url = url + ((params !== null) ? '?' + new URLSearchParams(params).toString() : '');
-
-    let full_url = (url.substring(0, 4) === 'http') ? url : this.base_uri + url;
-
-    http.open('GET', full_url, true);
-
-    http.onreadystatechange = function () {
-        if (http.readyState === 4 && http.status === 200 && callback !== void 0)
-            callback(JSON.parse(http.responseText));
+    let timeoutId = {
+        get: -1,
+        post: -1
     }
 
-    http.send();
-}
+    function getRequest(url, callback, params) {
+        let http = new XMLHttpRequest();
 
-RequestHandler.prototype.post = function (url, data, callback, contentType, prepareData) {
-    let http = new XMLHttpRequest();
+        url = url + ((params !== null) ? '?' + new URLSearchParams(params).toString() : '');
 
-    const FORM_CONTENT = 'application/x-www-form-urlencoded';
+        let full_url = (url.substring(0, 4) === 'http') ? url : self.base_uri + url;
 
-    contentType = contentType || FORM_CONTENT;
+        http.open('GET', full_url, true);
 
-    http.open('POST', this.base_uri + url, true);
+        http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        http.setRequestHeader('X-CSRF-TOKEN', window['__csrf_token']);
 
-    http.setRequestHeader('Content-type', contentType);
+        http.onreadystatechange = function () {
+            if (http.readyState === 4 && http.status === 200 && callback !== void 0)
+                callback(JSON.parse(http.responseText));
+        }
 
-    http.onreadystatechange = function () {
-        if (http.readyState === 4 && http.status === 200 && callback !== void 0)
-            callback(JSON.parse(http.responseText));
+        http.send();
     }
 
-    if (typeof prepareData === 'function')
-        data = prepareData(data);
-    else
-        data = new URLSearchParams(data).toString();
+    function postRequest(url, data, callback, contentType, prepareData) {
+        let http = new XMLHttpRequest();
 
-    http.send(data);
+        const FORM_CONTENT = 'application/x-www-form-urlencoded';
+
+        contentType = contentType || FORM_CONTENT;
+
+        let full_url = (url.substring(0, 4) === 'http') ? url : self.base_uri + url;
+
+        http.open('POST', full_url, true);
+
+        http.setRequestHeader('Content-type', contentType);
+        http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        http.setRequestHeader('X-CSRF-TOKEN', window['__csrf_token']);
+
+        http.onreadystatechange = function () {
+            if (http.readyState === 4 && http.status === 200 && callback !== void 0)
+                callback(JSON.parse(http.responseText));
+        }
+
+        if (typeof prepareData === 'function')
+            data = prepareData(data);
+        else
+            data = new URLSearchParams(data).toString();
+
+        http.send(data);
+    }
+
+    function throttle(method, callback) {
+        if (timeoutId[method] === -1) {
+            callback();
+
+            timeoutId[method] = setTimeout(function () {
+                timeoutId[method] = -1
+            }, self.timeout[method]);
+
+            return timeoutId[method];
+        }
+
+        clearTimeout(timeoutId[method]);
+
+        timeoutId[method] = setTimeout(function () {
+            callback();
+            timeoutId[method] = -1
+        }, self.timeout[method]);
+    }
+
+    this.get = function (url, callback, params) {
+        throttle('post', function () {
+            getRequest(url, callback, params);
+        })
+    }
+
+    this.post = function (url, data, callback, contentType, prepareData) {
+        throttle('post', function () {
+            postRequest(url, data, callback, contentType, prepareData);
+        })
+    }
+
 }
 
 RequestHandler.prototype.postJSON = function (url, data, callback) {
@@ -430,7 +481,7 @@ RequestHandler.prototype.setBaseUri = function (uri) {
     this.base_uri = uri;
 }
 
-copper.RequestHandler = new RequestHandler();
+copper.requestHandler = new RequestHandler();
 
 // ---------- Key Handler -----------------
 
@@ -507,6 +558,6 @@ EventHandler.prototype.isEscapeKeyPressed = function (event) {
     return this.isKeyPressed(event, "Escape", "Escape", 27)
 }
 
-copper.EventHandler = new EventHandler();
+copper.eventHandler = new EventHandler();
 
 window.copper = copper;

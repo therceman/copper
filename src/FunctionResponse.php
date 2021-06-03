@@ -64,7 +64,7 @@ class FunctionResponse
      *
      * @return FunctionResponse
      */
-    public static function createSuccess($msg, $result = false)
+    public static function createSuccess($msg = false, $result = false)
     {
         $response = new FunctionResponse();
 

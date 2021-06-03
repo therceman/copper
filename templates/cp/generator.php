@@ -1688,23 +1688,19 @@ if ($resource !== null) {
         document.getElementById('prepare_templates').disabled = true;
 
     function prepareTemplates(force = false) {
-        let http = new XMLHttpRequest();
         let url = 'db_generator';
+
         let action = 'prepare_templates';
 
-        let params = 'action=' + action + '&resource=' + resourceClassName + '&force=' + force;
+        let data = {
+            "action" : action,
+            "resource" : resourceClassName,
+            "force" : force
+        };
 
-        http.open('POST', url, true);
-
-        http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-        http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200) {
-                alert(http.responseText);
-            }
-        }
-
-        http.send(params);
+        copper.requestHandler.post(url, data, function (response) {
+            alert(JSON.stringify(response));
+        })
     }
 
     document.getElementById('prepare_templates').addEventListener('click', e => {
@@ -1714,23 +1710,19 @@ if ($resource !== null) {
     // --------- Create Javascript Source Files ---------
 
     function createJsSourceFiles(force = false) {
-        let http = new XMLHttpRequest();
         let url = 'db_generator';
+
         let action = 'create_js_source_files';
 
-        let params = 'action=' + action + '&resource=' + resourceClassName + '&force=' + force;
+        let data = {
+            "action" : action,
+            "resource" : resourceClassName,
+            "force" : force
+        };
 
-        http.open('POST', url, true);
-
-        http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-        http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200) {
-                alert(http.responseText);
-            }
-        }
-
-        http.send(params);
+        copper.requestHandler.post(url, data, function (response) {
+            alert(JSON.stringify(response));
+        })
     }
 
     document.getElementById('create_js_source_files').addEventListener('click', e => {
@@ -1771,8 +1763,6 @@ if ($resource !== null) {
     });
 
     document.getElementById('delete_confirm').addEventListener('click', e => {
-        let http = new XMLHttpRequest();
-
         let url = '<?=CPController::ACTION_DB_GENERATOR_DEL?>';
 
         let JSONParams = {
@@ -1786,31 +1776,20 @@ if ($resource !== null) {
             "delete_table": document.getElementById('delete_table').checked,
         }
 
-        let params = JSON.stringify(JSONParams);
-
         if (confirm('Are you sure you want to delete resource objects?') === false)
             return;
 
-        http.open('POST', url, true);
+        copper.requestHandler.postJSON(url, JSONParams, function (response) {
+            alert(JSON.stringify(response));
 
-        http.setRequestHeader('Content-type', 'application/json');
-
-        http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200) {
-                alert(http.responseText);
-                let resp = JSON.parse(http.responseText);
-                if (resp.result.delete_resource && resp.result.delete_resource.status === true)
-                    window.location = 'db_generator';
-            }
-        }
-
-        http.send(params);
+            if (response.result.delete_resource && response.result.delete_resource.status === true)
+                window.location = 'db_generator';
+        })
     })
 
     // --------- GENERATE ------------
 
     document.getElementById('generate').addEventListener('click', e => {
-        let http = new XMLHttpRequest();
         let url = 'db_generator_run';
 
         let updatedDBFieldsArray = [];
@@ -1883,20 +1862,10 @@ if ($resource !== null) {
         if (JSONParams.create_service && $service.value.trim() === '')
             return alert("Service name is empty");
 
-        let params = JSON.stringify(JSONParams);
-
-        http.open('POST', url, true);
-
-        http.setRequestHeader('Content-type', 'application/json');
-
-        http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200) {
-                processGenerateResponse(JSON.parse(http.responseText));
-                alert(http.responseText);
-            }
-        }
-
-        http.send(params);
+        copper.requestHandler.postJSON(url, JSONParams, function (response) {
+            processGenerateResponse(response);
+            alert(JSON.stringify(response));
+        })
     })
 
     function processGenerateResponse(response) {

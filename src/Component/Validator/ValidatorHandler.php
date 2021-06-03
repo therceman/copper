@@ -5,7 +5,9 @@ namespace Copper\Component\Validator;
 
 
 use Copper\Component\DB\DBModel;
+use Copper\Entity\ValidatorResponseResultEntity;
 use Copper\FunctionResponse;
+use Copper\FunctionResponse\ValidatorResponse;
 use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\Traits\ComponentHandlerTrait;
@@ -388,7 +390,7 @@ class ValidatorHandler
      * @param string|null $lang
      * @param string|null $textClass
      *
-     * @return FunctionResponse
+     * @return ValidatorResponseResultEntity
      */
     private function translateErrorRes(FunctionResponse $validationRes, ?string $lang, ?string $textClass)
     {
@@ -396,10 +398,11 @@ class ValidatorHandler
 
         $result = VarHandler::isArray($result) ? $result : [$result];
 
+        $msg = $validationRes->msg;
         if ($textClass !== null && method_exists($textClass, $validationRes->msg))
-            $validationRes->msg = $textClass::{$validationRes->msg}($lang, $result);
+            $msg = $textClass::{$validationRes->msg}($lang, $result);
 
-        return $validationRes;
+        return new ValidatorResponseResultEntity($validationRes->msg, $msg, $validationRes->result, $validationRes->status);
     }
 
     /**
@@ -407,11 +410,11 @@ class ValidatorHandler
      * @param string $lang
      * @param string|null $textClass
      *
-     * @return FunctionResponse
+     * @return ValidatorResponse
      */
     public function validate(array $params, $lang = 'en', string $textClass = null)
     {
-        $response = new FunctionResponse();
+        $response = new ValidatorResponse();
 
         $errors = [];
 

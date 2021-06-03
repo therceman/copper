@@ -5,7 +5,9 @@ namespace Copper\Component\Templating;
 use Copper\AppConfigurator;
 use Copper\Component\Auth\AuthHandler;
 use Copper\Component\FlashMessage\FlashMessageHandler;
+use Copper\Component\HTML\HTML;
 use Copper\Handler\FileHandler;
+use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\RequestTrait;
@@ -350,14 +352,48 @@ class ViewHandler
     }
 
     /**
+     * @param string $html
+     * @return string
+     */
+    public function injectCSRFTokenIntoHTML($html)
+    {
+        $csrf_token = Kernel::getAuth()->sessionId();
+
+        $csrf_token_input = HTML::inputHidden(Kernel::CSRF_TOKEN, $csrf_token);
+
+        $head_script = HTML::script('window.' . Kernel::CSRF_TOKEN . ' = "' . $csrf_token . '";');
+
+        //  -------------- add CSRF_TOKEN as js variable --------------
+
+        if (StringHandler::has($html, '<head>')) {
+            $html = StringHandler::replace($html, '<head>', '<head>' . $head_script);
+        } else {
+            $html = $head_script . $html;
+        }
+
+        //  -------------- add CSRF_TOKEN to all forms --------------
+
+        $html = StringHandler::replace($html, '</form>', $csrf_token_input . '</form>');
+
+        //  -------------- delete CSRF_TOKEN from forms with method get --------------
+
+        $script = 'document.querySelectorAll("form[method=get] input[name=' . Kernel::CSRF_TOKEN . ']")';
+        $script .= '.forEach(function($el){$el.remove()});';
+        $html .= HTML::script($script);
+
+        return $html;
+    }
+
+    /**
      * Render Template
      *
      * @param string $template
      * @param array $parameters
+     * @param bool $csrfProtection
      *
      * @return string
      */
-    public function render(string $template, array $parameters = [])
+    public function render(string $template, array $parameters = [], $csrfProtection = false)
     {
         foreach ($parameters as $key => $value) {
             $this->dataBag->set($key, $value);
@@ -382,6 +418,9 @@ class ViewHandler
         eval('$view = $this; require $templateFilePath;');
 
         $html = ob_get_clean();
+
+        if ($csrfProtection)
+            $html = $this->injectCSRFTokenIntoHTML($html);
 
         return $html;
     }

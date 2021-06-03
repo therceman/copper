@@ -116,7 +116,7 @@ class AbstractController
     {
         $templateHandler = new ViewHandler($this->request, $this->requestContext, $this->routes, $this->flashMessage, $this->auth, $parameters);
 
-        return $templateHandler->render($view);
+        return $templateHandler->render($view, [], true);
     }
 
     /**
