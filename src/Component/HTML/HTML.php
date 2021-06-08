@@ -353,14 +353,18 @@ class HTML
     /**
      * @param string $href
      * @param string|int|null $text
+     * @param bool $openInNewWindow
      *
      * @return HTMLElement
      */
-    public static function a(string $href, $text = null)
+    public static function a(string $href, $text = null, $openInNewWindow = false)
     {
         $el = new HTMLElement(HTMLElement::A);
 
         $el->setAttr('href', $href)->innerText(($text === null) ? $href : $text);
+
+        if ($openInNewWindow !== false)
+            $el->setAttr('target', '_blank');
 
         return $el;
     }

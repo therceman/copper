@@ -5,6 +5,11 @@ namespace Copper\Component\Mail;
 
 /**
  * Class MailConfigurator
+ * <hr>
+ * How to test Gmail Mail service from localhost:
+ * <p>Open "Manage your Google Account" -> Security (Tab) -> scroll down and turn on "Less secure app access"</p>
+ * <p>Make sure google account doesn't have 2FA enabled</p>
+ *
  * @package Copper\Component\Mail
  */
 class MailConfigurator
@@ -23,9 +28,9 @@ class MailConfigurator
     /** @var string [optional] */
     public $fromName;
 
-    /** @var string [optional] */
+    /** @var string [optional] <p>Reply to address</p>*/
     public $replyTo;
-    /** @var string [optional] */
+    /** @var string [optional] <p>Reply to name</p>*/
     public $replyToName;
 
     /** @var bool [optional] = true */

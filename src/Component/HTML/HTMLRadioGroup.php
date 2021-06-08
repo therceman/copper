@@ -11,6 +11,7 @@ class HTMLRadioGroup extends HTMLElementGroup
     private $checked = false;
     private $id = null;
     private $value = null;
+    private $disabled = false;
 
     private $label;
     private $name;
@@ -87,6 +88,28 @@ class HTMLRadioGroup extends HTMLElementGroup
     }
 
     /**
+     * @param bool $bool
+     *
+     * @return HTMLRadioGroup
+     */
+    public function disable($bool = true)
+    {
+        $this->disabled = $bool;
+
+        return $this;
+    }
+
+    /**
+     * @return HTMLRadioGroup
+     */
+    public function idAsName()
+    {
+        $this->id = $this->name;
+
+        return $this;
+    }
+
+    /**
      * @return HTMLInput
      */
     public function getInputElement()
@@ -113,6 +136,9 @@ class HTMLRadioGroup extends HTMLElementGroup
 
         $this->labelElement = HTML::label($this->label, $this->id);
         $this->inputElement = HTML::inputRadio($this->name, $this->value, $this->checked)->id($this->id);
+
+        if ($this->disabled)
+            $this->inputElement->disabled();
 
         $this->clearList();
         $this->add($this->inputElement);

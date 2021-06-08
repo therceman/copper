@@ -10,6 +10,10 @@ use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
 use Copper\Kernel;
 
+/**
+ * Class AssetsManager
+ * @package Copper\Component\AssetsManager
+ */
 class AssetsManager
 {
     // ---- core folders -----
