@@ -215,7 +215,7 @@ ArrayHandler.prototype.delete = function (array, value, strict = false) {
     return new_array;
 }
 
-ArrayHandler.prototype.has = function (array, value, strict = false) {
+ArrayHandler.prototype.hasValue = function (array, value, strict = false) {
     let match;
 
     if (strict === false)

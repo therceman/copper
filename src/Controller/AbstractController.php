@@ -133,6 +133,15 @@ class AbstractController
         return new Response($data, $status, $headers);
     }
 
+    protected function xml($data, $status = 200, $headers = [])
+    {
+        $response = $this->response($data, $status, $headers);
+
+        $response->headers->set('Content-Type', 'application/xml; charset=UTF-8');
+
+        return $response;
+    }
+
     /**
      * Returns a JsonResponse that uses json_encode.
      *
