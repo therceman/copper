@@ -21,8 +21,8 @@ abstract class AbstractResource
     private static $models = [];
     /** @var string[] */
     private static $groups = [];
-    /** @var string[] */
-    private static $defaults = [];
+    /** @var array */
+    private static $defaultDefinedVars = [];
 
     const PATH_GROUP = 'abstract_collection_resource';
 
@@ -204,10 +204,11 @@ abstract class AbstractResource
 
     // --------------------------
 
-    static function registerRoutes(RoutingConfigurator $routes)
-    {
-        return $routes;
-    }
+    /**
+     * @param RoutingConfigurator $routes
+     */
+    public static function registerRoutes(RoutingConfigurator $routes){}
+
 
     private static function extractActionAndPathFromRouteName(string $name)
     {
@@ -303,20 +304,29 @@ abstract class AbstractResource
     /**
      * @param array $defaults
      */
-    public static function setDefaults(array $defaults)
+    public static function setDefaultDefinedVars(array $defaults)
     {
-        self::$defaults[static::getName()] = $defaults;
+        self::$defaultDefinedVars[static::getName()] = $defaults;
     }
 
     /**
      * @return array|false
      */
-    public static function getDefaults()
+    public static function getDefaultDefinedVars()
     {
-        if (array_key_exists(static::getName(), self::$defaults) === false)
+        if (array_key_exists(static::getName(), self::$defaultDefinedVars) === false)
             return false;
 
-        return self::$defaults[static::getName()];
+        $defaults = [];
+
+        foreach (self::$defaultDefinedVars[static::getName()] as $key => $value) {
+            if ($value instanceof \Closure)
+                $defaults[$key] = $value(Kernel::getController());
+            else
+                $defaults[$key] = $value;
+        }
+
+        return $defaults;
     }
 
     /**
@@ -357,8 +367,10 @@ abstract class AbstractResource
      *
      * @return ResourceUrl
      */
-    protected static function url(string $route, array $arguments)
+    protected static function url(string $route, array $arguments = [])
     {
+        $arguments = ArrayHandler::merge(self::getDefaultDefinedVars(), $arguments);
+
         return ResourceUrl::create(self::route($route), $arguments);
     }
 }

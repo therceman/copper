@@ -66,6 +66,8 @@ final class Kernel
     private static $requestContext;
     /** @var Request */
     private static $request;
+    /** @var AbstractController */
+    private static $controller;
 
     public function __construct()
     {
@@ -252,6 +254,14 @@ final class Kernel
     public static function getAuth(): AuthHandler
     {
         return self::$auth;
+    }
+
+    /**
+     * @return AbstractController
+     */
+    public static function getController(): AbstractController
+    {
+        return self::$controller;
     }
 
     /**
@@ -548,6 +558,8 @@ final class Kernel
             // pass Templating and RequestContext initialized class to controller
             $instance = new $controller[0]($request, $requestContext,
                 self::$routes, self::$auth, self::$flashMessage, self::$db, self::$cp, self::$validator, self::$mail);
+
+            self::$controller = $instance;
 
             $controller = [$instance, $controller[1]];
         }

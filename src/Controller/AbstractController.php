@@ -52,9 +52,9 @@ class AbstractController
     /** @var ParameterBag */
     protected $viewDataBag;
     /** @var ParameterBag */
-    protected $routeDataBag;
+    public $routeDataBag;
     /** @var AppConfigurator */
-    protected $config;
+    public $config;
 
     /**
      * Request Method GET or POST
