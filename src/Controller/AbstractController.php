@@ -51,8 +51,45 @@ class AbstractController
     protected $mail;
     /** @var ParameterBag */
     protected $viewDataBag;
+    /** @var ParameterBag */
+    protected $routeDataBag;
     /** @var AppConfigurator */
     protected $config;
+
+    /**
+     * Request Method GET or POST
+     *
+     * @var string
+     */
+    public $request_method;
+
+    /**
+     * Request URI
+     *
+     * @var string
+     */
+    public $request_uri;
+
+    /**
+     * Request REFERER
+     *
+     * @var string
+     */
+    public $request_referer;
+
+    /**
+     * Client's IP address
+     *
+     * @var null|string
+     */
+    public $client_ip;
+
+    /**
+     * Route name
+     *
+     * @var string
+     */
+    public $route_name;
 
     /**
      * AbstractController constructor.
@@ -82,6 +119,14 @@ class AbstractController
         $this->config = Kernel::getApp()->config;
 
         $this->viewDataBag = new ParameterBag([]);
+        $this->routeDataBag = new ParameterBag($request->attributes->get('_route_params') ?? []);
+
+        $this->request_method = $request->getRealMethod();
+        $this->request_uri = $request->getUri();
+        $this->request_referer = $request->headers->get('referer');
+
+        $this->client_ip = $request->getClientIp();
+        $this->route_name = $request->attributes->get('_route');
 
         $this->init();
     }
@@ -133,6 +178,14 @@ class AbstractController
         return new Response($data, $status, $headers);
     }
 
+    /**
+     * Returns an XML HTTP Response
+     *
+     * @param mixed $data
+     * @param int $status
+     * @param array $headers
+     * @return Response
+     */
     protected function xml($data, $status = 200, $headers = [])
     {
         $response = $this->response($data, $status, $headers);

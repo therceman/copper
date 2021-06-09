@@ -121,16 +121,17 @@ class HTML
 
     /**
      * @param string $text
+     * @param null $class
      *
      * @return HTMLElement
      */
-    public static function p($text = '')
+    public static function p($text = '', $class = null)
     {
         $el = new HTMLElement(HTMLElement::P);
 
         $el->innerText($text);
 
-        return $el;
+        return $el->class($class);
     }
 
     /**

@@ -182,11 +182,16 @@ class HTMLElement
     /**
      * Toggle element on/off. If off - element won't be rendered.
      *
-     * @param bool $force
+     * @param bool|null $state
+     *
+     * @return HTMLElement
      */
-    public function toggle($force = true)
+    public function toggle($state = true)
     {
-        $this->toggled = boolval($force);
+        if ($state === null)
+            $this->toggled = false;
+        else
+            $this->toggled = boolval($state);
 
         return $this;
     }

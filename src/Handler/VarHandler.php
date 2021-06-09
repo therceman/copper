@@ -263,6 +263,19 @@ class VarHandler
         return false;
     }
 
+    /**
+     * @param mixed $var
+     * @return false|string
+     */
+    public static function toJSON($var)
+    {
+        return json_encode($var);
+    }
+
+    /**
+     * @param mixed $var
+     * @return false|string
+     */
     public static function toString($var)
     {
         if (self::isNull($var))

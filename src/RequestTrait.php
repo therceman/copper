@@ -2,20 +2,36 @@
 
 namespace Copper;
 
+use Copper\Handler\VarHandler;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 
 trait RequestTrait
 {
     /**
+     * Throws error as response and appends it to error.log
+     *
      * @param string $message The response message
      * @param int $status The response status code
      *
      * @return Response
      */
-    public function error($message, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
+    public function error(string $message, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
-        return new Response('<b>Error</b>: ' . $message, $status);
+        return Kernel::getErrorHandler()->throwErrorAsResponse($message, $status);
+    }
+
+    /**
+     * @param string $message
+     * @param array|object|string|int|float|bool|null $data
+     * @param int $status
+     */
+    public function logError(string $message, $data = null, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
+    {
+        if ($data !== null)
+            $message = $message . ' : ' . VarHandler::toString($data);
+
+        Kernel::getErrorHandler()->logError($message, $status);
     }
 
     /**
