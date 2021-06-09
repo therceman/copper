@@ -270,6 +270,10 @@ abstract class AbstractResource
     {
         list($action, $path) = self::extractActionAndPathFromRouteName($name);
 
+        // TODO maybe we should remove dots and join parts like camelcase...
+        // e.g. /page/filename.xml -> getPageFilenameXml (instead of getPageFilename)
+        $action = StringHandler::explode($action, '.')[0];
+
         $methods = ['GET', 'POST'];
 
         if (substr($action, 0, 3) === 'get')
