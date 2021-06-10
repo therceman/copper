@@ -22,6 +22,8 @@ abstract class AbstractResource
     /** @var string[] */
     private static $groups = [];
     /** @var array */
+    private static $groupRequirements = [];
+    /** @var array */
     private static $defaultDefinedVars = [];
 
     const PATH_GROUP = 'abstract_collection_resource';
@@ -207,7 +209,9 @@ abstract class AbstractResource
     /**
      * @param RoutingConfigurator $routes
      */
-    public static function registerRoutes(RoutingConfigurator $routes){}
+    public static function registerRoutes(RoutingConfigurator $routes)
+    {
+    }
 
 
     private static function extractActionAndPathFromRouteName(string $name)
@@ -281,9 +285,16 @@ abstract class AbstractResource
         elseif (substr($action, 0, 4) === 'post')
             $methods = ['POST'];
 
-        return $routes->add(self::route($name), self::path($path))
+        $groupReq = self::getGroupRequirements();
+
+        $routeConfigurator = $routes->add(self::route($name), self::path($path))
             ->controller([static::getControllerClassName(), $action])
             ->methods($methods)->defaults(['_route_group' => self::getGroup()]);
+
+        if ($groupReq !== null && ArrayHandler::count($groupReq) > 0)
+            $routeConfigurator->requirements($groupReq);
+
+        return $routeConfigurator;
     }
 
     /**
@@ -295,6 +306,14 @@ abstract class AbstractResource
     }
 
     /**
+     * @param array $req
+     */
+    public static function setGroupRequirements(array $req)
+    {
+        self::$groupRequirements[static::getName()] = $req;
+    }
+
+    /**
      * @return string|null
      */
     public static function getGroup()
@@ -303,6 +322,17 @@ abstract class AbstractResource
             return null;
 
         return self::$groups[static::getName()];
+    }
+
+    /**
+     * @return array|null
+     */
+    public static function getGroupRequirements()
+    {
+        if (array_key_exists(static::getName(), self::$groupRequirements) === false)
+            return null;
+
+        return self::$groupRequirements[static::getName()];
     }
 
     /**

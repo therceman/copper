@@ -34,7 +34,7 @@ class ValidatorConfigurator
      * @var string
      */
     public $email_regex;
-    /** @var string Email format example. Default: jonh.wick@gmail.com */
+    /** @var string|array Email format example. jonh.wick@gmail.com OR localized array ['en' => jonh.wick@gmail.com] */
     public $email_regex_format_example;
 
     /**
