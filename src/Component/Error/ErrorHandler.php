@@ -4,7 +4,9 @@
 namespace Copper\Component\Error;
 
 
+use Copper\FunctionResponse;
 use Copper\Handler\FileHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\Traits\ComponentHandlerTrait;
 use ErrorException;
@@ -65,16 +67,23 @@ class ErrorHandler
     }
 
     /**
-     * Save error only to log file
+     * Save error only to log file and return failed function response
      *
      * @param string $msg
+     * @param array|object|string|int|float|bool|null $data
      * @param int $status
+     * @return FunctionResponse
      */
-    public function logError(string $msg, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
+    public function logError(string $msg, $data = null, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
+        if ($data !== null)
+            $msg = $msg . ': ' . VarHandler::toString($data);
+
         $error = new ErrorEntity($msg, $this->config->app_error_type, $status);
 
         $this->throwErrorFromEntity($error, true, true);
+
+        return FunctionResponse::createError($msg, $data);
     }
 
     /**

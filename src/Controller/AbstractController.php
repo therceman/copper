@@ -13,6 +13,7 @@ use Copper\Component\Templating\ViewHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\RequestTrait;
 
@@ -32,25 +33,25 @@ class AbstractController
     use RequestTrait;
 
     /** @var Request */
-    protected $request;
+    public $request;
     /** @var RequestContext */
-    protected $requestContext;
+    public $requestContext;
     /** @var RouteCollection */
-    protected $routes;
+    public $routes;
     /** @var FlashMessageHandler */
-    protected $flashMessage;
+    public $flashMessage;
     /** @var AuthHandler */
-    protected $auth;
+    public $auth;
     /** @var DBHandler */
-    protected $db;
+    public $db;
     /** @var CPHandler */
-    protected $cp;
+    public $cp;
     /** @var ValidatorHandler */
-    protected $validator;
+    public $validator;
     /** @var MailHandler */
-    protected $mail;
+    public $mail;
     /** @var ParameterBag */
-    protected $viewDataBag;
+    public $viewDataBag;
     /** @var ParameterBag */
     public $routeDataBag;
     /** @var AppConfigurator */
@@ -327,18 +328,21 @@ class AbstractController
     }
 
     /**
-     * Extract all provided params from request
+     * Extract all provided POST params from request
      *
-     * @param array $keys Keys - included params
+     * @param mixed $keys Keys - included params
      *
      * @return array
      */
-    protected function requestParams(array $keys)
+    public function requestParams($keys = null)
     {
         $params = [];
 
+        if ($keys !== null)
+            $keys = (VarHandler::isArray($keys) === false) ? [$keys] : $keys;
+
         foreach ($this->request->request->all() as $requestKey => $requestValue) {
-            if (array_search($requestKey, $keys) !== false)
+            if ($keys === null || VarHandler::isArray($keys) && ArrayHandler::hasValue($keys, $requestKey) !== false)
                 $params[$requestKey] = $requestValue;
         }
 
@@ -352,7 +356,7 @@ class AbstractController
      *
      * @return array
      */
-    protected function requestParamsExcluding(array $keys)
+    public function requestParamsExcluding(array $keys)
     {
         $params = [];
 

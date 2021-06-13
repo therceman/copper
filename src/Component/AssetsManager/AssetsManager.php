@@ -16,6 +16,7 @@ use Copper\Kernel;
  */
 class AssetsManager
 {
+    const ERROR_VERSION_FILE_READ_FAILED = 'AM_VFRF';
     // ---- core folders -----
 
     const CORE_JS = '/src_js/';
@@ -130,7 +131,7 @@ class AssetsManager
             $fileContent = FileHandler::getContent($infoFilePath);
 
             if ($fileContent->hasError()) {
-                Kernel::getErrorHandler()->logError('Error reading version file: ' . self::VERSION_FILENAME);
+                Kernel::getErrorHandler()->logError(self::ERROR_VERSION_FILE_READ_FAILED, self::VERSION_FILENAME);
 
                 self::$version = self::getVersionFromGit();
 

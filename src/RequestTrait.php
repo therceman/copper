@@ -28,10 +28,7 @@ trait RequestTrait
      */
     public function logError(string $message, $data = null, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
-        if ($data !== null)
-            $message = $message . ' : ' . VarHandler::toString($data);
-
-        Kernel::getErrorHandler()->logError($message, $status);
+        Kernel::getErrorHandler()->logError($message, $data, $status);
     }
 
     /**
