@@ -14,6 +14,9 @@ class DateHandler
     const TIME_FORMAT = 'H:i:s';
     const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
 
+    const EUROPE_DATE_FORMAT = 'd.m.Y';
+    const EUROPE_DATE_TIME_FORMAT = 'd.m.Y H:i:s';
+
     public static function getDateFormat()
     {
         if (Kernel::getApp() !== null)
@@ -68,7 +71,7 @@ class DateHandler
      */
     private static function isValid(string $date, string $format)
     {
-        $formattedDate = self::fromFormat($date, $format, $format);
+        $formattedDate = self::formatDate($date, $format, $format);
 
         if ($formattedDate === false)
             return false;
@@ -294,12 +297,50 @@ class DateHandler
 
     /**
      * @param string $date
+     * @param string $toFormat
+     * @param string|null $fromFormat
+     *
+     * @return false|string
+     */
+    public static function formatDate(string $date, string $toFormat, string $fromFormat = null) {
+
+        $fromFormat = ($fromFormat === null) ? self::getDateFormat() : $fromFormat;
+
+        $date = DateTime::createFromFormat($fromFormat, $date);
+
+        if ($date === false)
+            return false;
+
+        return $date->format($toFormat);
+    }
+
+    /**
+     * @param string $date
+     * @param string $toFormat
+     * @param string|null $fromFormat
+     *
+     * @return false|string
+     */
+    public static function formatDateTime(string $date, string $toFormat, string $fromFormat = null) {
+
+        $fromFormat = ($fromFormat === null) ? self::getDateTimeFormat() : $fromFormat;
+
+        $date = DateTime::createFromFormat($fromFormat, $date);
+
+        if ($date === false)
+            return false;
+
+        return $date->format($toFormat);
+    }
+
+    /**
+     * @param string $date
      * @param string $fromFormat
      * @param string|null $toFormat
      *
      * @return string|false
      */
-    public static function fromFormat(string $date, string $fromFormat, $toFormat = null)
+    public static function dateFromFormat(string $date, string $fromFormat, $toFormat = null)
     {
         $toFormat = ($toFormat === null) ? self::getDateFormat() : $toFormat;
 
