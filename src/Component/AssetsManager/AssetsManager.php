@@ -131,7 +131,7 @@ class AssetsManager
             $fileContent = FileHandler::getContent($infoFilePath);
 
             if ($fileContent->hasError()) {
-                Kernel::getErrorHandler()->logError(self::ERROR_VERSION_FILE_READ_FAILED, self::VERSION_FILENAME);
+                Kernel::logError(self::ERROR_VERSION_FILE_READ_FAILED, self::VERSION_FILENAME);
 
                 self::$version = self::getVersionFromGit();
 

@@ -32,5 +32,15 @@ class ValidatorResponse extends FunctionResponse
 
         return null;
     }
+
+    public function overrideMsg($key, $origMsg, $newMsg)
+    {
+        if (ArrayHandler::hasKey($this->result, $key) && $this->result[$key]->orig_msg === $origMsg) {
+            $this->result[$key]->msg = $newMsg;
+            return true;
+        }
+
+        return false;
+    }
 }
 

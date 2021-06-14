@@ -77,6 +77,8 @@ class ValidatorRule
     private $max;
     /** @var array|null */
     private $splitDateList;
+    /** @var string|null */
+    private $match;
 
     /**
      * ValidatorRule constructor.
@@ -90,6 +92,8 @@ class ValidatorRule
         $this->name = $name;
         $this->type = $type;
         $this->required = $required;
+
+        $this->match = null;
 
         $this->minLength = 0;
         $this->maxLength = null;
@@ -143,6 +147,17 @@ class ValidatorRule
     public function minLength(int $min)
     {
         $this->minLength = $min;
+
+        return $this;
+    }
+
+    /**
+     * @param string $match
+     * @return $this
+     */
+    public function match(string $match)
+    {
+        $this->match = $match;
 
         return $this;
     }
@@ -893,6 +908,11 @@ class ValidatorRule
 
         if ($this->required === true && $this->validateValueRequired($value) === false)
             return $res->error(ValidatorHandler::VALUE_CANNOT_BE_EMPTY);
+
+        // match
+
+        if ($this->match !== null && (ArrayHandler::hasKey($params, $this->match) === false || $params[$this->match] !== $value))
+            return $res->error(ValidatorHandler::VALUE_DOES_NOT_MATCH, $this->match);
 
         // max decimals
 

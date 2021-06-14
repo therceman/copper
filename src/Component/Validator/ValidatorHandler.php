@@ -36,6 +36,7 @@ class ValidatorHandler
     const MAX_LENGTH_REACHED = 'maxLengthReached';
     const WRONG_LENGTH = 'wrongLength';
     const VALUE_CANNOT_BE_EMPTY = 'valueCannotBeEmpty';
+    const VALUE_DOES_NOT_MATCH = 'valueDoesNotMatch';
 
     const INVALID_VALUE_FORMAT = 'invalidValueFormat';
     const INVALID_EMAIL_FORMAT = 'invalidEmailFormat';
@@ -85,6 +86,17 @@ class ValidatorHandler
     public function addStringRule(string $name, $required = false)
     {
         return $this->addRule(ValidatorRule::string($name, $required));
+    }
+
+    /**
+     * @param string $name
+     * @param string $match
+     *
+     * @return ValidatorRule
+     */
+    public function addMatchRule(string $name, string $match)
+    {
+        return $this->addRule(ValidatorRule::string($name, true))->match($match);
     }
 
     /**

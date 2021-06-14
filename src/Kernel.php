@@ -321,6 +321,18 @@ final class Kernel
     }
 
     /**
+     * @param string $msg
+     * @param array|object|string|int|float|bool|null $data
+     * @param int $status
+     *
+     * @return FunctionResponse
+     */
+    public static function logError(string $msg, $data = null, int $status = Response::HTTP_INTERNAL_SERVER_ERROR)
+    {
+        return Kernel::getErrorHandler()->logError($msg, $data, $status);
+    }
+
+    /**
      * Render view and return it as string
      *
      * @param string $view

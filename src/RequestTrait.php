@@ -28,7 +28,7 @@ trait RequestTrait
      */
     public function logError(string $message, $data = null, $status = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
-        Kernel::getErrorHandler()->logError($message, $data, $status);
+        Kernel::logError($message, $data, $status);
     }
 
     /**
