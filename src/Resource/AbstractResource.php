@@ -349,7 +349,7 @@ abstract class AbstractResource
     public static function getDefaultDefinedVars()
     {
         if (array_key_exists(static::getName(), self::$defaultDefinedVars) === false)
-            return false;
+            return [];
 
         $defaults = [];
 
