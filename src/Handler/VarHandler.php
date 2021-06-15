@@ -38,6 +38,20 @@ class VarHandler
         return gettype($var);
     }
 
+    public static function isEmpty($var)
+    {
+        if (self::isArray($var))
+            return (count($var) === 0);
+
+        if (self::isString($var))
+            return (StringHandler::trim($var) === '');
+
+        if ($var === null)
+            return true;
+
+        return false;
+    }
+
     /**
      * @param mixed $var
      * @param bool $allowSpaces
