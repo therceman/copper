@@ -147,7 +147,7 @@ class NumberHandler
      */
     public static function percentFormat($num, $dec = 2, $d_sep = '.', $t_sep = '')
     {
-        return self::format($num, $dec, $d_sep, $t_sep) . ' ' . self::SIGN_PERCENT;
+        return self::format($num, $dec, $d_sep, $t_sep)  . self::SIGN_PERCENT;
     }
 
     /**

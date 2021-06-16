@@ -192,7 +192,7 @@ ArrayHandler.prototype.clone = function (array) {
 ArrayHandler.prototype.toggle = function (array, value, strict = false) {
     array = this.clone(array);
 
-    if (this.has(array, value, strict))
+    if (this.hasValue(array, value, strict))
         array = this.delete(array, value)
     else
         array.push(value);
@@ -201,14 +201,14 @@ ArrayHandler.prototype.toggle = function (array, value, strict = false) {
 }
 
 ArrayHandler.prototype.delete = function (array, value, strict = false) {
-    let _this = this;
+    let self = this;
 
-    let value_list = _this.isArray(value) ? value : [value];
+    let value_list = self.isArray(value) ? value : [value];
 
     let new_array = [];
 
     array.forEach(function (value) {
-        if (_this.has(value_list, value, strict) === false)
+        if (self.hasValue(value_list, value, strict) === false)
             new_array.push(value);
     });
 
@@ -236,7 +236,7 @@ ArrayHandler.prototype.assocMatch = function (item, filter) {
 
         if (Array.isArray(pairValue) === false && item[pairKey] != pairValue)
             matched = false;
-        else if (Array.isArray(pairValue) && self.has(pairValue, item[pairKey]) === false)
+        else if (Array.isArray(pairValue) && self.hasValue(pairValue, item[pairKey]) === false)
             matched = false;
     });
 
@@ -295,7 +295,7 @@ function CollectionHandler() {
 }
 
 CollectionHandler.prototype.match = function (item, filter, strict = false) {
-    let _this = this;
+    let self = this;
 
     let matched = true;
 
@@ -305,7 +305,7 @@ CollectionHandler.prototype.match = function (item, filter, strict = false) {
 
         if (copper.arrayHandler.isArray(pairValue) === false && item[pairKey] != pairValue)
             matched = false;
-        else if (copper.arrayHandler.isArray(pairValue) && _this.hasValue(pairValue, item[pairKey], strict) === false)
+        else if (copper.arrayHandler.isArray(pairValue) && self.hasValue(pairValue, item[pairKey], strict) === false)
             matched = false;
     })
 
@@ -313,12 +313,12 @@ CollectionHandler.prototype.match = function (item, filter, strict = false) {
 }
 
 CollectionHandler.prototype.find = function (collection, filter) {
-    let _this = this;
+    let self = this;
 
     let list = [];
 
     collection.forEach(function (item, k) {
-        if (_this.match(item, filter))
+        if (self.match(item, filter))
             list.push(item);
     });
 
@@ -533,8 +533,16 @@ EventHandler.prototype.isEnterKeyPressed = function (event) {
     return this.isKeyPressed(event, "Enter", "Enter", 13)
 }
 
+EventHandler.prototype.isDeleteKeyPressed = function (event) {
+    return this.isKeyPressed(event, "Delete", "Delete", 46)
+}
+
 EventHandler.prototype.isBackspaceKeyPressed = function (event) {
     return this.isKeyPressed(event, "Backspace", "Backspace", 8)
+}
+
+EventHandler.prototype.isEscapeKeyPressed = function (event) {
+    return this.isKeyPressed(event, "Escape", "Escape", 27)
 }
 
 EventHandler.prototype.isNumericKeyPressed = function (event, strict) {
@@ -552,10 +560,6 @@ EventHandler.prototype.isNumericKeyPressed = function (event, strict) {
     allowedKeys.push(this.keyboardKeys.ArrowRight);
 
     return this.isKeyFromKeyListPressed(event, allowedKeys);
-}
-
-EventHandler.prototype.isEscapeKeyPressed = function (event) {
-    return this.isKeyPressed(event, "Escape", "Escape", 27)
 }
 
 copper.eventHandler = new EventHandler();
