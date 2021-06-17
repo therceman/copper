@@ -17,9 +17,13 @@ use Copper\Kernel;
 class AssetsManager
 {
     const ERROR_VERSION_FILE_READ_FAILED = 'AM_VFRF';
+
     // ---- core folders -----
 
     const CORE_JS = '/src_js/';
+
+    const APP_ENTITY_JS = '/src_js/Entity';
+    const PUBLIC_ENTITY_JS = '/js/Entity';
 
     // ---- public folders -----
 
@@ -34,6 +38,8 @@ class AssetsManager
     private static $version;
 
     public static $core_js_files = [];
+    public static $app_entity_js_files = [];
+    public static $public_entity_js_files = [];
     public static $app_js_files = [];
 
     // ---------------------- INIT ----------------------
@@ -42,12 +48,25 @@ class AssetsManager
     {
         $res_core = FileHandler::getFilesInFolder(Kernel::getPackagePath(self::CORE_JS), true);
         $res_app = FileHandler::getFilesInFolder(Kernel::getAppPublicPath(self::JS_PATH));
+        $res_entity_app = FileHandler::getFilesInFolder(Kernel::getAppPath(self::APP_ENTITY_JS), true);
+
+        $res_entity_public_path = Kernel::getAppPublicPath(self::PUBLIC_ENTITY_JS);
+        if (FileHandler::fileExists($res_entity_public_path) === false)
+            FileHandler::createFolder($res_entity_public_path);
+
+        $res_entity_public = FileHandler::getFilesInFolder($res_entity_public_path);
 
         if ($res_core->isOK())
             self::$core_js_files = $res_core->result;
 
         if ($res_app->isOK())
             self::$app_js_files = $res_app->result;
+
+        if ($res_app->isOK())
+            self::$app_entity_js_files = $res_entity_app->result;
+
+        if ($res_app->isOK())
+            self::$public_entity_js_files = $res_entity_public->result;
     }
 
     // ---------------------- PRIVATE ----------------------
@@ -87,27 +106,47 @@ class AssetsManager
         return $filepath . self::VERSION_SEPARATOR . self::version();
     }
 
-    private static function process_core_js_src($file)
+    private static function process_js_src($file, $src_js_files, $trg_js_files, $srcFilePath, $trgFileFolderPath)
     {
-        if (ArrayHandler::hasValue(self::$core_js_files, $file) === false)
-            return $file;
+        $res = new FunctionResponse();
 
-        $coreFile = ["name" => $file, "mod_time" => ArrayHandler::findKey(self::$core_js_files, $file)];
+        if (ArrayHandler::hasValue($src_js_files, $file) === false)
+            return $res->fail('skip', $file);
+
+        $coreFile = ["name" => $file, "mod_time" => ArrayHandler::findKey($src_js_files, $file)];
         $newAppFileName = StringHandler::replace($file, '.js', '.' . $coreFile['mod_time'] . '.js');
 
-        $appFileSearchResult = ArrayHandler::findFirstByRegex(self::$app_js_files, '/.*(.\d{10,}).js/');
+        $appFileSearchResult = ArrayHandler::findFirstByRegex($trg_js_files, '/.*(.\d{10,}).js/');
 
         if ($appFileSearchResult === null || $appFileSearchResult !== $newAppFileName) {
-            $coreFilePath = Kernel::getPackagePath([self::CORE_JS, $file]);
-            $appFileFolderPath = Kernel::getAppPublicPath([self::JS_PATH]);
-
-            FileHandler::copyFileToFolder($coreFilePath, $appFileFolderPath, $newAppFileName);
+            FileHandler::copyFileToFolder($srcFilePath, $trgFileFolderPath, $newAppFileName);
 
             if ($appFileSearchResult !== null && $appFileSearchResult !== $newAppFileName)
-                FileHandler::delete(FileHandler::pathFromArray([$appFileFolderPath, $appFileSearchResult]));
+                FileHandler::delete(FileHandler::pathFromArray([$trgFileFolderPath, $appFileSearchResult]));
         }
 
-        return $newAppFileName;
+        return $res->result($newAppFileName);
+    }
+
+    private static function process_core_js_src($file)
+    {
+        $srcFilePath = Kernel::getPackagePath([self::CORE_JS, $file]);
+        $trgFileFolderPath = Kernel::getAppPublicPath(self::JS_PATH);
+
+        return self::process_js_src($file, self::$core_js_files, self::$app_js_files, $srcFilePath, $trgFileFolderPath)->result;
+    }
+
+    private static function process_app_js_src($file)
+    {
+        $file = StringHandler::replace($file, 'Entity/', '');
+
+        $srcFilePath = Kernel::getAppPath([self::APP_ENTITY_JS, $file]);
+        $trgFileFolderPath = Kernel::getAppPublicPath(self::PUBLIC_ENTITY_JS);
+
+        $out_file = self::process_js_src($file, self::$app_entity_js_files, self::$public_entity_js_files,
+            $srcFilePath, $trgFileFolderPath);
+
+        return $out_file->hasError() ? $out_file->result : 'Entity/' . $out_file->result;
     }
 
     // ---------------------- PUBLIC ----------------------
@@ -169,6 +208,7 @@ class AssetsManager
     public static function js_src($file)
     {
         $file = self::process_core_js_src($file);
+        $file = self::process_app_js_src($file);
 
         return self::filepath(self::js_folder(), $file);
     }

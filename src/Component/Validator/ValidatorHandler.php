@@ -251,6 +251,20 @@ class ValidatorHandler
 
     /**
      * @param string $name
+     * @param DBModel $model
+     * @param bool $required
+     *
+     * @return ValidatorRule
+     */
+    public function addModelEnumRule(string $name, DBModel $model, $required = false)
+    {
+        $values = $model->getFieldEnumValues($name);
+
+        return $this->addRule(ValidatorRule::enum($name, $values, $required));
+    }
+
+    /**
+     * @param string $name
      * @param bool $required
      * @param string|null $dateFormat
      *

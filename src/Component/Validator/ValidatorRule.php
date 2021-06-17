@@ -57,6 +57,8 @@ class ValidatorRule
     private $enumList;
     /** @var bool */
     private $alphaAllowSpaces;
+    /** @var string */
+    private $alphaExtraCharacters;
     /** @var string|array|null */
     private $regexFormatExample;
     /** @var int|null */
@@ -101,6 +103,7 @@ class ValidatorRule
         $this->enumList = null;
         $this->regex = null;
 
+        $this->alphaExtraCharacters = '';
         $this->alphaAllowSpaces = true;
         $this->regexFormatExample = null;
         $this->maxDecimals = null;
@@ -294,6 +297,17 @@ class ValidatorRule
     public function alphaAllowSpaces($bool = true)
     {
         $this->alphaAllowSpaces = $bool;
+
+        return $this;
+    }
+
+    /**
+     * @param string $characters
+     * @return $this
+     */
+    public function alphaExtraCharacters(string $characters)
+    {
+        $this->alphaExtraCharacters = $characters;
 
         return $this;
     }
@@ -805,6 +819,8 @@ class ValidatorRule
         $fRes = new FunctionResponse();
 
         $extraCharacters = Kernel::getValidator()->config->alpha_non_strict_extra_characters;
+
+        $extraCharacters = $extraCharacters . $this->alphaExtraCharacters;
 
         if ($this->strict)
             $extraCharacters = null;
