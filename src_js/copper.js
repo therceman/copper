@@ -173,6 +173,15 @@ StringHandler.prototype.sprintf = function (str, args) {
     return sprintf.apply(this, copper.arrayHandler.merge([str], args));
 }
 
+/**
+ *
+ * @param {string} str
+ * @returns {string}
+ */
+StringHandler.prototype.ucfirst = function (str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 copper.stringHandler = new StringHandler();
 
 // --------------------------- arrayHandler ---------------------------
@@ -458,7 +467,7 @@ function RequestHandler() {
     }
 
     this.get = function (url, callback, params) {
-        throttle('post', function () {
+        throttle('get', function () {
             getRequest(url, callback, params);
         })
     }

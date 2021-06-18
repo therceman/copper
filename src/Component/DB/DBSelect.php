@@ -247,6 +247,21 @@ class DBSelect
     }
 
     /**
+     * @param string|null $index
+     *
+     * @return DBSelect
+     */
+    public function setOutputIndex(?string $index = DBModel::ID)
+    {
+        if ($this->output === null)
+            $this->output = DBOutput::index($index);
+        else
+            $this->output->setIndex($index);
+
+        return $this;
+    }
+
+    /**
      * @param string|string[]|null $columns
      *
      * @return DBSelect
