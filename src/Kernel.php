@@ -43,6 +43,7 @@ final class Kernel
     const CP_CONFIG_FILE = 'cp.php';
     const MAIL_CONFIG_FILE = 'mail.php';
     const VALIDATOR_CONFIG_FILE = 'validator.php';
+    const ASSETS_CONFIG_FILE = 'assets.php';
 
     /** @var ErrorHandler */
     private static $errorHandler;
@@ -62,6 +63,8 @@ final class Kernel
     private static $mail;
     /** @var ValidatorHandler */
     private static $validator;
+    /** @var Component\AssetsManager\AssetsManager */
+    private static $assetsManager;
     /** @var RequestContext */
     private static $requestContext;
     /** @var Request */
@@ -73,8 +76,6 @@ final class Kernel
     {
         $this->configureErrorHandler();
 
-        AssetsManager::init();
-
         $this->configureApp();
         $this->configureCP();
         $this->configureDB();
@@ -83,6 +84,7 @@ final class Kernel
         $this->configureValidator();
         $this->configureMail();
         $this->configureRoutes();
+        $this->configureAssetsManager();
     }
 
     /**
@@ -673,5 +675,15 @@ final class Kernel
     protected function configureValidator()
     {
         self::$validator = new ValidatorHandler(self::VALIDATOR_CONFIG_FILE);
+    }
+    
+    /**
+     *  Configure Validator from {Package|App}/config/assets.php
+     */
+    protected function configureAssetsManager()
+    {
+        self::$assetsManager = new AssetsManager(self::ASSETS_CONFIG_FILE);
+
+        AssetsManager::init();
     }
 }
