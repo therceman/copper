@@ -9,6 +9,7 @@ use Copper\Handler\ArrayHandler;
 use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
 use Copper\Kernel;
+use Copper\Traits\ComponentHandlerTrait;
 
 /**
  * Class AssetsManager
