@@ -16,6 +16,8 @@ use Copper\Kernel;
  */
 class AssetsManager
 {
+    use ComponentHandlerTrait;
+    
     const ERROR_VERSION_FILE_READ_FAILED = 'AM_VFRF';
 
     // ---- core folders -----
@@ -41,6 +43,19 @@ class AssetsManager
     public static $app_entity_js_files = [];
     public static $public_entity_js_files = [];
     public static $app_js_files = [];
+    
+    /** @var AssetsManagerConfigurator */
+    public $config;
+
+    /**
+     * ValidatorHandler constructor.
+     *
+     * @param string $configFilename
+     */
+    public function __construct(string $configFilename = Kernel::VALIDATOR_CONFIG_FILE)
+    {
+        $this->config = $this->configure(AssetsManagerConfigurator::class, $configFilename);
+    }
 
     // ---------------------- INIT ----------------------
 
