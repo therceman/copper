@@ -243,6 +243,14 @@ final class Kernel
     }
 
     /**
+     * @return AssetsManager
+     */
+    public static function getAssetsManager(): AssetsManager
+    {
+        return self::$assetsManager;
+    }
+    
+    /**
      * @return RouteCollection
      */
     public static function getRoutes(): RouteCollection
