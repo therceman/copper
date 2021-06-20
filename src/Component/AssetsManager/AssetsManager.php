@@ -227,9 +227,44 @@ class AssetsManager
     {
         return '<link rel="stylesheet" href="' . self::css_href($file) . '"/>' . "\r\n";
     }
+private static function isFileExtensionInList($list, $filePath)
+    {
+        $extension = pathinfo($filePath, PATHINFO_EXTENSION);
+
+        return ArrayHandler::hasValue($list, $extension);
+    }
+
+    public static function getMediaFolder($file)
+    {
+        $config = Kernel::getAssetsManager()->config;
+
+        $external_media_domain = $config->external_media_domain;
+        $file_whitelisted = true;
+        $file_blacklisted = false;
+
+        if ($config->external_media_blacklist !== null)
+            $file_blacklisted = self::isFileExtensionInList($config->external_media_blacklist, $file);
+
+        if ($config->external_media_whitelist !== null)
+            $file_whitelisted = self::isFileExtensionInList($config->external_media_whitelist, $file);
+
+        if ($file_blacklisted)
+            $file_whitelisted = false;
+
+        if ($file_whitelisted)
+            $file_blacklisted = false;
+
+        if ($external_media_domain !== null && ($file_whitelisted || $file_blacklisted === false)) {
+            return $external_media_domain;
+        }
+
+        return self::media_folder();
+    }
 
     public static function media_src($file)
     {
-        return self::filepath(self::media_folder(), $file);
+        $media_folder = self::getMediaFolder($file);
+
+        return self::filepath($media_folder, $file);
     }
 }
