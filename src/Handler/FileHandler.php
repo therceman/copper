@@ -350,8 +350,8 @@ class FileHandler
 
             $files_with_mod_time = [];
 
-            foreach ($files as $file) {
-                $files_with_mod_time[FileHandler::getModTime($folderPath . '/' . $file)] = $file;
+            foreach ($files as $k => $file) {
+                $files_with_mod_time[FileHandler::getModTime($folderPath . '/' . $file) . '_' . $k] = $file;
             }
 
             $files = $files_with_mod_time;
