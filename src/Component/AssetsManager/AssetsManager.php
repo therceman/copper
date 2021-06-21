@@ -129,7 +129,11 @@ class AssetsManager
         if (ArrayHandler::hasValue($src_js_files, $file) === false)
             return $res->fail('skip', $file);
 
-        $coreFile = ["name" => $file, "mod_time" => ArrayHandler::findKey($src_js_files, $file)];
+        $mod_time_data = ArrayHandler::findKey($src_js_files, $file);
+
+        $mod_time = StringHandler::explode($mod_time_data, '_')[0];
+
+        $coreFile = ["name" => $file, "mod_time" => $mod_time];
         $newAppFileName = StringHandler::replace($file, '.js', '.' . $coreFile['mod_time'] . '.js');
 
         $appFileSearchResult = ArrayHandler::findFirstByRegex($trg_js_files, '/.*(.\d{10,}).js/');
