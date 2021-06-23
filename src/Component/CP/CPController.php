@@ -251,6 +251,10 @@ class CPController extends AbstractController
                     $route_group = $route->getDefault('_route_group');
 
                     $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
+                    
+                    if ($route_action_list_key === null)
+                        continue;
+                    
                     $route_action_list[$route_action_list_key]['used'] = true;
 
                     $method = $route->getMethods()[0];
