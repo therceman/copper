@@ -34,6 +34,7 @@ final class Kernel
     const CSRF_TOKEN_HEADER = 'X-CSRF-TOKEN';
 
     const CONFIG_FOLDER = 'config';
+    const PUBLIC_FOLDER = 'public';
 
     const ERROR_CONFIG_FILE = 'error.php';
     const APP_CONFIG_FILE = 'app.php';
@@ -92,19 +93,29 @@ final class Kernel
      * @param bool $relative
      * @return string
      */
-    public static function getBaseUri($relative = false)
+    public static function getAppBaseUrl($relative = false)
     {
-        $currentPath = $_SERVER['PHP_SELF'];
-        $pathInfo = pathinfo($currentPath);
         $hostName = $_SERVER['HTTP_HOST'];
         $protocol = $_SERVER['REQUEST_SCHEME'];
 
-        $path = $pathInfo['dirname'];
+        $path = '/' . basename(self::getAppPath());
 
         if ($relative)
             return $path;
         else
             return $protocol . '://' . $hostName . $path;
+    }
+
+    /**
+     * @param null $path
+     * @param false $relative
+     * @return string
+     */
+    public static function getAppPublicUri($path = null, $relative = false)
+    {
+        $pathArray = FileHandler::extendPathArray([self::getAppBaseUrl($relative), self::PUBLIC_FOLDER], $path);
+
+        return FileHandler::pathFromArray($pathArray);
     }
 
     /**
@@ -163,7 +174,7 @@ final class Kernel
 
     public static function getAppPublicPath($path = null)
     {
-        $pathArray = FileHandler::extendPathArray(['public'], $path);
+        $pathArray = FileHandler::extendPathArray([self::PUBLIC_FOLDER], $path);
 
         return FileHandler::appPathFromArray($pathArray);
     }
@@ -249,7 +260,7 @@ final class Kernel
     {
         return self::$assetsManager;
     }
-    
+
     /**
      * @return RouteCollection
      */
@@ -464,6 +475,9 @@ final class Kernel
         return ($format) ? NumberHandler::format($res, $formatDecimals) : $res;
     }
 
+    /**
+     * @param Request $request
+     */
     private function processRequest(Request &$request)
     {
         if (self::$app->config->trim_input === false)
@@ -479,6 +493,36 @@ final class Kernel
     }
 
     /**
+     * @param $request
+     * @return RequestContext
+     */
+    private function configureRequestContext($request)
+    {
+        $requestContext = new RequestContext();
+        $requestContext->fromRequest($request);
+
+        $base_url = self::getAppBaseUrl(true);
+
+        if ($base_url !== '') {
+            $requestContext->setBaseUrl($base_url);
+            // remove base from path
+            $path_info = str_replace($base_url, '', $_SERVER['REQUEST_URI']);
+            // remove trailing slashes
+            $path_info = rtrim($path_info, ' /');
+        } else {
+            $path_info = $_SERVER['REQUEST_URI'];
+        }
+
+        // remove query string (?, &)
+        $path_info = explode('?', $path_info)[0];
+        $path_info = explode('&', $path_info)[0];
+
+        $requestContext->setPathInfo($path_info);
+
+        return $requestContext;
+    }
+
+    /**
      * Handles Request
      *
      * @param Request $request
@@ -487,8 +531,7 @@ final class Kernel
      */
     public function handle(Request $request)
     {
-        $requestContext = new RequestContext();
-        $requestContext->fromRequest($request);
+        $requestContext = $this->configureRequestContext($request);
 
         self::$request = $request;
         self::$requestContext = $requestContext;
@@ -515,7 +558,7 @@ final class Kernel
         // -------------------------------------------------------------
 
         try {
-            $this->configureMatchedRequestAttributes($matcher, $request);
+            $this->configureMatchedRequestAttributes($matcher, $request, $requestContext);
             $this->processRequest($request);
             $response = $this->getRequestControllerResponse($request, $requestContext);
         } catch (\Exception $e) {
@@ -539,12 +582,13 @@ final class Kernel
      *
      * @param UrlMatcher $matcher
      * @param Request $request
+     * @param RequestContext $requestContext
      */
-    protected function configureMatchedRequestAttributes(UrlMatcher $matcher, Request $request)
+    protected function configureMatchedRequestAttributes(UrlMatcher $matcher, Request $request, RequestContext $requestContext)
     {
         $routeDefinitionKeys = ['_controller', '_route', '_route_group'];
 
-        $matchCollection = $matcher->match($request->getPathInfo());
+        $matchCollection = $matcher->match($requestContext->getPathInfo());
 
         $routeDefinitionParams = array_intersect_key($matchCollection, array_flip($routeDefinitionKeys));
         $controllerParams = ['_route_params' => array_diff_key($matchCollection, $routeDefinitionParams)];
@@ -684,7 +728,7 @@ final class Kernel
     {
         self::$validator = new ValidatorHandler(self::VALIDATOR_CONFIG_FILE);
     }
-    
+
     /**
      *  Configure Validator from {Package|App}/config/assets.php
      */
