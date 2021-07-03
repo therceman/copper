@@ -112,6 +112,16 @@ class AppConfigurator
      */
     public $trim_input;
 
+    /**
+     * Relative path to public folder
+     *
+     * <hr>
+     * Default: public
+     *
+     * @var string
+     */
+    public $public_rel_path;
+
     public function __construct()
     {
         $this->bag = new ParameterBag();

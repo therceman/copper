@@ -28,7 +28,7 @@ class AssetsManager
     const APP_ENTITY_JS = '/src_js/Entity';
     const PUBLIC_ENTITY_JS = '/js/Entity';
 
-    // ---- public folders -----
+    // ---- public content folders -----
 
     const JS_PATH = '/js/';
     const CSS_PATH = '/css/';
@@ -90,14 +90,6 @@ class AssetsManager
     /**
      * @return string
      */
-    private static function appPublicUri()
-    {
-        return Kernel::getAppPublicUri();
-    }
-
-    /**
-     * @return string
-     */
     private static function getVersionFromGit()
     {
         return exec('git rev-parse --short HEAD');
@@ -154,7 +146,7 @@ class AssetsManager
     private static function process_core_js_src($file)
     {
         $srcFilePath = Kernel::getPackagePath([self::CORE_JS, $file]);
-        $trgFileFolderPath = Kernel::getappPublicUri(self::JS_PATH);
+        $trgFileFolderPath = Kernel::getAppPublicPath(self::JS_PATH);
 
         return self::process_js_src($file, self::$core_js_files, self::$app_js_files, $srcFilePath, $trgFileFolderPath)->result;
     }
@@ -164,7 +156,7 @@ class AssetsManager
         $file = StringHandler::replace($file, 'Entity/', '');
 
         $srcFilePath = Kernel::getAppPath([self::APP_ENTITY_JS, $file]);
-        $trgFileFolderPath = Kernel::getappPublicUri(self::PUBLIC_ENTITY_JS);
+        $trgFileFolderPath = Kernel::getAppPublicPath(self::PUBLIC_ENTITY_JS);
 
         $out_file = self::process_js_src($file, self::$app_entity_js_files, self::$public_entity_js_files,
             $srcFilePath, $trgFileFolderPath);
@@ -215,17 +207,17 @@ class AssetsManager
 
     public static function js_folder()
     {
-        return self::appPublicUri() . self::JS_PATH;
+        return Kernel::getAppPublicUri() . self::JS_PATH;
     }
 
     public static function css_folder()
     {
-        return self::appPublicUri() . self::CSS_PATH;
+        return Kernel::getAppPublicUri() . self::CSS_PATH;
     }
 
     public static function media_folder()
     {
-        return self::appPublicUri() . self::MEDIA_PATH;
+        return Kernel::getAppPublicUri() . self::MEDIA_PATH;
     }
 
     public static function js_src($file)

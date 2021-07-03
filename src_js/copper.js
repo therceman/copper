@@ -402,7 +402,7 @@ function RequestHandler() {
     function getRequest(url, callback, params) {
         let http = new XMLHttpRequest();
 
-        url = url + ((params !== null) ? '?' + new URLSearchParams(params).toString() : '');
+        url = url + ((params !== void 0) ? '?' + new URLSearchParams(params).toString() : '');
 
         let full_url = (url.substring(0, 4) === 'http') ? url : self.base_uri + url;
 

@@ -34,7 +34,8 @@ final class Kernel
     const CSRF_TOKEN_HEADER = 'X-CSRF-TOKEN';
 
     const CONFIG_FOLDER = 'config';
-    const PUBLIC_FOLDER = 'public';
+
+    const HTACCESS_VAR__INDEX_REL_PATH = 'index_rel_path';
 
     const ERROR_CONFIG_FILE = 'error.php';
     const APP_CONFIG_FILE = 'app.php';
@@ -98,7 +99,13 @@ final class Kernel
         $hostName = $_SERVER['HTTP_HOST'];
         $protocol = $_SERVER['REQUEST_SCHEME'];
 
-        $path = '/' . basename(self::getAppPath());
+        $index_rel_path = getenv(self::HTACCESS_VAR__INDEX_REL_PATH);
+        if ($index_rel_path === false)
+            $index_rel_path = StringHandler::replace($_SERVER['SCRIPT_FILENAME'], self::getAppPath() . '/', '');
+
+        $path = StringHandler::replace($_SERVER['SCRIPT_NAME'], $index_rel_path, '');
+
+        $path = rtrim($path, '/');
 
         if ($relative)
             return $path;
@@ -113,7 +120,9 @@ final class Kernel
      */
     public static function getAppPublicUri($path = null, $relative = false)
     {
-        $pathArray = FileHandler::extendPathArray([self::getAppBaseUrl($relative), self::PUBLIC_FOLDER], $path);
+        $basePathArray = [self::getAppBaseUrl($relative), self::$app->config->public_rel_path];
+
+        $pathArray = FileHandler::extendPathArray($basePathArray, $path);
 
         return FileHandler::pathFromArray($pathArray);
     }
@@ -174,7 +183,7 @@ final class Kernel
 
     public static function getAppPublicPath($path = null)
     {
-        $pathArray = FileHandler::extendPathArray([self::PUBLIC_FOLDER], $path);
+        $pathArray = FileHandler::extendPathArray([self::$app->config->public_rel_path], $path);
 
         return FileHandler::appPathFromArray($pathArray);
     }
@@ -209,12 +218,15 @@ final class Kernel
      */
     public static function getAppPath($path = null)
     {
-        $abs_path = FileHandler::getAbsolutePath(dirname($_SERVER['SCRIPT_FILENAME']) . '/..');
+        $index_rel_path = getenv(self::HTACCESS_VAR__INDEX_REL_PATH);
 
-        $pathArray = [$abs_path];
+        if ($index_rel_path === false) {
+            $abs_path = FileHandler::getAbsolutePath(__DIR__ . '/../../../../');
+        } else {
+            $abs_path = StringHandler::replace($_SERVER['SCRIPT_FILENAME'], '/' . $index_rel_path, '');
+        }
 
-        if ($path !== null)
-            $pathArray[] = VarHandler::isArray($path) ? FileHandler::pathFromArray($path) : $path;
+        $pathArray = FileHandler::extendPathArray([$abs_path], $path);
 
         return FileHandler::pathFromArray($pathArray);
     }
@@ -229,10 +241,7 @@ final class Kernel
      */
     public static function getPackagePath($path = null)
     {
-        $pathArray = [dirname(__DIR__)];
-
-        if ($path !== null)
-            $pathArray[] = VarHandler::isArray($path) ? FileHandler::pathFromArray($path) : $path;
+        $pathArray = FileHandler::extendPathArray([dirname(__DIR__)], $path);
 
         return FileHandler::pathFromArray($pathArray);
     }
@@ -503,21 +512,22 @@ final class Kernel
 
         $base_url = self::getAppBaseUrl(true);
 
-        if ($base_url !== '') {
+        if ($base_url !== '' && $base_url !== '/') {
             $requestContext->setBaseUrl($base_url);
             // remove base from path
             $path_info = str_replace($base_url, '', $_SERVER['REQUEST_URI']);
-            // remove trailing slashes
-            $path_info = rtrim($path_info, ' /');
         } else {
             $path_info = $_SERVER['REQUEST_URI'];
         }
 
-        // remove query string (?, &)
+        // remove query string
         $path_info = explode('?', $path_info)[0];
-        $path_info = explode('&', $path_info)[0];
 
-        $requestContext->setPathInfo($path_info);
+        // remove trailing slashes
+        $path_info = ltrim($path_info, '/');
+        $path_info = rtrim($path_info, '/');
+
+        $requestContext->setPathInfo('/' . $path_info);
 
         return $requestContext;
     }

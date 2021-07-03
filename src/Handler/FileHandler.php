@@ -149,6 +149,15 @@ class FileHandler
                 $pathArray = ArrayHandler::merge($pathArray, $path);
         }
 
+        foreach ($pathArray as $key => $value) {
+            if ($key !== 0)
+                $value = ltrim($value, '/');
+
+            $value = rtrim($value, '/');
+
+            $pathArray[$key] = $value;
+        }
+
         return $pathArray;
     }
 
