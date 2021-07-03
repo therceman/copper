@@ -570,7 +570,13 @@ final class Kernel
         try {
             $this->configureMatchedRequestAttributes($matcher, $request, $requestContext);
             $this->processRequest($request);
-            $response = $this->getRequestControllerResponse($request, $requestContext);
+
+            $request_access_roles = $request->attributes->get('_route_access_role', []);
+            if (count($request_access_roles) > 0 && self::$auth->user()->hasRole($request_access_roles) === false)
+                $response = self::$errorHandler->throwErrorAsResponse('Access Denied',Response::HTTP_FORBIDDEN);
+            else
+                $response = $this->getRequestControllerResponse($request, $requestContext);
+            
         } catch (\Exception $e) {
             if ($e instanceof MethodNotAllowedException) {
                 $msg = 'Method [' . $request->getMethod() . '] is not allowed.';
@@ -596,7 +602,7 @@ final class Kernel
      */
     protected function configureMatchedRequestAttributes(UrlMatcher $matcher, Request $request, RequestContext $requestContext)
     {
-        $routeDefinitionKeys = ['_controller', '_route', '_route_group'];
+        $routeDefinitionKeys = ['_controller', '_route', '_route_group', '_route_access_role'];
 
         $matchCollection = $matcher->match($requestContext->getPathInfo());
 

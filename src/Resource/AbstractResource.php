@@ -4,12 +4,14 @@
 namespace Copper\Resource;
 
 
+use App\Model\UserModel;
 use Copper\Handler\ArrayHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSeed;
 use Copper\Entity\AbstractEntity;
 use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Symfony\Component\Routing\Loader\Configurator\RouteConfigurator;
 
@@ -21,6 +23,8 @@ abstract class AbstractResource
     private static $models = [];
     /** @var string[] */
     private static $groups = [];
+    /** @var array[] */
+    private static $accessRoles = [];
     /** @var array */
     private static $groupRequirements = [];
     /** @var array */
@@ -211,6 +215,7 @@ abstract class AbstractResource
      */
     public static function registerRoutes(RoutingConfigurator $routes)
     {
+        // this should be overriden by child class
     }
 
 
@@ -258,19 +263,25 @@ abstract class AbstractResource
      * * getList@/product/getList - GET method for controller action named getList()
      * * remove@/product/remove/{id} - GET & POST methods for controller action named remove($id)
      *
-     *
+     * <br>
      * For Example 'remove@/product/remove/{id}', is similar to this:
-     *
+     * <code>
      * $routes->add('remove@/product/remove/{id}', '/product/remove/{id}')
      * ->controller([static::getControllerClassName(), 'remove'])
      * ->methods(['GET','POST']);
+     * </code>
+     *
+     * <br>
+     * Access Role examples: 'admin', ['admin', 'moderator']. For all users use: '*' or []
+     * P.S. Access Role "super_admin" is added by default to all routes in resource
      *
      * @param RoutingConfigurator $routes
      * @param string $name
+     * @param string|array $accessRole - Route access role
      *
      * @return RouteConfigurator
      */
-    public static function addRoute(RoutingConfigurator $routes, string $name)
+    public static function addRoute(RoutingConfigurator $routes, string $name, $accessRole = null)
     {
         list($action, $path) = self::extractActionAndPathFromRouteName($name);
 
@@ -287,9 +298,22 @@ abstract class AbstractResource
 
         $groupReq = self::getGroupRequirements();
 
+        $fullAccessRole = self::getAccessRole();
+
+        if (ArrayHandler::hasValue($fullAccessRole, UserModel::ROLE__SUPER_ADMIN) === false)
+            $fullAccessRole[] = UserModel::ROLE__SUPER_ADMIN;
+
+        if (VarHandler::isArray($accessRole) || VarHandler::isString($accessRole)) {
+            if ($accessRole === '*' || $accessRole === [])
+                $fullAccessRole = [];
+            else
+                $fullAccessRole = ArrayHandler::merge($fullAccessRole,
+                    VarHandler::isArray($accessRole) ? $accessRole : [$accessRole]);
+        }
+
         $routeConfigurator = $routes->add(self::route($name), self::path($path))
             ->controller([static::getControllerClassName(), $action])
-            ->methods($methods)->defaults(['_route_group' => self::getGroup()]);
+            ->methods($methods)->defaults(['_route_group' => self::getGroup(), '_route_access_role' => $fullAccessRole]);
 
         if ($groupReq !== null && ArrayHandler::count($groupReq) > 0)
             $routeConfigurator->requirements($groupReq);
@@ -303,6 +327,18 @@ abstract class AbstractResource
     public static function setGroup(string $group)
     {
         self::$groups[static::getName()] = $group;
+    }
+
+    /**
+     * Set access role to all routes.
+     * User with role super_admin will have access to all routes in resource
+     * (even if this role is not provided in access role list)
+     *
+     * @param string|array $role
+     */
+    public static function setAccessRole($role)
+    {
+        self::$accessRoles[static::getName()] = VarHandler::isArray($role) ? $role : [$role];
     }
 
     /**
@@ -322,6 +358,17 @@ abstract class AbstractResource
             return null;
 
         return self::$groups[static::getName()];
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function getAccessRole()
+    {
+        if (array_key_exists(static::getName(), self::$accessRoles) === false)
+            return [];
+
+        return self::$accessRoles[static::getName()];
     }
 
     /**
