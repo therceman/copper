@@ -263,6 +263,9 @@ abstract class AbstractResource
         $defaultAccessRole = Kernel::getAuth()->config->defaultAccessRole;
 
         $fullAccessRole = self::getAccessRole();
+        
+        if (ArrayHandler::hasValue($fullAccessRole, '*'))
+            return [];
 
         if (ArrayHandler::hasValue($fullAccessRole, AbstractUserEntity::ROLE_SUPER_ADMIN) === false)
             $fullAccessRole[] = AbstractUserEntity::ROLE_SUPER_ADMIN;
