@@ -5,6 +5,7 @@ namespace Copper\Resource;
 
 
 use App\Model\UserModel;
+use Copper\Component\Auth\AbstractUserEntity;
 use Copper\Handler\ArrayHandler;
 use Copper\Component\DB\DBModel;
 use Copper\Component\DB\DBSeed;
@@ -257,6 +258,30 @@ abstract class AbstractResource
         return $nameParts;
     }
 
+    private static function getFullAccessRole($routeAccessRole)
+    {
+        $defaultAccessRole = Kernel::getAuth()->config->defaultAccessRole;
+
+        $fullAccessRole = self::getAccessRole();
+
+        if (ArrayHandler::hasValue($fullAccessRole, AbstractUserEntity::ROLE_SUPER_ADMIN) === false)
+            $fullAccessRole[] = AbstractUserEntity::ROLE_SUPER_ADMIN;
+
+        if (VarHandler::isArray($routeAccessRole) || VarHandler::isString($routeAccessRole)) {
+            if ($routeAccessRole === '*')
+                $fullAccessRole = [];
+            else
+                $fullAccessRole = ArrayHandler::merge($fullAccessRole,
+                    VarHandler::isArray($routeAccessRole) ? $routeAccessRole : [$routeAccessRole]);
+        }
+
+        if ($defaultAccessRole !== false && $routeAccessRole !== '*')
+            $fullAccessRole = ArrayHandler::merge_uniqueValues($fullAccessRole,
+                VarHandler::isArray($defaultAccessRole) ? $defaultAccessRole : [$defaultAccessRole]);
+
+        return $fullAccessRole;
+    }
+
     /**
      * Helper for adding routes with less code.
      * $name format should be in the following format:
@@ -272,7 +297,7 @@ abstract class AbstractResource
      * </code>
      *
      * <br>
-     * Access Role examples: 'admin', ['admin', 'moderator']. For all users use: '*' or []
+     * Access Role examples: 'admin', ['admin', 'moderator']. For all users use: '*'
      * P.S. Access Role "super_admin" is added by default to all routes in resource
      *
      * @param RoutingConfigurator $routes
@@ -298,18 +323,7 @@ abstract class AbstractResource
 
         $groupReq = self::getGroupRequirements();
 
-        $fullAccessRole = self::getAccessRole();
-
-        if (ArrayHandler::hasValue($fullAccessRole, UserModel::ROLE__SUPER_ADMIN) === false)
-            $fullAccessRole[] = UserModel::ROLE__SUPER_ADMIN;
-
-        if (VarHandler::isArray($accessRole) || VarHandler::isString($accessRole)) {
-            if ($accessRole === '*' || $accessRole === [])
-                $fullAccessRole = [];
-            else
-                $fullAccessRole = ArrayHandler::merge($fullAccessRole,
-                    VarHandler::isArray($accessRole) ? $accessRole : [$accessRole]);
-        }
+        $fullAccessRole = self::getFullAccessRole($accessRole);
 
         $routeConfigurator = $routes->add(self::route($name), self::path($path))
             ->controller([static::getControllerClassName(), $action])
@@ -361,7 +375,7 @@ abstract class AbstractResource
     }
 
     /**
-     * @return string|null
+     * @return array
      */
     public static function getAccessRole()
     {

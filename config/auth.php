@@ -6,6 +6,8 @@ use Copper\Kernel;
 
 return function (AuthConfigurator $auth) {
 
+    $auth->defaultAccessRole = false;
+
     $auth->loginRoute = 'get_auth_login';
     $auth->returnToRouteParam = 'return_to_route';
     $auth->forbiddenTemplate = 'forbidden';
