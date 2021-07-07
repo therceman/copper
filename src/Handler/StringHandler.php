@@ -37,7 +37,7 @@ class StringHandler
      *
      * @return string[]
      */
-    public static function explode(string $str, string $delimiter = ',')
+    public static function split(string $str, string $delimiter = ',')
     {
         if (strlen(self::trim($str)) === 0)
             return [];

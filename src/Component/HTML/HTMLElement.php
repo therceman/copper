@@ -397,10 +397,10 @@ class HTMLElement
      */
     public function styleRaw(string $style)
     {
-        $keyValueList = StringHandler::explode($style, ';');
+        $keyValueList = StringHandler::split($style, ';');
 
         foreach ($keyValueList as $keyValue) {
-            $res = StringHandler::explode($keyValue, ':');
+            $res = StringHandler::split($keyValue, ':');
 
             if (count($res) !== 2)
                 continue;

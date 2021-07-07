@@ -107,15 +107,21 @@ class FileHandler
      * Create new folder
      *
      * @param $folderPath
+     * @param bool $skipIfExists
      * @return FunctionResponse
      */
-    public static function createFolder($folderPath)
+    public static function createFolder($folderPath, $skipIfExists = true)
     {
         $response = new FunctionResponse();
 
         $folderPath = self::getAbsolutePath($folderPath);
 
         $folderPath = self::cleanPath($folderPath);
+
+        if (self::fileExists($folderPath))
+            return ($skipIfExists)
+                ? $response->ok('Folder creation skipped')
+                : $response->fail('Folder already exists');
 
         $createStatus = mkdir($folderPath);
 

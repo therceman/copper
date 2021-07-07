@@ -18,15 +18,18 @@ use Copper\Traits\ComponentHandlerTrait;
 class AssetsManager
 {
     use ComponentHandlerTrait;
-    
+
     const ERROR_VERSION_FILE_READ_FAILED = 'AM_VFRF';
 
     // ---- core folders -----
 
-    const CORE_JS = '/src_js/';
+    const SRC_JS_PATH = '/src_js/';
 
     const APP_ENTITY_JS = '/src_js/Entity';
-    const PUBLIC_ENTITY_JS = '/js/Entity';
+    const APP_MODEL_JS = '/src_js/Model';
+
+    const APP_PUBLIC_ENTITY_JS = '/js/Entity';
+    const APP_PUBLIC_MODEL_JS = '/js/Model';
 
     // ---- public content folders -----
 
@@ -42,9 +45,11 @@ class AssetsManager
 
     public static $core_js_files = [];
     public static $app_entity_js_files = [];
+    public static $app_model_js_files = [];
     public static $public_entity_js_files = [];
+    public static $public_model_js_files = [];
     public static $app_js_files = [];
-    
+
     /** @var AssetsManagerConfigurator */
     public $config;
 
@@ -62,15 +67,20 @@ class AssetsManager
 
     public static function init()
     {
-        $res_core = FileHandler::getFilesInFolder(Kernel::getPackagePath(self::CORE_JS), true);
+        $res_core = FileHandler::getFilesInFolder(Kernel::getPackagePath(self::SRC_JS_PATH), true);
         $res_app = FileHandler::getFilesInFolder(Kernel::getAppPublicPath(self::JS_PATH));
-        $res_entity_app = FileHandler::getFilesInFolder(Kernel::getAppPath(self::APP_ENTITY_JS), true);
 
-        $res_entity_public_path = Kernel::getAppPublicPath(self::PUBLIC_ENTITY_JS);
-        if (FileHandler::fileExists($res_entity_public_path) === false)
-            FileHandler::createFolder($res_entity_public_path);
+        $res_entity_app = FileHandler::getFilesInFolder(Kernel::getAppPath(self::APP_ENTITY_JS), true);
+        $res_model_app = FileHandler::getFilesInFolder(Kernel::getAppPath(self::APP_MODEL_JS), true);
+
+        $res_entity_public_path = Kernel::getAppPublicPath(self::APP_PUBLIC_ENTITY_JS);
+        $res_model_public_path = Kernel::getAppPublicPath(self::APP_PUBLIC_MODEL_JS);
+
+        FileHandler::createFolder(Kernel::getAppPublicPath(self::APP_PUBLIC_ENTITY_JS));
+        FileHandler::createFolder(Kernel::getAppPublicPath(self::APP_PUBLIC_MODEL_JS));
 
         $res_entity_public = FileHandler::getFilesInFolder($res_entity_public_path);
+        $res_model_public = FileHandler::getFilesInFolder($res_model_public_path);
 
         if ($res_core->isOK())
             self::$core_js_files = $res_core->result;
@@ -78,11 +88,17 @@ class AssetsManager
         if ($res_app->isOK())
             self::$app_js_files = $res_app->result;
 
-        if ($res_app->isOK())
+        if ($res_entity_app->isOK())
             self::$app_entity_js_files = $res_entity_app->result;
 
-        if ($res_app->isOK())
+        if ($res_model_app->isOK())
+            self::$app_model_js_files = $res_model_app->result;
+
+        if ($res_entity_public->isOK())
             self::$public_entity_js_files = $res_entity_public->result;
+
+        if ($res_model_public->isOK())
+            self::$public_model_js_files = $res_model_public->result;
     }
 
     // ---------------------- PRIVATE ----------------------
@@ -126,7 +142,7 @@ class AssetsManager
 
         $mod_time_data = ArrayHandler::findKey($src_js_files, $file);
 
-        $mod_time = StringHandler::explode($mod_time_data, '_')[0];
+        $mod_time = StringHandler::split($mod_time_data, '_')[0];
 
         $coreFile = ["name" => $file, "mod_time" => $mod_time];
         $newAppFileName = StringHandler::replace($file, '.js', '.' . $coreFile['mod_time'] . '.js');
@@ -145,7 +161,7 @@ class AssetsManager
 
     private static function process_core_js_src($file)
     {
-        $srcFilePath = Kernel::getPackagePath([self::CORE_JS, $file]);
+        $srcFilePath = Kernel::getPackagePath([self::SRC_JS_PATH, $file]);
         $trgFileFolderPath = Kernel::getAppPublicPath(self::JS_PATH);
 
         return self::process_js_src($file, self::$core_js_files, self::$app_js_files, $srcFilePath, $trgFileFolderPath)->result;
@@ -153,15 +169,26 @@ class AssetsManager
 
     private static function process_app_js_src($file)
     {
-        $file = StringHandler::replace($file, 'Entity/', '');
+        $fileParts = StringHandler::split($file, '/');
 
-        $srcFilePath = Kernel::getAppPath([self::APP_ENTITY_JS, $file]);
-        $trgFileFolderPath = Kernel::getAppPublicPath(self::PUBLIC_ENTITY_JS);
+        $map = [
+            'Entity' => [self::$app_entity_js_files, self::$public_entity_js_files],
+            'Model' => [self::$app_model_js_files, self::$public_model_js_files],
+        ];
 
-        $out_file = self::process_js_src($file, self::$app_entity_js_files, self::$public_entity_js_files,
-            $srcFilePath, $trgFileFolderPath);
+        if (ArrayHandler::count($fileParts) > 1 && ArrayHandler::hasValue(ArrayHandler::keyList($map), $fileParts[0])) {
+            $folder = $fileParts[0];
 
-        return $out_file->hasError() ? $out_file->result : 'Entity/' . $out_file->result;
+            $file = StringHandler::replace($file, $folder . '/', '');
+
+            $srcFilePath = Kernel::getAppPath([self::SRC_JS_PATH, $folder, $file]);
+            $trgFileFolderPath = Kernel::getAppPublicPath([self::JS_PATH, $folder]);
+
+            $out_file = self::process_js_src($file, $map[$folder][0], $map[$folder][1], $srcFilePath, $trgFileFolderPath);
+
+            return $out_file->hasError() ? $out_file->result : FileHandler::pathFromArray([$folder, $out_file->result]);
+        } else
+            return $file;
     }
 
     // ---------------------- PUBLIC ----------------------
@@ -242,7 +269,8 @@ class AssetsManager
     {
         return '<link rel="stylesheet" href="' . self::css_href($file) . '"/>' . "\r\n";
     }
-private static function isFileExtensionInList($list, $filePath)
+
+    private static function isFileExtensionInList($list, $filePath)
     {
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 

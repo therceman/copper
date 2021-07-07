@@ -31,15 +31,15 @@ abstract class AbstractResource
     /** @var array */
     private static $defaultDefinedVars = [];
 
-    const PATH_GROUP = 'abstract_collection_resource';
+    const GROUP = 'abstract_collection_resource';
 
-    const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
-    const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';
-    const POST_UPDATE = 'postUpdate@/' . self::PATH_GROUP . '/update/{id}';
-    const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
-    const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
-    const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
-    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
+    const GET_LIST = 'getList@/' . self::GROUP . '/list';
+    const GET_EDIT = 'getEdit@/' . self::GROUP . '/edit/{id}';
+    const POST_UPDATE = 'postUpdate@/' . self::GROUP . '/update/{id}';
+    const GET_NEW = 'getNew@/' . self::GROUP . '/new';
+    const POST_CREATE = 'postCreate@/' . self::GROUP . '/create';
+    const POST_REMOVE = 'postRemove@/' . self::GROUP . '/remove/{id}';
+    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::GROUP . '/remove/undo/{id}';
 
     /**
      * @param string|boolean $className
@@ -315,7 +315,7 @@ abstract class AbstractResource
 
         // TODO maybe we should remove dots and join parts like camelcase...
         // e.g. /page/filename.xml -> getPageFilenameXml (instead of getPageFilename)
-        $action = StringHandler::explode($action, '.')[0];
+        $action = StringHandler::split($action, '.')[0];
 
         $methods = ['GET', 'POST'];
 

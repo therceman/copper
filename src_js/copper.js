@@ -164,6 +164,7 @@ function StringHandler() {
 }
 
 /**
+ * Return a formatted string
  *
  * @param str
  * @param args
@@ -174,12 +175,23 @@ StringHandler.prototype.sprintf = function (str, args) {
 }
 
 /**
+ * Transform first character to Uppercase
  *
  * @param {string} str
  * @returns {string}
  */
 StringHandler.prototype.ucfirst = function (str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/**
+ *
+ * @param {string} str
+ * @param {string} delimiter
+ * @returns {array}
+ */
+StringHandler.prototype.split = function (str, delimiter) {
+    return str.split(delimiter);
 }
 
 copper.stringHandler = new StringHandler();

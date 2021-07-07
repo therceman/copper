@@ -711,7 +711,7 @@ class ValidatorRule
         if (VarHandler::isString($value) === false)
             $value = (string)$value;
 
-        $parts = StringHandler::explode($value, '.');
+        $parts = StringHandler::split($value, '.');
 
         if (count($parts) === 1)
             return $fRes->ok();

@@ -114,12 +114,14 @@ class ResourceGenService
 
         $entityClassName = $resource::getEntityClassName();
         $entityName = $resource::getEntityName();
+        $modelName = $resource::getModelName();
 
         $reflection = new ReflectionClass($entityClassName);
 
         $property_list = $reflection->getProperties();
 
         $func_property_list = [];
+        $field_property_list = [];
         $annotation_property_list = [];
         foreach ($property_list as $property) {
             $type = null;
@@ -134,11 +136,13 @@ class ResourceGenService
 
             $annotation_property_list[] = " * @property {{$type}|null} $property->name";
             $func_property_list[] = "   this.$property->name = null;";
+            $field_property_list[] = "$modelName.$property->name = '$property->name';";
         }
         $annotation_property_list = join("\r\n", $annotation_property_list);
         $func_property_list = join("\r\n", $func_property_list);
+        $field_property_list = join("\r\n", $field_property_list);
 
-        $js_source = <<<XML
+        $js_entity_source = <<<XML
 'use strict';
 
 /**
@@ -152,6 +156,20 @@ function $entityName() {
 $func_property_list
 }
 XML;
+
+        $js_model_source = <<<XML
+'use strict';
+
+/**
+ * $modelName
+ *
+ * @constructor
+ */
+
+function $modelName() {}
+
+$field_property_list
+XML;
         $src_js_folder = Kernel::getAppPath() . '/src_js';
         if (FileHandler::fileExists($src_js_folder) === false)
             FileHandler::createFolder($src_js_folder);
@@ -160,11 +178,18 @@ XML;
         if (FileHandler::fileExists($src_js_entity_folder) === false)
             FileHandler::createFolder($src_js_entity_folder);
 
-        $js_file = $src_js_entity_folder . '/' . $entityName . '.js';
+        $js_entity_file = $src_js_entity_folder . '/' . $entityName . '.js';
 
-        $js_file_save_res = FileHandler::setContent($js_file, $js_source);
+        $src_js_model_folder = $src_js_folder . '/Model';
+        if (FileHandler::fileExists($src_js_model_folder) === false)
+            FileHandler::createFolder($src_js_model_folder);
 
-        return $response->result($js_file_save_res);
+        $js_model_file = $src_js_model_folder . '/' . $modelName . '.js';
+
+        return $response->result(FunctionResponse::createResult([
+            'entity' => FileHandler::setContent($js_entity_file, $js_entity_source),
+            'model' => FileHandler::setContent($js_model_file, $js_model_source),
+        ]));
     }
 
     /**
@@ -541,15 +566,15 @@ XML;
 
         // ---------------------
 
-        $routes = "const PATH_GROUP = '$pathGroup';
+        $routes = "const GROUP = '$pathGroup';
 
-    const GET_LIST = 'getList@/' . self::PATH_GROUP . '/list';
-    const GET_EDIT = 'getEdit@/' . self::PATH_GROUP . '/edit/{id}';
-    const POST_UPDATE = 'postUpdate@/' . self::PATH_GROUP . '/update/{id}';
-    const GET_NEW = 'getNew@/' . self::PATH_GROUP . '/new';
-    const POST_CREATE = 'postCreate@/' . self::PATH_GROUP . '/create';
-    const POST_REMOVE = 'postRemove@/' . self::PATH_GROUP . '/remove/{id}';
-    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::PATH_GROUP . '/remove/undo/{id}';
+    const GET_LIST = 'getList@/' . self::GROUP . '/list';
+    const GET_EDIT = 'getEdit@/' . self::GROUP . '/edit/{id}';
+    const POST_UPDATE = 'postUpdate@/' . self::GROUP . '/update/{id}';
+    const GET_NEW = 'getNew@/' . self::GROUP . '/new';
+    const POST_CREATE = 'postCreate@/' . self::GROUP . '/create';
+    const POST_REMOVE = 'postRemove@/' . self::GROUP . '/remove/{id}';
+    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::GROUP . '/remove/undo/{id}';
     
     // custom route constants
     
