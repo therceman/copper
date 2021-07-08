@@ -358,6 +358,16 @@ CollectionHandler.prototype.findFirst = function (collection, filter) {
     return (list.length > 0) ? list[0] : null
 }
 
+/**
+ * @param {Object} collection
+ * @param {Object} filter
+ *
+ * @returns {*|null}
+ */
+CollectionHandler.prototype.findById = function (collection, id) {
+    return this.findFirst(collection, {"id": id})
+}
+
 copper.collectionHandler = new CollectionHandler();
 
 // ------------------------------------------------------------------------

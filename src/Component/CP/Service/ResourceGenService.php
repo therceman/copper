@@ -135,8 +135,8 @@ class ResourceGenService
                 $type = 'boolean';
 
             $annotation_property_list[] = " * @property {{$type}|null} $property->name";
-            $func_property_list[] = "   this.$property->name = null;";
-            $field_property_list[] = "$modelName.$property->name = '$property->name';";
+            $func_property_list[] = self::T . "this.$property->name = null;";
+            $field_property_list[] = self::T . "$property->name: '$property->name',";
         }
         $annotation_property_list = join("\r\n", $annotation_property_list);
         $func_property_list = join("\r\n", $func_property_list);
@@ -162,13 +162,13 @@ XML;
 
 /**
  * $modelName
- *
- * @constructor
  */
 
-function $modelName() {}
-
+const $modelName = {
 $field_property_list
+}
+
+Object.freeze($modelName);
 XML;
         $src_js_folder = Kernel::getAppPath() . '/src_js';
         if (FileHandler::fileExists($src_js_folder) === false)

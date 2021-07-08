@@ -810,6 +810,24 @@ class ValidatorRule
         return VarHandler::isNumeric($value);
     }
 
+    private function getAlphaExtraCharacters()
+    {
+        if ($this->strict)
+            return null;
+
+        $extraCharacters = Kernel::getValidator()->config->alpha_non_strict_extra_characters;
+
+        $extraCharacters = $extraCharacters . $this->alphaExtraCharacters;
+
+        $escape_map = ['.', '^', '$', '*', '+', '?', '(', ')', '[', ']', '{', '}', '\\', '|', '/'];
+
+        foreach ($escape_map as $entry) {
+            $extraCharacters = StringHandler::replace($extraCharacters, $entry, '\\' . $entry);
+        }
+
+        return $extraCharacters;
+    }
+
     /**
      * @param $value
      * @return FunctionResponse
@@ -818,12 +836,7 @@ class ValidatorRule
     {
         $fRes = new FunctionResponse();
 
-        $extraCharacters = Kernel::getValidator()->config->alpha_non_strict_extra_characters;
-
-        $extraCharacters = $extraCharacters . $this->alphaExtraCharacters;
-
-        if ($this->strict)
-            $extraCharacters = null;
+        $extraCharacters = $this->getAlphaExtraCharacters();
 
         $res = VarHandler::isAlpha($value, $this->alphaAllowSpaces, $extraCharacters);
 
@@ -840,11 +853,8 @@ class ValidatorRule
     private function validateAlphaNumeric($value)
     {
         $fRes = new FunctionResponse();
-
-        $extraCharacters = Kernel::getValidator()->config->alpha_non_strict_extra_characters;
-
-        if ($this->strict)
-            $extraCharacters = null;
+        
+        $extraCharacters = $this->getAlphaExtraCharacters();
 
         $res = VarHandler::isAlphaNumeric($value, $this->alphaAllowSpaces, $extraCharacters);
 
