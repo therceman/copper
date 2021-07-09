@@ -140,6 +140,8 @@ class AssetsManager
         if (ArrayHandler::hasValue($src_js_files, $file) === false)
             return $res->fail('skip', $file);
 
+        $file_wo_ext = StringHandler::split($file, '.js')[0];
+
         $mod_time_data = ArrayHandler::findKey($src_js_files, $file);
 
         $mod_time = StringHandler::split($mod_time_data, '_')[0];
@@ -147,7 +149,20 @@ class AssetsManager
         $coreFile = ["name" => $file, "mod_time" => $mod_time];
         $newAppFileName = StringHandler::replace($file, '.js', '.' . $coreFile['mod_time'] . '.js');
 
-        $appFileSearchResult = ArrayHandler::findFirstByRegex($trg_js_files, '/.*(.\d{10,}).js/');
+        $appFileSearchResult = ArrayHandler::findFirst($trg_js_files, function ($value) use ($file_wo_ext, $mod_time) {
+            return $value === $file_wo_ext . '.' . $mod_time . '.js';
+        });
+
+        // remove old files
+        $oldFiles = ArrayHandler::findByRegex($trg_js_files, '/'.$file_wo_ext.'(.\d{10,}).js/');
+
+        if ($oldFiles !== null) {
+            foreach ($oldFiles as $file) {
+                // TODO
+            }
+        }
+
+        print_r([$appFileSearchResult, $oldFiles]);
 
         if ($appFileSearchResult === null || $appFileSearchResult !== $newAppFileName) {
             FileHandler::copyFileToFolder($srcFilePath, $trgFileFolderPath, $newAppFileName);

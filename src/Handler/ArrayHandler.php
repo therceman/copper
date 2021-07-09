@@ -263,7 +263,7 @@ class ArrayHandler
     {
         $match_list = self::find($array, $closure);
 
-        return (count($match_list) > 0) ? $match_list[0] : null;
+        return ArrayHandler::firstValue($match_list);
     }
 
     /**
