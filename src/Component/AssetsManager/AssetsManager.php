@@ -156,19 +156,13 @@ class AssetsManager
         // remove old files
         $oldFiles = ArrayHandler::findByRegex($trg_js_files, '/'.$file_wo_ext.'(.\d{10,}).js/');
 
-        if ($oldFiles !== null) {
-            foreach ($oldFiles as $file) {
-                // TODO
-            }
+        foreach ($oldFiles as $file) {
+            if ($file !== $appFileSearchResult)
+                FileHandler::delete(FileHandler::pathFromArray([$trgFileFolderPath, $file]));
         }
-
-        print_r([$appFileSearchResult, $oldFiles]);
 
         if ($appFileSearchResult === null || $appFileSearchResult !== $newAppFileName) {
             FileHandler::copyFileToFolder($srcFilePath, $trgFileFolderPath, $newAppFileName);
-
-            if ($appFileSearchResult !== null && $appFileSearchResult !== $newAppFileName)
-                FileHandler::delete(FileHandler::pathFromArray([$trgFileFolderPath, $appFileSearchResult]));
         }
 
         return $res->result($newAppFileName);

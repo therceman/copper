@@ -200,7 +200,7 @@ class ArrayHandler
      *
      * @param array $array
      * @param string $regex
-     * @return mixed|null
+     * @return array
      */
     public static function findByRegex(array $array, string $regex)
     {
@@ -212,7 +212,7 @@ class ArrayHandler
 
         $result = array_values($result);
 
-        return (count($result)) ? $result : null;
+        return (count($result)) ? $result : [];
     }
 
     /**
