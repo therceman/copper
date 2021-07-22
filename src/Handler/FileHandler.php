@@ -216,6 +216,7 @@ class FileHandler
     {
         $filePath = self::cleanPath($filePath);
 
+        // TODO handle exceptions
         $file = new SplFileObject($filePath);
 
         $content = null;
@@ -347,7 +348,7 @@ class FileHandler
      */
     public static function getModTime($filePath)
     {
-        return filemtime($filePath);
+        return FileHandler::fileExists($filePath) ? filemtime($filePath) : false;
     }
 
     public static function getFilesInFolder($folderPath, $withModTimeAsKey = false)

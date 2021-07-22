@@ -15,10 +15,11 @@ class CPHandler
      * CPHandler constructor.
      *
      * @param string $configFilename
+     * @param CPConfigurator|null $config
      */
-    public function __construct(string $configFilename)
+    public function __construct(string $configFilename, CPConfigurator $config = null)
     {
-        $this->config = $this->configure(CPConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(CPConfigurator::class, $configFilename);
     }
 
 }

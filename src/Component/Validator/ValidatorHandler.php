@@ -56,10 +56,11 @@ class ValidatorHandler
      * ValidatorHandler constructor.
      *
      * @param string $configFilename
+     * @param ValidatorConfigurator|null $config
      */
-    public function __construct(string $configFilename = Kernel::VALIDATOR_CONFIG_FILE)
+    public function __construct(string $configFilename = Kernel::VALIDATOR_CONFIG_FILE, ValidatorConfigurator $config = null)
     {
-        $this->config = $this->configure(ValidatorConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(ValidatorConfigurator::class, $configFilename);
 
         $this->rules = [];
     }

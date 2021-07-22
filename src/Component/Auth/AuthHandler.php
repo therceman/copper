@@ -20,6 +20,9 @@ class AuthHandler
     const LOG_ACTION__AUTHORIZE = 'Authorize';
     const LOG_ACTION__LOGOUT = 'Logout';
 
+    const SERVICE_VALIDATE_METHOD = 'validate';
+    const SERVICE_AUTHORIZE_METHOD = 'authorize';
+
     /** @var Session */
     public $session;
     /** @var AuthConfigurator */
@@ -33,8 +36,9 @@ class AuthHandler
      * AuthHandler constructor.
      *
      * @param string $configFilename
+     * @param AuthConfigurator|null $config
      */
-    public function __construct(string $configFilename)
+    public function __construct(string $configFilename, AuthConfigurator $config = null)
     {
         $this->session = new Session();
         $this->session->start();
@@ -42,7 +46,7 @@ class AuthHandler
         $this->db = Kernel::getDb();
         $this->user = null;
 
-        $this->config = $this->configure(AuthConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(AuthConfigurator::class, $configFilename);
     }
 
     private function log($action, $userId)
@@ -123,7 +127,10 @@ class AuthHandler
     public function user($entityClass = AbstractUserEntity::class)
     {
         /** @var AbstractEntity $entityClass */
-        $guestUser = $entityClass::fromArray(["login" => $this->session->getId(), "role" => AbstractUserEntity::ROLE_GUEST]);
+        $guestUser = $entityClass::fromArray([
+            "login" => $this->session->getId(),
+            "role" => AbstractUserEntity::ROLE_GUEST
+        ]);
 
         if ($this->check() === false)
             return $guestUser;
@@ -131,7 +138,12 @@ class AuthHandler
         if ($this->user !== null)
             return $this->user;
 
-        $user = call_user_func_array($this->config->userHandlerClosure, [$this->id(), $this->db]);
+        /** @var AuthServiceInterface $authService */
+        $authService = $this->config->serviceClassName;
+
+        $user = null;
+        if (method_exists($authService, self::SERVICE_AUTHORIZE_METHOD))
+            $user = $authService::authorize($this->id());
 
         $this->user = ($user === null) ? $guestUser : $user;
 
@@ -147,7 +159,13 @@ class AuthHandler
      */
     public function validate(string $login, string $password)
     {
-        return call_user_func_array($this->config->validateHandlerClosure, [$login, $password, $this->db]);
+        /** @var AuthServiceInterface $authService */
+        $authService = $this->config->serviceClassName;
+
+        if (method_exists($authService, self::SERVICE_VALIDATE_METHOD))
+            return $authService::validate($login, $password);
+
+        return null;
     }
 
 }

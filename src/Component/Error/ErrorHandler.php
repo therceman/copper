@@ -29,10 +29,11 @@ class ErrorHandler
      * ErrorHandler constructor.
      *
      * @param string $configFilename
+     * @param ErrorConfigurator|null $config
      */
-    public function __construct(string $configFilename)
+    public function __construct(string $configFilename, ErrorConfigurator $config = null)
     {
-        $this->config = $this->configure(ErrorConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(ErrorConfigurator::class, $configFilename);
 
         $this->register();
     }

@@ -26,6 +26,20 @@ class ArrayHandler
     }
 
     /**
+     * @param $array
+     * @param $key
+     * @param null $defaultValue
+     * @return mixed|null
+     */
+    public static function getKeyValue($array, $key, $defaultValue = null)
+    {
+        if (ArrayHandler::hasKey($array, $key))
+            return $array[$key];
+        else
+            return $defaultValue;
+    }
+
+    /**
      * @param array $array
      * @param mixed $search
      * @param mixed $replaceTo

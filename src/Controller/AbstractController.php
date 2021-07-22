@@ -120,6 +120,7 @@ class AbstractController
         $this->config = Kernel::getApp()->config;
 
         $this->viewDataBag = new ParameterBag([]);
+        // TODO $request->attributes->get('_route_params') should be changed to $request->getRouteParams();
         $this->routeDataBag = new ParameterBag($request->attributes->get('_route_params') ?? []);
 
         $this->request_method = $request->getRealMethod();

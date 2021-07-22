@@ -2,7 +2,6 @@
 
 
 use Copper\AppConfigurator;
-use Copper\Kernel;
 
 return function (AppConfigurator $appConfig) {
     $appConfig->dev_mode = false; // TODO

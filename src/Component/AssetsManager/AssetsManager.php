@@ -57,10 +57,11 @@ class AssetsManager
      * ValidatorHandler constructor.
      *
      * @param string $configFilename
+     * @param AssetsManagerConfigurator|null $config
      */
-    public function __construct(string $configFilename = Kernel::VALIDATOR_CONFIG_FILE)
+    public function __construct(string $configFilename = Kernel::VALIDATOR_CONFIG_FILE, AssetsManagerConfigurator $config = null)
     {
-        $this->config = $this->configure(AssetsManagerConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(AssetsManagerConfigurator::class, $configFilename);
     }
 
     // ---------------------- INIT ----------------------
@@ -118,7 +119,9 @@ class AssetsManager
      */
     private static function saveVersion($version, $git_index_mod_time)
     {
-        $infoFilePath = FileHandler::appPathFromArray([self::VERSION_FILENAME]);
+        $infoFilePath = FileHandler::appPathFromArray([Kernel::CACHE_FOLDER, self::VERSION_FILENAME]);
+
+        // TODO .version file should be removed, and all this info should be stored in cache .info file
 
         return FileHandler::setContent($infoFilePath, json_encode([
             'git_index_mod_time' => $git_index_mod_time,
@@ -207,7 +210,7 @@ class AssetsManager
         if (self::$version !== null) {
             return self::$version;
         } else {
-            $infoFilePath = FileHandler::appPathFromArray([self::VERSION_FILENAME]);
+            $infoFilePath = FileHandler::appPathFromArray([Kernel::CACHE_FOLDER, self::VERSION_FILENAME]);
 
             $git_index_mod_time = filemtime(FileHandler::appPathFromArray(['.git', 'index']));
 

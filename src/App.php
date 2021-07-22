@@ -17,10 +17,11 @@ class App
      * App constructor.
      *
      * @param string $configFilename
+     * @param AppConfigurator $configurator
      */
-    public function __construct(string $configFilename)
+    public function __construct(string $configFilename, AppConfigurator $configurator = null)
     {
-        $this->config = $this->configure(AppConfigurator::class, $configFilename);
+        $this->config = $configurator ?? $this->configure(AppConfigurator::class, $configFilename);
 
         if ($this->config->timezone !== false)
             date_default_timezone_set($this->config->timezone);

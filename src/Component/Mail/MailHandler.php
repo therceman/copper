@@ -34,10 +34,11 @@ class MailHandler
      * MailHandler constructor.
      *
      * @param string $configFilename
+     * @param MailConfigurator|null $config
      */
-    public function __construct(string $configFilename)
+    public function __construct(string $configFilename, MailConfigurator $config = null)
     {
-        $this->config = $this->configure(MailConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(MailConfigurator::class, $configFilename);
     }
 
     /**

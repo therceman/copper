@@ -39,22 +39,6 @@ class AuthConfigurator
     /** @var string */
     public $log_format;
 
-    // TODO this functions should be changed to Class::method string or ['Class','method'] array
-    // for future config cache to work correctly
-
-    /**
-     * @param Closure $login_password_closure
-     */
-    public function registerValidateHandlerClosure(Closure $login_password_closure)
-    {
-        $this->validateHandlerClosure = $login_password_closure;
-    }
-
-    /**
-     * @param Closure $id_closure
-     */
-    public function registerUserHandlerClosure(Closure $id_closure)
-    {
-        $this->userHandlerClosure = $id_closure;
-    }
+    /** @var string */
+    public $serviceClassName;
 }

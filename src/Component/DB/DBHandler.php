@@ -29,10 +29,11 @@ class DBHandler
      * DBHandler constructor.
      *
      * @param string $configFilename
+     * @param DBConfigurator|null $config
      */
-    public function __construct(string $configFilename)
+    public function __construct(string $configFilename, DBConfigurator $config = null)
     {
-        $this->config = $this->configure(DBConfigurator::class, $configFilename);
+        $this->config = $config ?? $this->configure(DBConfigurator::class, $configFilename);
         $this->init();
     }
 

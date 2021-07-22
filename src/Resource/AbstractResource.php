@@ -263,7 +263,7 @@ abstract class AbstractResource
         $defaultAccessRole = Kernel::getAuth()->config->defaultAccessRole;
 
         $fullAccessRole = self::getAccessRole();
-        
+
         if (ArrayHandler::hasValue($fullAccessRole, '*'))
             return [];
 
@@ -330,7 +330,12 @@ abstract class AbstractResource
 
         $routeConfigurator = $routes->add(self::route($name), self::path($path))
             ->controller([static::getControllerClassName(), $action])
-            ->methods($methods)->defaults(['_route_group' => self::getGroup(), '_route_access_role' => $fullAccessRole]);
+            ->methods($methods)->defaults([
+                '_route_group' => self::getGroup(),
+                '_route_access_role' => $fullAccessRole,
+                '_resource' => static::class,
+                '_default_defined_vars' => self::getDefaultDefinedVars()
+            ]);
 
         if ($groupReq !== null && ArrayHandler::count($groupReq) > 0)
             $routeConfigurator->requirements($groupReq);
@@ -418,10 +423,7 @@ abstract class AbstractResource
         $defaults = [];
 
         foreach (self::$defaultDefinedVars[static::getName()] as $key => $value) {
-            if ($value instanceof \Closure)
-                $defaults[$key] = $value(Kernel::getController());
-            else
-                $defaults[$key] = $value;
+            $defaults[$key] = $value;
         }
 
         return $defaults;

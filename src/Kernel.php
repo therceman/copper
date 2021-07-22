@@ -3,10 +3,17 @@
 namespace Copper;
 
 use Copper\Component\AssetsManager\AssetsManager;
+use Copper\Component\AssetsManager\AssetsManagerConfigurator;
+use Copper\Component\Auth\AuthConfigurator;
+use Copper\Component\CP\CPConfigurator;
+use Copper\Component\DB\DBConfigurator;
+use Copper\Component\Error\ErrorConfigurator;
 use Copper\Component\Error\ErrorHandler;
+use Copper\Component\Mail\MailConfigurator;
 use Copper\Component\Mail\MailHandler;
 use Copper\Component\Routing\RoutingConfigLoader;
 use Copper\Component\Templating\ViewHandler;
+use Copper\Component\Validator\ValidatorConfigurator;
 use Copper\Controller\AbstractController;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\FileHandler;
@@ -18,6 +25,7 @@ use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\NumberHandler;
 use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
+use Copper\Resource\AbstractResource;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,6 +42,10 @@ final class Kernel
     const CSRF_TOKEN_HEADER = 'X-CSRF-TOKEN';
 
     const CONFIG_FOLDER = 'config';
+
+    const CACHE_FOLDER = 'cache';
+    const CACHE_INFO_FILE = '.info';
+    const CACHE_CONFIG_FILE = 'config.cache';
 
     const HTACCESS_VAR__INDEX_REL_PATH = 'index_rel_path';
 
@@ -76,32 +88,239 @@ final class Kernel
 
     public function __construct()
     {
-        $this->configureErrorHandler();
+        $cacheInfo = $this->getCacheInfo();
 
+        if ($cacheInfo->isOK()) {
+            if ($this->createConfigFromCache())
+                return true;
+        }
+
+        $this->configureErrorHandler();
         $this->configureApp();
         $this->configureCP();
         $this->configureDB();
         $this->configureAuth();
-        $this->configureFlashMessage();
         $this->configureValidator();
         $this->configureMail();
-        $this->configureRoutes();
         $this->configureAssetsManager();
+        $this->configureRoutes();
+        $this->configureFlashMessage();
+
+        $this->saveConfigToCache();
+
+        $this->initConfiguredModules();
+
+        return true;
+    }
+
+    private function getConfigConstantList()
+    {
+        $files = [
+            self::ERROR_CONFIG_FILE,
+            self::APP_CONFIG_FILE,
+            self::ROUTES_CONFIG_FILE,
+            self::AUTH_CONFIG_FILE,
+            self::DB_CONFIG_FILE,
+            self::CP_CONFIG_FILE,
+            self::MAIL_CONFIG_FILE,
+            self::VALIDATOR_CONFIG_FILE,
+            self::ASSETS_CONFIG_FILE,
+        ];
+
+        $list = [];
+
+        foreach ($files as $file) {
+            $configFilePath = Kernel::getPackagePath([self::CONFIG_FOLDER, $file]);
+            $appFilePath = Kernel::getAppPath([self::CONFIG_FOLDER, $file]);
+
+            $list = ArrayHandler::merge($list, FileHandler::getFileConstantList($configFilePath));
+            $list = ArrayHandler::merge($list, FileHandler::getFileConstantList($appFilePath));
+        }
+
+        return $list;
+    }
+
+    private function initConfiguredModules()
+    {
+        // AssetsManager
+        AssetsManager::init();
+        // CP
+        if (self::$cp->config->enabled === false) {
+            self::$routes->remove(ROUTE_get_copper_cp);
+            self::$routes->remove(ROUTE_copper_cp_action);
+        }
+        // App
+        ini_set('serialize_precision', strval(self::$app->config->serialize_precision));
+    }
+
+    private function saveConfigToCache()
+    {
+        $configCache = [
+            '$errorHandler' => serialize(self::$errorHandler->config),
+            '$app' => serialize(self::$app->config),
+            '$cp' => serialize(self::$cp->config),
+            '$db' => serialize(self::$db->config),
+            '$auth' => serialize(self::$auth->config),
+            '$validator' => serialize(self::$validator->config),
+            '$mail' => serialize(self::$mail->config),
+            '$assetsManager' => serialize(self::$assetsManager->config),
+            '$routes' => serialize(self::$routes),
+            'constant_list' => $this->getConfigConstantList()
+        ];
+
+        $configFilePath = Kernel::getAppPath([self::CACHE_FOLDER, self::CACHE_CONFIG_FILE]);
+        FileHandler::setContent($configFilePath, json_encode($configCache));
+    }
+
+    private function createConfigFromCache()
+    {
+        $configFilePath = Kernel::getAppPath([self::CACHE_FOLDER, self::CACHE_CONFIG_FILE]);
+        $configCacheResp = FileHandler::getContent($configFilePath);
+
+        if ($configCacheResp->hasError())
+            return false;
+
+        $configCache = json_decode($configCacheResp->result, true);
+
+        $constantList = $configCache['constant_list'];
+
+        foreach ($constantList as $constant => $value) {
+            define($constant, $value);
+        }
+
+        /** @var ErrorConfigurator $errorConfigurator */
+        $errorConfigurator = unserialize($configCache['$errorHandler']);
+
+        /** @var AppConfigurator $appConfigurator */
+        $appConfigurator = unserialize($configCache['$app']);
+
+        /** @var CPConfigurator $cpConfigurator */
+        $cpConfigurator = unserialize($configCache['$cp']);
+
+        /** @var DBConfigurator $dbConfigurator */
+        $dbConfigurator = unserialize($configCache['$db']);
+
+        /** @var AuthConfigurator $authConfigurator */
+        $authConfigurator = unserialize($configCache['$auth']);
+
+        /** @var ValidatorConfigurator $validatorConfigurator */
+        $validatorConfigurator = unserialize($configCache['$validator']);
+
+        /** @var MailConfigurator $mailConfigurator */
+        $mailConfigurator = unserialize($configCache['$mail']);
+
+        /** @var AssetsManagerConfigurator $assetsManagerConfigurator */
+        $assetsManagerConfigurator = unserialize($configCache['$assetsManager']);
+
+        $this->configureErrorHandler($errorConfigurator);
+        $this->configureApp($appConfigurator);
+        $this->configureCP($cpConfigurator);
+        $this->configureDB($dbConfigurator);
+        $this->configureAuth($authConfigurator);
+        $this->configureValidator($validatorConfigurator);
+        $this->configureMail($mailConfigurator);
+        $this->configureAssetsManager($assetsManagerConfigurator);
+
+        self::$routes = unserialize($configCache['$routes']);
+
+        // TODO possibly this should be removed, and resources should write/get info directly from routes
+        // TODO [this will speed up loading time]
+        // Prepare Resources
+        // ----------------------------------------------------
+        foreach (self::$routes as $name => $route) {
+            /** @var AbstractResource $resource */
+            $resource = $route->getDefault('_resource');
+
+            if ($resource === null)
+                continue;
+
+            $group = $route->getDefault('_route_group');
+
+            if ($group !== null)
+                $resource::setGroup($group);
+
+            $accessRole = $route->getDefault('_route_access_role');
+
+            if ($accessRole !== null)
+                $resource::setAccessRole($accessRole);
+
+            $defaultDefinedVars = $route->getDefault('_default_defined_vars');
+
+            if ($defaultDefinedVars !== null)
+                $resource::setDefaultDefinedVars($defaultDefinedVars);
+        }
+
+        $this->configureFlashMessage();
+
+        $this->initConfiguredModules();
+
+        return true;
+    }
+
+    private function getCacheInfo()
+    {
+        $cacheFolderPath = Kernel::getAppPath(self::CACHE_FOLDER);
+        $infoFilePath = Kernel::getAppPath([self::CACHE_FOLDER, self::CACHE_INFO_FILE]);
+
+        FileHandler::createFolder($cacheFolderPath);
+
+        $info = [
+            "cache_folder_mod_time" => FileHandler::getModTime($cacheFolderPath),
+            "res_folder_mod_time" => FileHandler::getModTime(Kernel::getAppResourcePath()),
+        ];
+
+        $infoFileResp = FileHandler::getContent($infoFilePath);
+
+        if ($infoFileResp->isOK()) {
+            $oldInfo = json_decode($infoFileResp->result, true);
+            $cacheResetRequired = ArrayHandler::count(ArrayHandler::diff($info, $oldInfo)) > 0;
+        } else {
+            $cacheResetRequired = true;
+        }
+
+        FileHandler::setContent($infoFilePath, json_encode($info));
+
+        return FunctionResponse::createSuccessOrError(!$cacheResetRequired, $info);
+    }
+
+    public static function run()
+    {
+        $request = Request::createFromGlobals();
+
+        $requestContext = self::configureRequestContext($request);
+
+        self::$request = $request;
+        self::$requestContext = $requestContext;
+
+        $self = new self();
+
+        return $self->handle($request, $requestContext)->send();
+    }
+
+    public static function getIndexRelPath()
+    {
+        $index_rel_path = getenv(self::HTACCESS_VAR__INDEX_REL_PATH);
+
+        if ($index_rel_path === false)
+            $index_rel_path = StringHandler::replace($_SERVER['SCRIPT_FILENAME'], self::getAppPath() . '/', '');
+
+        return $index_rel_path;
     }
 
     /**
      * Returns Base Uri
      * @param bool $relative
+     * @param null $requestContext
      * @return string
      */
-    public static function getAppBaseUrl($relative = false)
+    public static function getAppBaseUrl($relative = false, $requestContext = null)
     {
-        $hostName = $_SERVER['HTTP_HOST'];
-        $protocol = $_SERVER['REQUEST_SCHEME'];
+        $requestContext = $requestContext ?? self::$requestContext;
 
-        $index_rel_path = getenv(self::HTACCESS_VAR__INDEX_REL_PATH);
-        if ($index_rel_path === false)
-            $index_rel_path = StringHandler::replace($_SERVER['SCRIPT_FILENAME'], self::getAppPath() . '/', '');
+        $hostName = $requestContext->getHost();
+        $protocol = $requestContext->getScheme();
+
+        $index_rel_path = self::getIndexRelPath();
 
         $path = StringHandler::replace($_SERVER['SCRIPT_NAME'], $index_rel_path, '');
 
@@ -287,9 +506,9 @@ final class Kernel
     }
 
     /**
-     * @return AbstractController
+     * @return AbstractController|null
      */
-    public static function getController(): AbstractController
+    public static function getController()
     {
         return self::$controller;
     }
@@ -505,12 +724,20 @@ final class Kernel
      * @param $request
      * @return RequestContext
      */
-    private function configureRequestContext($request)
+    private static function configureRequestContext($request)
     {
         $requestContext = new RequestContext();
+
         $requestContext->fromRequest($request);
 
-        $base_url = self::getAppBaseUrl(true);
+        $host = $_SERVER['HTTP_HOST'];
+
+        if (isset($_SERVER['SCRIPT_URI']))
+            $host = parse_url($_SERVER['SCRIPT_URI'], PHP_URL_HOST) ?? $host;
+
+        $requestContext->setHost($host);
+
+        $base_url = self::getAppBaseUrl(true, $requestContext);
 
         if ($base_url !== '' && $base_url !== '/') {
             $requestContext->setBaseUrl($base_url);
@@ -532,20 +759,24 @@ final class Kernel
         return $requestContext;
     }
 
+    // TODO should be moved to ENV module
+    public static function isLocalhost()
+    {
+        $host_ip = $_SERVER['SERVER_ADDR'];
+
+        return ($host_ip === '127.0.0.1' || $host_ip === '::1');
+    }
+
     /**
      * Handles Request
      *
      * @param Request $request
+     * @param RequestContext $requestContext
      *
      * @return Response
      */
-    public function handle(Request $request)
+    public function handle(Request $request, RequestContext $requestContext)
     {
-        $requestContext = $this->configureRequestContext($request);
-
-        self::$request = $request;
-        self::$requestContext = $requestContext;
-
         $matcher = new UrlMatcher(self::$routes, $requestContext);
 
         // ---------------- CSRF Verification --------------------
@@ -573,10 +804,10 @@ final class Kernel
 
             $request_access_roles = $request->attributes->get('_route_access_role', []);
             if (count($request_access_roles) > 0 && self::$auth->user()->hasRole($request_access_roles) === false)
-                $response = self::$errorHandler->throwErrorAsResponse('Access Denied',Response::HTTP_FORBIDDEN);
+                $response = self::$errorHandler->throwErrorAsResponse('Access Denied', Response::HTTP_FORBIDDEN);
             else
                 $response = $this->getRequestControllerResponse($request, $requestContext);
-            
+
         } catch (\Exception $e) {
             if ($e instanceof MethodNotAllowedException) {
                 $msg = 'Method [' . $request->getMethod() . '] is not allowed.';
@@ -602,7 +833,14 @@ final class Kernel
      */
     protected function configureMatchedRequestAttributes(UrlMatcher $matcher, Request $request, RequestContext $requestContext)
     {
-        $routeDefinitionKeys = ['_controller', '_route', '_route_group', '_route_access_role'];
+        $routeDefinitionKeys = [
+            '_controller',
+            '_route',
+            '_route_group',
+            '_route_access_role',
+            '_default_defined_vars',
+            '_resource'
+        ];
 
         $matchCollection = $matcher->match($requestContext->getPathInfo());
 
@@ -661,13 +899,45 @@ final class Kernel
     }
 
     /**
-     *  Configure App from {Package|App}/config/app.php
+     * TODO should be moved to request itself
+     *
+     * Returns route data by key
+     * @param string $key
+     * @param null $defaultValue
+     * @return mixed|null
      */
-    protected function configureApp()
+    public static function getRouteData(string $key, $defaultValue = null)
     {
-        self::$app = new App(self::APP_CONFIG_FILE);
+        $controller = Kernel::getController();
 
-        ini_set('serialize_precision', strval(self::$app->config->serialize_precision));
+        if ($controller === null)
+            return $defaultValue;
+
+        return $controller->routeDataBag->get($key, $defaultValue);
+    }
+
+    /**
+     * Returns application config
+     * If bagKey is provided - returns key value from config bag (custom values)
+     * @param string|null $bagKey
+     * @param mixed|null $defaultValue
+     * @return AppConfigurator|mixed|null
+     */
+    public static function getAppConfig($bagKey = null, $defaultValue = null)
+    {
+        if ($bagKey !== null)
+            return self::$app->config->bag->get($bagKey, $defaultValue);
+
+        return self::$app->config;
+    }
+
+    /**
+     *  Configure App from {Package|App}/config/app.php
+     * @param AppConfigurator|null $config
+     */
+    protected function configureApp(AppConfigurator $config = null)
+    {
+        self::$app = new App(self::APP_CONFIG_FILE, $config);
     }
 
     /**
@@ -686,10 +956,11 @@ final class Kernel
 
     /**
      *  Configure Auth from {Package|App}/config/auth.php
+     * @param AuthConfigurator|null $config
      */
-    protected function configureAuth()
+    protected function configureAuth(AuthConfigurator $config = null)
     {
-        self::$auth = new AuthHandler(self::AUTH_CONFIG_FILE);
+        self::$auth = new AuthHandler(self::AUTH_CONFIG_FILE, $config);
     }
 
     /**
@@ -702,56 +973,55 @@ final class Kernel
 
     /**
      *  Configure Database from {Package|App}/config/db.php
+     * @param DBConfigurator|null $config
      */
-    protected function configureDB()
+    protected function configureDB(DBConfigurator $config = null)
     {
-        self::$db = new DBHandler(self::DB_CONFIG_FILE);
+        self::$db = new DBHandler(self::DB_CONFIG_FILE, $config);
     }
 
     /**
      *  Configure Control Panel from {Package|App}/config/cp.php
+     * @param CPConfigurator|null $config
      */
-    protected function configureCP()
+    protected function configureCP(CPConfigurator $config = null)
     {
-        self::$cp = new CPHandler(self::CP_CONFIG_FILE);
-
-        if (self::$cp->config->enabled === false) {
-            self::$routes->remove(ROUTE_get_copper_cp);
-            self::$routes->remove(ROUTE_copper_cp_action);
-        }
+        self::$cp = new CPHandler(self::CP_CONFIG_FILE, $config);
     }
 
     /**
      *  Configure Mail from {Package|App}/config/mail.php
+     * @param MailConfigurator|null $config
      */
-    protected function configureMail()
+    protected function configureMail(MailConfigurator $config = null)
     {
-        self::$mail = new MailHandler(self::MAIL_CONFIG_FILE);
+        self::$mail = new MailHandler(self::MAIL_CONFIG_FILE, $config);
     }
 
     /**
      *  Configure ErrorHandler from {Package|App}/config/mail.php
+     * @param ErrorConfigurator|null $config
      */
-    protected function configureErrorHandler()
+    protected function configureErrorHandler(ErrorConfigurator $config = null)
     {
-        self::$errorHandler = new ErrorHandler(self::ERROR_CONFIG_FILE);
+        self::$errorHandler = new ErrorHandler(self::ERROR_CONFIG_FILE, $config);
     }
 
     /**
      *  Configure Validator from {Package|App}/config/validator.php
+     * @param ValidatorConfigurator|null $config
      */
-    protected function configureValidator()
+    protected function configureValidator(ValidatorConfigurator $config = null)
     {
-        self::$validator = new ValidatorHandler(self::VALIDATOR_CONFIG_FILE);
+        self::$validator = new ValidatorHandler(self::VALIDATOR_CONFIG_FILE, $config);
     }
 
     /**
      *  Configure Validator from {Package|App}/config/assets.php
+     * @param AssetsManagerConfigurator|null $config
      */
-    protected function configureAssetsManager()
+    protected function configureAssetsManager(AssetsManagerConfigurator $config = null)
     {
-        self::$assetsManager = new AssetsManager(self::ASSETS_CONFIG_FILE);
-
-        AssetsManager::init();
+        self::$assetsManager = new AssetsManager(self::ASSETS_CONFIG_FILE, $config);
     }
 }
