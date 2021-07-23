@@ -259,13 +259,13 @@ final class Kernel
 
     private function getCacheInfo()
     {
-        $cacheFolderPath = Kernel::getAppPath(self::CACHE_FOLDER);
-        $infoFilePath = Kernel::getAppPath([self::CACHE_FOLDER, self::CACHE_INFO_FILE]);
+        $infoFilePath = Kernel::getAppCachePath(self::CACHE_INFO_FILE);
 
-        FileHandler::createFolder($cacheFolderPath);
+        FileHandler::createFolder(Kernel::getAppCachePath());
 
         $info = [
-            "cache_folder_mod_time" => FileHandler::getModTime($cacheFolderPath),
+            "app_config_folder_mod_time" => FileHandler::getModTime(Kernel::getAppConfigPath()),
+            "package_config_folder_mod_time" => FileHandler::getModTime(Kernel::getPackageConfigPath()),
             "res_folder_mod_time" => FileHandler::getModTime(Kernel::getAppResourcePath()),
         ];
 
@@ -365,39 +365,67 @@ final class Kernel
         return $ip_list;
     }
 
-    public static function getAppControllerPath()
+    public static function getAppConfigPath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Controller']);
+        $pathArray = FileHandler::extendPathArray([self::CONFIG_FOLDER], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppServicePath()
+    public static function getAppCachePath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Service']);
+        $pathArray = FileHandler::extendPathArray([self::CACHE_FOLDER], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppResourcePath()
+    public static function getAppControllerPath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Resource']);
+        $pathArray = FileHandler::extendPathArray(['src', 'Controller'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppEntityPath()
+    public static function getAppServicePath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Entity']);
+        $pathArray = FileHandler::extendPathArray(['src', 'Service'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppModelPath()
+    public static function getAppResourcePath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Model']);
+        $pathArray = FileHandler::extendPathArray(['src', 'Resource'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppSeedPath()
+    public static function getAppEntityPath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Seed']);
+        $pathArray = FileHandler::extendPathArray(['src', 'Entity'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppTraitsPath()
+    public static function getAppModelPath($path = null)
     {
-        return FileHandler::appPathFromArray(['src', 'Traits']);
+        $pathArray = FileHandler::extendPathArray(['src', 'Model'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
+    }
+
+    public static function getAppSeedPath($path = null)
+    {
+        $pathArray = FileHandler::extendPathArray(['src', 'Seed'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
+    }
+
+    public static function getAppTraitsPath($path = null)
+    {
+        $pathArray = FileHandler::extendPathArray(['src', 'Traits'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
     public static function getAppPublicPath($path = null)
@@ -407,9 +435,11 @@ final class Kernel
         return FileHandler::appPathFromArray($pathArray);
     }
 
-    public static function getAppTemplatesPath()
+    public static function getAppTemplatesPath($path = null)
     {
-        return FileHandler::appPathFromArray(['templates']);
+        $pathArray = FileHandler::extendPathArray(['templates'], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
     }
 
     public static function getAppLogPath($logFile = null)
@@ -450,6 +480,13 @@ final class Kernel
         return FileHandler::pathFromArray($pathArray);
     }
 
+    public static function getPackageConfigPath($path = null)
+    {
+        $pathArray = FileHandler::extendPathArray([self::CONFIG_FOLDER], $path);
+
+        return FileHandler::packagePathFromArray($pathArray);
+    }
+
     /**
      * Returns path to package root directory
      *
@@ -466,41 +503,41 @@ final class Kernel
     }
 
     /**
-     * @return App
+     * @return App|null
      */
-    public static function getApp(): App
+    public static function getApp()
     {
         return self::$app;
     }
 
     /**
-     * @return ErrorHandler
+     * @return ErrorHandler|null
      */
-    public static function getErrorHandler(): ErrorHandler
+    public static function getErrorHandler()
     {
         return self::$errorHandler;
     }
 
     /**
-     * @return AssetsManager
+     * @return AssetsManager|null
      */
-    public static function getAssetsManager(): AssetsManager
+    public static function getAssetsManager()
     {
         return self::$assetsManager;
     }
 
     /**
-     * @return RouteCollection
+     * @return RouteCollection|null
      */
-    public static function getRoutes(): RouteCollection
+    public static function getRoutes()
     {
         return self::$routes;
     }
 
     /**
-     * @return AuthHandler
+     * @return AuthHandler|null
      */
-    public static function getAuth(): AuthHandler
+    public static function getAuth()
     {
         return self::$auth;
     }
@@ -514,41 +551,41 @@ final class Kernel
     }
 
     /**
-     * @return FlashMessageHandler
+     * @return FlashMessageHandler|null
      */
-    public static function getFlashMessage(): FlashMessageHandler
+    public static function getFlashMessage()
     {
         return self::$flashMessage;
     }
 
     /**
-     * @return DBHandler
+     * @return DBHandler|null
      */
-    public static function getDb(): DBHandler
+    public static function getDb()
     {
         return self::$db;
     }
 
     /**
-     * @return CPHandler
+     * @return CPHandler|null
      */
-    public static function getCp(): CPHandler
+    public static function getCp()
     {
         return self::$cp;
     }
 
     /**
-     * @return MailHandler
+     * @return MailHandler|null
      */
-    public static function getMail(): MailHandler
+    public static function getMail()
     {
         return self::$mail;
     }
 
     /**
-     * @return ValidatorHandler
+     * @return ValidatorHandler|null
      */
-    public static function getValidator(): ValidatorHandler
+    public static function getValidator()
     {
         return self::$validator;
     }
@@ -562,9 +599,9 @@ final class Kernel
     }
 
     /**
-     * @return Request
+     * @return Request|null
      */
-    public static function getRequest(): Request
+    public static function getRequest()
     {
         return self::$request;
     }

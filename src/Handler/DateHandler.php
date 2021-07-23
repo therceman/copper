@@ -302,7 +302,8 @@ class DateHandler
      *
      * @return false|string
      */
-    public static function formatDate(string $date, string $toFormat, string $fromFormat = null) {
+    public static function formatDate(string $date, string $toFormat, string $fromFormat = null)
+    {
 
         $fromFormat = ($fromFormat === null) ? self::getDateFormat() : $fromFormat;
 
@@ -321,7 +322,8 @@ class DateHandler
      *
      * @return false|string
      */
-    public static function formatDateTime(string $date, string $toFormat, string $fromFormat = null) {
+    public static function formatDateTime(string $date, string $toFormat, string $fromFormat = null)
+    {
 
         $fromFormat = ($fromFormat === null) ? self::getDateTimeFormat() : $fromFormat;
 
@@ -331,6 +333,34 @@ class DateHandler
             return false;
 
         return $date->format($toFormat);
+    }
+
+    /**
+     * Datetime from timestamp
+     *
+     * @param int $timestamp
+     * @param null $toFormat
+     * @return false|string
+     */
+    public static function dateTimeFromTimestamp(int $timestamp, $toFormat = null)
+    {
+        $toFormat = ($toFormat === null) ? self::getDateTimeFormat() : $toFormat;
+
+        return date($toFormat, $timestamp);
+    }
+
+    /**
+     * Date from timestamp
+     *
+     * @param int $timestamp
+     * @param null $toFormat
+     * @return false|string
+     */
+    public static function dateFromTimestamp(int $timestamp, $toFormat = null)
+    {
+        $toFormat = ($toFormat === null) ? self::getDateFormat() : $toFormat;
+
+        return date($toFormat, $timestamp);
     }
 
     /**

@@ -13,6 +13,11 @@ class AbstractEntity
     /** @var int */
     public $id;
 
+    public static function new()
+    {
+        return new static();
+    }
+
     /**
      * @param ViewHandler $view
      * @param string $key
@@ -72,6 +77,14 @@ class AbstractEntity
     public function toArray()
     {
         return (array)$this;
+    }
+
+    /**
+     * @return array
+     */
+    public function toJSON()
+    {
+        return json_encode($this->toArray());
     }
 
     /**
