@@ -61,9 +61,9 @@ class AbstractEntity
                 if ($value === '')
                     $value = null;
 
-                if ($value !== null)
+                if ($value !== null && $type !== null)
                     settype($value, $type);
-
+                
                 $self->$key = $value;
             }
         }

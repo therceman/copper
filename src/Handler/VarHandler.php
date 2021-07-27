@@ -38,6 +38,19 @@ class VarHandler
         return gettype($var);
     }
 
+    public static function isJSON($var)
+    {
+        if (is_string($var) === false)
+            return false;
+
+        $result = json_decode($var);
+
+        if ($result === null && json_last_error() !== JSON_ERROR_NONE)
+            return false;
+
+        return true;
+    }
+
     public static function isEmpty($var)
     {
         if (self::isArray($var))
