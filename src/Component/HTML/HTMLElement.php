@@ -531,14 +531,23 @@ class HTMLElement
         return $this->__toString();
     }
 
-    public function toXMLFormatted($version = '1.0', $encoding = 'UTF-8')
+    /**
+     * Outputs HTML tree as formatted XML string
+     * 
+     * @param string $version
+     * @param string $encoding
+     * @param bool $format
+     * @param false $preserveWhiteSpace
+     * @return false|string
+     */
+    public function toXML($version = '1.0', $encoding = 'UTF-8', $format = true, $preserveWhiteSpace = false)
     {
         $version = StringHandler::replace($version, '"', '');
         $encoding = StringHandler::replace($encoding, '"', '');
-        
+
         $doc = new DOMDocument($version, $encoding);
-        $doc->preserveWhiteSpace = false;
-        $doc->formatOutput = true;
+        $doc->preserveWhiteSpace = $preserveWhiteSpace;
+        $doc->formatOutput = $format;
 
         $doc->loadXML('<?xml version="' . $version . '" encoding="' . $encoding . '" ?>' . $this->getOuterHTML());
 
