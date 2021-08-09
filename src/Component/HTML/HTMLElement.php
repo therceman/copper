@@ -8,6 +8,7 @@ use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
 use Copper\Sanitizer;
+use DOMDocument;
 
 /**
  * Class HTMLElement
@@ -109,6 +110,17 @@ class HTMLElement
         $this->elementBefore = false;
 
         $this->initAttributes();
+    }
+
+    /**
+     * HTMLElement static constructor
+     *
+     * @param string $tag
+     * @param bool $hasEndTag
+     */
+    public static function new(string $tag, $hasEndTag = true)
+    {
+        return new static($tag, $hasEndTag);
     }
 
     /**
@@ -517,6 +529,20 @@ class HTMLElement
     public function getOuterHTML()
     {
         return $this->__toString();
+    }
+
+    public function toXMLFormatted($version = '1.0', $encoding = 'UTF-8')
+    {
+        $version = StringHandler::replace($version, '"', '');
+        $encoding = StringHandler::replace($encoding, '"', '');
+        
+        $doc = new DOMDocument($version, $encoding);
+        $doc->preserveWhiteSpace = false;
+        $doc->formatOutput = true;
+
+        $doc->loadXML('<?xml version="' . $version . '" encoding="' . $encoding . '" ?>' . $this->getOuterHTML());
+
+        return $doc->saveXML();
     }
 
     /**

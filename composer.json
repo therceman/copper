@@ -7,6 +7,7 @@
     "php": ">=7.2",
     "ext-json": "*",
     "ext-pdo": "*",
+    "ext-dom": "*",
     "symfony/http-foundation": "3.4.35",
     "symfony/routing": "5.3",
     "envms/fluentpdo": "2.2.0",

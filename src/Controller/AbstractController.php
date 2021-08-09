@@ -12,6 +12,7 @@ use Copper\Component\Mail\MailHandler;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Component\Validator\ValidatorHandler;
 use Copper\Handler\ArrayHandler;
+use Copper\Handler\DateHandler;
 use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
 use Copper\Kernel;
@@ -244,6 +245,133 @@ class AbstractController
     protected function dump_response($data, $status = 200, $headers = [])
     {
         return new Response($this->dump($data, false), $status, $headers);
+    }
+
+    /**
+     * Downloads the data as a file (attachment response)
+     * 
+     * @param $data
+     * @param $filename
+     * @param string $contenType
+     * @param int $status
+     * @param array $headers
+     * @return Response
+     */
+    protected function download_response($data, $filename, $contenType = 'application/octet-stream', $status = 200, $headers = [])
+    {
+        $filename = StringHandler::replace($filename, '"', '');
+
+        $headers = ArrayHandler::merge([
+            'Content-Type' => $contenType,
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ], $headers);
+
+        return $this->response($data, $status, $headers);
+    }
+
+    protected function dump_request($dumpServerInfo = false)
+    {
+        $controllerInfo = $this->request->attributes->get('_controller');
+        $controllerClass = $controllerInfo[0];
+        $controllerMethod = $controllerInfo[1];
+
+        $routeName = $this->request->attributes->get('_route');
+        $routeParams = $this->request->attributes->get('_route_params');
+
+        $bodyParams = $this->request->request->all();
+        $queryParams = $this->request->query->all();
+        $jsonParams = $this->requestJSON();
+        $content = $this->request->getContent();
+        $files = $this->request->files->all();
+
+        $server = $this->request->server->all();
+        $headers = $this->request->headers->all();
+        $cookies = $this->request->cookies->all();
+
+        $ip_list = $this->request->getClientIps();
+
+        $contentType = $this->request->headers->get('content_type');
+        $method = $this->request->getRealMethod();
+        $uri = $this->request->getUri();
+        $protocol = $this->request->getProtocolVersion();
+
+        $out = 'IP: ' . ArrayHandler::join($ip_list) . "\r\n";
+        $out .= 'Date: ' . DateHandler::dateTimeFromTimestamp($server['REQUEST_TIME']) . "\r\n";
+        $out .= 'Request: ' . "$method $uri $protocol" . "\r\n";
+        $out .= 'Controller: ' . "$controllerClass::$controllerMethod ($routeName)" . "\r\n";
+        $out .= 'Content Type: ' . $contentType . "\r\n";
+
+        if (VarHandler::isEmpty($routeParams) === false) {
+            $out .= '##### Route Params' . "\r\n\r\n";
+
+            foreach ($routeParams as $k => $v) {
+                $out .= "$k: $v\r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($queryParams) === false) {
+            $out .= "\r\n##### Query Params \r\n\r\n";
+
+            foreach ($queryParams as $k => $v) {
+                $out .= "$k: $v\r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($headers) === false) {
+            $out .= "\r\n##### Headers \r\n\r\n";
+
+            foreach ($headers as $k => $v) {
+                $out .= "$k: $v[0]\r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($cookies) === false) {
+            $out .= "\r\n##### Cookies \r\n\r\n";
+
+            foreach ($cookies as $k => $v) {
+                $out .= "$k: $v\r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($bodyParams) === false) {
+            $out .= "\r\n##### Body Params \r\n\r\n";
+
+            foreach ($bodyParams as $k => $v) {
+                $out .= "$k: $v\r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($jsonParams) === false) {
+            $out .= "\r\n##### JSON Params \r\n\r\n";
+
+            foreach ($jsonParams as $k => $v) {
+                $out .= "$k: $v\r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($files) === false) {
+            $out .= "\r\n##### Files \r\n\r\n";
+            foreach ($files as $k => $v) {
+                /** @var \Symfony\Component\HttpFoundation\File\UploadedFile $v */
+                $out .= "$k: {$v->getClientOriginalName()} ({$v->getMimeType()}), {$v->getSize()} bytes \r\n";
+            }
+        }
+
+        if (VarHandler::isEmpty($jsonParams) && VarHandler::isEmpty($bodyParams) && $content !== '') {
+            $out .= "\r\n##### Content \r\n\r\n";
+            $out .= $content . "\r\n";
+        }
+
+        if ($dumpServerInfo && VarHandler::isEmpty($server) === false) {
+            $out .= "\r\n##### Server \r\n\r\n";
+            foreach ($server as $k => $v) {
+                $out .= "$k: $v\r\n";
+            }
+        }
+
+        $out .= "\r\n----------------------------------------------------------------------------------------\r\n\r\n";
+
+        return $out;
     }
 
     /**

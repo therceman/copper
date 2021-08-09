@@ -53,7 +53,7 @@ class PaginationHTML
     private function createStyle()
     {
         return HTML::style([
-            '.' . $this->class => [
+            '.pagination' => [
                 'border' => '1px solid #ccc',
                 'border-radius' => '6px',
                 'margin-right' => '5px',
@@ -61,7 +61,7 @@ class PaginationHTML
                 'margin-top' => '15px',
                 'text-align' => 'center',
             ],
-            '.' . $this->class . ' a' => [
+            '.pagination a' => [
                 'width' => '16px',
                 'border-radius' => '6px',
                 'display' => 'inline-block',
@@ -69,11 +69,11 @@ class PaginationHTML
                 'padding' => '6px 8px',
                 'color' => '#707070',
             ],
-            '.' . $this->class . ' a.active' => [
+            '.pagination a.active' => [
                 'background' => '#10ae3f',
                 'color' => '#fff',
             ],
-            '.' . $this->class . ' .arrow' => [
+            '.pagination .arrow' => [
                 'font-size' => '33px',
                 'vertical-align' => 'sub',
                 'line-height' => '0'
@@ -116,7 +116,7 @@ class PaginationHTML
             $page_list,
             $next_page,
             $this->style
-        ], $this->class);
+        ], 'pagination ' . $this->class);
     }
 
     /**

@@ -33,6 +33,15 @@ class DateHandler
         return self::TIME_FORMAT;
     }
 
+    /**
+     * @param null $timezone
+     * @return int
+     */
+    public static function timestamp($timezone = null)
+    {
+        return self::newDate()->getTimestamp();
+    }
+
     public static function getDateTimeFormat()
     {
         if (Kernel::getApp() !== null)

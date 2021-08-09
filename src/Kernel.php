@@ -805,6 +805,15 @@ final class Kernel
     }
 
     /**
+     * Returns CSRF Token value
+     * @return string
+     */
+    public static function getCSRFToken()
+    {
+        return Kernel::getAuth()->sessionId();
+    }
+
+    /**
      * Handles Request
      *
      * @param Request $request
@@ -824,7 +833,7 @@ final class Kernel
         if ($csrf_token === null)
             $csrf_token = $request->headers->get(Kernel::CSRF_TOKEN_HEADER);
 
-        if ($csrf_token !== Kernel::getAuth()->sessionId() && ($isXmlHttpRequest || $request->getMethod() === 'POST')) {
+        if ($csrf_token !== self::getCSRFToken() && ($isXmlHttpRequest || $request->getMethod() === 'POST')) {
             $msg = 'CSRF Verification Failed for method [' . $request->getMethod() . ']';
 
             if ($isXmlHttpRequest)

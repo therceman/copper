@@ -357,7 +357,7 @@ class ViewHandler
      */
     public function injectCSRFTokenIntoHTML($html)
     {
-        $csrf_token = Kernel::getAuth()->sessionId();
+        $csrf_token = Kernel::getCSRFToken();
 
         $csrf_token_input = HTML::inputHidden(Kernel::CSRF_TOKEN, $csrf_token);
 

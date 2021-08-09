@@ -318,7 +318,7 @@ class HTML
         return $el;
     }
 
-    public static function svg($useHref = null, $useId = null)
+    public static function svg($useHref = null, $useId = null, $class = null)
     {
         $hrefHash = null;
 
@@ -336,6 +336,7 @@ class HTML
 
         $svg = new HTMLElement(HTMLElement::SVG);
         $svg->class($useId);
+        $svg->addClass($class ?? '');
         $svg->addElement($use);
 
         return $svg;
