@@ -4,7 +4,7 @@ Copper is a **PHP Framework** that is mainly focused on simplicity and developme
 
 Versions:
 - v1.0 - https://github.com/therceman/copper/tree/v1.0.13
-- v2.0 - https://github.com/therceman/copper (Work In Progress, No Manual/Readme/Documentation yet)
+- v2.0 (master) - https://github.com/therceman/copper (Work In Progress, No Manual/Readme/Documentation yet)
 
 ---
 
