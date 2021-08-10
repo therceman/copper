@@ -176,9 +176,22 @@ class AbstractController
      *
      * @return Response
      */
-    protected function response($data, $status = 200, $headers = [])
+    protected function response($data = '', $status = 200, $headers = [])
     {
         return new Response($data, $status, $headers);
+    }
+
+    /**
+     * Returns an empty HTTP Response
+     *
+     * @param int $status The status code should be 204 or 304
+     * @param array $headers Array of extra headers to add
+     *
+     * @return Response
+     */
+    protected function empty_response($status = 204, $headers = [])
+    {
+        return new Response(null, $status, $headers);
     }
 
     /**
@@ -207,7 +220,7 @@ class AbstractController
      *
      * @return JsonResponse
      */
-    protected function json($data, $status = 200, $headers = [])
+    protected function json($data = null, $status = 200, $headers = [])
     {
         $data = (array)$data;
 
@@ -249,7 +262,7 @@ class AbstractController
 
     /**
      * Downloads the data as a file (attachment response)
-     * 
+     *
      * @param $data
      * @param $filename
      * @param string $contenType

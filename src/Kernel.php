@@ -814,18 +814,14 @@ final class Kernel
     }
 
     /**
-     * Handles Request
+     * CSRF Verification
      *
      * @param Request $request
-     * @param RequestContext $requestContext
-     *
-     * @return Response
+     * @return FunctionResponse
      */
-    public function handle(Request $request, RequestContext $requestContext)
+    private function verifyCSRFToken(Request $request)
     {
-        $matcher = new UrlMatcher(self::$routes, $requestContext);
-
-        // ---------------- CSRF Verification --------------------
+        $response = new FunctionResponse();
 
         $isXmlHttpRequest = $request->isXmlHttpRequest();
         $csrf_token = $request->request->get(Kernel::CSRF_TOKEN, null);
@@ -839,10 +835,27 @@ final class Kernel
             if ($isXmlHttpRequest)
                 $msg .= ' @ XMLHttpRequest';
 
-            return self::$errorHandler->throwErrorAsResponse($msg, Response::HTTP_FORBIDDEN);
+            return $response->error($msg);
         }
 
-        // -------------------------------------------------------------
+        return $response->success();
+    }
+
+    /**
+     * Handles Request
+     *
+     * @param Request $request
+     * @param RequestContext $requestContext
+     *
+     * @return Response
+     */
+    public function handle(Request $request, RequestContext $requestContext)
+    {
+        $matcher = new UrlMatcher(self::$routes, $requestContext);
+
+        $csrfVerificationResp = $this->verifyCSRFToken($request);
+        if ($csrfVerificationResp->hasError())
+            return self::$errorHandler->throwErrorAsResponse($csrfVerificationResp->msg, Response::HTTP_FORBIDDEN);
 
         try {
             $this->configureMatchedRequestAttributes($matcher, $request, $requestContext);
@@ -866,6 +879,22 @@ final class Kernel
                 $response = self::$errorHandler->throwErrorAsResponse($e->getMessage(), $status);
             }
         }
+
+        return self::prepareResponse($response, $request);
+    }
+
+    /**
+     * Prepare Response before sending it to client
+     *
+     * @param Response $response
+     * @param Request $request
+     * @return Response
+     */
+    private function prepareResponse(Response $response, Request $request)
+    {
+        $response = $response->prepare($request);
+
+        header_remove('X-Powered-By');
 
         return $response;
     }
