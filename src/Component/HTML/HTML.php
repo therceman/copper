@@ -294,13 +294,32 @@ class HTML
      *
      * @return HTMLElement
      */
-    public static function img($src = null, $alt = null)
+    public static function img($src = null, $alt = null, $class = null)
     {
         $el = new HTMLElement(HTMLElement::IMG, false);
 
-        $el->setAttr('src', $src)->setAttr('alt', $alt);
+        $el->setAttr('src', $src)->setAttr('alt', $alt)->class($class);
 
         return $el;
+    }
+
+    public static function source($srcset, $media = null, $type = null)
+    {
+        $el = new HTMLSource();
+
+        $el->srcset($srcset)->media($media);
+
+        return $el;
+    }
+
+    /**
+     * @param HTMLElement[] $sourceList
+     *
+     * @return HTMLPicture
+     */
+    public static function picture(array $sourceList)
+    {
+        return new HTMLPicture($sourceList);
     }
 
     /**

@@ -29,6 +29,7 @@ class HTMLElement
     const INPUT = 'input';
     const IMG = 'img';
     const HR = 'hr';
+    const SOURCE = 'source';
 
     // with end tag
 
@@ -59,6 +60,7 @@ class HTMLElement
     const H6 = 'h6';
     const STYLE = 'style';
     const TABLE = 'table';
+    const PICTURE = 'picture';
 
     /** @var string */
     private $tag;

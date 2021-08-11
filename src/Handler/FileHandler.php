@@ -24,6 +24,13 @@ class FileHandler
     const MIME_TYPE__IMAGE_JPEG = 'image/jpeg';
     const MIME_TYPE__IMAGE_PNG = 'image/png';
 
+    public static function getFilenameFromPath($path)
+    {
+        $parsedUrl = parse_url($path, PHP_URL_PATH);
+
+        return basename($parsedUrl);
+    }
+
     /**
      * Clean File Path (allowed characters: 0-9_-./A-Za-z)
      * <hr>
