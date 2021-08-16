@@ -186,6 +186,18 @@ class DBSelect
     }
 
     /**
+     * @param string|null $field
+     *
+     * @return DBSelect
+     */
+    public static function outputList(?string $field = DBModel::ID)
+    {
+        $params = new DBSelect();
+
+        return $params->setOutput(DBOutput::listOutput($field));
+    }
+
+    /**
      * @param $columns
      * @return mixed
      */
