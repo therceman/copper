@@ -105,7 +105,7 @@ class NumberHandler
      */
     public static function leadingZeros($num, $length)
     {
-        return str_pad($num, $length, '0', STR_PAD_LEFT);
+        return str_pad(VarHandler::toString($num), $length, '0', STR_PAD_LEFT);
     }
 
     /**

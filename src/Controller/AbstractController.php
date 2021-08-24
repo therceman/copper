@@ -358,6 +358,18 @@ class AbstractController
             $out .= "\r\n##### JSON Params \r\n\r\n";
 
             foreach ($jsonParams as $k => $v) {
+                if (is_array($v))
+                    $v = json_encode($v);
+
+                if ($v === true)
+                    $v = 'true';
+
+                if ($v === false)
+                    $v = 'false';
+
+                if ($v === null)
+                    $v = 'null';
+
                 $out .= "$k: $v\r\n";
             }
         }

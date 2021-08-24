@@ -880,6 +880,10 @@ final class Kernel
             }
         }
 
+        // if response is not returned from controller - create empty response
+        if ($response instanceof Response === false)
+            $response = new Response(null, 204);
+
         return self::prepareResponse($response, $request);
     }
 
