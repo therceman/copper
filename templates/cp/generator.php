@@ -226,7 +226,7 @@ if ($resource !== null) {
     table {
         border-collapse: collapse;
         width: 1400px;
-        font-size: 15px;
+        font-size: 14px;
     }
 
     table td {
@@ -320,6 +320,15 @@ if ($resource !== null) {
         background: #fff;
         padding: 14px 28px;
         border: 1px solid #ccc;
+    }
+
+
+</style>
+
+
+<style>
+    #fields td {
+        max-width: 190px;
     }
 </style>
 
@@ -766,16 +775,16 @@ if ($resource !== null) {
     <table id=fields>
         <thead>
         <tr id=fields_size style="height: 1px">
-            <td style="width: 187px;"></td>
-            <td style="width: 133px;"></td>
-            <td style="width: 167px;"></td>
-            <td style="width: 183px;"></td>
-            <td style="width: 31px;"></td>
-            <td style="width: 240px;"></td>
-            <td style="width: 89px;"></td>
-            <td style="width: 110px;"></td>
-            <td style="width: 80px;"></td>
-            <td style="width: 113px;"></td>
+            <th style="width: 187px;"></th>
+            <th style="width: 133px;"></th>
+            <th style="width: 167px;"></th>
+            <th style="width: 183px;"></th>
+            <th style="width: 31px;"></th>
+            <th style="width: 240px;"></th>
+            <th style="width: 89px;"></th>
+            <th style="width: 110px;"></th>
+            <th style="width: 80px;"></th>
+            <th style="width: 113px;"></th>
         </tr>
         </thead>
         <tbody></tbody>

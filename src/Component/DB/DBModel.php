@@ -107,6 +107,13 @@ abstract class DBModel
         return $foundField;
     }
 
+    public function getFieldDefaultValue($name)
+    {
+        $field = $this->getFieldByName($name);
+
+        return ($field === null) ? null : $field->getDefault();
+    }
+
     public function getFieldNames($escaped = false)
     {
         $names = [];

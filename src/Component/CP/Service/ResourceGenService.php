@@ -1147,7 +1147,7 @@ XML;
             $field = new DBModelField($fName, $field['type']);
 
             if ($field->typeIsInteger())
-                $type = 'integer';
+                $type = 'int';
 
             if ($field->typeIsFloat())
                 $type = 'float';
@@ -1168,6 +1168,10 @@ use Copper\Entity\AbstractEntity;
 
 $use_state_fields_trait_class
 
+/**
+ * Class $name
+ * @package App\Entity
+ */
 class $name extends AbstractEntity
 {
     // >>> Auto Generated: Fields
