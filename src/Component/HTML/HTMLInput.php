@@ -55,7 +55,7 @@ class HTMLInput extends HTMLElement
 
     public function autocomplete($enabled = true)
     {
-        $this->setAttr(self::ATTR_AUTOCOMPLETE, ($enabled) ? null : 'off');
+        $this->setAttr(self::ATTR_AUTOCOMPLETE, ($enabled) ? null : 'false_off');
 
         return $this;
     }
