@@ -30,6 +30,24 @@ class StringHandler
     }
 
     /**
+     * @param string $str
+     * @return false|string|string[]
+     */
+    public static function toLowerCase(string $str)
+    {
+        return mb_strtolower($str);
+    }
+
+    /**
+     * @param string $str
+     * @return false|string|string[]
+     */
+    public static function toUpperCase(string $str)
+    {
+        return mb_strtoupper($str);
+    }
+
+    /**
      * Explode/Split string by delimiter
      *
      * @param string $str

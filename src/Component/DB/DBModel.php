@@ -858,7 +858,8 @@ abstract class DBModel
 
             $response->result($resultId);
         } catch (Exception $e) {
-            $response->fail($e->getMessage(), $formattedInsertData);
+            $code = StringHandler::regex($e->getMessage(), '/Driver Code: (\d*)/m');
+            $response->fail($e->getMessage(), $formattedInsertData, $code);
         }
 
         return $response;

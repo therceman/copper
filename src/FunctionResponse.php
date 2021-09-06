@@ -13,14 +13,17 @@ class FunctionResponse
     public $status;
     /** @var string */
     public $msg;
+    /** @var int */
+    public $code;
     /** @var mixed */
     public $result;
 
-    public function __construct($status = true, $msg = '', $result = null)
+    public function __construct($status = true, $msg = '', $result = null, $code = 0)
     {
         $this->status = $status;
         $this->msg = $msg;
         $this->result = $result;
+        $this->code = $code;
     }
 
     /**
@@ -45,15 +48,16 @@ class FunctionResponse
      * Error. Status: False
      *
      * @param $msg
-     * @param false $result
+     * @param mixed|false $result
+     * @param int $code
      *
      * @return FunctionResponse
      */
-    public static function createError($msg, $result = false)
+    public static function createError($msg, $result = false, $code = 0)
     {
         $response = new FunctionResponse();
 
-        return $response->error($msg, $result);
+        return $response->error($msg, $result, $code);
     }
 
     /**
@@ -165,12 +169,14 @@ class FunctionResponse
      *
      * @param string $msg
      * @param mixed| false $result
+     * @param int $code
      * @return $this
      */
-    public function error(string $msg, $result = false)
+    public function error(string $msg, $result = false, $code = 0)
     {
         $this->status = false;
         $this->msg = $msg;
+        $this->code = $code;
 
         if ($result !== false)
             $this->result = $result;
@@ -230,11 +236,12 @@ class FunctionResponse
      *
      * @param string $msg
      * @param mixed $result
+     * @param int $code
      *
      * @return $this
      */
-    public function fail(string $msg, $result = false)
+    public function fail(string $msg, $result = false, $code = 0)
     {
-        return $this->error($msg, $result);
+        return $this->error($msg, $result, $code);
     }
 }
