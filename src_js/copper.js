@@ -564,6 +564,14 @@ EventHandler.prototype.isEnterKeyPressed = function (event) {
     return this.isKeyPressed(event, "Enter", "Enter", 13)
 }
 
+EventHandler.prototype.isUpKeyPressed = function (event) {
+    return this.isKeyPressed(event, "ArrowUp", "ArrowUp", 38)
+}
+
+EventHandler.prototype.isDownKeyPressed = function (event) {
+    return this.isKeyPressed(event, "ArrowDown", "ArrowDown", 40)
+}
+
 EventHandler.prototype.isDeleteKeyPressed = function (event) {
     return this.isKeyPressed(event, "Delete", "Delete", 46)
 }
