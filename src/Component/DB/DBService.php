@@ -70,6 +70,15 @@ class DBService
         return str_replace("'", "\'", $str);
     }
 
+    public static function escapeLikeStr($str)
+    {
+        $str = str_replace('%', '', $str);
+        $str = str_replace('.', '\\.', $str);
+        $str = str_replace('_', '\\_', $str);
+        
+        return $str;
+    }
+
     public static function escapeStrArray($strArray)
     {
         $array = [];

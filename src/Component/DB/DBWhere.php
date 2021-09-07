@@ -249,16 +249,23 @@ class DBWhere
      * Shortcut for Like: %value%
      *
      * @param string|string[] $field
-     * @param string|int|float $value
+     * @param string|string[]|int|int[]|float|float[] $value
      *
      * @return DBWhere
      */
     public static function likeAny($field, $value)
     {
-        $value = str_replace('%', '', $value);
-        $value = str_replace('.', '\\.', $value);
-        $value = str_replace('_', '\\_', $value);
-        $value = '%' . $value . '%';
+        if (VarHandler::isArray($value)) {
+            $value_list = [];
+
+            foreach ($value as $v) {
+                $value_list[] = '%' . DBService::escapeLikeStr($v) . '%';
+            }
+
+            $value = ArrayHandler::join($value_list, ' ');
+        } else {
+            $value = '%' . DBService::escapeLikeStr($value) . '%';
+        }
 
         return self::createCondition($field, $value, self::LIKE, self::CHAIN_NULL);
     }
