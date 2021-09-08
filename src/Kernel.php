@@ -283,28 +283,36 @@ final class Kernel
         return FunctionResponse::createSuccessOrError(!$cacheResetRequired, $info);
     }
     
-    public static function check_write_permissions() 
+    private static function checkPackageWritePermission() 
     {
-        set_error_handler(function($errno, $errstr, $errfile, $errline) {
-            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-        });
-      
-        try {
-            mkdir('perm_check');
-        } catch (\ErrorException $e) {
-            return false;
-        }
+        $packageTestFolderPath = Kernel::getPackagePath('package_write_check');
 
-        restore_error_handler();
-        rmdir('perm_check');
+        if (FileHandler::fileExists($packageTestFolderPath))
+            return true;
+
+        $res = @mkdir($packageTestFolderPath);
+
+        if ($res === false)
+            return false;
 
         return true;
     }
 
+    public static function checkRequirements() 
+    {
+        $response = new FunctionResponse();
+        
+        if (self::checkPackageWritePermission() === false)
+            return $response->error('Wrong Package Write Permissions');
+
+        return $response->ok();
+    }
+
     public static function run()
     {
-        if (self::check_write_permissions() === false)
-            return die('Error. Please check project write permissions');
+        $requirementsCheckResponse = self::checkRequirements();
+        if ($requirementsCheckResponse->hasError())
+            return die('Error! ' . $requirementsCheckResponse->msg);
         
         $request = Request::createFromGlobals();
 
