@@ -282,10 +282,14 @@ final class Kernel
 
         return FunctionResponse::createSuccessOrError(!$cacheResetRequired, $info);
     }
-    
-    private static function checkPackageWritePermission() 
+
+    /**
+     * Requirements Check. Package write permission
+     * @return bool
+     */
+    private static function checkPackageWritePermission()
     {
-        $packageTestFolderPath = Kernel::getPackagePath('package_write_check');
+        $packageTestFolderPath = Kernel::getPackagePath('package_write_permission_check');
 
         if (FileHandler::fileExists($packageTestFolderPath))
             return true;
@@ -298,12 +302,16 @@ final class Kernel
         return true;
     }
 
-    public static function checkRequirements() 
+    /**
+     * Check all requirements before running project
+     * @return FunctionResponse
+     */
+    public static function checkRequirements()
     {
         $response = new FunctionResponse();
-        
+
         if (self::checkPackageWritePermission() === false)
-            return $response->error('Wrong Package Write Permissions');
+            return $response->error('checkPackageWritePermission');
 
         return $response->ok();
     }
@@ -313,7 +321,7 @@ final class Kernel
         $requirementsCheckResponse = self::checkRequirements();
         if ($requirementsCheckResponse->hasError())
             return die('Error! ' . $requirementsCheckResponse->msg);
-        
+
         $request = Request::createFromGlobals();
 
         $requestContext = self::configureRequestContext($request);
