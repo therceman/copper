@@ -282,9 +282,30 @@ final class Kernel
 
         return FunctionResponse::createSuccessOrError(!$cacheResetRequired, $info);
     }
+    
+    public static function check_write_permissions() 
+    {
+        set_error_handler(function($errno, $errstr, $errfile, $errline) {
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        });
+      
+        try {
+            mkdir('perm_check');
+        } catch (\ErrorException $e) {
+            return false;
+        }
+
+        restore_error_handler();
+        rmdir('perm_check');
+
+        return true;
+    }
 
     public static function run()
     {
+        if (self::check_write_permissions() === false)
+            return die('Error. Please check project write permissions');
+        
         $request = Request::createFromGlobals();
 
         $requestContext = self::configureRequestContext($request);
