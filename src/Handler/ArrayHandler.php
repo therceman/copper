@@ -785,4 +785,17 @@ class ArrayHandler
             }
         }
     }
+
+    // ---------------------- Alias -------------------------
+
+    /**
+     * Remove duplicates in array (alias for uniqueValues)
+     * @param array $array
+     * @param false $strict
+     * @return array
+     */
+    public static function removeDuplicates(array $array, $strict = false)
+    {
+        return self::uniqueValues($array, $strict);
+    }
 }

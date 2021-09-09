@@ -301,7 +301,7 @@ class AbstractController
         $headers = $this->request->headers->all();
         $cookies = $this->request->cookies->all();
 
-        $ip_list = $this->request->getClientIps();
+        $ip_list = Kernel::getIPAddressList();
 
         $contentType = $this->request->headers->get('content_type');
         $method = $this->request->getRealMethod();
