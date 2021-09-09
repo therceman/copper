@@ -391,7 +391,7 @@ final class Kernel
     public static function getIPAddressList()
     {
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-            $ip_list = $_SERVER['HTTP_CLIENT_IP'];
+            $ip_list = [$_SERVER['HTTP_CLIENT_IP']];
         } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
             $ip_list = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
         } elseif (!empty($_SERVER['X_FORWARDED_FOR'])) {
@@ -399,7 +399,7 @@ final class Kernel
         } elseif (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
             $ip_list = explode(',', $_SERVER['HTTP_CF_CONNECTING_IP']);
         } else {
-            $ip_list = $_SERVER['REMOTE_ADDR'];
+            $ip_list = [$_SERVER['REMOTE_ADDR']];
         }
 
         return $ip_list;

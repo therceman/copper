@@ -514,6 +514,18 @@ RequestHandler.prototype.setBaseUri = function (uri) {
 
 copper.requestHandler = new RequestHandler();
 
+// ---------- Url Handler -----------------
+
+function UrlHandler() {
+}
+
+UrlHandler.prototype.queryString = function (params) {
+    let queryStr = new URLSearchParams(params).toString();
+    return (queryStr.trim() === '' || params === false || params === true || params === null) ? '' : '?' + queryStr;
+}
+
+copper.urlHandler = new UrlHandler();
+
 // ---------- Key Handler -----------------
 
 function EventHandler() {

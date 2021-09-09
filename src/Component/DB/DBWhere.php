@@ -246,14 +246,10 @@ class DBWhere
     }
 
     /**
-     * Shortcut for Like: %value%
-     *
-     * @param string|string[] $field
-     * @param string|string[]|int|int[]|float|float[] $value
-     *
-     * @return DBWhere
+     * @param $value
+     * @return string
      */
-    public static function likeAny($field, $value)
+    private static function prepareLikeValue($value)
     {
         if (VarHandler::isArray($value)) {
             $value_list = [];
@@ -266,6 +262,26 @@ class DBWhere
         } else {
             $value = '%' . DBService::escapeLikeStr($value) . '%';
         }
+
+        return $value;
+    }
+
+    /**
+     * Shortcut for Like: %value%
+     * <hr>
+     * <code>
+     * - likeAny('name', 'john');
+     * - likeAny(['name', 'middle_name'], 'john')
+     * - likeAny(['name', 'middle_name'], ['john', 'username'])
+     * </code>
+     * @param string|string[] $field
+     * @param string|string[]|int|int[]|float|float[] $value
+     *
+     * @return DBWhere
+     */
+    public static function likeAny($field, $value)
+    {
+        $value = self::prepareLikeValue($value);
 
         return self::createCondition($field, $value, self::LIKE, self::CHAIN_NULL);
     }
@@ -495,18 +511,16 @@ class DBWhere
      * <code>
      * - andLike('name', 'john');
      * - andLike(['name', 'middle_name'], 'john')
+     * - andLike(['name', 'middle_name'], ['john', 'johny'])
      * </code>
      * @param string|string[] $field
-     * @param string $value
+     * @param string|string[]|int|int[]|float|float[] $value
      *
      * @return $this
      */
-    public function andLikeAny($field, string $value)
+    public function andLikeAny($field, $value)
     {
-        $value = str_replace('%', '', $value);
-        $value = str_replace('.', '\\.', $value);
-        $value = str_replace('_', '\\_', $value);
-        $value = '%' . $value . '%';
+        $value = $this::prepareLikeValue($value);
 
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_AND);
 
@@ -545,18 +559,16 @@ class DBWhere
      * <code>
      * - orLikeAny('name', 'john');
      * - orLikeAny(['name', 'middle_name'], 'john')
+     * - orLikeAny(['name', 'middle_name'], ['john', 'johny'])
      * </code>
      * @param string|string[] $field
-     * @param mixed $value
+     * @param string|string[]|int|int[]|float|float[] $value
      *
      * @return $this
      */
-    public function orLikeAny($field, string $value)
+    public function orLikeAny($field, $value)
     {
-        $value = str_replace('%', '', $value);
-        $value = str_replace('.', '\\.', $value);
-        $value = str_replace('_', '\\_', $value);
-        $value = '%' . $value . '%';
+        $value = $this::prepareLikeValue($value);
 
         $this->addCondition($field, $value, self::LIKE, self::CHAIN_OR);
 

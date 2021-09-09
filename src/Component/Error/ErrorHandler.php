@@ -43,7 +43,8 @@ class ErrorHandler
      */
     public function setFlashParameters(array $parameters)
     {
-        Kernel::getFlashMessage()->set(self::FLASH_MESSAGE_KEY, json_encode($parameters));
+        if (Kernel::getFlashMessage() !== null)
+            Kernel::getFlashMessage()->set(self::FLASH_MESSAGE_KEY, json_encode($parameters));
     }
 
     /**
@@ -51,7 +52,11 @@ class ErrorHandler
      */
     public function getFlashParameters()
     {
-        return json_decode(Kernel::getFlashMessage()->get(ErrorHandler::FLASH_MESSAGE_KEY, '[]'), true);
+        $data = '[]';
+        if (Kernel::getFlashMessage() !== null)
+            $data = Kernel::getFlashMessage()->get(ErrorHandler::FLASH_MESSAGE_KEY, '[]');
+
+        return json_decode($data, true);
     }
 
     /**
