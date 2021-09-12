@@ -174,6 +174,18 @@ class DBSelect
     }
 
     /**
+     * @param \Closure $closure
+     * @return DBSelect
+     * @see DBOutput::map()
+     */
+    public static function outputMap(\Closure $closure)
+    {
+        $params = new DBSelect();
+
+        return $params->setOutput(DBOutput::map($closure));
+    }
+
+    /**
      * @param string|null $index
      *
      * @return DBSelect
@@ -274,6 +286,21 @@ class DBSelect
     }
 
     /**
+     * @param \Closure $closure
+     * @return DBSelect
+     * @see DBOutput::map()
+     */
+    public function setOutputMap(\Closure $closure)
+    {
+        if ($this->output === null)
+            $this->output = DBOutput::map($closure);
+        else
+            $this->output->setMap($closure);
+
+        return $this;
+    }
+
+    /**
      * @param string|string[]|null $columns
      *
      * @return DBSelect
@@ -303,6 +330,26 @@ class DBSelect
     public function setOrder($order): DBSelect
     {
         $this->order = $order;
+        return $this;
+    }
+
+    /**
+     * @param $field
+     * @return DBSelect
+     */
+    public function setOrderDESC($field): DBSelect
+    {
+        $this->order = DBOrder::DESC($field);
+        return $this;
+    }
+
+    /**
+     * @param $field
+     * @return DBSelect
+     */
+    public function setOrderASC($field): DBSelect
+    {
+        $this->order = DBOrder::ASC($field);
         return $this;
     }
 

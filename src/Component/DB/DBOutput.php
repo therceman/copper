@@ -41,6 +41,16 @@ class DBOutput
     }
 
     /**
+     * Map output entity fields
+     * <hr>
+     * <code>
+     * map(function($entity)) {
+     *  $entity->name = $entity->name . ' '. $entity->surname;
+     *  return $entity;
+     * }
+     *
+     * </code>
+     *
      * @param \Closure|null $mapClosure
      *
      * @return DBOutput
