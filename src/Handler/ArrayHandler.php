@@ -180,6 +180,28 @@ class ArrayHandler
     }
 
     /**
+     * Pick only specific key values from array
+     * <hr>
+     * <code>
+     * - pick(['A' => 1, 'B' => 2, 'C' => 3], ['A', 'C']) // returns ['A' => 1, 'C' => 3]
+     * </code>
+     * @param array $array
+     * @param array $keyList
+     * @return array
+     */
+    public static function pick(array $array, array $keyList)
+    {
+        $output = [];
+
+        foreach ($array as $key => $value) {
+            if (ArrayHandler::hasValue($keyList, $key))
+                $output[$key] = $value;
+        }
+
+        return $output;
+    }
+
+    /**
      * Join elements in array to string
      *
      * @param array $array
@@ -798,4 +820,6 @@ class ArrayHandler
     {
         return self::uniqueValues($array, $strict);
     }
+
+
 }
