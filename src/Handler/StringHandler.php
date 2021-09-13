@@ -202,9 +202,6 @@ class StringHandler
 
     public static function trim($str)
     {
-        if ($str === null)
-            return '';
-
         if (VarHandler::isString($str) === false)
             return $str;
 

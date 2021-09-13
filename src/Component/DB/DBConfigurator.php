@@ -7,6 +7,9 @@ class DBConfigurator
 {
     /** @var bool */
     public $enabled;
+    
+    /** @var bool */
+    public $debug;
 
     /** @var string */
     public $host;

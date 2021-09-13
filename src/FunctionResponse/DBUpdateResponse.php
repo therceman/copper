@@ -27,15 +27,21 @@ class DBUpdateResponseResultEntity extends AbstractEntity
     public $result_row_count;
     /** @var array */
     public $data;
+    /** @var string */
+    public $stmQuery;
+    /** @var array */
+    public $stmParam;
 
     /**
      * DBUpdateResponseEntity constructor.
      * @param $result_row_count
      * @param $data
      */
-    public function __construct($result_row_count, $data)
+    public function __construct($result_row_count, $data, $stmQuery = null, $stmParam = null)
     {
         $this->result_row_count = $result_row_count;
         $this->data = $data;
+        $this->stmQuery = $stmQuery;
+        $this->stmParam = $stmParam;
     }
 }

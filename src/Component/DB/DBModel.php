@@ -884,11 +884,17 @@ abstract class DBModel
 
         $resultRowCount = 0;
 
+        $stmQuery = null;
+        $stmParam = null;
+
         try {
             $stm = $db->query->update('`' . $this->getTableName() . '`', $formattedUpdateData);
 
             if ($where !== null)
                 $stm = $where->buildForStatement($stm);
+
+            $stmQuery = $stm->getQuery(true);
+            $stmParam = $stm->getParameters();
 
             $resultRowCount = $stm->execute();
 
@@ -898,9 +904,19 @@ abstract class DBModel
             if ($resultRowCount === 0)
                 throw new Exception('No record found for update or new data not provided');
 
-            $response->result(new DBUpdateResponseResultEntity($resultRowCount, $updateData));
+            $response->result($db->config->debug
+                ? new DBUpdateResponseResultEntity($resultRowCount, $updateData, $stmQuery, $stmParam)
+                : []
+            );
         } catch (Exception $e) {
-            $response->fail($e->getMessage(), new DBUpdateResponseResultEntity($resultRowCount, $updateData));
+            $response->fail(
+                $db->config->debug
+                    ? $e->getMessage()
+                    : "Database Error",
+                $db->config->debug
+                    ? new DBUpdateResponseResultEntity($resultRowCount, $updateData, $stmQuery, $stmParam)
+                    : []
+            );
         }
 
         return $response;
