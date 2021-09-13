@@ -131,10 +131,14 @@ class VarHandler
      * @param $var
      * @return bool
      */
-    public static function isNumeric($var)
+    public static function isNumeric($var, $strict = false)
     {
-        if (self::isString($var))
+        if (self::isString($var)) {
             $var = StringHandler::trim($var);
+
+            if (StringHandler::has(StringHandler::toLowerCase($var), 'e') && $strict === false)
+                return false;
+        }
 
         return is_numeric($var);
     }
@@ -159,15 +163,8 @@ class VarHandler
         if ($var === null || $var === true || $var === false || self::isArray($var) || self::isObject($var))
             return false;
 
-        if ($strict === false && self::isNumeric($var)) {
-            if (self::isString($var))
-                $var = StringHandler::trim($var);
-
-            if (self::isString($var) && StringHandler::has($var, 'e'))
-                return false;
-
+        if ($strict === false && self::isNumeric($var))
             $var = floatval($var);
-        }
 
         return is_float($var);
     }

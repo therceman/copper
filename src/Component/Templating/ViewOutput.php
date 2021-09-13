@@ -38,7 +38,7 @@ class ViewOutput
         if ($value === true || $value === 'true')
             return 'true';
 
-        if (is_numeric($value))
+        if (VarHandler::isNumeric($value))
             return $value;
 
         if (is_object($value))
