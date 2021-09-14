@@ -355,7 +355,8 @@ abstract class AbstractResource
      * Set access role to all routes.
      * User with role super_admin will have access to all routes in resource
      * (even if this role is not provided in access role list)
-     *
+     * Access Role examples: 'admin', ['admin', 'moderator']. For all users use: '*'
+     * 
      * @param string|array $role
      */
     public static function setAccessRole($role)

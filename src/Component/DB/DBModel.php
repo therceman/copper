@@ -537,8 +537,11 @@ abstract class DBModel
         if ($columns !== null && $ignoredColumns !== null)
             $columns = ArrayHandler::diff($columns, $ignoredColumns);
 
-        if ($ignoredColumns !== null)
+        if ($columns === null && $ignoredColumns !== null)
             $columns = ArrayHandler::diff($this->getFieldNames(true), $ignoredColumns);
+
+        if ($columns !== null && $select->getOutput() !== null && $select->getOutput()->getFields() === null)
+            $select->setOutputFields($columns);
 
         if ($countOnly)
             $columns = ['COUNT(*)'];
@@ -713,9 +716,6 @@ abstract class DBModel
             foreach ($result as $entry) {
                 $entity = $this->getEntity()::fromArray($entry);
 
-                if ($output !== null && $output->getMap() !== null)
-                    $entity = $output->getMap()($entity);
-
                 if ($output !== null && $output->getListOutputField() !== null && $entity->has($output->getListOutputField())) {
                     $list[] = $entity->get($output->getListOutputField());
                     continue;
@@ -730,6 +730,9 @@ abstract class DBModel
                     foreach (ArrayHandler::diff($entity->getFields(), $output->getFields()) as $field) {
                         $entity->delete($field);
                     }
+
+                if ($output !== null && $output->getMap() !== null)
+                    $entity = $output->getMap()($entity);
 
                 if ($output !== null && $entity->has($output->getIndex()))
                     $list[$entity->get($output->getIndex())] = $entity;
