@@ -200,8 +200,11 @@ class StringHandler
         return (strpos($str, $text) !== false);
     }
 
-    public static function trim($str)
+    public static function trim($str, $trimNull = true)
     {
+        if ($trimNull && $str === null)
+            return '';
+            
         if (VarHandler::isString($str) === false)
             return $str;
 

@@ -183,11 +183,11 @@ abstract class DBModel
     }
 
     /**
-     * @param string $bool
+     * @param string|int $bool
      *
      * @return integer
      */
-    public static function formatBoolean(string $bool)
+    public static function formatBoolean($bool)
     {
         $bool = StringHandler::trim($bool);
 
@@ -254,10 +254,10 @@ abstract class DBModel
             $value = $fieldValues[$field->getName()];
 
             if ($db !== null && $db->config->trim_varchar && $field->typeIsVarchar())
-                $value = StringHandler::trim($value);
+                $value = StringHandler::trim($value, false);
 
             if ($db !== null && $db->config->trim_text && $field->typeIsText())
-                $value = StringHandler::trim($value);
+                $value = StringHandler::trim($value, false);
 
             if (StringHandler::trim($value) === '' && $field->typeIsString() && $field->getNull() === true)
                 $value = null;
@@ -281,7 +281,7 @@ abstract class DBModel
                 $value = VarHandler::toBooleanInt($value);
 
             if ($db !== null && $db->config->trim_enum && $field->typeIsEnum())
-                $value = StringHandler::trim($value);
+                $value = StringHandler::trim($value, false);
 
             $formattedFieldName = ($escapeFieldNames) ? '`' . $field->getName() . '`' : $field->getName();
 
