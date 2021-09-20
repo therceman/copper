@@ -25,7 +25,7 @@ abstract class DBModel
 
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
-    const REMOVED_AT = 'removed_at';
+    const ARCHIVED_AT = 'archived_at';
     const ENABLED = 'enabled';
 
     /** @var bool */
@@ -176,7 +176,7 @@ abstract class DBModel
     {
         $this->addField(self::CREATED_AT, DBModelField::DATETIME)->currentTimestampByDefault();
         $this->addField(self::UPDATED_AT, DBModelField::DATETIME)->currentTimestampOnUpdate()->nullByDefault();
-        $this->addField(self::REMOVED_AT, DBModelField::DATETIME)->nullByDefault();
+        $this->addField(self::ARCHIVED_AT, DBModelField::DATETIME)->nullByDefault();
         $this->addField(self::ENABLED, DBModelField::BOOLEAN)->default($enabledByDefault);
 
         $this->stateFieldsEnabled = true;

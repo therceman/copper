@@ -19,11 +19,11 @@ trait ResourceControllerActions
         $offset = $this->request->query->get('offset', 0);
         $order = $this->request->query->get('order', DBOrder::ASC);
         $order_by = $this->request->query->get('order_by', DBModel::ID);
-        $show_removed = $this->request->query->get('show_removed', false);
+        $show_archived = $this->request->query->get('show_archived', false);
 
         $dbOrder = new DBOrder($order_by, (strtoupper($order) === DBOrder::ASC));
 
-        $list = $this->service::getList($this->db, $limit, $offset, $dbOrder, $show_removed);
+        $list = $this->service::getList($this->db, $limit, $offset, $dbOrder, $show_archived);
 
         return $this->viewResponse(self::TEMPLATE_LIST, ['list' => $list, 'resource' => $this->resource]);
     }
@@ -91,14 +91,14 @@ trait ResourceControllerActions
     /**
      * @return Response
      */
-    public function postRemoveAction($id)
+    public function postArchiveAction($id)
     {
-        $removeResponse = $this->service::remove($this->db, $id);
+        $archiveResponse = $this->service::archive($this->db, $id);
 
-        if ($removeResponse->hasError())
-            $this->flashMessage->setError($removeResponse->msg);
+        if ($archiveResponse->hasError())
+            $this->flashMessage->setError($archiveResponse->msg);
         else {
-            $this->flashMessage->setSuccess('Entity #' . $id . ' is successfully removed');
+            $this->flashMessage->setSuccess('Entity #' . $id . ' is successfully archived');
             $this->flashMessage->set('undo_id', $id);
         }
 
@@ -108,9 +108,9 @@ trait ResourceControllerActions
     /**
      * @return Response
      */
-    public function postUndoRemoveAction($id)
+    public function postUndoArchiveAction($id)
     {
-        $response = $this->service::undoRemove($this->db, $id);
+        $response = $this->service::undoArchive($this->db, $id);
 
         if ($response->hasError())
             $this->flashMessage->setError($response->msg);

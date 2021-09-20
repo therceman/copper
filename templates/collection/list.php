@@ -19,8 +19,8 @@ $order = $view->queryBag->get('order', 'asc');
 $offset = $view->queryBag->get('offset', 0);
 $limit = $view->queryBag->get('limit', 255);
 
-$show_removed = $view->queryBag->get('show_removed');
-$show_removed_checked = $view->queryBag->has('show_removed') ? 'checked' : '';
+$show_archived = $view->queryBag->get('show_archived');
+$show_archived_checked = $view->queryBag->has('show_archived') ? 'checked' : '';
 
 $undoId = $view->flashMessage->get('undo_id', 0);
 
@@ -36,15 +36,15 @@ $urlGetEdit = function ($id) use ($view, $Resource, $model) {
     return $view->url($Resource::route($Resource::GET_EDIT), [$model::ID => $id]);
 };
 
-$urlPostUndoRemove = function ($id) use ($view, $Resource, $model) {
-    return $view->url($Resource::route($Resource::POST_UNDO_REMOVE), [$model::ID => $id]);
+$urlPostUndoArchive = function ($id) use ($view, $Resource, $model) {
+    return $view->url($Resource::route($Resource::POST_UNDO_ARCHIVE), [$model::ID => $id]);
 };
 
 // ------------------- Field Names ------------------------
 
 $field_names = [];
 
-foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $field) {
+foreach (ArrayHandler::delete($model->getFieldNames(), $model::ARCHIVED_AT) as $field) {
     $field_names[$field] = StringHandler::underscoreToCamelCase($field, true);
 };
 
@@ -55,7 +55,7 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
 <?= $view->render('header', ['head_title' => $head_title]) ?>
 
 <style>
-    tr.removed {
+    tr.archived {
         background: #bbb !important;
     }
 </style>
@@ -72,7 +72,7 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
         <code class="bg_success"><?= $view->out($view->flashMessage->getSuccess()) ?></code>
         <?php if ($undoId !== 0) : ?>
             <form style="display: inline-block;margin-left:10px;float:right" method="post"
-                  action="<?= $urlPostUndoRemove($undoId) ?>">
+                  action="<?= $urlPostUndoArchive($undoId) ?>">
                 <button>Undo</button>
             </form>
         <?php endif; ?>
@@ -83,8 +83,8 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
     <h3><?= $head_title ?></h3>
     <div>
         <form style="float: left" action="<?= $urlGetList() ?>" method="get">
-            <label for="show_removed">Show Removed: </label>
-            <input type="checkbox" id="show_removed" <?= $show_removed_checked ?> name="show_removed">
+            <label for="show_archived">Show Archived: </label>
+            <input type="checkbox" id="show_archived" <?= $show_archived_checked ?> name="show_archived">
             <label for="offset">Offset: </label>
             <input type="number" id="offset" name="offset" value="<?= $offset ?>">
             <label for="limit">Limit: </label>
@@ -107,7 +107,7 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
             <th class="empty"></th>
         </tr>
         <?php foreach ($list as $entry) {
-            $tr = HTML::tr()->id('entry_' . $entry->id)->toggleClass('removed', $entry->isRemoved());
+            $tr = HTML::tr()->id('entry_' . $entry->id)->toggleClass('archived', $entry->isArchived());
 
             foreach ($field_names as $fieldName => $fieldText) {
                 $value = $entry->$fieldName;
@@ -124,10 +124,10 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
 
             $td = HTML::td()->addStyle('text-align', 'center');
 
-            if ($entry->isRemoved() === false)
+            if ($entry->isArchived() === false)
                 $form = HTML::formGet($urlGetEdit($entry->id))->addElement(HTML::button('Edit'));
             else
-                $form = HTML::form($urlPostUndoRemove($entry->id))->addElement(HTML::button('Restore'));
+                $form = HTML::form($urlPostUndoArchive($entry->id))->addElement(HTML::button('Restore'));
 
             $td->addElement($form);
 
@@ -146,7 +146,7 @@ foreach (ArrayHandler::delete($model->getFieldNames(), $model::REMOVED_AT) as $f
         'order' => '__order__',
         'offset' => $offset,
         'limit' => $limit,
-        'show_removed' => $show_removed
+        'show_archived' => $show_archived
     ]) ?>';
 
     $tableThList = document.querySelectorAll('table th');

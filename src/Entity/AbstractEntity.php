@@ -168,8 +168,8 @@ class AbstractEntity
         return array_key_exists(EntityStateFields::class, class_uses($this));
     }
 
-    public function isRemoved()
+    public function isArchived()
     {
-        return ($this->hasStateFields() && $this->removed_at !== null);
+        return (property_exists($this, 'archived_at') && $this->archived_at !== null);
     }
 }

@@ -72,15 +72,15 @@ class TestDBSeed extends DBSeed
 
         $this->seed($user);
 
-        // ----------- Removed User 5 -----------
+        // ----------- Archived User 5 -----------
 
         $user = new TestDBEntity();
 
         $user->login = "removed_user";
         $user->password = DBHandler::hashWithSalt('user_pass', self::HASH_SALT);
         $user->role = TestDBEntity::ROLE_USER;
-        $user->email = 'removed_user@arkadia_trade.com';
-        $user->removed_at = DateHandler::dateTime();
+        $user->email = 'archived_user@arkadia_trade.com';
+        $user->archived_at = DateHandler::dateTime();
         $user->enabled = false;
         $user->salary = 151;
 

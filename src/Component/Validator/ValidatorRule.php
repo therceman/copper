@@ -767,7 +767,7 @@ class ValidatorRule
     {
         $fRes = new FunctionResponse();
 
-        if ($this->min === null || VarHandler::isNumeric($value) === false)
+        if ($this->min === null || VarHandler::isNumeric($value, true) === false)
             return $fRes->ok();
 
         $res = (float)$value >= $this->min;
@@ -779,7 +779,7 @@ class ValidatorRule
     {
         $fRes = new FunctionResponse();
 
-        if ($this->max === null || VarHandler::isNumeric($value) === false)
+        if ($this->max === null || VarHandler::isNumeric($value,true) === false)
             return $fRes->ok();
 
         $res = (float)$value <= $this->max;
@@ -807,7 +807,7 @@ class ValidatorRule
      */
     private function validateNumeric($value)
     {
-        return VarHandler::isNumeric($value);
+        return VarHandler::isNumeric($value, true);
     }
 
     private function getAlphaExtraCharacters()

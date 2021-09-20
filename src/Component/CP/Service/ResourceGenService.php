@@ -85,7 +85,7 @@ class ResourceGenService
         $field_names_str = '$field_names = [' . PHP_EOL;
 
         foreach ($resource::getModel()->getFieldNames() as $field) {
-            if ($field === DBModel::REMOVED_AT)
+            if ($field === DBModel::ARCHIVED_AT)
                 continue;
 
             $fieldNameNormalized = StringHandler::underscoreToCamelCase($field, true);
@@ -573,8 +573,8 @@ XML;
     const POST_UPDATE = 'postUpdate@/' . self::GROUP . '/update/{id}';
     const GET_NEW = 'getNew@/' . self::GROUP . '/new';
     const POST_CREATE = 'postCreate@/' . self::GROUP . '/create';
-    const POST_REMOVE = 'postRemove@/' . self::GROUP . '/remove/{id}';
-    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::GROUP . '/remove/undo/{id}';
+    const POST_ARCHIVE = 'postArchive@/' . self::GROUP . '/archive/{id}';
+    const POST_UNDO_ARCHIVE = 'postUndoArchive@/' . self::GROUP . '/archive/undo/{id}';
     
     // custom route constants
     
@@ -586,8 +586,8 @@ XML;
         self::addRoute(\$routes, self::POST_UPDATE);
         self::addRoute(\$routes, self::GET_NEW);
         self::addRoute(\$routes, self::POST_CREATE);
-        self::addRoute(\$routes, self::POST_REMOVE);
-        self::addRoute(\$routes, self::POST_UNDO_REMOVE);
+        self::addRoute(\$routes, self::POST_ARCHIVE);
+        self::addRoute(\$routes, self::POST_UNDO_ARCHIVE);
         
         // custom route registration
     }";
@@ -659,7 +659,7 @@ class $name extends AbstractResource
         $excluded_param = "[$model::ID]";
 
         if ($use_state_fields)
-            $excluded_param = "[$model::ID, $model::CREATED_AT, $model::UPDATED_AT, $model::REMOVED_AT]";
+            $excluded_param = "[$model::ID, $model::CREATED_AT, $model::UPDATED_AT, $model::ARCHIVED_AT]";
 
         $content = "<?php
 
@@ -742,21 +742,21 @@ class $name extends AbstractController
     }
 
     /**
-     * Submit Form to remove entity
+     * Submit Form to archive entity
      * @param \$id
      */
-    public function postRemove(\$id)
+    public function postArchive(\$id)
     {
-        return \$this->postRemoveAction(\$id);
+        return \$this->postArchiveAction(\$id);
     }
 
     /**
      * Submit From to undo delete of entity 
      * @param \$id
      */
-    public function postUndoRemove(\$id)
+    public function postUndoArchive(\$id)
     {
-        return \$this->postUndoRemoveAction(\$id);
+        return \$this->postUndoArchiveAction(\$id);
     }
 
 }";

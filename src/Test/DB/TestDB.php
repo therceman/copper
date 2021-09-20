@@ -82,7 +82,7 @@ class TestDB
 
         $query = $migrateResponse->result;
 
-        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `is` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` ENUM('guest','user','moderator','admin','super_admin') NOT NULL DEFAULT 'guest' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `int` INT NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `removed_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
+        if ($query !== "CREATE TABLE IF NOT EXISTS `" . Kernel::getDb()->config->dbname . "`.`db_test` ( `id` SMALLINT UNSIGNED  NOT NULL AUTO_INCREMENT , `name` VARCHAR(255) NULL DEFAULT NULL , `is` VARCHAR(255) NULL DEFAULT NULL , `login` VARCHAR(25) NOT NULL , `password` VARCHAR(32) NOT NULL , `role` ENUM('guest','user','moderator','admin','super_admin') NOT NULL DEFAULT 'guest' , `email` VARCHAR(50) NOT NULL , `salary` DECIMAL(6,2) NOT NULL DEFAULT '123.57' , `enum` ENUM('apple','banana') NOT NULL DEFAULT 'banana' , `dec_def` DECIMAL(9,2) NOT NULL DEFAULT 0 , `int` INT NOT NULL DEFAULT 0 , `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `updated_at` DATETIME on update CURRENT_TIMESTAMP  NULL DEFAULT NULL , `archived_at` DATETIME NULL DEFAULT NULL , `enabled` BOOLEAN NOT NULL DEFAULT 0, PRIMARY KEY (`id`), UNIQUE `index_login` (`login`), UNIQUE `index_email` (`email`)) ENGINE = InnoDB;")
             return $response->fail('Wrong Query', $query);
 
         if ($migrateResponse->hasError())
@@ -211,7 +211,7 @@ class TestDB
         return $response->ok("success", null);
     }
 
-    private function remove()
+    private function archive()
     {
         /** @var TestDBEntity $entity */
         $entity = TestDBService::get($this->db, 3);
@@ -219,25 +219,25 @@ class TestDB
         if ($entity->enabled !== true)
             return new FunctionResponse(false, 'User->enabled should be true', $entity);
 
-        // remove
+        // archive
 
-        $response = TestDBService::remove($this->db, 3);
+        $response = TestDBService::archive($this->db, 3);
 
         if ($response->hasError() === true)
-            return $response->fail('User is not removed', $response->msg);
+            return $response->fail('User is not archived', $response->msg);
 
         /** @var TestDBEntity $entity */
         $entity = TestDBService::get($this->db, 3, true);
 
-        if ($entity->removed_at === null)
-            return $response->fail('User->removed_at should not be null', $response->msg);
+        if ($entity->archived_at === null)
+            return $response->fail('User->archived_at should not be null', $response->msg);
 
         if ($entity->enabled !== false)
             return $response->fail('User->enabled should be false', $response->msg);
 
-        // undoRemove
+        // undoArchive
 
-        $response = TestDBService::undoRemove($this->db, 3);
+        $response = TestDBService::undoArchive($this->db, 3);
 
         if ($response->hasError() === true)
             return $response->fail('User undo for removal failed', $response->msg);
@@ -245,8 +245,8 @@ class TestDB
         /** @var TestDBEntity $entity */
         $entity = TestDBService::get($this->db, 3);
 
-        if ($entity->removed_at !== null)
-            return $response->fail('User->removed_at should be null', $response->msg);
+        if ($entity->archived_at !== null)
+            return $response->fail('User->archived_at should be null', $response->msg);
 
         if ($entity->enabled !== false)
             return $response->fail('User->enabled should be false', $response->msg);
@@ -283,7 +283,7 @@ class TestDB
         if ($entityList[4]->id !== 6)
             return $response->fail('User List 4 entry should be with ID = 6');
 
-        // all list with removed
+        // all list with archived
 
         /** @var TestDBEntity[] $entity */
         $entityList = TestDBService::getList($this->db, 20, 0, false, true);
@@ -803,7 +803,7 @@ class TestDB
         $results[] = ['get', $this->get()];
         $results[] = ['create', $this->create()];
         $results[] = ['update', $this->update()];
-        $results[] = ['remove', $this->remove()];
+        $results[] = ['archive', $this->archive()];
         $results[] = ['getList', $this->getList()];
         $results[] = ['findFirst', $this->findFirst()];
         $results[] = ['find', $this->find()];

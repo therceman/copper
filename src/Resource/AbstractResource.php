@@ -38,8 +38,8 @@ abstract class AbstractResource
     const POST_UPDATE = 'postUpdate@/' . self::GROUP . '/update/{id}';
     const GET_NEW = 'getNew@/' . self::GROUP . '/new';
     const POST_CREATE = 'postCreate@/' . self::GROUP . '/create';
-    const POST_REMOVE = 'postRemove@/' . self::GROUP . '/remove/{id}';
-    const POST_UNDO_REMOVE = 'postUndoRemove@/' . self::GROUP . '/remove/undo/{id}';
+    const POST_ARCHIVE = 'postArchive@/' . self::GROUP . '/archive/{id}';
+    const POST_UNDO_ARCHIVE = 'postUndoArchive@/' . self::GROUP . '/archive/undo/{id}';
 
     /**
      * @param string|boolean $className
@@ -289,13 +289,13 @@ abstract class AbstractResource
      * Helper for adding routes with less code.
      * $name format should be in the following format:
      * * getList@/product/getList - GET method for controller action named getList()
-     * * remove@/product/remove/{id} - GET & POST methods for controller action named remove($id)
+     * * archive@/product/archive/{id} - GET & POST methods for controller action named archive($id)
      *
      * <br>
-     * For Example 'remove@/product/remove/{id}', is similar to this:
+     * For Example 'archive@/product/archive/{id}', is similar to this:
      * <code>
-     * $routes->add('remove@/product/remove/{id}', '/product/remove/{id}')
-     * ->controller([static::getControllerClassName(), 'remove'])
+     * $routes->add('archive@/product/archive/{id}', '/product/archive/{id}')
+     * ->controller([static::getControllerClassName(), 'archive'])
      * ->methods(['GET','POST']);
      * </code>
      *

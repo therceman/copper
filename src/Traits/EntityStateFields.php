@@ -9,7 +9,7 @@ trait EntityStateFields
     /** @var string */
     public $updated_at;
     /** @var string */
-    public $removed_at;
+    public $archived_at;
     /** @var bool */
     public $enabled;
 }

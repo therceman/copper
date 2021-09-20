@@ -507,7 +507,7 @@ if ($resource !== null) {
     <div style="float:left;margin-top: 5px;">
         <input type="checkbox" id="use_state_fields" checked="checked">
         <label for="use_state_fields"
-               title="State Fields Are: [created_at, update_at, removed_at, enabled]. This fields will be auto created for Model & Entity.">
+               title="State Fields Are: [created_at, update_at, archived_at, enabled]. This fields will be auto created for Model & Entity.">
             Use State Fields
         </label>
         <input type="checkbox" id="relation"><span>Is Relation Table ?</span>
@@ -1302,7 +1302,7 @@ if ($resource !== null) {
     function removeStateFields(ask = false) {
         let createdAtFound = false;
         let updatedAtFound = false;
-        let removedAtFound = false;
+        let archivedAtFound = false;
         let enabledAtFound = false;
 
         fields.forEach((v, k) => {
@@ -1310,22 +1310,22 @@ if ($resource !== null) {
                 createdAtFound = k;
             if (v.name === 'updated_at')
                 updatedAtFound = k;
-            if (v.name === 'removed_at')
-                removedAtFound = k;
+            if (v.name === 'archived_at')
+                archivedAtFound = k;
             if (v.name === 'enabled')
                 enabledAtFound = k;
         });
 
         let confirmAgree = true;
-        if (ask && createdAtFound !== false && updatedAtFound !== false && removedAtFound !== false && enabledAtFound !== false)
-            confirmAgree = confirm('Do you want to remove [created_at, updated_at, removed_at, enabled] fields?');
+        if (ask && createdAtFound !== false && updatedAtFound !== false && archivedAtFound !== false && enabledAtFound !== false)
+            confirmAgree = confirm('Do you want to remove [created_at, updated_at, archived_at, enabled] fields?');
 
         if (confirmAgree === false)
             return false;
 
         delete fields[createdAtFound];
         delete fields[updatedAtFound];
-        delete fields[removedAtFound];
+        delete fields[archivedAtFound];
         delete fields[enabledAtFound];
 
         generateFields();

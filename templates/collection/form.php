@@ -55,8 +55,8 @@ $action_url = $entity->exists()
     <?php if ($entity->exists()) : ?>
         <div style="float:right;margin-top:-40px;">
             <form style="float: right;margin-left: 10px;"
-                  action="<?= $view->url($Resource::POST_REMOVE, [$model::ID => $entity->id]) ?>" method="post">
-                <button>Remove</button>
+                  action="<?= $view->url($Resource::POST_ARCHIVE, [$model::ID => $entity->id]) ?>" method="post">
+                <button>Archive</button>
             </form>
         </div>
     <?php endif; ?>
@@ -71,7 +71,7 @@ $action_url = $entity->exists()
                 $value = $entity->$fieldName ?? '';
 
                 $disabled = '';
-                if ($model->hasStateFields() && in_array($name, [$model::REMOVED_AT, $model::UPDATED_AT, $model::CREATED_AT]))
+                if ($model->hasStateFields() && in_array($name, [$model::ARCHIVED_AT, $model::UPDATED_AT, $model::CREATED_AT]))
                     $disabled = 'disabled';
 
                 if ($name === $model::ID)

@@ -77,13 +77,13 @@ abstract class DBCollectionService
      * @param int $limit
      * @param int $offset
      * @param bool|DBOrder $order
-     * @param bool $returnRemoved
+     * @param bool $returnArchived
      *
      * @return AbstractEntity[]
      */
-    public static function getList(DBHandler $db, $limit = 20, $offset = 0, $order = false, $returnRemoved = false)
+    public static function getList(DBHandler $db, $limit = 20, $offset = 0, $order = false, $returnArchived = false)
     {
-        return self::find($db, [], $limit, $offset, $order, $returnRemoved);
+        return self::find($db, [], $limit, $offset, $order, $returnArchived);
     }
 
     /**
@@ -91,17 +91,17 @@ abstract class DBCollectionService
      *
      * @param DBHandler $db
      * @param int $id
-     * @param bool $returnRemoved
+     * @param bool $returnArchived
      *
      * @return AbstractEntity|null
      */
-    public static function get(DBHandler $db, int $id, $returnRemoved = false)
+    public static function get(DBHandler $db, int $id, $returnArchived = false)
     {
         try {
             $stm = $db->query->from('`'.self::getTable().'`', $id);
 
-            if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
-                $stm = $stm->where(DBModel::REMOVED_AT, null);
+            if ($returnArchived === false && self::getModel()->hasFields([DBModel::ARCHIVED_AT])->isOK())
+                $stm = $stm->where(DBModel::ARCHIVED_AT, null);
 
             $result = $stm->fetch();
 
@@ -122,11 +122,11 @@ abstract class DBCollectionService
      * @param int $limit Limit
      * @param int $offset Offset
      * @param bool|DBOrder $order Order
-     * @param bool $returnRemoved
+     * @param bool $returnArchived
      *
      * @return AbstractEntity[]
      */
-    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $order = false, $returnRemoved = false)
+    public static function find(DBHandler $db, $filter, $limit = 50, $offset = 0, $order = false, $returnArchived = false)
     {
         try {
             $stm = $db->query->from('`'.self::getTable().'`')->limit($limit)->offset($offset);
@@ -136,8 +136,8 @@ abstract class DBCollectionService
             else
                 $stm = $stm->where($filter);
 
-            if ($returnRemoved === false && self::getModel()->hasFields([DBModel::REMOVED_AT])->isOK())
-                $stm = $stm->where(DBModel::REMOVED_AT, null);
+            if ($returnArchived === false && self::getModel()->hasFields([DBModel::ARCHIVED_AT])->isOK())
+                $stm = $stm->where(DBModel::ARCHIVED_AT, null);
 
             if ($order !== false && $order instanceof DBOrder)
                 $stm->order($order);
@@ -211,43 +211,43 @@ abstract class DBCollectionService
     }
 
     /**
-     * Remove entry by ID with undo action support (if entity has EntityStateFields Trait usage)
+     * Archive entry by ID with undo action support (if entity has EntityStateFields Trait usage)
      *
      * @param DBHandler $db Database
      * @param int $id Id
      *
      * @return FunctionResponse
      */
-    public static function remove(DBHandler $db, int $id)
+    public static function archive(DBHandler $db, int $id)
     {
-        $hasFieldsResponse = self::getModel()->hasFields([DBModel::REMOVED_AT, DBModel::ENABLED]);
+        $hasFieldsResponse = self::getModel()->hasFields([DBModel::ARCHIVED_AT, DBModel::ENABLED]);
 
         if ($hasFieldsResponse->hasError() === true)
             return $hasFieldsResponse;
 
         return static::update($db, $id, [
-            DBModel::REMOVED_AT => DateHandler::dateTime(),
+            DBModel::ARCHIVED_AT => DateHandler::dateTime(),
             DBModel::ENABLED => false
         ]);
     }
 
     /**
-     * Undo Remove for entry by ID (if entity has EntityStateFields Trait usage)
+     * Undo Archive for entry by ID (if entity has EntityStateFields Trait usage)
      *
      * @param DBHandler $db Database
      * @param int $id Id
      *
      * @return FunctionResponse
      */
-    public static function undoRemove(DBHandler $db, int $id)
+    public static function undoArchive(DBHandler $db, int $id)
     {
-        $hasFieldsResponse = self::getModel()->hasFields([DBModel::REMOVED_AT]);
+        $hasFieldsResponse = self::getModel()->hasFields([DBModel::ARCHIVED_AT]);
 
         if ($hasFieldsResponse->hasError() === true)
             return $hasFieldsResponse;
 
         return static::update($db, $id, [
-            DBModel::REMOVED_AT => null
+            DBModel::ARCHIVED_AT => null
         ]);
     }
 

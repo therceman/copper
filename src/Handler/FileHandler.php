@@ -438,6 +438,48 @@ class FileHandler
         return $response->result($classNames);
     }
 
+    public static function readTSV($filePath, $fieldNames = [])
+    {
+        $response = new FunctionResponse();
+
+        $fieldNames = array_values($fieldNames);
+
+        $rows = [];
+
+        if (self::fileExists($filePath) === false)
+            return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
+
+        $handle = fopen($filePath, "r");
+        if ($handle) {
+
+            while (($line = fgets($handle)) !== false) {
+                $row = explode("\t", $line);
+
+                // Remove Line Breaks
+                foreach ($row as $k => $v) {
+                    $row[$k] = str_replace(PHP_EOL, '', $v);
+                }
+
+                // register field names
+                if (count($fieldNames) === count($row)) {
+                    $entry = [];
+                    foreach ($fieldNames as $key => $value) {
+                        $entry[$value] = $row[$key];
+                    }
+                    $rows[] = $entry;
+                } else if (count($fieldNames) === 0) {
+                    $rows[] = $row;
+                }
+            }
+
+            fclose($handle);
+        } else {
+            $response->fail(self::ERROR_FILE_OPEN, $filePath);
+        }
+
+        return $response->result($rows);
+    }
+
     /**
      * Read CSV
      *
