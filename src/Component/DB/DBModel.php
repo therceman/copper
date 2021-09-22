@@ -540,8 +540,17 @@ abstract class DBModel
         if ($columns === null && $ignoredColumns !== null)
             $columns = ArrayHandler::diff($this->getFieldNames(true), $ignoredColumns);
 
-        if ($columns !== null && $select->getOutput() !== null && $select->getOutput()->getFields() === null)
-            $select->setOutputFields($columns);
+        if ($columns !== null && ($select->getOutput() === null || $select->getOutput() !== null && $select->getOutput()->getFields() === null)) {
+
+            $fields = [];
+
+            foreach ($columns as $col) {
+                $field = StringHandler::replace($col, '`', '');
+                $fields[] = StringHandler::trim($field);
+            }
+
+            $select->setOutputFields($fields);
+        }
 
         if ($countOnly)
             $columns = ['COUNT(*)'];
@@ -701,10 +710,10 @@ abstract class DBModel
         if ($select->getOrder() === null)
             $select->setOrder(DBOrder::ASC(self::ID));
 
-        $output = $select->getOutput();
-
         try {
             $stm = $this->prepareSelectStatement($select);
+
+            $output = $select->getOutput();
 
             $result = $stm->fetchAll();
 

@@ -76,7 +76,8 @@ class PaginationHTML
             '.pagination .arrow' => [
                 'font-size' => '33px',
                 'vertical-align' => 'sub',
-                'line-height' => '0'
+                'line-height' => '0',
+                'text-decoration' => 'none'
             ]
         ]);
     }
