@@ -60,4 +60,6 @@ class DBConfigurator
      * @var bool
      */
     public $boolean_not_strict;
+
+    public $ifNullDefaultValue;
 }

@@ -6,6 +6,7 @@ namespace Copper\Component\DB;
 
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\StringHandler;
+use Copper\Kernel;
 
 /**
  * Class DBColumnMod
@@ -36,6 +37,11 @@ class DBColumnMod
     private $roundResultDec;
 
     /**
+     * @var array
+     */
+    private $ifNullDefaultValueList;
+
+    /**
      * DBColumnMod constructor.
      * @param string|null $statement
      * @param string|null $params
@@ -44,6 +50,7 @@ class DBColumnMod
     {
         $this->actions = [];
         $this->statement = null;
+        $this->ifNullDefaultValueList = [];
 
         $this->roundResultDec = null;
 
@@ -58,6 +65,17 @@ class DBColumnMod
     public function setColumn($column)
     {
         $this->column = '`' . DBModel::formatFieldName($column) . '`';
+
+        return $this;
+    }
+
+    /**
+     * @param $column
+     * @param $value
+     */
+    public function setIfNullDefaultValue($column, $value)
+    {
+        $this->ifNullDefaultValueList[$column] = $value;
 
         return $this;
     }
@@ -143,12 +161,28 @@ class DBColumnMod
 
     /**
      * @param $value
+     * @return int
+     */
+    private function getIfNullDefaultValue($value)
+    {
+        $value = StringHandler::replace($value, '`', '');
+
+        if (ArrayHandler::hasKey($this->ifNullDefaultValueList, $value) === false)
+            return DBModel::formatNumber(Kernel::getDb()->config->ifNullDefaultValue);
+
+        return DBModel::formatNumber($this->ifNullDefaultValueList[$value]);
+    }
+
+    /**
+     * @param $value
      * @return string
      */
     private function prepareParamValue($value)
     {
+        $ifNullDefaultValue = self::getIfNullDefaultValue($value);
+
         if (is_string($value))
-            $value = '`' . DBModel::formatFieldName($value) . '`';
+            $value = 'IFNULL(' . DBModel::formatFieldName($value, true) . ', ' . $ifNullDefaultValue . ')';
 
         return $value;
     }

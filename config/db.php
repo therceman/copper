@@ -28,4 +28,5 @@ return function (DBConfigurator $db) {
 
     $db->boolean_not_strict = true;
 
+    $db->ifNullDefaultValue = 0;
 };

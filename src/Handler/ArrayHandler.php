@@ -561,6 +561,9 @@ class ArrayHandler
         if ($key === null)
             return false;
 
+        if (VarHandler::isInt($key) === false && VarHandler::isString($key) === false)
+            $key = VarHandler::toString($key);
+
         return array_key_exists($key, $array);
     }
 
