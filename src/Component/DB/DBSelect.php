@@ -244,6 +244,19 @@ class DBSelect
     }
 
     /**
+     * @param string $column
+     * @param DBMatchColumnMod|null $dbMatchColumnMod
+     * @return DBSelect
+     */
+    public function setMatchColumnMod(string $column, ?DBMatchColumnMod $dbMatchColumnMod): DBSelect
+    {
+        if ($dbMatchColumnMod !== null)
+            $this->columnMods[] = $dbMatchColumnMod->setColumn($column);
+
+        return $this;
+    }
+
+    /**
      * @param string|string[]|null $columns
      *
      * @return DBSelect

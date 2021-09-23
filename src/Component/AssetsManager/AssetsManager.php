@@ -157,7 +157,7 @@ class AssetsManager
         });
 
         // remove old files
-        $oldFiles = ArrayHandler::findByRegex($trg_js_files, '/'.$file_wo_ext.'(.\d{10,}).js/');
+        $oldFiles = ArrayHandler::findByRegex($trg_js_files, '/' . $file_wo_ext . '(.\d{10,}).js/');
 
         foreach ($oldFiles as $file) {
             if ($file !== $appFileSearchResult)
@@ -267,9 +267,9 @@ class AssetsManager
         return self::filepath(self::js_folder(), $file);
     }
 
-    public static function js($file)
+    public static function js($file, $defer = false)
     {
-        return '<script src="' . self::js_src($file) . '"></script>';
+        return '<script ' . ($defer ? 'defer ' : '') . 'src="' . self::js_src($file) . '"></script>';
     }
 
     public static function css_href($file)

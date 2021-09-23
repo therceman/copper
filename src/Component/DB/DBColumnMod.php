@@ -29,7 +29,7 @@ class DBColumnMod
     /**
      * @var string|null
      */
-    private $statement;
+    protected $statement;
 
     /**
      * @var int|null
@@ -192,7 +192,7 @@ class DBColumnMod
      * @param $params
      * @return string
      */
-    private function createStatement($statement, $params)
+    protected function createStatement($statement, $params)
     {
         foreach ($params as $key => $value) {
             if (StringHandler::has($key, self::PARAM_KEY) === false)
