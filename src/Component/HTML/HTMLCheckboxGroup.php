@@ -54,13 +54,13 @@ class HTMLCheckboxGroup extends HTMLElementGroup
     }
 
     /**
-     * @param bool $bool
+     * @param bool|null $bool
      *
      * @return HTMLCheckboxGroup
      */
-    public function checked(bool $bool)
+    public function checked($bool)
     {
-        $this->checked = $bool;
+        $this->checked = $bool ?? false;
 
         return $this;
     }
