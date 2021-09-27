@@ -289,11 +289,20 @@ class AssetsManager
         return ArrayHandler::hasValue($list, $extension);
     }
 
-    public static function getMediaFolder($file)
+    public static function getMediaFolderPath($path = null)
+    {
+        $folderPath = [self::MEDIA_PATH];
+
+        if ($path !== null)
+            $folderPath = ArrayHandler::merge($folderPath, $path);
+
+        return Kernel::getAppPublicPath($folderPath);
+    }
+
+    private static function isExternalMediaFileAllowed($file)
     {
         $config = Kernel::getAssetsManager()->config;
 
-        $external_media_domain = $config->external_media_domain;
         $file_whitelisted = true;
         $file_blacklisted = false;
 
@@ -309,16 +318,18 @@ class AssetsManager
         if ($file_whitelisted)
             $file_blacklisted = false;
 
-        if ($external_media_domain !== null && ($file_whitelisted || $file_blacklisted === false)) {
-            return $external_media_domain;
-        }
-
-        return self::media_folder();
+        return ($file_whitelisted || $file_blacklisted === false);
     }
 
     public static function media_src($file)
     {
-        $media_folder = self::getMediaFolder($file);
+        $media_folder = self::media_folder();
+
+        $config = Kernel::getAssetsManager()->config;
+
+        $external_media_domain = $config->external_media_domain;
+        if ($external_media_domain !== null && self::isExternalMediaFileAllowed($file))
+            $media_folder = $external_media_domain;
 
         return self::filepath($media_folder, $file);
     }

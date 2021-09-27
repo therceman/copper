@@ -360,8 +360,7 @@ CollectionHandler.prototype.findFirst = function (collection, filter) {
 
 /**
  * @param {Object} collection
- * @param {Object} filter
- *
+ * @param id
  * @returns {*|null}
  */
 CollectionHandler.prototype.findById = function (collection, id) {
@@ -506,6 +505,43 @@ RequestHandler.prototype.postJSON = function (url, data, callback) {
     this.post(url, data, callback, 'application/json', function (data) {
         return JSON.stringify(data);
     });
+}
+
+RequestHandler.prototype.fileUpload = function (url, fileInput, onSuccess, onError, onProgress) {
+    if (fileInput.files.length === 0)
+        return (typeof onError === 'function') ? onError('No file provided', 1) : false;
+
+    const file = fileInput.files[0];
+
+    let http = new XMLHttpRequest();
+
+    let full_url = (url.substring(0, 4) === 'http') ? url : self.base_uri + url;
+
+    http.open('POST', full_url, true);
+
+    http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    http.setRequestHeader('X-CSRF-TOKEN', window['__csrf_token']);
+
+    http.onreadystatechange = function () {
+        if (http.readyState !== 4)
+            return false;
+
+        if (http.status === 200 && typeof onSuccess === 'function')
+            onSuccess(JSON.parse(http.responseText));
+        else if (typeof onError === 'function')
+            onError(http.responseText, 2);
+    }
+
+    http.upload.addEventListener("progress", function (event) {
+        if (typeof onProgress === "function" && event.lengthComputable)
+            onProgress(event.total, event.loaded, Math.round(event.loaded / event.total * 100));
+    }, false);
+
+    const formData = new FormData();
+
+    formData.append('file', file);
+
+    http.send(formData);
 }
 
 RequestHandler.prototype.setBaseUri = function (uri) {

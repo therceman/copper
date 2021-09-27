@@ -38,6 +38,38 @@ class VarHandler
         return gettype($var);
     }
 
+    /**
+     * Transform variable to integer
+     * echo intval(42);                      // 42
+     * echo intval(4.2);                     // 4
+     * echo intval('42');                    // 42
+     * echo intval('+42');                   // 42
+     * echo intval('-42');                   // -42
+     * echo intval(042);                     // 34
+     * echo intval('042');                   // 42
+     * echo intval(1e10);                    // 1410065408
+     * echo intval('1e10');                  // 1
+     * echo intval(0x1A);                    // 26
+     * echo intval(array());                 // 0
+     * echo intval(array('foo', 'bar'));     // 0
+     * echo intval($object);                 // 0
+     * echo intval(false);                   // 0
+     * echo intval(true);                    // 1
+     * echo intval(null);                    // 0
+     * @param $var
+     * @return int
+     */
+    public static function toInt($var)
+    {
+        if ($var === true)
+            return 1;
+
+        if (VarHandler::isArray($var) || VarHandler::isObject($var) || VarHandler::isNull($var) || $var === false)
+            return 0;
+
+        return intval($var);
+    }
+
     public static function isJSON($var)
     {
         if (is_string($var) === false)

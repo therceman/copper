@@ -56,7 +56,7 @@ class HTMLSource extends HTMLElement
             return null;
 
         $url = StringHandler::split(StringHandler::split($srcset)[0], ' ')[0];
-        $filename = FileHandler::getFilenameFromPath($url);
+        $filename = FileHandler::getFilename($url);
         $extension = StringHandler::regex($filename, '/\.(\w{0,5})/m');
 
         return ArrayHandler::switch($extension,

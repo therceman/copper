@@ -24,9 +24,52 @@ class FileHandler
     const MIME_TYPE__IMAGE_JPEG = 'image/jpeg';
     const MIME_TYPE__IMAGE_PNG = 'image/png';
 
-    public static function getFilenameFromPath($path)
+    /**
+     * Get directory name from path
+     * @param $path
+     * @return mixed|string
+     */
+    public static function getDirname($path)
     {
-        $parsedUrl = parse_url($path, PHP_URL_PATH);
+        $path_parts = pathinfo($path);
+
+        return $path_parts['dirname'] ?? null;
+    }
+
+    /**
+     * @param $filepath
+     * @return int
+     */
+    public static function getFilesize($filepath)
+    {
+        if (self::fileExists($filepath) === false)
+            return 0;
+
+        $filesize = filesize($filepath);
+
+        return ($filesize === false) ? 0 : $filesize;
+    }
+
+    /**
+     * Get file extension from filepath
+     * @param $filepath
+     * @return null|string
+     */
+    public static function getExtension($filepath)
+    {
+        $path_parts = pathinfo($filepath);
+
+        return $path_parts['extension'] ?? null;
+    }
+
+    /**
+     * Get filename from filepath
+     * @param $filepath
+     * @return string
+     */
+    public static function getFilename($filepath)
+    {
+        $parsedUrl = parse_url($filepath, PHP_URL_PATH);
 
         return basename($parsedUrl);
     }
@@ -38,20 +81,22 @@ class FileHandler
      * - cleanPath('phar://exec<x>\'"ute/../../ute.jpg') // returns phar/execxute/ute.jpg
      * </code>
      * @param string|null|bool $path Path to file
-     * @param bool $absOnly Absolute Path Only (replaces ../ to /)
+     * @param bool $relativeSupport Relative support - path "../../" is supported, else "../" is replaced to "/"
      *
      * @return string
      */
-    public static function cleanPath($path, $absOnly = false)
+    public static function cleanPath($path, $relativeSupport = false)
     {
         if ($path === null || is_bool($path))
             return '';
+
+        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
 
         // strip bad chars
         $res = StringHandler::regexReplace($path, '/[^0-9_\-.\/A-Za-z]/m', '');
 
         // absolute path only
-        if ($absOnly)
+        if ($relativeSupport === false)
             $res = StringHandler::replace($res, ['../'], ['/']);
 
         $res = StringHandler::replaceRecursively($res, '//', '/');
@@ -65,7 +110,7 @@ class FileHandler
      */
     private static function extractNamespaceFromFile($file)
     {
-        if (is_dir(self::cleanPath($file)))
+        if (is_dir(self::cleanPath($file, true)))
             return null;
 
         $res = self::getContent($file);
@@ -123,7 +168,7 @@ class FileHandler
 
         $folderPath = self::getAbsolutePath($folderPath);
 
-        $folderPath = self::cleanPath($folderPath);
+        $folderPath = self::cleanPath($folderPath, true);
 
         if (self::fileExists($folderPath))
             return ($skipIfExists)
@@ -208,7 +253,7 @@ class FileHandler
         if (self::fileExists($filePath) === false)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         return $response->result(file_get_contents($filePath), self::ERROR_GET_CONTENT);
     }
@@ -221,7 +266,7 @@ class FileHandler
      */
     public static function readLine(string $filePath, int $line_num)
     {
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         // TODO handle exceptions
         $file = new SplFileObject($filePath);
@@ -253,7 +298,7 @@ class FileHandler
         if (self::fileExists($filePath) === false && $onlyIfExists === true)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         return $response->result(file_put_contents($filePath, $content, FILE_APPEND), self::ERROR_PUT_CONTENT);
     }
@@ -277,7 +322,7 @@ class FileHandler
         if (self::fileExists($filePath) === false && $onlyIfExists === true)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         $flags = ($lock) ? LOCK_EX : 0;
 
@@ -306,8 +351,8 @@ class FileHandler
         if (self::fileExists($destFolderPath) === false)
             return $response->error(self::ERROR_FOLDER_NOT_FOUND, $destFolderPath);
 
-        $filePath = self::cleanPath($filePath);
-        $destFolderPath = self::cleanPath($destFolderPath);
+        $filePath = self::cleanPath($filePath, true);
+        $destFolderPath = self::cleanPath($destFolderPath, true);
 
         $filename = ($newFileName === null) ? basename($filePath) : $newFileName;
 
@@ -324,7 +369,7 @@ class FileHandler
      */
     public static function fileExists($filePath)
     {
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         return file_exists($filePath);
     }
@@ -342,7 +387,7 @@ class FileHandler
         if (self::fileExists($filePath) === false)
             return FunctionResponse::createError('File does not exist');
 
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         return FunctionResponse::createSuccessOrError(unlink($filePath));
     }
@@ -365,7 +410,7 @@ class FileHandler
         if (self::fileExists($folderPath) === false)
             return $response->error(self::ERROR_FOLDER_NOT_FOUND, $folderPath);
 
-        $folderPath = self::cleanPath($folderPath);
+        $folderPath = self::cleanPath($folderPath, true);
 
         $files = array_diff(scandir($folderPath), array('.', '..'));
 
@@ -427,7 +472,7 @@ class FileHandler
         foreach ($response->result as $file) {
             $filePath = $folderPath . '/' . $file;
 
-            $filePath = self::cleanPath($filePath);
+            $filePath = self::cleanPath($filePath, true);
 
             if (is_dir($filePath))
                 continue;
@@ -503,7 +548,7 @@ class FileHandler
         if (self::fileExists($filePath) === false)
             return $response->error(self::ERROR_FILE_NOT_FOUND, $filePath);
 
-        $filePath = self::cleanPath($filePath);
+        $filePath = self::cleanPath($filePath, true);
 
         $handle = fopen($filePath, "r");
         if ($handle) {
@@ -562,12 +607,12 @@ class FileHandler
      */
     public static function rename(string $oldName, string $newName)
     {
-        $oldName = self::cleanPath($oldName);
+        $oldName = self::cleanPath($oldName, true);
 
         if (self::fileExists($oldName) === false)
             return false;
 
-        $newName = self::cleanPath($newName);
+        $newName = self::cleanPath($newName, true);
 
         return rename($oldName, $newName);
     }
