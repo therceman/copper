@@ -6,7 +6,6 @@ namespace Copper\Component\AssetsManager;
 
 use Copper\Handler\FileHandler;
 use Copper\Handler\NumberHandler;
-use Copper\Handler\StringHandler;
 
 /**
  * Class AssetsManagerMedia
@@ -84,12 +83,7 @@ class AssetsManagerMedia
      */
     private function setExtension(string $newExtension)
     {
-        $extension = FileHandler::getExtension($this->filename);
-
-        if ($extension === null)
-            $this->filename .= '.' . $newExtension;
-        else
-            $this->filename = StringHandler::replace($this->filename, $extension, $newExtension);
+        $this->filename = FileHandler::setExtension($this->filename, $newExtension);
 
         $this->build();
 

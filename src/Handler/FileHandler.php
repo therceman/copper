@@ -51,6 +51,24 @@ class FileHandler
     }
 
     /**
+     * Set/change extension for file
+     * @param $filepath
+     * @param $newExtension
+     * @return string
+     */
+    public static function setExtension($filepath, $newExtension)
+    {
+        $extension = FileHandler::getExtension($filepath);
+
+        if ($extension === null)
+            $filepath .= '.' . $newExtension;
+        else
+            $filepath = StringHandler::replace($filepath, $extension, $newExtension);
+
+        return $filepath;
+    }
+
+    /**
      * Get file extension from filepath
      * @param $filepath
      * @return null|string
