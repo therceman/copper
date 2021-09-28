@@ -648,4 +648,16 @@ class FileHandler
         return rename($oldName, $newName);
     }
 
+    // ----------------------------- Aliases -------------------------
+
+    /**
+     * @param $path
+     * @return mixed|string|null
+     * @see getDirname()
+     */
+    public static function getFolderName($path)
+    {
+        return self::getDirname($path);
+    }
+
 }

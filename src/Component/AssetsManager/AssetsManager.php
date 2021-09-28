@@ -8,6 +8,7 @@ use Copper\FunctionResponse;
 use Copper\Handler\ArrayHandler;
 use Copper\Handler\FileHandler;
 use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\Traits\ComponentHandlerTrait;
 
@@ -294,7 +295,7 @@ class AssetsManager
         $folderPath = [self::MEDIA_PATH];
 
         if ($path !== null)
-            $folderPath = ArrayHandler::merge($folderPath, $path);
+            $folderPath = ArrayHandler::merge($folderPath, VarHandler::isArray($path) ? $path : [$path]);
 
         return Kernel::getAppPublicPath($folderPath);
     }
@@ -321,11 +322,32 @@ class AssetsManager
         return ($file_whitelisted || $file_blacklisted === false);
     }
 
-    public static function media_src($file)
+    /**
+     * @return bool
+     */
+    public static function isWebpSupportedByBrowser()
+    {
+        $headers = Kernel::getRequest()->headers;
+
+        $inAcceptHeader = StringHandler::has($headers->get('Accept'), 'webp');
+        $inCustomHeader = $headers->has('X-WEBP');
+
+        return $inAcceptHeader || $inCustomHeader;
+    }
+
+    /**
+     * @param $file
+     * @param null $webp_file
+     * @return string
+     */
+    public static function media_src($file, $webp_file = null)
     {
         $media_folder = self::media_folder();
 
         $config = Kernel::getAssetsManager()->config;
+
+        if (self::isWebpSupportedByBrowser() && $webp_file !== null)
+            $file = $webp_file;
 
         $external_media_domain = $config->external_media_domain;
         if ($external_media_domain !== null && self::isExternalMediaFileAllowed($file))

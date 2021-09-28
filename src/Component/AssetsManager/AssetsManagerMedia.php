@@ -6,6 +6,7 @@ namespace Copper\Component\AssetsManager;
 
 use Copper\Handler\FileHandler;
 use Copper\Handler\NumberHandler;
+use Copper\Handler\VarHandler;
 
 /**
  * Class AssetsManagerMedia
@@ -31,6 +32,10 @@ class AssetsManagerMedia
     private $absFolderPath;
     private $relFolderPath;
     private $filename;
+    private $width;
+    private $height;
+    private $mimeType;
+    private $filesize;
 
     /**
      * AssetsManagerMedia constructor.
@@ -41,18 +46,61 @@ class AssetsManagerMedia
     {
         $this->filename = $filename;
         $this->relFolderPath = $relFolderPath;
-
-        $this->build();
     }
 
     /**
+     * Create from relative folder path + filename
+     *
      * @param $relFolderPath
      * @param $filename
      * @return AssetsManagerMedia
      */
     public static function create($relFolderPath, $filename)
     {
-        return new self($relFolderPath, $filename);
+        $media = new self($relFolderPath, $filename);
+
+        $media->process();
+
+        return $media;
+    }
+
+    /**
+     * Create from relative filepath
+     *
+     * @param string|array $relFilepath
+     * @return AssetsManagerMedia
+     */
+    public static function createFromRelPath($relFilepath)
+    {
+        if (VarHandler::isArray($relFilepath))
+            $relFilepath = FileHandler::pathFromArray($relFilepath);
+
+        $relDirPath = FileHandler::getFolderName($relFilepath);
+        $filename = FileHandler::getFilename($relFilepath);
+
+        return self::create($relDirPath, $filename);
+    }
+
+    /**
+     * @param $absFilepath
+     * @return AssetsManagerMedia
+     */
+    public static function createFromAbsPath($absFilepath)
+    {
+        $absDirPath = FileHandler::getFolderName($absFilepath);
+        $filename = FileHandler::getFilename($absFilepath);
+
+        $media = new self(null, $filename);
+
+        $media->absoluteFilepath = $absFilepath;
+        $media->absFolderPath = $absDirPath;
+
+        $media->relativeFilepath = null;
+        $media->relFolderPath = null;
+
+        $media->processImageData();
+
+        return $media;
     }
 
     /**
@@ -87,12 +135,12 @@ class AssetsManagerMedia
     {
         $this->filename = FileHandler::setExtension($this->filename, $newExtension);
 
-        $this->build();
+        $this->process();
 
         return $this;
     }
 
-    private function getFilename()
+    public function getFilename()
     {
         return $this->filename;
     }
@@ -125,6 +173,21 @@ class AssetsManagerMedia
         return ($round) ? NumberHandler::round($filesize, $roundDecimal) : $filesize;
     }
 
+    public function getWidth()
+    {
+        return $this->width;
+    }
+
+    public function getHeight()
+    {
+        return $this->height;
+    }
+
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
     public function getRelativeFilepath()
     {
         return $this->relativeFilepath;
@@ -145,21 +208,51 @@ class AssetsManagerMedia
     {
         return [
             'url' => $this->getUrl(),
-            'path' => $this->getRelativeFilepath(),
+            'rel_path' => $this->getRelativeFilepath(),
             'filename' => $this->getFilename(),
             'filesize' => $this->getFilesize(),
+            'width' => $this->getWidth(),
+            'height' => $this->getHeight(),
+            'mime_type' => $this->getMimeType(),
         ];
     }
 
-    private function build()
+    /**
+     * @return $this
+     */
+    public function processImageData()
+    {
+        if (FileHandler::fileExists($this->absoluteFilepath) === false)
+            return $this;
+
+        $imageSizeInfo = getimagesize($this->absoluteFilepath);
+
+        $this->width = $imageSizeInfo[0] ?? null;
+        $this->height = $imageSizeInfo[1] ?? null;
+        $this->mimeType = $imageSizeInfo['mime'] ?? null;
+
+        $this->filesize = $this->getFilesize(true, 2);
+
+        return $this;
+    }
+
+    private function process()
     {
         $this->relativeFilepath = FileHandler::pathFromArray([$this->relFolderPath, $this->filename]);
-
         $this->absFolderPath = AssetsManager::getMediaFolderPath([$this->relFolderPath]);
+        $this->absoluteFilepath = FileHandler::pathFromArray([$this->absFolderPath, $this->filename]);
 
+        $this->processImageData();
+    }
+
+    /**
+     * @return $this
+     */
+    public function buildPath()
+    {
         FileHandler::createFolder($this->absFolderPath, true);
 
-        $this->absoluteFilepath = FileHandler::pathFromArray([$this->absFolderPath, $this->filename]);
+        return $this;
     }
 
 }

@@ -409,6 +409,7 @@ function RequestHandler() {
     let self = this;
 
     this.base_uri = '';
+    this.headers = {};
 
     this.timeout = {
         get: 100,
@@ -432,6 +433,10 @@ function RequestHandler() {
         http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         http.setRequestHeader('X-CSRF-TOKEN', window['__csrf_token']);
 
+        Object.keys(self.headers).forEach(function (header) {
+            http.setRequestHeader(header, self.headers[header]);
+        });
+
         http.onreadystatechange = function () {
             if (http.readyState === 4 && http.status === 200 && callback !== void 0)
                 callback(JSON.parse(http.responseText));
@@ -454,6 +459,10 @@ function RequestHandler() {
         http.setRequestHeader('Content-type', contentType);
         http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
         http.setRequestHeader('X-CSRF-TOKEN', window['__csrf_token']);
+
+        Object.keys(self.headers).forEach(function (header) {
+            http.setRequestHeader(header, self.headers[header]);
+        });
 
         http.onreadystatechange = function () {
             if (http.readyState === 4 && http.status === 200 && callback !== void 0)
@@ -508,6 +517,8 @@ RequestHandler.prototype.postJSON = function (url, data, callback) {
 }
 
 RequestHandler.prototype.fileUpload = function (url, fileInput, onSuccess, onError, onProgress) {
+    let self = this;
+
     if (fileInput.files.length === 0)
         return (typeof onError === 'function') ? onError('No file provided', 1) : false;
 
@@ -521,6 +532,10 @@ RequestHandler.prototype.fileUpload = function (url, fileInput, onSuccess, onErr
 
     http.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     http.setRequestHeader('X-CSRF-TOKEN', window['__csrf_token']);
+
+    Object.keys(self.headers).forEach(function (header) {
+        http.setRequestHeader(header, self.headers[header]);
+    });
 
     http.onreadystatechange = function () {
         if (http.readyState !== 4)
@@ -546,6 +561,15 @@ RequestHandler.prototype.fileUpload = function (url, fileInput, onSuccess, onErr
 
 RequestHandler.prototype.setBaseUri = function (uri) {
     this.base_uri = uri;
+}
+
+RequestHandler.prototype.addHeader = function (key, value) {
+    this.headers[key] = value;
+}
+
+RequestHandler.prototype.addWebpSupportHeader = function (value) {
+    if (value !== void 0)
+        this.headers['X-WEBP'] = value;
 }
 
 copper.requestHandler = new RequestHandler();
