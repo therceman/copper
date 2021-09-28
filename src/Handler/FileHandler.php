@@ -380,6 +380,19 @@ class FileHandler
     }
 
     /**
+     * Check filepath
+     *
+     * @param $filepath
+     * @return bool
+     */
+    public static function checkFilepath($filepath)
+    {
+        $cleanedFilepath = FileHandler::cleanPath($filepath);
+
+        return $filepath === $cleanedFilepath;
+    }
+
+    /**
      * Check if file exists
      *
      * @param $filePath

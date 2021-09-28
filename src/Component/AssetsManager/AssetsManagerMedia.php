@@ -13,11 +13,13 @@ use Copper\Handler\NumberHandler;
  */
 class AssetsManagerMedia
 {
-    const JPG = 'jpg';
-    const PNG = 'png';
-    const WEBP = 'webp';
+    public const JPG = 'jpg';
+    public const JPEG = 'jpeg';
+    public const PNG = 'png';
+    public const WEBP = 'webp';
 
-    const FORMAT_LIST = [
+    public const SUPPORTED_FORMAT_LIST = [
+        self::JPEG,
         self::JPG,
         self::PNG,
         self::WEBP
