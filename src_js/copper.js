@@ -438,7 +438,7 @@ function RequestHandler() {
         });
 
         http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200 && callback !== void 0)
+            if (http.readyState === 4 && http.status === 200 && typeof callback === 'function')
                 callback(JSON.parse(http.responseText));
         }
 
@@ -465,7 +465,7 @@ function RequestHandler() {
         });
 
         http.onreadystatechange = function () {
-            if (http.readyState === 4 && http.status === 200 && callback !== void 0)
+            if (http.readyState === 4 && http.status === 200 && typeof callback === 'function')
                 callback(JSON.parse(http.responseText));
         }
 
@@ -477,36 +477,36 @@ function RequestHandler() {
         http.send(data);
     }
 
-    function throttle(method, callback, timeout) {
+    function throttle(methodWithUrl, callback, timeout) {
         if (timeout === false || timeout === 0)
             return callback();
 
-        if (timeoutId[method] === -1) {
+        if (timeoutId[methodWithUrl] === -1) {
             callback();
 
-            timeoutId[method] = setTimeout(function () {
-                timeoutId[method] = -1
+            timeoutId[methodWithUrl] = setTimeout(function () {
+                timeoutId[methodWithUrl] = -1
             }, timeout);
 
-            return timeoutId[method];
+            return timeoutId[methodWithUrl];
         }
 
-        clearTimeout(timeoutId[method]);
+        clearTimeout(timeoutId[methodWithUrl]);
 
-        timeoutId[method] = setTimeout(function () {
+        timeoutId[methodWithUrl] = setTimeout(function () {
             callback();
-            timeoutId[method] = -1
+            timeoutId[methodWithUrl] = -1
         }, timeout);
     }
 
     this.get = function (url, callback, params, throttleTimeout = this.timeout.get) {
-        throttle('get', function () {
+        throttle('get@' + url, function () {
             getRequest(url, callback, params);
         }, throttleTimeout)
     }
 
     this.post = function (url, data, callback, throttleTimeout = this.timeout.post, contentType, prepareData) {
-        throttle('post', function () {
+        throttle('post@' + url, function () {
             postRequest(url, data, callback, contentType, prepareData);
         }, throttleTimeout)
     }
