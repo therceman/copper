@@ -99,13 +99,19 @@ class ArrayHandler
      * - diff(['id','key','name'],['key']) // array('id','name')
      * </code>
      *
-     * @param array $src Source array
-     * @param array $trg Target array
+     * @param array|null $src Source array
+     * @param array|null $trg Target array
      *
      * @return array Entries from source array are returned that are not found in target array
      */
-    public static function diff(array $src, array $trg)
+    public static function diff(?array $src, ?array $trg)
     {
+        if ($src === null)
+            $src = [];
+
+        if ($trg === null)
+            $trg = [];
+
         return array_diff($src, $trg);
     }
 

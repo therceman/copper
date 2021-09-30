@@ -477,13 +477,16 @@ function RequestHandler() {
         http.send(data);
     }
 
-    function throttle(method, callback) {
+    function throttle(method, callback, timeout) {
+        if (timeout === false || timeout === 0)
+            return callback();
+
         if (timeoutId[method] === -1) {
             callback();
 
             timeoutId[method] = setTimeout(function () {
                 timeoutId[method] = -1
-            }, self.timeout[method]);
+            }, timeout);
 
             return timeoutId[method];
         }
@@ -493,25 +496,25 @@ function RequestHandler() {
         timeoutId[method] = setTimeout(function () {
             callback();
             timeoutId[method] = -1
-        }, self.timeout[method]);
+        }, timeout);
     }
 
-    this.get = function (url, callback, params) {
+    this.get = function (url, callback, params, throttleTimeout = this.timeout.get) {
         throttle('get', function () {
             getRequest(url, callback, params);
-        })
+        }, throttleTimeout)
     }
 
-    this.post = function (url, data, callback, contentType, prepareData) {
+    this.post = function (url, data, callback, throttleTimeout = this.timeout.post, contentType, prepareData) {
         throttle('post', function () {
             postRequest(url, data, callback, contentType, prepareData);
-        })
+        }, throttleTimeout)
     }
 
 }
 
-RequestHandler.prototype.postJSON = function (url, data, callback) {
-    this.post(url, data, callback, 'application/json', function (data) {
+RequestHandler.prototype.postJSON = function (url, data, callback, throttleTimeout = this.timeout.post) {
+    this.post(url, data, callback, throttleTimeout, 'application/json', function (data) {
         return JSON.stringify(data);
     });
 }
