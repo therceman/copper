@@ -871,7 +871,16 @@ abstract class DBModel
             $response->result($resultId);
         } catch (Exception $e) {
             $code = StringHandler::regex($e->getMessage(), '/Driver Code: (\d*)/m');
-            $response->fail($e->getMessage(), $formattedInsertData, $code);
+            $response->fail(
+                $db->config->debug
+                    ? $e->getMessage()
+                    : "Database Error",
+                $db->config->debug
+                    ? $formattedInsertData
+                    : [],
+                $code
+            );
+
         }
 
         return $response;
@@ -914,20 +923,22 @@ abstract class DBModel
                 throw new Exception($stm->getMessage());
 
             if ($resultRowCount === 0)
-                throw new Exception('No record found for update or new data not provided');
+                throw new Exception('No record found for update or new data not provided. Driver Code: 0');
 
             $response->result($db->config->debug
                 ? new DBUpdateResponseResultEntity($resultRowCount, $updateData, $stmQuery, $stmParam)
                 : []
             );
         } catch (Exception $e) {
+            $code = StringHandler::regex($e->getMessage(), '/Driver Code: (\d*)/m');
             $response->fail(
                 $db->config->debug
                     ? $e->getMessage()
                     : "Database Error",
                 $db->config->debug
                     ? new DBUpdateResponseResultEntity($resultRowCount, $updateData, $stmQuery, $stmParam)
-                    : []
+                    : [],
+                $code
             );
         }
 

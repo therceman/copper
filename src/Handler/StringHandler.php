@@ -31,6 +31,19 @@ class StringHandler
 
     /**
      * @param string $str
+     * @param bool $toLowerCaseFirst
+     * @return string
+     */
+    public static function firstCharUpperCase(string $str, $toLowerCaseFirst = false)
+    {
+        if ($toLowerCaseFirst)
+            $str = self::toLowerCase($str);
+
+        return mb_strtoupper(mb_substr($str, 0, 1)) . mb_substr($str, 1, null);
+    }
+
+    /**
+     * @param string $str
      * @return false|string|string[]
      */
     public static function toLowerCase(string $str)
@@ -142,6 +155,23 @@ class StringHandler
         return $res;
     }
 
+    /**
+     * Replaces double spaces and tabs (to single space by default)
+     * <hr>
+     * <code>
+     * - replaceDoubleSpacesAndTabs('hello     there') // returns 'hello there'
+     * </code>
+     * @param string $str
+     * @param string $replaceTo
+     * @return string
+     */
+    public static function replaceDoubleSpaceAndTabs(string $str, $replaceTo = ' ')
+    {
+        $str = StringHandler::replace($str, "\t", $replaceTo);
+
+        return StringHandler::replaceRecursively($str, '  ', $replaceTo);
+    }
+
     public static function random($len = 5)
     {
         $hash = DBModel::hash(NumberHandler::random(0, 1000 * $len));
@@ -204,7 +234,7 @@ class StringHandler
     {
         if ($trimNull && $str === null)
             return '';
-            
+
         if (VarHandler::isString($str) === false)
             return $str;
 
