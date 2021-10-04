@@ -24,6 +24,11 @@ class AppConfigurator
     public $dev_mode;
 
     /**
+     * @var string
+     */
+    public $version;
+
+    /**
      * Application title
      * @var string|array
      */

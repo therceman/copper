@@ -212,8 +212,12 @@ class AssetsManager
             return self::$version;
         } else {
             $infoFilePath = FileHandler::appPathFromArray([Kernel::CACHE_FOLDER, self::VERSION_FILENAME]);
+            $gitFilePath = FileHandler::appPathFromArray(['.git', 'index']);
 
-            $git_index_mod_time = filemtime(FileHandler::appPathFromArray(['.git', 'index']));
+            if (FileHandler::fileExists($gitFilePath))
+                $git_index_mod_time = filemtime($gitFilePath);
+            else
+                $git_index_mod_time = Kernel::getAppConfig()->version;
 
             if (FileHandler::fileExists($infoFilePath) === false) {
                 self::$version = self::getVersionFromGit();

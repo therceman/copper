@@ -5,6 +5,7 @@ use Copper\AppConfigurator;
 
 return function (AppConfigurator $appConfig) {
     $appConfig->dev_mode = false; // TODO
+    $appConfig->version = '1.0.0';
 
     $appConfig->title = 'Copper PHP Framework';
     $appConfig->description = 'Copper is a PHP Framework that is mainly focused on simplicity and development speed';
