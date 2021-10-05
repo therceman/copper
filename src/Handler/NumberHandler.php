@@ -58,7 +58,7 @@ class NumberHandler
      */
     public static function addPercent($num, $perc)
     {
-        return $num - (($num * $perc) / 100);
+        return $num + (($num * $perc) / 100);
     }
 
     /**
@@ -70,7 +70,7 @@ class NumberHandler
      */
     public static function subPercent($num, $perc)
     {
-        return $num + (($num * $perc) / 100);
+        return $num - (($num * $perc) / 100);
     }
 
     /**

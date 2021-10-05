@@ -398,7 +398,7 @@ abstract class DBModel
 
         $entities = $this->doSelect($select);
 
-        return (count($entities) > 0) ? $entities[0] : null;
+        return (count($entities) > 0) ? ArrayHandler::firstValue($entities) : null;
     }
 
     /**
@@ -417,7 +417,7 @@ abstract class DBModel
 
         $entities = $this->doSelectWhere($where, $select);
 
-        return (count($entities) > 0) ? $entities[0] : null;
+        return (count($entities) > 0) ? ArrayHandler::firstValue($entities) : null;
     }
 
     /**
