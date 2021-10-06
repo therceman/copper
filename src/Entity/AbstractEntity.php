@@ -63,7 +63,7 @@ class AbstractEntity
 
                 if ($value !== null && $type !== null)
                     settype($value, $type);
-                
+
                 $self->$key = $value;
             }
         }
@@ -149,6 +149,18 @@ class AbstractEntity
     {
         if (property_exists($this, $key))
             unset($this->$key);
+
+        return $this;
+    }
+
+    /**
+     * @param array $fields
+     * @return $this
+     */
+    public function deleteFields(array $fields)
+    {
+        foreach ($fields as $field)
+            $this->delete($field);
 
         return $this;
     }
