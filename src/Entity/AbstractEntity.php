@@ -160,7 +160,7 @@ class AbstractEntity
 
     public function exists()
     {
-        return ($this->id !== null);
+        return ($this->id !== null && $this->id > 0);
     }
 
     public function hasStateFields()

@@ -91,7 +91,7 @@ class PaginationHTML
     private function createHref(int $page)
     {
         return ($this->hrefMap !== null)
-            ? call_user_func_array($this->hrefMap, [$page])
+            ? call_user_func_array($this->hrefMap, [$page, $this->entity->page_item_count])
             : StringHandler::sprintf(self::DEFAULT_HREF_FORMAT, [$page]);
     }
 

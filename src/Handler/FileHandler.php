@@ -15,6 +15,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class FileHandler
 {
+    const DIR_SEPARATOR = '/';
+
     const ERROR_FILE_NOT_FOUND = 'File not found';
     const ERROR_FILE_OPEN = 'Unable to open file';
     const ERROR_FOLDER_NOT_FOUND = 'Folder not found';
@@ -108,16 +110,21 @@ class FileHandler
         if ($path === null || is_bool($path))
             return '';
 
-        $path = str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $path);
+        // Windows Hack
+        $path = str_replace(['/', '\\'], self::DIR_SEPARATOR, $path);
 
         // strip bad chars
-        $res = StringHandler::regexReplace($path, '/[^0-9_\-.\/A-Za-z]/m', '');
+        $res = StringHandler::regexReplace($path, '/[^0-9_\-.\/A-Za-z:]/m', '');
 
         // absolute path only
         if ($relativeSupport === false)
             $res = StringHandler::replace($res, ['../'], ['/']);
 
         $res = StringHandler::replaceRecursively($res, '//', '/');
+
+        // Windows fix for path starting with /C:/home
+        if (strlen($res) > 3 && $res[0] === '/' && $res[2] === ':')
+            $res = ltrim($res, '/');
 
         return $res;
     }
@@ -155,9 +162,9 @@ class FileHandler
      */
     public static function getAbsolutePath($path, $withDirSeparator = true)
     {
-        $path = str_replace(array('/', '\\'), DIRECTORY_SEPARATOR, $path);
+        $path = str_replace(array('/', '\\'), self::DIR_SEPARATOR, $path);
 
-        $parts = array_filter(explode(DIRECTORY_SEPARATOR, $path), 'strlen');
+        $parts = array_filter(explode(self::DIR_SEPARATOR, $path), 'strlen');
 
         $absolutes = array();
 
@@ -170,7 +177,7 @@ class FileHandler
             }
         }
 
-        return (($withDirSeparator) ? DIRECTORY_SEPARATOR : '') . implode(DIRECTORY_SEPARATOR, $absolutes);
+        return (($withDirSeparator) ? self::DIR_SEPARATOR : '') . implode(self::DIR_SEPARATOR, $absolutes);
     }
 
     /**
@@ -206,7 +213,7 @@ class FileHandler
      */
     public static function pathFromArray(array $pathArray)
     {
-        return join(DIRECTORY_SEPARATOR, $pathArray);
+        return join('/', $pathArray);
     }
 
     /**
@@ -245,7 +252,7 @@ class FileHandler
      */
     public static function packagePathFromArray(array $pathArray)
     {
-        return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getPackagePath()], $pathArray));
+        return join(self::DIR_SEPARATOR, array_merge([Kernel::getPackagePath()], $pathArray));
     }
 
     /**
@@ -256,7 +263,7 @@ class FileHandler
      */
     public static function appPathFromArray(array $pathArray)
     {
-        return join(DIRECTORY_SEPARATOR, array_merge([Kernel::getAppPath()], $pathArray));
+        return join(self::DIR_SEPARATOR, array_merge([Kernel::getAppPath()], $pathArray));
     }
 
     /**
@@ -482,7 +489,7 @@ class FileHandler
 
     public static function getFileClassName($filePath)
     {
-        $pathParts = explode(DIRECTORY_SEPARATOR, $filePath);
+        $pathParts = explode(self::DIR_SEPARATOR, $filePath);
 
         $fileName = end($pathParts);
         $className = str_replace('.php', '', $fileName);
