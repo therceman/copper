@@ -277,6 +277,10 @@ ArrayHandler.prototype.assocDelete = function (array, filter) {
     return newArray;
 }
 
+ArrayHandler.prototype.lastValue = function (array) {
+    return array[array.length - 1];
+}
+
 ArrayHandler.prototype.isArray = function (array) {
     return Array.isArray(array);
 }

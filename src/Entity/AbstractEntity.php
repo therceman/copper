@@ -165,6 +165,22 @@ class AbstractEntity
         return $this;
     }
 
+    /**
+     * @param array $fieldsToSave
+     * @return $this
+     */
+    public function deleteAllFieldsExcept(array $fieldsToSave)
+    {
+        $fields = $this->toArray();
+
+        foreach ($fields as $field => $value) {
+            if (ArrayHandler::hasValue($fieldsToSave, $field) === false)
+                $this->delete($field);
+        }
+
+        return $this;
+    }
+
     public function getFields()
     {
         return ArrayHandler::keyList(get_class_vars(static::class));
