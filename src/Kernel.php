@@ -964,7 +964,15 @@ final class Kernel
         $matchCollection = $matcher->match($requestContext->getPathInfo());
 
         $routeDefinitionParams = array_intersect_key($matchCollection, array_flip($routeDefinitionKeys));
-        $controllerParams = ['_route_params' => array_diff_key($matchCollection, $routeDefinitionParams)];
+        $route_params = array_diff_key($matchCollection, $routeDefinitionParams);
+
+        $route_ordered_params = [];
+        // TODO possibly this should be optimized a bit... compiled route variables should be saved somewhere in cache?
+        foreach (self::$routes->get($matchCollection['_route'])->compile()->getVariables() as $k => $var) {
+            $route_ordered_params[$var] = $route_params[$var];
+        }
+
+        $controllerParams = ['_route_params' => $route_ordered_params];
 
         $request->attributes->add(array_merge($routeDefinitionParams, $controllerParams));
     }

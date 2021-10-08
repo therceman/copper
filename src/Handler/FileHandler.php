@@ -394,6 +394,9 @@ class FileHandler
      */
     public static function checkFilepath($filepath)
     {
+        // transfer windows path to unix path before compare
+        $filepath = StringHandler::replace($filepath, '\\', '/');
+
         $cleanedFilepath = FileHandler::cleanPath($filepath);
 
         return $filepath === $cleanedFilepath;
@@ -441,6 +444,11 @@ class FileHandler
         return FileHandler::fileExists($filePath) ? filemtime($filePath) : false;
     }
 
+    /**
+     * @param $folderPath
+     * @param false $withModTimeAsKey
+     * @return FunctionResponse
+     */
     public static function getFilesInFolder($folderPath, $withModTimeAsKey = false)
     {
         $response = new FunctionResponse();
@@ -466,6 +474,10 @@ class FileHandler
         return $response->result($files);
     }
 
+    /**
+     * @param $filePath
+     * @return array
+     */
     public static function getFileConstantList($filePath)
     {
         $contentResponse = FileHandler::getContent($filePath);
@@ -487,6 +499,10 @@ class FileHandler
         return $fields;
     }
 
+    /**
+     * @param $filePath
+     * @return string
+     */
     public static function getFileClassName($filePath)
     {
         $pathParts = explode(self::DIR_SEPARATOR, $filePath);
@@ -498,6 +514,10 @@ class FileHandler
         return $namespace . '\\' . $className;
     }
 
+    /**
+     * @param $folderPath
+     * @return FunctionResponse
+     */
     public static function getClassNamesInFolder($folderPath)
     {
         $response = self::getFilesInFolder($folderPath);
@@ -521,6 +541,11 @@ class FileHandler
         return $response->result($classNames);
     }
 
+    /**
+     * @param $filePath
+     * @param array $fieldNames
+     * @return FunctionResponse
+     */
     public static function readTSV($filePath, $fieldNames = [])
     {
         $response = new FunctionResponse();

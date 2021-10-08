@@ -198,6 +198,28 @@ copper.stringHandler = new StringHandler();
 
 // --------------------------- arrayHandler ---------------------------
 
+function VarHandler() {
+
+}
+
+VarHandler.prototype.isArray = function (array) {
+    return Array.isArray(array);
+}
+
+VarHandler.prototype.isObject = function (object) {
+    return (typeof object === 'object' &&
+        !Array.isArray(object) &&
+        object !== null)
+}
+
+VarHandler.prototype.objectToArray = function (object) {
+    return Object.values(object);
+}
+
+copper.varHandler = new VarHandler();
+
+// --------------------------- arrayHandler ---------------------------
+
 function ArrayHandler() {
 
 }
@@ -337,10 +359,15 @@ CollectionHandler.prototype.match = function (item, filter, strict = false) {
     return matched;
 }
 
+
+
 CollectionHandler.prototype.find = function (collection, filter) {
     let self = this;
 
     let list = [];
+
+    if (copper.varHandler.isObject(collection))
+        collection = copper.varHandler.objectToArray(collection);
 
     collection.forEach(function (item, k) {
         if (self.match(item, filter))
