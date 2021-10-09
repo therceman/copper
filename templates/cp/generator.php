@@ -2,6 +2,7 @@
 
 use Copper\Component\CP\CPController;
 use Copper\Component\DB\DBModel;
+use Copper\Component\DB\DBModelField;
 use Copper\Component\HTML\HTML;
 use Copper\Component\HTML\HTMLGroup;
 use Copper\Handler\ArrayHandler;
@@ -130,11 +131,11 @@ if ($resource !== null) {
     // /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
     // const CHAR = 'CHAR';
 
-    /** A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size */
+    /** A variable-length (0-65,535) string, fetched faster than text field, the effective maximum length is subject to the maximum row size */
     const VARCHAR = 'VARCHAR';
 
     /** A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes */
-    // const TINYTEXT = 'TINYTEXT';
+    const TINYTEXT = 'TINYTEXT';
 
     /** A TEXT column with a maximum length of 65,535 (2^16 - 1) characters, stored with a two-byte prefix indicating the length of the value in bytes */
     const TEXT = 'TEXT';
@@ -574,7 +575,7 @@ if ($resource !== null) {
                     <option title="A fixed-point number (M, D) - the maximum number of digits (M) is 65 (default 10), the maximum number of decimals (D) is 30 (default 0)">
                         DECIMAL
                     </option>
-                    <option title="A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size">
+                    <option title="A variable-length (0-65,535) string, fetched faster than text field, the effective maximum length is subject to the maximum row size">
                         VARCHAR
                     </option>
                     <option title="A synonym for TINYINT(1), a value of zero is considered false, nonzero values are considered true">
@@ -644,7 +645,7 @@ if ($resource !== null) {
                         <!--                    <option title="A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored">-->
                         <!--                        CHAR-->
                         <!--                    </option>-->
-                        <option title="A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size">
+                        <option title="A variable-length (0-65,535) string, fetched faster than text field, the effective maximum length is subject to the maximum row size">
                             VARCHAR
                         </option>
                         <option disabled="disabled">-</option>
@@ -1488,6 +1489,18 @@ if ($resource !== null) {
         if (val === ENUM)
             $length.value = 'one, two';
 
+        <?php
+        foreach (DBModelField::TEXT_LENGTH_MAP as $field => $maxLength) {
+            echo PHP_EOL;
+            echo '        if (val === ' . $field . ') {' . PHP_EOL;
+            echo '            $length.value = ' . $maxLength . ';' . PHP_EOL;
+            echo '            $length.min = ' . $maxLength . ';' . PHP_EOL;
+            echo '            $length.max = ' . $maxLength . ';' . PHP_EOL;
+            echo '            $length.title = \'Max length: ' . $maxLength . '\';' . PHP_EOL;
+            echo '        }' . PHP_EOL;
+        }
+        ?>
+
         if (val === VARCHAR) {
             $length.value = <?= $default_varchar_length ?>;
             $length.min = 0;
@@ -1702,9 +1715,9 @@ if ($resource !== null) {
         let action = 'prepare_templates';
 
         let data = {
-            "action" : action,
-            "resource" : resourceClassName,
-            "force" : force
+            "action": action,
+            "resource": resourceClassName,
+            "force": force
         };
 
         copper.requestHandler.post(url, data, function (response) {
@@ -1724,9 +1737,9 @@ if ($resource !== null) {
         let action = 'create_js_source_files';
 
         let data = {
-            "action" : action,
-            "resource" : resourceClassName,
-            "force" : force
+            "action": action,
+            "resource": resourceClassName,
+            "force": force
         };
 
         copper.requestHandler.post(url, data, function (response) {

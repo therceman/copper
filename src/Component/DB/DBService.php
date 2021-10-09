@@ -4,6 +4,7 @@
 namespace Copper\Component\DB;
 
 
+use Copper\Handler\ArrayHandler;
 use Copper\Handler\FileHandler;
 use Copper\FunctionResponse;
 use Copper\Handler\StringHandler;
@@ -75,7 +76,7 @@ class DBService
         $str = str_replace('%', '', $str);
         $str = str_replace('.', '\\.', $str);
         $str = str_replace('_', '\\_', $str);
-        
+
         return $str;
     }
 
@@ -93,9 +94,9 @@ class DBService
     /**
      * @param string $className - DBSeed Class Name
      * @param DBHandler $db
+     * @return FunctionResponse
      * @var bool $force
      *
-     * @return FunctionResponse
      */
     public static function seedClassName(string $className, DBHandler $db, $force = false)
     {
@@ -164,7 +165,14 @@ class DBService
     {
         $str = '`' . $field->getName() . '` ' . $field->getType();
 
-        if ($field->getLength() !== false) {
+        $isTextField = ArrayHandler::hasValue([
+            DBModelField::TINYTEXT,
+            DBModelField::TEXT,
+            DBModelField::MEDIUMTEXT,
+            DBModelField::LONGTEXT
+        ], $field->getType());
+
+        if ($field->getLength() !== false && $isTextField === false) {
             if ($field->getType() === DBModelField::DECIMAL)
                 $str .= '(' . join(",", self::escapeStrArray($field->getLength())) . ')';
             else

@@ -9,6 +9,14 @@ use Copper\Kernel;
 
 class DBModelField
 {
+
+    // ============== LENGTH ==============
+
+    const TINYTEXT_LENGTH = 255;
+    const TEXT_LENGTH = 65535;
+    const MEDIUMTEXT_LENGTH = 16777215;
+    const LONGTEXT_LENGTH = 4294967295;
+
     // ============== TYPE ==============
 
     // ------- Numeric -------
@@ -72,7 +80,7 @@ class DBModelField
 //    /** A fixed-length (0-255, default 1) string that is always right-padded with spaces to the specified length when stored */
 //    const CHAR = 'CHAR';
 
-    /** A variable-length (0-65,535) string, the effective maximum length is subject to the maximum row size */
+    /** A variable-length (0-65,535) string, fetched faster than text field, the effective maximum length is subject to the maximum row size */
     const VARCHAR = 'VARCHAR';
 
     /** A TEXT column with a maximum length of 255 (2^8 - 1) characters, stored with a one-byte prefix indicating the length of the value in bytes */
@@ -141,6 +149,15 @@ class DBModelField
 //
 //    /** Stores and enables efficient access to data in JSON (JavaScript Object Notation) documents */
 //    const JSON = 'JSON';
+
+    // ============== MAP ==================
+
+    const TEXT_LENGTH_MAP = [
+        DBModelField::TINYTEXT => DBModelField::TINYTEXT_LENGTH,
+        DBModelField::TEXT => DBModelField::TEXT_LENGTH,
+        DBModelField::MEDIUMTEXT => DBModelField::MEDIUMTEXT_LENGTH,
+        DBModelField::LONGTEXT => DBModelField::LONGTEXT_LENGTH,
+    ];
 
     // ============== Default ==============
 
