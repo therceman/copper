@@ -922,7 +922,7 @@ abstract class DBModel
             if ($resultRowCount === false)
                 throw new Exception($stm->getMessage());
 
-            if ($resultRowCount === 0)
+            if ($resultRowCount === 0 && $db->config->throwErrorWhenNothingToUpdate)
                 throw new Exception('No record found for update or new data not provided. Driver Code: 0');
 
             $response->result($db->config->debug

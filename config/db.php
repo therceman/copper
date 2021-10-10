@@ -28,5 +28,7 @@ return function (DBConfigurator $db) {
 
     $db->boolean_not_strict = true;
 
+    $db->throwErrorWhenNothingToUpdate = false;
+
     $db->ifNullDefaultValue = 0;
 };

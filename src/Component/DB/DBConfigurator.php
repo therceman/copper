@@ -61,5 +61,15 @@ class DBConfigurator
      */
     public $boolean_not_strict;
 
+    /**
+     * Throw error on: No record found for update or new data not provided
+     * @var bool
+     */
+    public $throwErrorWhenNothingToUpdate;
+
+    /**
+     * Needed for DBColumnMod
+     * @var int|float
+     */
     public $ifNullDefaultValue;
 }
