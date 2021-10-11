@@ -10,6 +10,9 @@ return function (DBConfigurator $db) {
     // Enable / Disable DB support
     $db->enabled = false;
 
+    $db->log_errors = true;
+    $db->log_prefix = '[DB]';
+
     $db->host = 'localhost';
     $db->dbname = '';
     $db->user = 'root';

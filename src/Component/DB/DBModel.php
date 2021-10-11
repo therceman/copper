@@ -598,6 +598,10 @@ abstract class DBModel
 
             return $columns;
         } catch (Exception $e) {
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doGetColumns) ' . $e->getMessage());
+
             return $columns;
         }
     }
@@ -625,6 +629,10 @@ abstract class DBModel
                 $db_result = [];
 
         } catch (Exception $e) {
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doGetTableSchema) ' . $e->getMessage());
+
             $db_result = [];
         }
 
@@ -682,6 +690,8 @@ abstract class DBModel
      */
     public function doCount(DBSelect $select = null)
     {
+        $db = Kernel::getDb();
+
         try {
             $stm = $this->prepareSelectStatement($select, true);
 
@@ -691,6 +701,10 @@ abstract class DBModel
                 $result = 0;
 
         } catch (Exception $e) {
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doCount) ' . $e->getMessage());
+
             $result = 0;
         }
 
@@ -704,6 +718,8 @@ abstract class DBModel
      */
     public function doSelect(DBSelect $select = null)
     {
+        $db = Kernel::getDb();
+
         if ($select === null)
             $select = new DBSelect();
 
@@ -749,6 +765,10 @@ abstract class DBModel
                     $list[] = $entity;
             }
         } catch (Exception $e) {
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doSelect) ' . $e->getMessage());
+
             $list = [];
         }
 
@@ -841,6 +861,10 @@ abstract class DBModel
 
             $response->result($stm->getTotalTime());
         } catch (Exception $e) {
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doBulkInsert) ' . $e->getMessage(), $formattedInsertDataList);
+
             $response->fail($e->getMessage());
         }
 
@@ -871,6 +895,10 @@ abstract class DBModel
             $response->result($resultId);
         } catch (Exception $e) {
             $code = StringHandler::regex($e->getMessage(), '/Driver Code: (\d*)/m');
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doInsert) ' . $e->getMessage(), $formattedInsertData);
+
             $response->fail(
                 $db->config->debug
                     ? $e->getMessage()
@@ -931,6 +959,10 @@ abstract class DBModel
             );
         } catch (Exception $e) {
             $code = StringHandler::regex($e->getMessage(), '/Driver Code: (\d*)/m');
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doUpdate) ' . $e->getMessage(), $formattedUpdateData);
+
             $response->fail(
                 $db->config->debug
                     ? $e->getMessage()
@@ -980,6 +1012,10 @@ abstract class DBModel
 
             $response->result($resultRowCount);
         } catch (Exception $e) {
+
+            if ($db->config->log_errors)
+                Kernel::getErrorHandler()->logError($db->config->log_prefix . ' (doDelete) ' . $e->getMessage());
+
             $response->fail($e->getMessage());
         }
 

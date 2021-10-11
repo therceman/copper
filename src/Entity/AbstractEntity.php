@@ -2,11 +2,11 @@
 
 namespace Copper\Entity;
 
+use Copper\Component\DB\DBModel;
 use Copper\Component\Templating\ViewHandler;
 use Copper\Handler\AnnotationHandler;
 use Copper\Handler\ArrayHandler;
 use Copper\Traits\EntityStateFields;
-use Symfony\Component\HttpFoundation\ParameterBag;
 
 class AbstractEntity
 {
@@ -92,7 +92,7 @@ class AbstractEntity
      *
      * @return bool
      */
-    public function has($key)
+    public function has(?string $key)
     {
         if ($key === null)
             return false;
@@ -186,9 +186,24 @@ class AbstractEntity
         return ArrayHandler::keyList(get_class_vars(static::class));
     }
 
+    /**
+     * @param AbstractEntity $entity
+     * @return static
+     */
+    public static function copyFromEntity(AbstractEntity $entity)
+    {
+        $self = new self();
+
+        foreach ($self->getFields() as $field) {
+            $self->set($field, $entity->get($field));
+        }
+
+        return $self;
+    }
+
     public function exists()
     {
-        return ($this->id !== null && $this->id > 0);
+        return ($this->get(DBModel::ID) > 0);
     }
 
     public function hasStateFields()
@@ -198,6 +213,6 @@ class AbstractEntity
 
     public function isArchived()
     {
-        return (property_exists($this, 'archived_at') && $this->archived_at !== null);
+        return ($this->get(DBModel::ARCHIVED_AT) !== null);
     }
 }

@@ -61,4 +61,29 @@ class DBHandler
     {
         return self::hashWithSalt($str, $this->config->hashSalt);
     }
+
+    /**
+     * @return bool
+     */
+    public function beginTransaction(): bool
+    {
+        return $this->pdo->beginTransaction();
+    }
+
+    /**
+     * @return bool
+     */
+    public function commitTransaction(): bool
+    {
+        return $this->pdo->commit();
+    }
+
+    /**
+     * @return bool
+     */
+    public function rollbackTransaction(): bool
+    {
+        return $this->pdo->rollBack();
+    }
+
 }

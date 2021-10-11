@@ -307,6 +307,12 @@ ArrayHandler.prototype.isArray = function (array) {
     return Array.isArray(array);
 }
 
+ArrayHandler.prototype.diff = function (arrayA, arrayB) {
+    return arrayA.filter(function (i) {
+        return arrayB.indexOf(i) < 0;
+    });
+};
+
 copper.arrayHandler = new ArrayHandler();
 
 // --------------------------- numberHandler ---------------------------
@@ -358,7 +364,6 @@ CollectionHandler.prototype.match = function (item, filter, strict = false) {
 
     return matched;
 }
-
 
 
 CollectionHandler.prototype.find = function (collection, filter) {

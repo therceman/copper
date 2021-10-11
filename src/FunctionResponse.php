@@ -4,6 +4,7 @@
 namespace Copper;
 
 
+use Copper\Entity\AbstractEntity;
 use Copper\Handler\StringHandler;
 use Copper\Handler\VarHandler;
 
@@ -203,6 +204,15 @@ class FunctionResponse
         return true;
     }
 
+    /**
+     * @param string $entityClass
+     * @return mixed
+     */
+    public function getResult(string $entityClass = AbstractEntity::class)
+    {
+        return $this->result;
+    }
+
     // ------------------ Aliases ------------------
 
     /**
@@ -213,7 +223,7 @@ class FunctionResponse
      *
      * @return $this
      */
-    public function okOrFail(bool $status, $result = false)
+    public function okOrFail(bool $status, $result = false): FunctionResponse
     {
         return $this->successOrError($status, $result);
     }

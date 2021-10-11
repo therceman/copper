@@ -11,6 +11,11 @@ class DBConfigurator
     /** @var bool */
     public $debug;
 
+    /** @var bool */
+    public $log_errors;
+    /** @var string */
+    public $log_prefix;
+
     /** @var string */
     public $host;
     /** @var string */

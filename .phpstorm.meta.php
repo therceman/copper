@@ -19,4 +19,8 @@ namespace PHPSTORM_META {
     override(\Copper\Component\Auth\AuthHandler::user(0), map([
         '' => '@',
     ]));
+
+    override(\Copper\FunctionResponse::getResult(0), map([
+        '' => '@',
+    ]));
 }
