@@ -16,6 +16,7 @@ class DateHandler
 
     const EUROPE_DATE_FORMAT = 'd.m.Y';
     const EUROPE_DATE_TIME_FORMAT = 'd.m.Y H:i:s';
+    const EUROPE_DATE_TIME_NO_SEC_FORMAT = 'd.m.Y H:i';
 
     public static function getDateFormat()
     {

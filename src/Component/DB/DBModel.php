@@ -1035,11 +1035,14 @@ abstract class DBModel
 
     /**
      * @param string $str
-     *
+     * @param string|null $extra_salt
      * @return string
      */
-    public static function hash(string $str)
+    public static function hash(string $str, string $extra_salt = null): string
     {
+        if ($extra_salt !== null)
+            $str = $str . $extra_salt;
+
         return Kernel::getDb()->hash($str);
     }
 }
