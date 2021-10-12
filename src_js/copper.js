@@ -623,7 +623,32 @@ UrlHandler.prototype.queryString = function (params) {
     return (queryStr.trim() === '' || params === false || params === true || params === null) ? '' : '?' + queryStr;
 }
 
+UrlHandler.prototype.getQueryParameter = function (key, query = null) {
+    if (query === null)
+        query = document.location.search;
+
+    const urlParams = new URLSearchParams(query);
+
+    return urlParams.get(key);
+}
+
 copper.urlHandler = new UrlHandler();
+
+// ---------- Date Handler -----------------
+
+function DateHandler() {
+}
+
+DateHandler.prototype.timestamp = function (offset = 0) {
+    if (offset === 0)
+        return (new Date()).getDate();
+
+    let date = new Date();
+
+    return date.setDate(date.getDate() + offset);
+}
+
+copper.dateHandler = new DateHandler();
 
 // ---------- Key Handler -----------------
 
