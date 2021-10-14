@@ -71,7 +71,7 @@ class ErrorEntity
 
         $this->ips = ArrayHandler::join(Kernel::getIPAddressList());
 
-        $this->session_id = Kernel::getAuth()->sessionId();
+        $this->session_id = Kernel::getAuth() === null ? null : Kernel::getAuth()->sessionId();
 
         $this->referer = $_SERVER['HTTP_REFERER'] ?? '';
     }

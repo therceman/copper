@@ -58,7 +58,7 @@ class DateHandler
      */
     private static function newDate($timezone = null)
     {
-        $configTimezone = Kernel::getApp()->config->timezone;
+        $configTimezone = Kernel::getApp()->config->timezone ?? null;
 
         if ($timezone === null && $configTimezone !== false)
             $timezone = $configTimezone;
