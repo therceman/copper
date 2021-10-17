@@ -5,7 +5,6 @@ namespace Copper\Handler;
 
 
 use Copper\Component\DB\DBModel;
-use Copper\Kernel;
 use Copper\Transliterator;
 
 /**
@@ -14,6 +13,78 @@ use Copper\Transliterator;
  */
 class StringHandler
 {
+
+    /**
+     * Check if a string starts with a text
+     * <hr>
+     * <code>
+     * - startsWith('https://google.com', 'https:')             // returns true
+     * - startsWith('https://google.com', 'http:')              // returns false
+     * - startsWith('https://google.com', ['http:', 'https:'])  // returns true
+     * </code>
+     *
+     * @param string $str String
+     * @param string|array $text Text to find. Pass array to match against any text
+     * @return bool
+     */
+    public static function startsWith(string $str, $text): bool
+    {
+        if (VarHandler::isArray($text)) {
+            $res = false;
+
+            foreach ($text as $t) {
+                if ($res === true)
+                    continue;
+
+                if (self::startsWith($str, $t))
+                    $res = true;
+            }
+
+            return $res;
+        }
+
+        $len = strlen($text);
+
+        return (substr($str, 0, $len) === $text);
+    }
+
+    /**
+     * Check if a string ends with a text
+     * <hr>
+     * <code>
+     * - endsWith('https://google.com', '.com')            // returns true
+     * - endsWith('https://google.com', '.net')            // returns false
+     * - endsWith('https://google.com', ['.com', '.net'])  // returns true
+     * </code>
+     *
+     * @param string $str String
+     * @param string|array $text Text to find. Pass array to match against any text
+     * @return bool
+     */
+    public static function endsWith(string $str, $text): bool
+    {
+        if (VarHandler::isArray($text)) {
+            $res = false;
+
+            foreach ($text as $t) {
+                if ($res === true)
+                    continue;
+
+                if (self::endsWith($str, $t))
+                    $res = true;
+            }
+
+            return $res;
+        }
+
+        $len = strlen($text);
+
+        if ($len === 0)
+            return true;
+
+        return (substr($str, -$len) === $text);
+    }
+
     /**
      * Removes white spaces around keys and values in JSON string
      *

@@ -22,4 +22,5 @@ return function (AppConfigurator $appConfig) {
     $appConfig->trim_input = true;
 
     $appConfig->public_rel_path = 'public';
+    $appConfig->data_rel_path = 'data';
 };

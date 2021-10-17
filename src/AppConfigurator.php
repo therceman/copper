@@ -127,6 +127,16 @@ class AppConfigurator
      */
     public $public_rel_path;
 
+    /**
+     * Relative path to data folder
+     *
+     * <hr>
+     * Default: data
+     *
+     * @var string
+     */
+    public $data_rel_path;
+
     public function __construct()
     {
         $this->bag = new ParameterBag();

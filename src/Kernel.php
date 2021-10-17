@@ -476,6 +476,13 @@ final class Kernel
         return FileHandler::appPathFromArray($pathArray);
     }
 
+    public static function getAppDataPath($path = null): string
+    {
+        $pathArray = FileHandler::extendPathArray([self::$app->config->data_rel_path], $path);
+
+        return FileHandler::appPathFromArray($pathArray);
+    }
+
     public static function getAppTemplatesPath($path = null)
     {
         $pathArray = FileHandler::extendPathArray(['templates'], $path);
