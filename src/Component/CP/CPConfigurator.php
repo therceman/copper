@@ -5,6 +5,12 @@ namespace Copper\Component\CP;
 
 class CPConfigurator
 {
+    /**
+     * Allowed IP's. Set it to null to disable
+     * @var array
+     */
+    public $ip_whitelist;
+
     /** @var string */
     public $session_key;
     /** @var string */

@@ -1,6 +1,7 @@
 <?php /** @var \Copper\Component\Templating\ViewHandler $view */
 
 use Copper\Component\CP\CPController;
+use Copper\Kernel;
 
 ?>
 
@@ -14,7 +15,11 @@ use Copper\Component\CP\CPController;
 <?php endif; ?>
 
 <form method="post" action="<?= $view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_AUTHORIZE]) ?>">
+    <input type="text" name="login" value="copper_admin">
     <input type="password" name="password">
     <button type="submit">Login</button>
 </form>
+
+<div style="margin-top:10px">IP: <b><?= Kernel::getIPAddress() ?></b></div>
+
 </body>

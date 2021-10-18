@@ -386,9 +386,9 @@ final class Kernel
     /**
      * Returns client IP addresses as array
      *
-     * @return array
+     * @return string[]
      */
-    public static function getIPAddressList()
+    public static function getIPAddressList($normalizeLocalhost = true): array
     {
 
         if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
@@ -403,7 +403,26 @@ final class Kernel
             $ip_list = [$_SERVER['REMOTE_ADDR']];
         }
 
+        if ($normalizeLocalhost)
+            foreach ($ip_list as $k => $ip) {
+                $ip_list[$k] = (ArrayHandler::hasValue(['localhost', '::1'], $ip)) ? '127.0.0.1' : $ip;
+            }
+
         return $ip_list;
+    }
+
+    /**
+     * Returns client IP address (first or last)
+     *
+     * @param bool $first
+     * @param bool $normalizeLocalhost
+     * @return string
+     */
+    public static function getIPAddress(bool $first = true, bool $normalizeLocalhost = true): string
+    {
+        return ($first)
+            ? ArrayHandler::firstValue(self::getIPAddressList($normalizeLocalhost))
+            : ArrayHandler::lastValue(self::getIPAddressList($normalizeLocalhost));
     }
 
     public static function getAppConfigPath($path = null)

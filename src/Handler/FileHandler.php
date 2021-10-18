@@ -289,9 +289,12 @@ class FileHandler
      *
      * @return string|null
      */
-    public static function readLine(string $filePath, int $line_num)
+    public static function readLine(string $filePath, int $line_num): ?string
     {
         $filePath = self::cleanPath($filePath, true);
+
+        if (FileHandler::fileExists($filePath) === false)
+            return null;
 
         // TODO handle exceptions
         $file = new SplFileObject($filePath);
@@ -690,6 +693,19 @@ class FileHandler
     public static function getFolderName($path)
     {
         return self::getDirname($path);
+    }
+
+    /**
+     * @param string $filePath File path
+     * @param string $content File content
+     * @param bool $onlyIfExists [optional] = false
+     * @return FunctionResponse
+     * @see appendContent()
+     *
+     */
+    public static function addContent(string $filePath, string $content, bool $onlyIfExists = false): FunctionResponse
+    {
+        return self::appendContent($filePath, $content, $onlyIfExists);
     }
 
 }

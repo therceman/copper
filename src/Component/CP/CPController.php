@@ -7,9 +7,8 @@ use Copper\Component\DB\DBService;
 use Copper\Component\HTML\HTML;
 use Copper\Controller\AbstractController;
 use Copper\Handler\ArrayHandler;
-use Copper\Handler\CollectionHandler;
 use Copper\Handler\FileHandler;
-use Copper\Handler\StringHandler;
+use Copper\Handler\VarHandler;
 use Copper\Kernel;
 use Copper\Resource\AbstractResource;
 use Copper\Test\DB\TestDB;
@@ -32,8 +31,14 @@ class CPController extends AbstractController
     const ACTION_ROUTE_ADD = 'route_add';
     const ACTION_LOGOUT = 'logout';
 
-    private function hasAccess()
+    private function hasAccess(): bool
     {
+        $whitelist = $this->cp->config->ip_whitelist;
+
+        if (VarHandler::isArray($whitelist)
+            && ArrayHandler::hasValue($whitelist, Kernel::getIPAddress()) === false)
+            return false;
+
         return $this->auth->session->get($this->cp->config->session_key, false);
     }
 
@@ -49,6 +54,9 @@ class CPController extends AbstractController
 
     public function postAction($action)
     {
+        if ($this->hasAccess() === false && ArrayHandler::hasValue([self::ACTION_AUTHORIZE, self::ACTION_LOGOUT], $action) === false)
+            return $this->redirectToRoute(ROUTE_get_copper_cp);
+
         switch ($action) {
             case self::ACTION_AUTHORIZE:
                 return $this->authorize();
@@ -251,10 +259,10 @@ class CPController extends AbstractController
                     $route_group = $route->getDefault('_route_group');
 
                     $route_action_list_key = ArrayHandler::assocFindKey($route_action_list, ["name" => $controller_action]);
-                    
+
                     if ($route_action_list_key === null)
                         continue;
-                    
+
                     $route_action_list[$route_action_list_key]['used'] = true;
 
                     $method = $route->getMethods()[0];
