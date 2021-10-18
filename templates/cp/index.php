@@ -26,12 +26,12 @@ $entity_list = $view->dataBag->get('entity_list');
     <li>
         <a target="_blank" href="<?= $core_test_url ?>">Core Test</a><span></span>
     </li>
-    <li>
-        <a target="_blank" href="<?= $migrate_url ?>">DB Migrate</a>
-    </li>
-    <li>
-        <a target="_blank" href="<?= $seed_url ?>">DB Seed</a>
-    </li>
+<!--    <li>-->
+<!--        <a target="_blank" href="--><?//= $migrate_url ?><!--">DB Migrate</a>-->
+<!--    </li>-->
+<!--    <li>-->
+<!--        <a target="_blank" href="--><?//= $seed_url ?><!--">DB Seed</a>-->
+<!--    </li>-->
     <li>
         <a target="_blank" href="<?= $generator_url ?>">DB Generator</a>
     </li>
