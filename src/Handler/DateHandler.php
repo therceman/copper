@@ -73,6 +73,17 @@ class DateHandler
         }
     }
 
+    public static function isValidTimezone($timezone): bool
+    {
+        try {
+            new DateTimeZone($timezone);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
     /**
      * @param string $date
      * @param string $format

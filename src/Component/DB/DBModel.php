@@ -951,7 +951,7 @@ abstract class DBModel
                 throw new Exception($stm->getMessage());
 
             if ($resultRowCount === 0 && $db->config->throwErrorWhenNothingToUpdate)
-                throw new Exception('No record found for update or new data not provided. Driver Code: 0');
+                throw new Exception('No record found for update or new data not provided. Driver Code: ' . DBErrorCode::ER_NO_RECORD_FOUND_FOR_UPDATE);
 
             $response->result($db->config->debug
                 ? new DBUpdateResponseResultEntity($resultRowCount, $updateData, $stmQuery, $stmParam)

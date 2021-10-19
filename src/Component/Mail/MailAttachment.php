@@ -4,6 +4,9 @@
 namespace Copper\Component\Mail;
 
 
+use Copper\Handler\FileHandler;
+use Copper\Handler\StringHandler;
+
 /**
  * Class MailAttachment
  * @package Copper\Component\Mail
@@ -30,7 +33,7 @@ class MailAttachment
     public function __construct(string $path, $name = '')
     {
         $this->path = $path;
-        $this->name = $name;
+        $this->name = (StringHandler::trim($name) === '') ? FileHandler::getFilename($path) : $name;
 
         $this->encoding = self::ENCODING_BASE64;
         $this->type = '';

@@ -192,7 +192,7 @@ class AbstractEntity
      */
     public static function copyFromEntity(AbstractEntity $entity)
     {
-        $self = new self();
+        $self = new static();
 
         foreach ($self->getFields() as $field) {
             $self->set($field, $entity->get($field));

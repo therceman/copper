@@ -6,6 +6,8 @@ namespace Copper\Component\DB;
 
 class DBErrorCode
 {
+    const ER_NO_RECORD_FOUND_FOR_UPDATE = 0; // (custom) No record found for update or new data not provided
+
     const ER_HASHCHK = 1000; // hashchk
     const ER_NISAMCHK = 1001; // isamchk
     const ER_NO = 1002; // NO
