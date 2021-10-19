@@ -71,6 +71,18 @@ abstract class DBCollectionService
     }
 
     /**
+     * Find entry by ID
+     *
+     * @param int|string $id
+     * @param DBSelect|null $DBSelect
+     * @return mixed|AbstractEntity|null
+     */
+    public static function findById($id, DBSelect $DBSelect = null)
+    {
+        return self::getModel()->doSelectById($id, $DBSelect);
+    }
+
+    /**
      * Get entry list
      *
      * @param DBHandler $db

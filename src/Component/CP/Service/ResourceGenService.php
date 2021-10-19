@@ -656,10 +656,10 @@ class $name extends AbstractResource
         if (FileHandler::fileExists($filePath) && $override === false)
             return $response->fail($name . ' is not created. Override is set to false.');
 
-        $excluded_param = "[$model::ID]";
+        $excluded_param = "[DBModel::ID]";
 
         if ($use_state_fields)
-            $excluded_param = "[$model::ID, $model::CREATED_AT, $model::UPDATED_AT, $model::ARCHIVED_AT]";
+            $excluded_param = "[DBModel::ID, DBModel::CREATED_AT, DBModel::UPDATED_AT, DBModel::ARCHIVED_AT]";
 
         $content = "<?php
 
@@ -686,11 +686,11 @@ class $name extends AbstractController
     private \$resource = $resource::class;
 
     /** @var $service */
-    private \$service;
+    private $service \$service;
     /** @var $model */
-    private \$model;
+    private $model \$model;
     /** @var $entity */
-    private \$entity;
+    private $entity \$entity;
 
     public function init()
     {
