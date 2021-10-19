@@ -1052,6 +1052,7 @@ trait $annotationTraitName
     }
 
     /** @param {$entity}[] \$entityList 
+     * @return FunctionResponse 
      * @see \Copper\Component\DB\DBModel::doBulkInsert() */
     public function doBulkInsert(array \$entityList) {
         return \$this->cpm(__FUNCTION__, func_get_args());
