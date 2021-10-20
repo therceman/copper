@@ -50,6 +50,14 @@ class AbstractUserEntity extends AbstractEntity
         return $this->hasRole([self::ROLE_ADMIN, self::ROLE_SUPER_ADMIN]);
     }
 
+    /**
+     * @return bool
+     */
+    public function isSuperAdmin()
+    {
+        return $this->hasRole([self::ROLE_SUPER_ADMIN]);
+    }
+
     public function isGuest()
     {
         return $this->hasRole(self::ROLE_GUEST);
