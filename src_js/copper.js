@@ -320,6 +320,13 @@ copper.arrayHandler = new ArrayHandler();
 function NumberHandler() {
 }
 
+NumberHandler.prototype.isBetween = function (num, min, max, include = false) {
+    if (include)
+        return (num >= min && num <= max);
+
+    return (num > min && num < max);
+}
+
 NumberHandler.prototype.format = function (float, precision) {
     if (precision === void 0)
         precision = 2;

@@ -443,6 +443,11 @@ class StringHandler
         return Transliterator::transform($str, $spaceReplace, $toLowerCase);
     }
 
+    public static function camelCase(string $str): string
+    {
+        return ucwords($str);
+    }
+
     /**
      * @param string $str
      *
