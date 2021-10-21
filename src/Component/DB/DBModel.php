@@ -78,6 +78,18 @@ abstract class DBModel
     }
 
     /**
+     * Check if a value is from enum list
+     *
+     * @param $fieldName
+     * @param $value
+     * @return bool
+     */
+    public function isEnumListHasValue($fieldName, $value): bool
+    {
+        return ArrayHandler::hasValue($this->getFieldEnumValues($fieldName), $value);
+    }
+
+    /**
      * Returns enum values as collection
      *
      * @param string $name

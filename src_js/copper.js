@@ -216,6 +216,29 @@ VarHandler.prototype.objectToArray = function (object) {
     return Object.values(object);
 }
 
+VarHandler.prototype.isDefined = function (variable) {
+    return (typeof variable !== 'undefined')
+}
+
+VarHandler.prototype.toString = function (variable, skipNull, skipBool) {
+    if (this.isDefined(skipNull) === false)
+        skipNull = false;
+
+    if (this.isDefined(skipBool) === false)
+        skipBool = false;
+
+    if (variable === null)
+        return skipNull ? '' : 'null';
+
+    if (variable === false)
+        return skipBool ? '' : 'false';
+
+    if (variable === true)
+        return skipBool ? '' : 'true';
+
+    return variable + '';
+}
+
 copper.varHandler = new VarHandler();
 
 // --------------------------- arrayHandler ---------------------------
