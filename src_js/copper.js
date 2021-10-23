@@ -239,6 +239,33 @@ VarHandler.prototype.toString = function (variable, skipNull, skipBool) {
     return variable + '';
 }
 
+VarHandler.prototype.isNotEmpty = function (variable) {
+    return this.isEmpty(variable) === false;
+}
+
+VarHandler.prototype.isEmpty = function (variable) {
+    if (this.isDefined(variable) === false)
+        return true;
+
+    if (variable === null)
+        return true;
+
+    if (this.toString(variable).trim() === '')
+        return true;
+
+    if (this.isArray(variable) && variable.length === 0)
+        return true;
+
+    if (this.isObject(variable) && Object.keys(variable).length === 0)
+        return true;
+
+    return false;
+}
+
+VarHandler.prototype.isFunction = function (variable) {
+    return (typeof variable === 'function');
+}
+
 copper.varHandler = new VarHandler();
 
 // --------------------------- arrayHandler ---------------------------

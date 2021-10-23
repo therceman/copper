@@ -784,6 +784,16 @@ class HTMLElement
     }
 
     /**
+     * @return $this
+     */
+    public function title($title)
+    {
+        $this->setAttr('title', $title);
+
+        return $this;
+    }
+
+    /**
      * @param string $js Javascript code
      *
      * @return $this

@@ -515,6 +515,16 @@ class ArrayHandler
         return $res;
     }
 
+    public static function isEmpty($array): bool
+    {
+        return VarHandler::isEmpty($array);
+    }
+
+    public static function isNotEmpty($array): bool
+    {
+        return VarHandler::isEmpty($array) === false;
+    }
+
     /**
      * @param array $array
      * @param mixed $value
