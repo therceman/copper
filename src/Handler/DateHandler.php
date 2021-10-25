@@ -12,6 +12,7 @@ class DateHandler
 {
     const DATE_FORMAT = 'Y-m-d';
     const TIME_FORMAT = 'H:i:s';
+    const TIME_NO_SEC_FORMAT = 'H:i';
     const DATE_TIME_FORMAT = 'Y-m-d H:i:s';
 
     const EUROPE_DATE_FORMAT = 'd.m.Y';
@@ -329,6 +330,26 @@ class DateHandler
         $fromFormat = ($fromFormat === null) ? self::getDateFormat() : $fromFormat;
 
         $date = DateTime::createFromFormat($fromFormat, $date);
+
+        if ($date === false)
+            return false;
+
+        return $date->format($toFormat);
+    }
+
+    /**
+     * @param string $time
+     * @param string $toFormat
+     * @param string|null $fromFormat
+     *
+     * @return false|string
+     */
+    public static function formatTime(string $time, string $toFormat, string $fromFormat = null)
+    {
+
+        $fromFormat = ($fromFormat === null) ? self::getTimeFormat() : $fromFormat;
+
+        $date = DateTime::createFromFormat($fromFormat, $time);
 
         if ($date === false)
             return false;

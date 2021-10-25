@@ -1071,6 +1071,24 @@ final class Kernel
     }
 
     /**
+     * TODO should be moved to request itself
+     *
+     * Returns route data by key
+     * @param string $key
+     * @param mixed $value
+     * @return mixed|void
+     */
+    public static function setRouteData(string $key, $value)
+    {
+        $controller = Kernel::getController();
+
+        if ($controller === null)
+            return $value;
+
+        $controller->routeDataBag->set($key, $value);
+    }
+
+    /**
      * Returns application config
      * If bagKey is provided - returns key value from config bag (custom values)
      * @param string|null $bagKey

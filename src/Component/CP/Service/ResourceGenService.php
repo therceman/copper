@@ -692,11 +692,11 @@ class $name extends AbstractController
     private \$resource = $resource::class;
 
     /** @var $service */
-    private $service \$service;
+    private \$service;
     /** @var $model */
-    private $model \$model;
+    private \$model;
     /** @var $entity */
-    private $entity \$entity;
+    private \$entity;
 
     public function init()
     {
