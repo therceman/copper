@@ -70,6 +70,17 @@ class VarHandler
         return intval($var);
     }
 
+    public static function toFloat($var)
+    {
+        if ($var === true)
+            return 1;
+
+        if (VarHandler::isArray($var) || VarHandler::isObject($var) || VarHandler::isNull($var) || $var === false)
+            return 0;
+
+        return floatval($var);
+    }
+
     public static function isJSON($var)
     {
         if (is_string($var) === false)
