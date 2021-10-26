@@ -335,6 +335,34 @@ class DBWhere
         return self::is($field, null);
     }
 
+    public function andNotNull($field)
+    {
+        $this->andNot($field, null);
+
+        return $this;
+    }
+
+    public function andNull($field)
+    {
+        $this->and($field, null);
+
+        return $this;
+    }
+
+    public function orNotNull($field)
+    {
+        $this->orNot($field, null);
+
+        return $this;
+    }
+
+    public function orNull($field)
+    {
+        $this->or($field, null);
+
+        return $this;
+    }
+
     /**
      * Is Like
      *
