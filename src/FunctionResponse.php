@@ -28,6 +28,17 @@ class FunctionResponse
     }
 
     /**
+     * @param int $code
+     * @return $this
+     */
+    public function setCode(int $code): FunctionResponse
+    {
+        $this->code = $code;
+
+        return $this;
+    }
+
+    /**
      * Sets the result. Status: true when $result is not false (else throws error)
      *
      * @param $result
