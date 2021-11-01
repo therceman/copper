@@ -39,6 +39,17 @@ class FunctionResponse
     }
 
     /**
+     * @param mixed $result
+     * @return $this
+     */
+    public function setResult($result): FunctionResponse
+    {
+        $this->result = $result;
+
+        return $this;
+    }
+
+    /**
      * Sets the result. Status: true when $result is not false (else throws error)
      *
      * @param $result
