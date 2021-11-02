@@ -4,6 +4,8 @@
 namespace Copper\Component\HTML;
 
 
+use Copper\Handler\DateHandler;
+
 class HTMLInput extends HTMLElement
 {
     const ATTR_VALUE = 'value';
@@ -55,7 +57,7 @@ class HTMLInput extends HTMLElement
 
     public function autocomplete($enabled = true)
     {
-        $this->setAttr(self::ATTR_AUTOCOMPLETE, ($enabled) ? null : 'false_off');
+        $this->setAttr(self::ATTR_AUTOCOMPLETE, ($enabled) ? null : 'off' );
 
         return $this;
     }

@@ -255,6 +255,7 @@ class StringHandler
      *
      * <hr>
      * <code>
+     * - substr("abcdef", 0, 2);   // returns "ab"
      * - substr("abcdef", -1);     // returns "f"
      * - substr("abcdef", -2);     // returns "ef"
      * - substr("abcdef", -3, 1);  // returns "d"
@@ -502,6 +503,36 @@ class StringHandler
             $charList = join('', $charList);
 
         return rtrim($str, $charList);
+    }
+
+    /**
+     * Removes first word occurrence from string
+     * <hr>
+     * <code>
+     * - removeFirstWord("big abcdef big", "big ");   // returns "abcdef big"
+     * </code>
+     * @param string $str
+     * @param string $word
+     * @return array|string|string[]|null
+     */
+    public static function removeFirstWord(string $str, string $word)
+    {
+        return preg_replace('/^' . $word . '*/', '', $str);
+    }
+
+    /**
+     * Removes last word occurrence from string
+     * <hr>
+     * <code>
+     * - removeLastWord("big abcdef big", " big");   // returns "big abcdef"
+     * </code>
+     * @param string $str
+     * @param string $word
+     * @return array|string|string[]|null
+     */
+    public static function removeLastWord(string $str, string $word)
+    {
+        return preg_replace('/' . $word . '*$/', '', $str);
     }
 
 }
