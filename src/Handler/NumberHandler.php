@@ -86,6 +86,30 @@ class NumberHandler
     }
 
     /**
+     * Calculate price with vat
+     *
+     * @param $price
+     * @param $vat
+     * @return float|int
+     */
+    public static function addVatToPrice($price, $vat)
+    {
+        return (float)$price * ((100 + (float)$vat) / 100);
+    }
+
+    /**
+     * Calculate price without vat
+     *
+     * @param $price
+     * @param $vat
+     * @return float|int
+     */
+    public static function subVatFromPrice($price, $vat)
+    {
+        return (float)$price / ((100 + (float)$vat) / 100);
+    }
+
+    /**
      * @param float|int $num1
      * @param float|int $num2
      * @return int
@@ -150,7 +174,9 @@ class NumberHandler
      */
     public static function currencyFormat($num, $currency = self::SIGN_EUR, $dec = 2, $d_sep = '.', $t_sep = '')
     {
-        return self::format($num, $dec, $d_sep, $t_sep) . ' ' . $currency;
+        $currency = ($currency === null) ? '' : ' ' . $currency;
+
+        return self::format($num, $dec, $d_sep, $t_sep) . $currency;
     }
 
     /**

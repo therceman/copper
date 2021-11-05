@@ -783,7 +783,7 @@ EventHandler.prototype.isNumericKeyPressed = function (event, strict) {
     let allowedKeys = '1234567890';
 
     if (strict === false)
-        allowedKeys += ',.';
+        allowedKeys += '.';
 
     allowedKeys = allowedKeys.split('');
 
