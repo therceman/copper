@@ -55,7 +55,7 @@ $seedName = '';
 if ($resource !== null) {
     $model = $resource::getModel();
     $resourceName = str_replace('App\\Resource\\', '', $resource);
-    $tableName = $model->getTableName();
+    $tableName = $model === null ? '-----' : $model->getTableName();
     $entityName = str_replace('App\\Entity\\', '', $resource::getEntityClassName());
     $modelName = str_replace('App\\Model\\', '', $resource::getModelClassName());
     $serviceName = str_replace('App\\Service\\', '', $resource::getServiceClassName());

@@ -62,9 +62,12 @@ abstract class AbstractResource
     // --------------------------
 
     /**
-     * @return string
+     * @return string|false
      */
-    abstract static function getModelClassName();
+    static function getModelClassName()
+    {
+        return false;
+    }
 
     static function getModelPath()
     {
@@ -79,9 +82,12 @@ abstract class AbstractResource
     // --------------------------
 
     /**
-     * @return string
+     * @return string|false
      */
-    abstract static function getEntityClassName();
+    static function getEntityClassName()
+    {
+        return false;
+    }
 
     static function getEntityPath()
     {
@@ -197,16 +203,16 @@ abstract class AbstractResource
     }
 
     /**
-     * @return DBModel
+     * @return DBModel|null
      */
     public static function getModel()
     {
         $modelClassName = static::getModelClassName();
 
-        if (array_key_exists(static::class, self::$models) === false)
+        if (array_key_exists(static::class, self::$models) === false && $modelClassName !== false)
             self::$models[static::class] = new $modelClassName();
 
-        return self::$models[static::class];
+        return self::$models[static::class] ?? null;
     }
 
     // --------------------------
@@ -356,7 +362,7 @@ abstract class AbstractResource
      * User with role super_admin will have access to all routes in resource
      * (even if this role is not provided in access role list)
      * Access Role examples: 'admin', ['admin', 'moderator']. For all users use: '*'
-     * 
+     *
      * @param string|array $role
      */
     public static function setAccessRole($role)

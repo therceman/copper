@@ -207,7 +207,7 @@ class CPController extends AbstractController
         }
 
         $db_column_list = [];
-        if ($resource !== null)
+        if ($resource !== null && $resource::getModel() !== null)
             $db_column_list = $resource::getModel()->doGetColumns(true);
 
         // route info
