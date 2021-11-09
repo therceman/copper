@@ -360,7 +360,7 @@ class ArrayHandler
      *
      * @return array
      */
-    public static function delete(array $array, $value)
+    public static function deleteValue(array $array, $value)
     {
         $value_list = VarHandler::isArray($value) ? $value : [$value];
 

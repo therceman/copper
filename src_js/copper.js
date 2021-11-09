@@ -571,6 +571,8 @@ function RequestHandler() {
     }
 
     function throttle(methodWithUrl, callback, timeout) {
+        methodWithUrl = methodWithUrl.split('?')[0];
+
         if (timeout === false || timeout === 0)
             return callback();
 

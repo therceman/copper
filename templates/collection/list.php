@@ -44,7 +44,7 @@ $urlPostUndoArchive = function ($id) use ($view, $Resource, $model) {
 
 $field_names = [];
 
-foreach (ArrayHandler::delete($model->getFieldNames(), $model::ARCHIVED_AT) as $field) {
+foreach (ArrayHandler::deleteValue($model->getFieldNames(), $model::ARCHIVED_AT) as $field) {
     $field_names[$field] = StringHandler::underscoreToCamelCase($field, true);
 };
 
