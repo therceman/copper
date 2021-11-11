@@ -840,5 +840,17 @@ class ArrayHandler
         return self::uniqueValues($array, $strict);
     }
 
+    /**
+     * Filter array items (alias for find)
+     * @param array $array
+     * @param \Closure $closure
+     * @see ArrayHandler::find()
+     * @return array
+     */
+    public static function filter(array $array, \Closure $closure): array
+    {
+        return self::find($array, $closure);
+    }
+
 
 }

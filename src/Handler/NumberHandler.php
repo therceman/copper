@@ -56,9 +56,28 @@ class NumberHandler
      * @param float|int $perc
      * @return float|int
      */
-    public static function addPercent($num, $perc)
+    public static function addPercent($num, $perc, $round_num = null)
     {
-        return $num + (($num * $perc) / 100);
+        $res = $num + (($num * $perc) / 100);
+
+        return ($round_num >= 1) ? self::round($res, $round_num) : $res;
+    }
+
+    /**
+     * Advanced percent (add) calculation for totals
+     * Input : price = 2.90, qty = 20, perc = 11 (%), round_num = 2
+     * Output: 64.4 (addPercent output would be: 64.38)
+     * @param $price
+     * @param $qty
+     * @param $perc
+     * @param null $round_num
+     * @return float
+     */
+    public static function addPriceQtyPercent($price, $qty, $perc, $round_num = null): float
+    {
+        $price_after_perc = self::addPercent($price, $perc, $round_num);
+
+        return self::round($price_after_perc * $qty, $round_num);
     }
 
     /**
@@ -68,9 +87,28 @@ class NumberHandler
      * @param float|int $perc
      * @return float|int
      */
-    public static function subPercent($num, $perc)
+    public static function subPercent($num, $perc, $round_num = null)
     {
-        return $num - (($num * $perc) / 100);
+        $res = $num - (($num * $perc) / 100);
+
+        return ($round_num >= 1) ? self::round($res, $round_num) : $res;
+    }
+
+    /**
+     * Advanced percent (sub) calculation for totals
+     * Input : price = 2.90, qty = 20, perc = 11 (%), round_num = 2
+     * Output: 51.6 (subPercent output would be: 51.62)
+     * @param $price
+     * @param $qty
+     * @param $perc
+     * @param null $round_num
+     * @return float
+     */
+    public static function subPriceQtyPercent($price, $qty, $perc, $round_num = null): float
+    {
+        $price_after_perc = self::subPercent($price, $perc, $round_num);
+
+        return self::round($price_after_perc * $qty, $round_num);
     }
 
     /**
@@ -78,11 +116,14 @@ class NumberHandler
      *
      * @param float|int $currentPrice Price, e.g. 1.25
      * @param float|int $discount Discount in percents, e.g. 25%
+     * @param bool|null $round_num
      * @return float|int
      */
-    public static function priceWithoutDiscount($currentPrice, $discount)
+    public static function priceWithoutDiscount($currentPrice, $discount, $round_num = null)
     {
-        return $currentPrice * (100 / (100 - $discount));
+        $res = $currentPrice * (100 / (100 - $discount));
+
+        return ($round_num >= 1) ? self::round($res, $round_num) : $res;
     }
 
     /**
@@ -90,11 +131,14 @@ class NumberHandler
      *
      * @param $price
      * @param $vat
+     * @param bool $round_num
      * @return float|int
      */
-    public static function addVatToPrice($price, $vat)
+    public static function addVatToPrice($price, $vat, $round_num = null)
     {
-        return (float)$price * ((100 + (float)$vat) / 100);
+        $res = (float)$price * ((100 + (float)$vat) / 100);
+
+        return ($round_num >= 1) ? self::round($res, $round_num) : $res;
     }
 
     /**
@@ -102,11 +146,14 @@ class NumberHandler
      *
      * @param $price
      * @param $vat
+     * @param bool $round_num
      * @return float|int
      */
-    public static function subVatFromPrice($price, $vat)
+    public static function subVatFromPrice($price, $vat, $round_num = null)
     {
-        return (float)$price / ((100 + (float)$vat) / 100);
+        $res = (float)$price / ((100 + (float)$vat) / 100);
+
+        return ($round_num >= 1) ? self::round($res, $round_num) : $res;
     }
 
     /**
