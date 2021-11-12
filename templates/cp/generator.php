@@ -805,7 +805,9 @@ if ($resource !== null) {
 </div>
 
 <div style="float:right;margin-top: -35px;">
-    <button id="create_js_source_files">Create Javascript Source Files</button>
+    <input type="text" id="entity_js_source" placeholder="\App\Entity\Cart\CartTotalsEntity" title="In PHPStorm - click on a class name and hit Ctrl + Alt + Shift + C to copy class path (reference)" style="width: 300px">
+    <button id="create_entity_js_source_file" style="margin-right: 20px">Create JS Source File for Entity</button>
+    <button id="create_resource_js_source_files">Create JS Source files for Resource</button>
     <button id="prepare_templates">Prepare Templates</button>
     <button id="generate">Generate</button>
 </div>
@@ -1731,10 +1733,25 @@ if ($resource !== null) {
 
     // --------- Create Javascript Source Files ---------
 
+    function createJsSourceFileForEntity() {
+        let url = 'db_generator';
+
+        let action = 'create_entity_js_source_file';
+
+        let data = {
+            "action": action,
+            "entity": document.getElementById('entity_js_source').value,
+        };
+
+        copper.requestHandler.post(url, data, function (response) {
+            alert(JSON.stringify(response));
+        })
+    }
+
     function createJsSourceFiles(force = false) {
         let url = 'db_generator';
 
-        let action = 'create_js_source_files';
+        let action = 'create_resource_js_source_files';
 
         let data = {
             "action": action,
@@ -1747,8 +1764,12 @@ if ($resource !== null) {
         })
     }
 
-    document.getElementById('create_js_source_files').addEventListener('click', e => {
+    document.getElementById('create_resource_js_source_files').addEventListener('click', e => {
         createJsSourceFiles(true);
+    });
+
+    document.getElementById('create_entity_js_source_file').addEventListener('click', e => {
+        createJsSourceFileForEntity();
     });
 
     function listFieldsByName(fields) {

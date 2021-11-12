@@ -189,9 +189,14 @@ class CPController extends AbstractController
             return $this->json($tpl_prepare_response);
         }
 
-        if ($this->request->request->get('action') === 'create_js_source_files') {
-            $create_js_source_files_response = ResourceGenService::create_js_source_files($resource, $this->request->request->get('force', false));
-            return $this->json($create_js_source_files_response);
+        if ($this->request->request->get('action') === 'create_resource_js_source_files') {
+            $create_resource_js_source_files_response = ResourceGenService::create_resource_js_source_files($resource, $this->request->request->get('force', false));
+            return $this->json($create_resource_js_source_files_response);
+        }
+
+        if ($this->request->request->get('action') === 'create_entity_js_source_file') {
+            $create_entity_js_source_file_response = ResourceGenService::create_entity_class_js_source_file($this->request->request->get('entity', false));
+            return $this->json($create_entity_js_source_file_response);
         }
 
         if ($resource && $seed) {

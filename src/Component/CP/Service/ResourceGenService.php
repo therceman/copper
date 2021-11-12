@@ -105,24 +105,49 @@ class ResourceGenService
         return $response->ok();
     }
 
-    public static function create_js_source_files(string $resourceClassName, $force = false)
+    /**
+     * @param $entityClassName
+     * @return FunctionResponse
+     */
+    public static function create_entity_class_js_source_file($entityClassName): FunctionResponse
     {
-        $response = new FunctionResponse();
+        try {
+            $reflection = new ReflectionClass($entityClassName);
+        } catch (\ReflectionException $e) {
+            return FunctionResponse::createError('Error while creating reflection class');
+        }
 
-        /** @var AbstractResource $resource */
-        $resource = $resourceClassName;
+        $entityName = AbstractResource::extractNameFromClassName($entityClassName);
 
-        $entityClassName = $resource::getEntityClassName();
-        $entityName = $resource::getEntityName();
-        $modelName = $resource::getModelName();
+        $src_js_folder = Kernel::getAppPath() . '/src_js';
+        FileHandler::createFolder($src_js_folder);
 
-        $reflection = new ReflectionClass($entityClassName);
+        $outputFolderPath = $src_js_folder . '/Entity';
+        FileHandler::createFolder($outputFolderPath);
+
+        // -------- create folder path after "Entity" in class name ----------
+
+        $entityFolderFound = false;
+        foreach (StringHandler::split($entityClassName, '\\') as $part) {
+            if ($entityFolderFound && $part !== $entityName) {
+                $outputFolderPath = $outputFolderPath . '/' . $part;
+                FileHandler::createFolder($outputFolderPath);
+            }
+            if ($part === 'Entity')
+                $entityFolderFound = true;
+        }
+
+        // --------------------------------------------------------------------
+
+        if ($entityFolderFound === false)
+            return FunctionResponse::createError('Entity folder not found in path');
 
         $property_list = $reflection->getProperties();
 
         $func_property_list = [];
         $field_property_list = [];
         $annotation_property_list = [];
+
         foreach ($property_list as $property) {
             $type = null;
             if (preg_match('/@var\s+([^\s]+)/', $property->getDocComment(), $matches))
@@ -138,6 +163,7 @@ class ResourceGenService
             $func_property_list[] = self::T2 . "this.$property->name = null;";
             $field_property_list[] = self::T2 . "$property->name: '$property->name',";
         }
+
         $annotation_property_list = join("\r\n", $annotation_property_list);
         $func_property_list = join("\r\n", $func_property_list);
         $field_property_list = join("\r\n", $field_property_list);
@@ -156,6 +182,37 @@ function $entityName() {
 $func_property_list
 }
 XML;
+
+        $js_entity_file = $outputFolderPath . '/' . $entityName . '.js';
+
+        if (FileHandler::setContent($js_entity_file, $js_entity_source)->hasError())
+            return FunctionResponse::createError('Error while saving js entity source to destination file', $js_entity_file);
+
+        return FunctionResponse::createResult([
+            'entity_source' => $js_entity_source,
+            'entity_file' => $js_entity_file,
+            'annotation_property_list' => $annotation_property_list,
+            'func_property_list' => $func_property_list,
+            'field_property_list' => $field_property_list
+        ]);
+    }
+
+    public static function create_resource_js_source_files(string $resourceClassName, $force = false)
+    {
+        $response = new FunctionResponse();
+
+        /** @var AbstractResource $resource */
+        $resource = $resourceClassName;
+
+        $entityClassName = $resource::getEntityClassName();
+        $modelName = $resource::getModelName();
+
+        $entityJsSourceResponse = self::create_entity_class_js_source_file($entityClassName);
+
+        if ($entityJsSourceResponse->hasError())
+            return $response->error('Error while creating js file for entity', $entityJsSourceResponse->msg);
+
+        $field_property_list = $entityJsSourceResponse->result['field_property_list'];
 
         $js_model_source = <<<XML
 'use strict';
@@ -176,15 +233,9 @@ $field_property_list
 
 }
 XML;
+
         $src_js_folder = Kernel::getAppPath() . '/src_js';
-        if (FileHandler::fileExists($src_js_folder) === false)
-            FileHandler::createFolder($src_js_folder);
-
-        $src_js_entity_folder = $src_js_folder . '/Entity';
-        if (FileHandler::fileExists($src_js_entity_folder) === false)
-            FileHandler::createFolder($src_js_entity_folder);
-
-        $js_entity_file = $src_js_entity_folder . '/' . $entityName . '.js';
+        FileHandler::createFolder($src_js_folder);
 
         $src_js_model_folder = $src_js_folder . '/Model';
         if (FileHandler::fileExists($src_js_model_folder) === false)
@@ -192,10 +243,15 @@ XML;
 
         $js_model_file = $src_js_model_folder . '/' . $modelName . '.js';
 
-        return $response->result(FunctionResponse::createResult([
-            'entity' => FileHandler::setContent($js_entity_file, $js_entity_source),
-            'model' => FileHandler::setContent($js_model_file, $js_model_source),
-        ]));
+        if (FileHandler::setContent($js_model_file, $js_model_source)->hasError())
+            return FunctionResponse::createError('Error while saving js model source to destination file', $js_model_file);
+
+        return $response->result(
+            ArrayHandler::merge([
+                'model_source' => $js_model_source,
+                'model_file' => $js_model_file,
+            ], $entityJsSourceResponse->result)
+        );
     }
 
     /**

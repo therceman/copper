@@ -46,7 +46,7 @@ abstract class AbstractResource
      *
      * @return string
      */
-    private static function extractNameFromClassName($className)
+    public static function extractNameFromClassName($className)
     {
         return ($className === false) ? '' : ArrayHandler::lastValue(explode('\\', $className));
     }
