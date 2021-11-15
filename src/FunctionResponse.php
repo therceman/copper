@@ -228,9 +228,9 @@ class FunctionResponse
 
     /**
      * @param string $entityClass
-     * @return mixed
+     * @return AbstractEntity|null
      */
-    public function getResult(string $entityClass = AbstractEntity::class)
+    public function getResult(string $entityClass = AbstractEntity::class): ?AbstractEntity
     {
         return $this->result;
     }

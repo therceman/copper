@@ -121,10 +121,9 @@ class AuthHandler
      * Get currently authorized user
      *
      * @param string $entityClass
-     *
-     * @return AbstractUserEntity|mixed|null
+     * @return AbstractUserEntity|AbstractEntity|null
      */
-    public function user($entityClass = AbstractUserEntity::class)
+    public function user(string $entityClass = AbstractUserEntity::class)
     {
         /** @var AbstractEntity $entityClass */
         $guestUser = $entityClass::fromArray([
