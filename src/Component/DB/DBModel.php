@@ -758,11 +758,6 @@ abstract class DBModel
                     continue;
                 }
 
-                if ($output !== null && $output->getDeletedFields() !== null)
-                    foreach ($output->getDeletedFields() as $field) {
-                        $entity->delete($field);
-                    }
-
                 if ($output !== null && $output->getFields() !== null)
                     foreach (ArrayHandler::diff($entity->getFields(), $output->getFields()) as $field) {
                         $entity->delete($field);
@@ -770,6 +765,11 @@ abstract class DBModel
 
                 if ($output !== null && $output->getMap() !== null)
                     $entity = $output->getMap()($entity);
+
+                if ($output !== null && $output->getDeletedFields() !== null)
+                    foreach ($output->getDeletedFields() as $field) {
+                        $entity->delete($field);
+                    }
 
                 if ($output !== null && $entity->has($output->getIndex()))
                     $list[$entity->get($output->getIndex())] = $entity;

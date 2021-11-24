@@ -316,6 +316,17 @@ final class Kernel
         return $response->ok();
     }
 
+    private static function checkRequestContext(Request $request, RequestContext $requestContext): FunctionResponse
+    {
+        $return_to = null;
+
+        // prevent direct call to /public/index.php
+        if (StringHandler::startsWith(ltrim($requestContext->getPathInfo(), '/'), Kernel::getIndexRelPath()))
+            $return_to = StringHandler::split($request->getUri(), Kernel::getIndexRelPath())[0];
+
+        return FunctionResponse::createSuccessOrError($return_to === null, $return_to);
+    }
+
     public static function run()
     {
         $requirementsCheckResponse = self::checkRequirements();
@@ -325,6 +336,11 @@ final class Kernel
         $request = Request::createFromGlobals();
 
         $requestContext = self::configureRequestContext($request);
+
+        if (($checkResp = self::checkRequestContext($request, $requestContext))->hasError()) {
+            self::forcedRedirectToUrl($checkResp->result);
+            return false;
+        }
 
         self::$request = $request;
         self::$requestContext = $requestContext;
@@ -770,6 +786,20 @@ final class Kernel
     }
 
     /**
+     * Forced Redirect to URL with exit
+     * @param string $url
+     * @param int $status
+     *
+     * @return void
+     */
+    public static function forcedRedirectToUrl(string $url, int $status = Response::HTTP_MOVED_PERMANENTLY)
+    {
+        header('Location: ' . $url, true, $status);
+        self::cleanHeaders();
+        exit();
+    }
+
+    /**
      * @param string $url
      * @param int $status
      *
@@ -954,6 +984,11 @@ final class Kernel
         return self::prepareResponse($response, $request);
     }
 
+    private static function cleanHeaders()
+    {
+        header_remove('X-Powered-By');
+    }
+
     /**
      * Prepare Response before sending it to client
      *
@@ -965,7 +1000,7 @@ final class Kernel
     {
         $response = $response->prepare($request);
 
-        header_remove('X-Powered-By');
+        self::cleanHeaders();
 
         return $response;
     }
