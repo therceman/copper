@@ -732,7 +732,8 @@ use App\\Model\\$model;
 use App\\Service\\$service;
 use App\\Resource\\$resource;
 use Copper\\Controller\\AbstractController;
-use Copper\Traits\ResourceControllerActions;
+use Copper\\Traits\\ResourceControllerActions;
+use Copper\\Component\\DB\\DBModel;
 
 class $name extends AbstractController
 {

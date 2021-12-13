@@ -392,6 +392,30 @@ class DateHandler
     }
 
     /**
+     * Datetime from ISO 8601
+     * <hr>
+     * <code>
+     * - dateTimeFromISO8601('2021-07-22T04:54:19.847+03:00') // 2021-07-22 04:54:19
+     * </code>
+     *
+     * @param string $date
+     * @param null $toFormat
+     * @return string
+     */
+    public static function dateTimeFromISO8601(string $date, $toFormat = null): string
+    {
+        $toFormat = ($toFormat === null) ? self::getDateTimeFormat() : $toFormat;
+
+        try {
+            $date = new DateTime($date);
+        } catch (\Exception $e) {
+            $date = null;
+        }
+
+        return ($date === null) ? '' : $date->format($toFormat);
+    }
+
+    /**
      * Date from timestamp
      *
      * @param int $timestamp
