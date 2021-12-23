@@ -526,7 +526,7 @@ class FileHandler
         $response = self::getFilesInFolder($folderPath);
 
         if ($response->hasError())
-            return $response->error($response->msg);
+            return $response->error($response->msg, []);
 
         $classNames = [];
 
