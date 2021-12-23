@@ -34,4 +34,6 @@ return function (DBConfigurator $db) {
     $db->throwErrorWhenNothingToUpdate = false;
 
     $db->ifNullDefaultValue = 0;
+
+    $db->connectionErrorText = 'Error: Database Connection Failed';
 };

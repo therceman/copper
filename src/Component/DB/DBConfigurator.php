@@ -77,4 +77,10 @@ class DBConfigurator
      * @var int|float
      */
     public $ifNullDefaultValue;
+
+    /**
+     * Database Connection Error Text
+     * @var string
+     */
+    public $connectionErrorText;
 }

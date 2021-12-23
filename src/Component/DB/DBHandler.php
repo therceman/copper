@@ -2,6 +2,7 @@
 
 namespace Copper\Component\DB;
 
+use Copper\Kernel;
 use Copper\Traits\ComponentHandlerTrait;
 use Envms\FluentPDO\Query;
 use PDO;
@@ -43,7 +44,13 @@ class DBHandler
             return;
 
         $dsn = 'mysql:host=' . $this->config->host . ';dbname=' . $this->config->dbname;
-        $this->pdo = new PDO($dsn, $this->config->user, $this->config->password);
+
+        try {
+            $this->pdo = new PDO($dsn, $this->config->user, $this->config->password);
+        } catch (\Exception $exception) {
+            Kernel::getErrorHandler()->logError('Database Connection Error');
+            die($this->config->connectionErrorText);
+        }
 
         $is_dsn = 'mysql:host=' . $this->config->host . ';dbname=information_schema';
         $this->information_schema_pdo = new PDO($is_dsn, $this->config->user, $this->config->password);
