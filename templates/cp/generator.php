@@ -452,7 +452,7 @@ if ($resource !== null) {
         <?= HTML::input()->id('resource')->value($resourceName)->placeholder('Resource Name')->autofocus() ?>
         <span class="help">Hit [Enter] after input</span>
         <div style="float:right">
-            <button id="delete_res">Delete</button>
+            <?= HTML::button('Delete')->id('delete_res')->toggle($resource !== null) ?>
             <div id="delete_popup" class="hidden">
                 <p>Files To Delete: </p>
                 <?= HTML::checkboxGroup('Resource', false, null, 'delete_resource') ?>
@@ -471,16 +471,16 @@ if ($resource !== null) {
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->addStyle('display', 'inline-block')
                 ->addElement(HTML::select($resource_list, 'resource', $resource))
-                ->addElement(HTML::button('Read'));
+                ->addElement(HTML::button('Read'))->toggle(count($resource_list));
             ?>
-            <?= HTML::button('Edit Routes')->onClick('edit_routes()')->disabled($resource === null); ?>
+            <?= HTML::button('Edit Routes')->onClick('edit_routes()')->toggle($resource !== null); ?>
             <?php
             echo HTML::form($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->id('migrate_form')->addStyle('display', 'inline-block')
                 ->addElement(HTML::inputHidden('migrate', 1))
                 ->addElement(HTML::inputHidden('migrate_force', false)->idAsName())
                 ->addElement(HTML::inputHidden('resource', $resource))
-                ->addElement(HTML::button('Migrate')->setAttr('type', 'submit')->id('migrate_btn'));
+                ->addElement(HTML::button('Migrate')->setAttr('type', 'submit')->id('migrate_btn')->disabled($resource === null));
             ?>
             <?php
             echo HTML::form($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
@@ -488,7 +488,7 @@ if ($resource !== null) {
                 ->addElement(HTML::inputHidden('seed', 1))
                 ->addElement(HTML::inputHidden('seed_force', false)->idAsName())
                 ->addElement(HTML::inputHidden('resource', $resource))
-                ->addElement(HTML::button('Seed')->setAttr('type', 'submit')->id('seed_btn'));
+                ->addElement(HTML::button('Seed')->setAttr('type', 'submit')->id('seed_btn')->disabled($resource === null));
             ?>
             <?php
             echo HTML::formGet($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
