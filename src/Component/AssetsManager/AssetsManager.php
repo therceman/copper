@@ -177,6 +177,9 @@ class AssetsManager
         $srcFilePath = Kernel::getPackagePath([self::SRC_JS_PATH, $file]);
         $trgFileFolderPath = Kernel::getAppPublicPath(self::JS_PATH);
 
+        if (FileHandler::fileExists($trgFileFolderPath) === false)
+            FileHandler::createFolder($trgFileFolderPath);
+
         return self::process_js_src($file, self::$core_js_files, self::$app_js_files, $srcFilePath, $trgFileFolderPath)->result;
     }
 

@@ -54,6 +54,9 @@ class RoutingConfigLoader
     {
         $resourceFiles = FileHandler::getFilesInFolder($this->appResourceFolder);
 
+        if ($resourceFiles->hasError())
+            return;
+
         foreach ($resourceFiles->result as $key => $resourceFile) {
             $filePath = FileHandler::pathFromArray([$this->appResourceFolder, $resourceFile]);
 
