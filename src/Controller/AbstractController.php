@@ -139,6 +139,11 @@ class AbstractController
         // alias for __constructor (but without parameters)
     }
 
+    public function getIndex(): Response
+    {
+        return $this->viewResponse(ROUTE_index);
+    }
+
     /**
      * Returns a response with rendered view.
      *
