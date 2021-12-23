@@ -308,7 +308,7 @@ if ($resource !== null) {
         font-size: 10px;
     }
 
-    #delete_res {
+    #delete_res:not(:disabled) {
         background: #ffd9d9;
         border: 1px solid #767676;
         border-radius: 2px;
@@ -452,7 +452,7 @@ if ($resource !== null) {
         <?= HTML::input()->id('resource')->value($resourceName)->placeholder('Resource Name')->autofocus() ?>
         <span class="help">Hit [Enter] after input</span>
         <div style="float:right">
-            <?= HTML::button('Delete')->id('delete_res')->toggle($resource !== null) ?>
+            <?= HTML::button('Delete')->id('delete_res')->disabled($resource === null) ?>
             <div id="delete_popup" class="hidden">
                 <p>Files To Delete: </p>
                 <?= HTML::checkboxGroup('Resource', false, null, 'delete_resource') ?>
@@ -473,7 +473,7 @@ if ($resource !== null) {
                 ->addElement(HTML::select($resource_list, 'resource', $resource))
                 ->addElement(HTML::button('Read'))->toggle(count($resource_list));
             ?>
-            <?= HTML::button('Edit Routes')->onClick('edit_routes()')->toggle($resource !== null); ?>
+            <?= HTML::button('Edit Routes')->onClick('edit_routes()')->disabled($resource === null); ?>
             <?php
             echo HTML::form($view->url(ROUTE_copper_cp_action, ['action' => CPController::ACTION_DB_GENERATOR]))
                 ->id('migrate_form')->addStyle('display', 'inline-block')
