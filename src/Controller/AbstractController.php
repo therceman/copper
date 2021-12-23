@@ -139,7 +139,7 @@ class AbstractController
         // alias for __constructor (but without parameters)
     }
 
-    public function getIndex(): Response
+    public function getDefaultIndex(): Response
     {
         return $this->viewResponse(ROUTE_index);
     }

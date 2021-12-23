@@ -26,7 +26,7 @@ return function ($routes) {
 
     // Default index page
     $routes->add(ROUTE_index, '/')
-        ->controller([AbstractController::class, 'getIndex'])
+        ->controller([AbstractController::class, 'getDefaultIndex'])
         ->methods(['GET']);
 
     // Default error page
