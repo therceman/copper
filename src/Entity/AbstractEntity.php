@@ -57,11 +57,12 @@ class AbstractEntity
             if (property_exists($self, $key)) {
                 // TODO Class Property Types should be cached somehow for better performance
                 $type = AnnotationHandler::getTypeName(static::class, $key);
+                $allowed_types = ["bool", "boolean", "int", "integer", "float", "double", "string", "array", "object", "null"];
 
                 if ($value === '')
                     $value = null;
 
-                if ($value !== null && $type !== null)
+                if ($value !== null && $type !== null && ArrayHandler::hasValue($allowed_types, $type))
                     settype($value, $type);
 
                 $self->$key = $value;
