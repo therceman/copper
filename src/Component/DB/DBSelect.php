@@ -314,6 +314,21 @@ class DBSelect
     }
 
     /**
+     * @param string|null $field
+     * @return DBSelect
+     * @see DBOutput::listOutput()
+     */
+    public function setOutputList(?string $field)
+    {
+        if ($this->output === null)
+            $this->output = DBOutput::listOutput($field);
+        else
+            $this->output->setListOutput($field);
+
+        return $this;
+    }
+
+    /**
      * @param string|string[]|null $columns
      *
      * @return DBSelect

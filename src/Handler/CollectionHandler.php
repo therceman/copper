@@ -169,4 +169,18 @@ class CollectionHandler
     {
         return ArrayHandler::assocDelete($collection, $filter);
     }
+
+    public static function sort(array $collection, \Closure $closure): array
+    {
+        usort($collection, $closure);
+
+        return $collection;
+    }
+
+    public static function sortByNumber(array $collection, string $field, $ASC = true): array
+    {
+        return ($ASC)
+            ? self::sort($collection, fn($a, $b) => $a->$field - $b->$field)
+            : self::sort($collection, fn($a, $b) => $b->$field - $a->$field);
+    }
 }
