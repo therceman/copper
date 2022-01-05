@@ -86,6 +86,12 @@ final class Kernel
     /** @var AbstractController */
     private static $controller;
 
+    /**
+     * List of allowed origins for cross domain requests
+     * @var array
+     */
+    private static array $cross_origins = [];
+
     public function __construct()
     {
         $cacheInfo = $this->getCacheInfo();
@@ -327,8 +333,10 @@ final class Kernel
         return FunctionResponse::createSuccessOrError($return_to === null, $return_to);
     }
 
-    public static function run()
+    public static function run($cross_origins = [])
     {
+        self::$cross_origins = $cross_origins;
+
         $requirementsCheckResponse = self::checkRequirements();
         if ($requirementsCheckResponse->hasError())
             return die('Error! ' . $requirementsCheckResponse->msg);
@@ -938,6 +946,25 @@ final class Kernel
         return $response->success();
     }
 
+    public static function processCrossOriginRequest($cross_origins)
+    {
+        if (count($cross_origins) === 0 || isset($_SERVER['HTTP_ORIGIN']) === false)
+            return false;
+
+        $cross_origin_request_is_allowed = ArrayHandler::hasValue($cross_origins, $_SERVER['HTTP_ORIGIN']);
+
+        if ($cross_origin_request_is_allowed) {
+            header('Access-Control-Allow-Origin: *');
+            header("Access-Control-Allow-Headers: X-API-KEY, X-CSRF-TOKEN, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
+            if ($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
+                header("HTTP/1.1 200 OK");
+                die();
+            }
+        }
+
+        return $cross_origin_request_is_allowed;
+    }
+
     /**
      * Handles Request
      *
@@ -951,6 +978,10 @@ final class Kernel
         $matcher = new UrlMatcher(self::$routes, $requestContext);
 
         $csrfVerificationResp = $this->verifyCSRFToken($request);
+
+        if (self::processCrossOriginRequest(self::$cross_origins))
+            $csrfVerificationResp->status = true;
+
         if ($csrfVerificationResp->hasError())
             return self::$errorHandler->throwErrorAsResponse($csrfVerificationResp->msg, Response::HTTP_FORBIDDEN);
 
