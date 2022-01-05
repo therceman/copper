@@ -955,7 +955,7 @@ final class Kernel
 
         if ($cross_origin_request_is_allowed) {
             header('Access-Control-Allow-Origin: *');
-            header("Access-Control-Allow-Headers: X-API-KEY, X-CSRF-TOKEN, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
+            header("Access-Control-Allow-Headers: X-API-KEY, X-WEBP, X-CSRF-TOKEN, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
             if ($_SERVER['REQUEST_METHOD'] == "OPTIONS") {
                 header("HTTP/1.1 200 OK");
                 die();
