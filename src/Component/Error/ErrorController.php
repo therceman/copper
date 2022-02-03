@@ -31,7 +31,7 @@ class ErrorController extends AbstractController
         if (count($parameters) === 0)
             return $this->redirectToRoute(ROUTE_index);
 
-        return new Response($this->renderView(Kernel::getApp()->config->error_view_default_template, $parameters));
+        return new Response($this->renderView(Kernel::getErrorHandler()->config->view_default_template, $parameters));
     }
 
 }
